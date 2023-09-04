@@ -3,6 +3,7 @@ import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @Builder
@@ -11,17 +12,28 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-public class Template {
+public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String Name;
+    private String FullName;
 
-    private int AmountView;
+    private String Phone;
 
-    private String Content;
+    private Date Website;
+
+    private String State;
+
+    private String Email;
+
+    private Date Linkin;
+
+    private String Country;
 
     @Enumerated(EnumType.ORDINAL)
     private CvStatus Status;
+
+    @OneToOne(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Cv cv;
 }

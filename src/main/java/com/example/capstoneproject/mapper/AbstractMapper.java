@@ -9,14 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Component
 public class AbstractMapper<E, D> {
-
     @Autowired
     ModelMapper modelMapper;
     Class<E> entityType;
     Class<D> dtoType;
 
+    @Autowired
     public AbstractMapper(Class<E> entityType, Class<D> dtoType) {
         this.entityType = entityType;
         this.dtoType = dtoType;

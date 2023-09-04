@@ -31,4 +31,8 @@ public class Cv {
     @ManyToOne
     @JoinColumn(name = "template_id")
     private Template template;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private Contact contact;
 }

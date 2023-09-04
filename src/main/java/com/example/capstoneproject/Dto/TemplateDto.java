@@ -1,8 +1,7 @@
-package com.example.capstoneproject.entity;
+package com.example.capstoneproject.Dto;
+
 import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
-
-import javax.persistence.*;
 
 @Data
 @Builder
@@ -10,10 +9,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@Entity
-public class Template {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class TemplateDto {
     private int id;
 
     private String Name;
@@ -21,7 +17,5 @@ public class Template {
     private int AmountView;
 
     private String Content;
-
-    @Enumerated(EnumType.ORDINAL)
     private CvStatus Status;
 }
