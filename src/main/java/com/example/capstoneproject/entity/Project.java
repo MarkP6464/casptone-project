@@ -28,6 +28,7 @@ public class Project {
 
     private String Url;
 
+    @Column(columnDefinition = "TEXT")
     private String Description;
 
     @Enumerated(EnumType.ORDINAL)

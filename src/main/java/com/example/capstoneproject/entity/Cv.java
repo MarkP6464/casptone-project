@@ -21,6 +21,7 @@ public class Cv {
 
     private String Content;
 
+    @Column(columnDefinition = "TEXT")
     private String Summary;
 
     @Enumerated(EnumType.ORDINAL)

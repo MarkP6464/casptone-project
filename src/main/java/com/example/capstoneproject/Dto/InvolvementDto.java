@@ -29,5 +29,5 @@ public class InvolvementDto {
 
     private CvStatus Status;
 
-    private Cv cv;
+    private CvAddDto cv;
 }

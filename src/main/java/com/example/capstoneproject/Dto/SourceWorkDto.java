@@ -26,5 +26,5 @@ public class SourceWorkDto {
 
     private CvStatus Status;
 
-    private Cv cv;
+    private CvAddDto cv;
 }

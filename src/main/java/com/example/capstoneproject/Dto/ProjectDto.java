@@ -30,5 +30,5 @@ public class ProjectDto {
 
     private CvStatus Status;
 
-    private Cv cv;
+    private CvAddDto cv;
 }

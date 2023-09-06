@@ -27,6 +27,7 @@ public class Experience {
 
     private String Location;
 
+    @Column(columnDefinition = "TEXT")
     private String Description;
 
     @Enumerated(EnumType.ORDINAL)

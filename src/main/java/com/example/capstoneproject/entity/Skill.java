@@ -17,6 +17,7 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(columnDefinition = "TEXT")
     private String Name;
 
     @Enumerated(EnumType.ORDINAL)

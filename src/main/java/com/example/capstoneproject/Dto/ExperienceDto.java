@@ -28,5 +28,5 @@ public class ExperienceDto {
 
     private CvStatus Status;
 
-    private Cv cv;
+    private CvAddDto cv;
 }

@@ -27,6 +27,7 @@ public class Involvement {
 
     private String CollegeLocation;
 
+    @Column(columnDefinition = "TEXT")
     private String Description;
 
     @Enumerated(EnumType.ORDINAL)

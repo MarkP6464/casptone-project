@@ -64,10 +64,10 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             } else {
                 throw new IllegalArgumentException("New Minor is the same as the existing education");
             }
-            if (dto.getGpa() > 0 && existingEducation.getGpa()!=dto.getGpa()) {
+            if (dto.getGpa() > 1 && existingEducation.getGpa()!=dto.getGpa()) {
                 existingEducation.setGpa(dto.getGpa());
             } else {
-                throw new IllegalArgumentException("New GPA relevance is the same as the existing education");
+                throw new IllegalArgumentException("New GPA large than 1");
             }
             if (dto.getDescription() != null && !existingEducation.getDescription().equals(dto.getDescription())) {
                 existingEducation.setDescription(dto.getDescription());
