@@ -1,7 +1,9 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.SkillDto;
+import com.example.capstoneproject.Dto.SkillViewDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
+import com.example.capstoneproject.Dto.SourceWorkViewDto;
 import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.entity.SourceWork;
 import com.example.capstoneproject.enums.CvStatus;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, SourceWorkDto, Integer> implements SourceWorkService {
@@ -32,13 +35,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     }
 
     @Override
-    public List<SourceWorkDto> getAll() {
-        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorksByStatus(CvStatus.ACTIVE);
-        return sourceWorkMapper.mapEntitiesToDtoes(sourceWorks);
-    }
-
-    @Override
-    public SourceWorkDto update(Integer id, SourceWorkDto dto) {
+    public boolean updateSourceWork(Integer id, SourceWorkViewDto dto) {
         Optional<SourceWork> existingSourceWorkOptional = sourceWorkRepository.findById(id);
         if (existingSourceWorkOptional.isPresent()) {
             SourceWork existingSourceWork = existingSourceWorkOptional.get();
@@ -69,10 +66,29 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             }
             existingSourceWork.setStatus(CvStatus.ACTIVE);
             SourceWork updated = sourceWorkRepository.save(existingSourceWork);
-            return sourceWorkMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Source Work ID not found");
         }
+    }
+
+    @Override
+    public List<SourceWorkViewDto> getAllSourceWork(int cvId) {
+        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorksByStatus(cvId, CvStatus.ACTIVE);
+        return sourceWorks.stream()
+                .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
+                .map(sourceWork -> {
+                    SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
+                    sourceWorkViewDto.setId(sourceWork.getId());
+                    sourceWorkViewDto.setName(sourceWork.getName());
+                    sourceWorkViewDto.setCourseLocation(sourceWork.getCourseLocation());
+                    sourceWorkViewDto.setEndDate(sourceWork.getEndDate());
+                    sourceWorkViewDto.setSkill(sourceWork.getSkill());
+                    sourceWorkViewDto.setApplied(sourceWork.getApplied());
+                    sourceWorkViewDto.setStatus(sourceWork.getStatus());
+                    return sourceWorkViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

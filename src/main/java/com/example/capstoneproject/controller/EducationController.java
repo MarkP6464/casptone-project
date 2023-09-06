@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.EducationDto;
+import com.example.capstoneproject.Dto.EducationViewDto;
 import com.example.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,9 @@ public class EducationController {
         this.educationService = educationService;
     }
 
-    @GetMapping
-    public List<EducationDto> getAllEducation() {
-        return educationService.getAll();
+    @GetMapping("/{cvId}")
+    public List<EducationViewDto> getAllEducation(@PathVariable("cvId") int cvId) {
+        return educationService.getAllEducation(cvId);
     }
 
     @PostMapping
@@ -28,8 +29,13 @@ public class EducationController {
     }
 
     @PutMapping("/{educationId}")
-    public EducationDto updateEducation(@PathVariable("educationId") int educationId, @RequestBody EducationDto Dto) {
-        return educationService.update(educationId, Dto);
+    public String updateEducation(@PathVariable("educationId") int educationId, @RequestBody EducationViewDto Dto) {
+        boolean check = educationService.updateEducation(educationId, Dto);
+        if(check){
+            return "Changes saved";
+        }else {
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{educationId}")

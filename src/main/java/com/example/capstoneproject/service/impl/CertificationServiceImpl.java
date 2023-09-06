@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
+import com.example.capstoneproject.Dto.CertificationViewDto;
 import com.example.capstoneproject.entity.Certification;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.AbstractMapper;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class CertificationServiceImpl extends AbstractBaseService<Certification, CertificationDto, Integer> implements CertificationService {
@@ -30,21 +32,26 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     }
 
     @Override
-    public List<CertificationDto> getAll() {
-        List<Certification> certifications = certificationRepository.findCertificationsByStatus(CvStatus.ACTIVE);
-        return certificationMapper.mapEntitiesToDtoes(certifications);
+    public List<CertificationViewDto> getAllCertification(int cvId) {
+        List<Certification> certifications = certificationRepository.findCertificationsByStatus(cvId,CvStatus.ACTIVE);
+        return certifications.stream()
+                .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
+                .map(certification -> {
+                    CertificationViewDto certificationViewDto = new CertificationViewDto();
+                    certificationViewDto.setId(certification.getId());
+                    certificationViewDto.setTitle(certification.getTitle());
+                    certificationViewDto.setCertificateSource(certification.getCertificateSource());
+                    certificationViewDto.setEndDate(certification.getEndDate());
+                    certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
+                    certificationViewDto.setStatus(certification.getStatus());
+                    return certificationViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public CertificationDto create(CertificationDto dto) {
-        Certification certification = certificationMapper.mapDtoToEntity(dto);
-        certification.setStatus(CvStatus.ACTIVE);
-        Certification savedCertification = certificationRepository.save(certification);
-        return certificationMapper.mapEntityToDto(savedCertification);
-    }
 
     @Override
-    public CertificationDto update(Integer id, CertificationDto dto) {
+    public boolean updateCertification(Integer id, CertificationViewDto dto) {
         Optional<Certification> existingCertificationOptional = certificationRepository.findById(id);
         if (existingCertificationOptional.isPresent()) {
             Certification existingCertification = existingCertificationOptional.get();
@@ -70,7 +77,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             }
             existingCertification.setStatus(CvStatus.ACTIVE);
             Certification updated = certificationRepository.save(existingCertification);
-            return certificationMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Certification ID not found");
         }

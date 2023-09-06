@@ -1,20 +1,16 @@
-package com.example.capstoneproject.entity;
+package com.example.capstoneproject.Dto;
+
 import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
-import javax.persistence.*;
 import java.util.Date;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-@Entity
-public class Contact {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ContactDto {
     private int id;
 
     private String FullName;
@@ -31,7 +27,5 @@ public class Contact {
 
     private String Country;
 
-    @Enumerated(EnumType.ORDINAL)
     private CvStatus Status;
-
 }

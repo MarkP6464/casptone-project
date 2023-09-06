@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.CertificationDto;
+import com.example.capstoneproject.Dto.CertificationViewDto;
 import com.example.capstoneproject.service.CertificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,9 @@ public class CertificationController {
         this.certificationService = certificationService;
     }
 
-    @GetMapping
-    public List<CertificationDto> getAllCertification() {
-        return certificationService.getAll();
+    @GetMapping("/{cvId}")
+    public List<CertificationViewDto> getAllCertification(@PathVariable("cvId") int cvId) {
+        return certificationService.getAllCertification(cvId);
     }
 
     @PostMapping
@@ -29,8 +30,13 @@ public class CertificationController {
     }
 
     @PutMapping("/{certificationId}")
-    public CertificationDto updateCertification(@PathVariable("certificationId") int certificationId, @RequestBody CertificationDto Dto) {
-        return certificationService.update(certificationId, Dto);
+    public String updateCertification(@PathVariable("certificationId") int certificationId, @RequestBody CertificationViewDto Dto) {
+        boolean check = certificationService.updateCertification(certificationId, Dto);
+        if(check){
+            return "Changes saved";
+        }else {
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{certificationId}")

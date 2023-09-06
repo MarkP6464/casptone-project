@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ExperienceDto;
 import com.example.capstoneproject.Dto.InvolvementDto;
+import com.example.capstoneproject.Dto.InvolvementViewDto;
 import com.example.capstoneproject.service.ExperienceService;
 import com.example.capstoneproject.service.InvolvementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ public class InvolvementController {
         this.involvementService = involvementService;
     }
 
-    @GetMapping
-    public List<InvolvementDto> getAllInvolvement() {
-        return involvementService.getAll();
+    @GetMapping("/{cvId}")
+    public List<InvolvementViewDto> getAllInvolvement(@PathVariable("cvId") int cvId) {
+        return involvementService.getAllInvolvement(cvId);
     }
 
     @PostMapping
@@ -30,8 +31,13 @@ public class InvolvementController {
     }
 
     @PutMapping("/{involvementId}")
-    public InvolvementDto updateInvolvement(@PathVariable("involvementId") int involvementId, @RequestBody InvolvementDto Dto) {
-        return involvementService.update(involvementId, Dto);
+    public String updateInvolvement(@PathVariable("involvementId") int involvementId, @RequestBody InvolvementViewDto Dto) {
+        boolean check = involvementService.updateInvolvement(involvementId, Dto);
+        if(check){
+            return "Changes saved";
+        }else {
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{involvementId}")

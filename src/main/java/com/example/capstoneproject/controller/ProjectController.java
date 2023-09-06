@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.InvolvementDto;
 import com.example.capstoneproject.Dto.ProjectDto;
+import com.example.capstoneproject.Dto.ProjectViewDto;
 import com.example.capstoneproject.service.InvolvementService;
 import com.example.capstoneproject.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping
-    public List<ProjectDto> getAllProject() {
-        return projectService.getAll();
+    @GetMapping("/{cvId}")
+    public List<ProjectViewDto> getAllProject(@PathVariable("cvId") int cvId) {
+        return projectService.getAllProject(cvId);
     }
 
     @PostMapping
@@ -30,8 +31,13 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}")
-    public ProjectDto updateProjectDto(@PathVariable("projectId") int projectId, @RequestBody ProjectDto Dto) {
-        return projectService.update(projectId, Dto);
+    public String updateProjectDto(@PathVariable("projectId") int projectId, @RequestBody ProjectViewDto Dto) {
+        boolean check = projectService.updateProject(projectId, Dto);
+        if(check){
+            return "Changes saved";
+        }else {
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{projectId}")

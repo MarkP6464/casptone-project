@@ -1,7 +1,9 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.InvolvementDto;
+import com.example.capstoneproject.Dto.InvolvementViewDto;
 import com.example.capstoneproject.Dto.ProjectDto;
+import com.example.capstoneproject.Dto.ProjectViewDto;
 import com.example.capstoneproject.entity.Involvement;
 import com.example.capstoneproject.entity.Project;
 import com.example.capstoneproject.enums.CvStatus;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto, Integer> implements ProjectService {
     @Autowired
@@ -31,13 +35,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public List<ProjectDto> getAll() {
-        List<Project> projects = projectRepository.findProjectsByStatus(CvStatus.ACTIVE);
-        return projectMapper.mapEntitiesToDtoes(projects);
-    }
-
-    @Override
-    public ProjectDto update(Integer id, ProjectDto dto) {
+    public boolean updateProject(Integer id, ProjectViewDto dto) {
         Optional<Project> existingProjectOptional = projectRepository.findById(id);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
@@ -74,10 +72,30 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
             existingProject.setStatus(CvStatus.ACTIVE);
             Project updated = projectRepository.save(existingProject);
-            return projectMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Project ID not found");
         }
+    }
+
+    @Override
+    public List<ProjectViewDto> getAllProject(int cvId) {
+        List<Project> projects = projectRepository.findProjectsByStatus(cvId,CvStatus.ACTIVE);
+        return projects.stream()
+                .filter(project -> project.getStatus() == CvStatus.ACTIVE)
+                .map(project -> {
+                    ProjectViewDto projectViewDto = new ProjectViewDto();
+                    projectViewDto.setId(project.getId());
+                    projectViewDto.setTitle(project.getTitle());
+                    projectViewDto.setOrganization(project.getOrganization());
+                    projectViewDto.setStartDate(project.getStartDate());
+                    projectViewDto.setEndDate(project.getEndDate());
+                    projectViewDto.setUrl(project.getUrl());
+                    projectViewDto.setDescription(project.getDescription());
+                    projectViewDto.setStatus(project.getStatus());
+                    return projectViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

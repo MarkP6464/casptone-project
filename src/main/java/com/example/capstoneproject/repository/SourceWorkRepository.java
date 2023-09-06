@@ -10,6 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SourceWorkRepository extends JpaRepository<SourceWork, Integer> {
-    @Query("SELECT c FROM SourceWork c WHERE c.Status = :status")
-    List<SourceWork> findSourceWorksByStatus(@Param("status") CvStatus status);
+    @Query("SELECT c FROM SourceWork c WHERE c.cv.id = :cvId AND c.Status = :status")
+    List<SourceWork> findSourceWorksByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
 }

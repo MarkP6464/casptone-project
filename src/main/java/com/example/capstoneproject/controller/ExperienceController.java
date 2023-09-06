@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.Dto.ExperienceDto;
+import com.example.capstoneproject.Dto.ExperienceViewDto;
 import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.ExperienceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ public class ExperienceController {
         this.experienceService = experienceService;
     }
 
-    @GetMapping
-    public List<ExperienceDto> getAllExperience() {
-        return experienceService.getAll();
+    @GetMapping("/{cvId}")
+    public List<ExperienceViewDto> getAllExperience(@PathVariable("cvId") int cvId) {
+        return experienceService.getAllExperience(cvId);
     }
 
     @PostMapping
@@ -30,8 +31,13 @@ public class ExperienceController {
     }
 
     @PutMapping("/{experienceId}")
-    public ExperienceDto updateExperience(@PathVariable("experienceId") int experienceId, @RequestBody ExperienceDto Dto) {
-        return experienceService.update(experienceId, Dto);
+    public String updateExperience(@PathVariable("experienceId") int experienceId, @RequestBody ExperienceViewDto Dto) {
+        boolean check = experienceService.updateExperience(experienceId, Dto);
+        if(check){
+            return "Changes saved";
+        }else {
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{experienceId}")

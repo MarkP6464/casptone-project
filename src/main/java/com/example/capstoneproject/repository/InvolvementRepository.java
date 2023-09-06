@@ -10,6 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface InvolvementRepository extends JpaRepository<Involvement, Integer> {
-    @Query("SELECT c FROM Involvement c WHERE c.Status = :status")
-    List<Involvement> findInvolvementsByStatus(@Param("status") CvStatus status);
+    @Query("SELECT c FROM Involvement c WHERE c.cv.id = :cvId AND c.Status = :status")
+    List<Involvement> findInvolvementsByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
 }

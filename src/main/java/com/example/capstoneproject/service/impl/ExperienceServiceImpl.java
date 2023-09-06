@@ -1,7 +1,9 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.EducationDto;
+import com.example.capstoneproject.Dto.EducationViewDto;
 import com.example.capstoneproject.Dto.ExperienceDto;
+import com.example.capstoneproject.Dto.ExperienceViewDto;
 import com.example.capstoneproject.entity.Education;
 import com.example.capstoneproject.entity.Experience;
 import com.example.capstoneproject.enums.CvStatus;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExperienceServiceImpl extends AbstractBaseService<Experience, ExperienceDto, Integer> implements ExperienceService {
@@ -32,21 +35,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public List<ExperienceDto> getAll() {
-        List<Experience> experiences = experienceRepository.findExperiencesByStatus(CvStatus.ACTIVE);
-        return experienceMapper.mapEntitiesToDtoes(experiences);
-    }
-
-    @Override
-    public ExperienceDto create(ExperienceDto dto) {
-        Experience experience = experienceMapper.mapDtoToEntity(dto);
-        experience.setStatus(CvStatus.ACTIVE);
-        Experience saved = experienceRepository.save(experience);
-        return experienceMapper.mapEntityToDto(saved);
-    }
-
-    @Override
-    public ExperienceDto update(Integer id, ExperienceDto dto) {
+    public boolean updateExperience(Integer id, ExperienceViewDto dto) {
         Optional<Experience> existingExperienceOptional = experienceRepository.findById(id);
         if (existingExperienceOptional.isPresent()) {
             Experience existingExperience = existingExperienceOptional.get();
@@ -83,10 +72,30 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
             existingExperience.setStatus(CvStatus.ACTIVE);
             Experience updated = experienceRepository.save(existingExperience);
-            return experienceMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Experience ID not found");
         }
+    }
+
+    @Override
+    public List<ExperienceViewDto> getAllExperience(int cvId) {
+        List<Experience> experiences = experienceRepository.findExperiencesByStatus(cvId,CvStatus.ACTIVE);
+        return experiences.stream()
+                .filter(experience -> experience.getStatus() == CvStatus.ACTIVE)
+                .map(experience -> {
+                    ExperienceViewDto experienceViewDto = new ExperienceViewDto();
+                    experienceViewDto.setId(experience.getId());
+                    experienceViewDto.setRoleCompany(experience.getRoleCompany());
+                    experienceViewDto.setName(experience.getName());
+                    experienceViewDto.setStartDate(experience.getStartDate());
+                    experienceViewDto.setEndDate(experience.getEndDate());
+                    experienceViewDto.setLocation(experience.getLocation());
+                    experienceViewDto.setDescription(experience.getDescription());
+                    experienceViewDto.setStatus(experience.getStatus());
+                    return experienceViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

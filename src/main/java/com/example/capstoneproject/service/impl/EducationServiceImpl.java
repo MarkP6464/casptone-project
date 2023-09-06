@@ -1,7 +1,9 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
+import com.example.capstoneproject.Dto.CertificationViewDto;
 import com.example.capstoneproject.Dto.EducationDto;
+import com.example.capstoneproject.Dto.EducationViewDto;
 import com.example.capstoneproject.entity.Certification;
 import com.example.capstoneproject.entity.Education;
 import com.example.capstoneproject.enums.CvStatus;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class EducationServiceImpl extends AbstractBaseService<Education, EducationDto, Integer> implements EducationService {
     @Autowired
@@ -31,21 +35,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public List<EducationDto> getAll() {
-        List<Education> educations = educationRepository.findEducationsByStatus(CvStatus.ACTIVE);
-        return educationMapper.mapEntitiesToDtoes(educations);
-    }
-
-    @Override
-    public EducationDto create(EducationDto dto) {
-        Education education = educationMapper.mapDtoToEntity(dto);
-        education.setStatus(CvStatus.ACTIVE);
-        Education saved = educationRepository.save(education);
-        return educationMapper.mapEntityToDto(saved);
-    }
-
-    @Override
-    public EducationDto update(Integer id, EducationDto dto) {
+    public boolean updateEducation(Integer id, EducationViewDto dto) {
         Optional<Education> existingEducationOptional = educationRepository.findById(id);
         if (existingEducationOptional.isPresent()) {
             Education existingEducation = existingEducationOptional.get();
@@ -86,10 +76,31 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             }
             existingEducation.setStatus(CvStatus.ACTIVE);
             Education updated = educationRepository.save(existingEducation);
-            return educationMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Certification ID not found");
         }
+    }
+
+    @Override
+    public List<EducationViewDto> getAllEducation(int cvId) {
+        List<Education> educations = educationRepository.findEducationsByStatus(cvId,CvStatus.ACTIVE);
+        return educations.stream()
+                .filter(education -> education.getStatus() == CvStatus.ACTIVE)
+                .map(education -> {
+                    EducationViewDto educationViewDto = new EducationViewDto();
+                    educationViewDto.setId(education.getId());
+                    educationViewDto.setDegree(education.getDegree());
+                    educationViewDto.setNameCollege(education.getNameCollege());
+                    educationViewDto.setLocation(education.getLocation());
+                    educationViewDto.setEndDate(education.getEndDate());
+                    educationViewDto.setMinor(education.getMinor());
+                    educationViewDto.setGpa(education.getGpa());
+                    educationViewDto.setDescription(education.getDescription());
+                    educationViewDto.setStatus(education.getStatus());
+                    return educationViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -4,6 +4,8 @@ import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,12 +19,12 @@ public class Cv {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String content;
+    private String Content;
 
-    private String summary;
+    private String Summary;
 
     @Enumerated(EnumType.ORDINAL)
-    private CvStatus status;
+    private CvStatus Status;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -32,7 +34,29 @@ public class Cv {
     @JoinColumn(name = "template_id")
     private Template template;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
+    @ManyToOne
+    @JoinColumn(name = "contact_id")
     private Contact contact;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Certification> certifications = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Education> educations = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Experience> experiences = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Involvement> involvements = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Project> projects = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Skill> skills = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<SourceWork> sourceWorks = new ArrayList<>();
+
 }

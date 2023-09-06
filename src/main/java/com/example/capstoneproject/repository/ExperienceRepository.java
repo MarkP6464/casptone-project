@@ -10,6 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ExperienceRepository extends JpaRepository<Experience, Integer> {
-    @Query("SELECT c FROM Experience c WHERE c.Status = :status")
-    List<Experience> findExperiencesByStatus(@Param("status") CvStatus status);
+    @Query("SELECT c FROM Experience c WHERE c.cv.id = :cvId AND c.Status = :status")
+    List<Experience> findExperiencesByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
 }

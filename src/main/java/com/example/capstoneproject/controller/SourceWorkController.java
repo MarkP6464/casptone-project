@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.SkillDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
+import com.example.capstoneproject.Dto.SourceWorkViewDto;
 import com.example.capstoneproject.service.SkillService;
 import com.example.capstoneproject.service.SourceWorkService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ public class SourceWorkController {
         this.sourceWorkService = sourceWorkService;
     }
 
-    @GetMapping
-    public List<SourceWorkDto> getAllSourceWork() {
-        return sourceWorkService.getAll();
+    @GetMapping("/{cvId}")
+    public List<SourceWorkViewDto> getAllSourceWork(@PathVariable("cvId") int cvId) {
+        return sourceWorkService.getAllSourceWork(cvId);
     }
 
     @PostMapping
@@ -30,8 +31,13 @@ public class SourceWorkController {
     }
 
     @PutMapping("/{sourceId}")
-    public SourceWorkDto updateSourceWork(@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkDto Dto) {
-        return sourceWorkService.update(sourceId, Dto);
+    public String updateSourceWork(@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkViewDto Dto) {
+        boolean check = sourceWorkService.updateSourceWork(sourceId, Dto);
+        if(check){
+            return "Changes saved";
+        }else{
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{sourceId}")

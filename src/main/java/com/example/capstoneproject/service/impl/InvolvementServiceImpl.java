@@ -1,7 +1,9 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.EducationDto;
+import com.example.capstoneproject.Dto.ExperienceViewDto;
 import com.example.capstoneproject.Dto.InvolvementDto;
+import com.example.capstoneproject.Dto.InvolvementViewDto;
 import com.example.capstoneproject.entity.Education;
 import com.example.capstoneproject.entity.Involvement;
 import com.example.capstoneproject.enums.CvStatus;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class InvolvementServiceImpl extends AbstractBaseService<Involvement, InvolvementDto, Integer> implements InvolvementService {
     @Autowired
@@ -31,21 +35,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public List<InvolvementDto> getAll() {
-        List<Involvement> involvements = involvementRepository.findInvolvementsByStatus(CvStatus.ACTIVE);
-        return involvementMapper.mapEntitiesToDtoes(involvements);
-    }
-
-    @Override
-    public InvolvementDto create(InvolvementDto dto) {
-        Involvement involvement = involvementMapper.mapDtoToEntity(dto);
-        involvement.setStatus(CvStatus.ACTIVE);
-        Involvement saved = involvementRepository.save(involvement);
-        return involvementMapper.mapEntityToDto(saved);
-    }
-
-    @Override
-    public InvolvementDto update(Integer id, InvolvementDto dto) {
+    public boolean updateInvolvement(Integer id, InvolvementViewDto dto) {
         Optional<Involvement> existingInvolvementOptional = involvementRepository.findById(id);
         if (existingInvolvementOptional.isPresent()) {
             Involvement existingInvolvement = existingInvolvementOptional.get();
@@ -82,10 +72,30 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
             existingInvolvement.setStatus(CvStatus.ACTIVE);
             Involvement updated = involvementRepository.save(existingInvolvement);
-            return involvementMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Involvement ID not found");
         }
+    }
+
+    @Override
+    public List<InvolvementViewDto> getAllInvolvement(int cvId) {
+        List<Involvement> involvements = involvementRepository.findInvolvementsByStatus(cvId,CvStatus.ACTIVE);
+        return involvements.stream()
+                .filter(involvement -> involvement.getStatus() == CvStatus.ACTIVE)
+                .map(involvement -> {
+                    InvolvementViewDto involvementViewDto = new InvolvementViewDto();
+                    involvementViewDto.setId(involvement.getId());
+                    involvementViewDto.setOrganizationRole(involvement.getOrganizationRole());
+                    involvementViewDto.setOrganizationName(involvement.getOrganizationName());
+                    involvementViewDto.setStartDate(involvement.getStartDate());
+                    involvementViewDto.setEndDate(involvement.getEndDate());
+                    involvementViewDto.setCollegeLocation(involvement.getCollegeLocation());
+                    involvementViewDto.setDescription(involvement.getDescription());
+                    involvementViewDto.setStatus(involvement.getStatus());
+                    return involvementViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

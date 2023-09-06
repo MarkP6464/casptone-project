@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ProjectDto;
 import com.example.capstoneproject.Dto.SkillDto;
+import com.example.capstoneproject.Dto.SkillViewDto;
 import com.example.capstoneproject.service.ProjectService;
 import com.example.capstoneproject.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ public class SkillController {
         this.skillService = skillService;
     }
 
-    @GetMapping
-    public List<SkillDto> getAllSkill() {
-        return skillService.getAll();
+    @GetMapping("/{cvId}")
+    public List<SkillViewDto> getAllSkill(@PathVariable("cvId") int cvId) {
+        return skillService.getAllSkill(cvId);
     }
 
     @PostMapping
@@ -30,8 +31,13 @@ public class SkillController {
     }
 
     @PutMapping("/{skillId}")
-    public SkillDto updateSkill(@PathVariable("skillId") int skillId, @RequestBody SkillDto Dto) {
-        return skillService.update(skillId, Dto);
+    public String updateSkill(@PathVariable("skillId") int skillId, @RequestBody SkillViewDto Dto) {
+        boolean check = skillService.updateSkill(skillId, Dto);
+        if(check){
+            return "Changes saved";
+        }else {
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{skillId}")

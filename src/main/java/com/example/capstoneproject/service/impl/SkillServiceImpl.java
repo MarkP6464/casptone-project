@@ -1,7 +1,6 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.ProjectDto;
-import com.example.capstoneproject.Dto.SkillDto;
+import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.Project;
 import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.enums.CvStatus;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integer> implements SkillService {
@@ -31,14 +31,9 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         this.skillMapper = skillMapper;
     }
 
-    @Override
-    public List<SkillDto> getAll() {
-        List<Skill> skills = skillRepository.findSkillsByStatus(CvStatus.ACTIVE);
-        return skillMapper.mapEntitiesToDtoes(skills);
-    }
 
     @Override
-    public SkillDto update(Integer id, SkillDto dto) {
+    public boolean updateSkill(Integer id, SkillViewDto dto) {
         Optional<Skill> existingSkillOptional = skillRepository.findById(id);
         if (existingSkillOptional.isPresent()) {
             Skill existingSkill = existingSkillOptional.get();
@@ -50,10 +45,26 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
 
             existingSkill.setStatus(CvStatus.ACTIVE);
             Skill updated = skillRepository.save(existingSkill);
-            return skillMapper.mapEntityToDto(updated);
+            return true;
+
         } else {
             throw new IllegalArgumentException("SKill ID not found");
         }
+    }
+
+    @Override
+    public List<SkillViewDto> getAllSkill(int cvId) {
+        List<Skill> skills = skillRepository.findSkillsByStatus(cvId,CvStatus.ACTIVE);
+        return skills.stream()
+                .filter(skill -> skill.getStatus() == CvStatus.ACTIVE)
+                .map(skill -> {
+                    SkillViewDto skillViewDto = new SkillViewDto();
+                    skillViewDto.setId(skill.getId());
+                    skillViewDto.setName(skill.getName());
+                    skillViewDto.setStatus(skill.getStatus());
+                    return skillViewDto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

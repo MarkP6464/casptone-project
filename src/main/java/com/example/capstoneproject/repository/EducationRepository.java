@@ -10,6 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface EducationRepository extends JpaRepository<Education, Integer> {
-    @Query("SELECT c FROM Education c WHERE c.Status = :status")
-    List<Education> findEducationsByStatus(@Param("status") CvStatus status);
+    @Query("SELECT c FROM Education c WHERE c.cv.id = :cvId AND c.Status = :status")
+    List<Education> findEducationsByStatus(@Param("cvId") int id,@Param("status") CvStatus status);
 }
