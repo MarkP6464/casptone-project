@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv/skills")
+@RequestMapping("/api/v1/cv")
 public class SkillController {
     @Autowired
     SkillService skillService;
@@ -20,17 +20,17 @@ public class SkillController {
         this.skillService = skillService;
     }
 
-    @GetMapping("/{cvId}")
+    @GetMapping("/{cvId}/skills")
     public List<SkillViewDto> getAllSkill(@PathVariable("cvId") int cvId) {
         return skillService.getAllSkill(cvId);
     }
 
-    @PostMapping
+    @PostMapping("/skills")
     public SkillDto postSkill(@RequestBody SkillDto Dto) {
         return skillService.create(Dto);
     }
 
-    @PutMapping("/{skillId}")
+    @PutMapping("/skills/{skillId}")
     public String updateSkill(@PathVariable("skillId") int skillId, @RequestBody SkillViewDto Dto) {
         boolean check = skillService.updateSkill(skillId, Dto);
         if(check){
@@ -40,7 +40,7 @@ public class SkillController {
         }
     }
 
-    @DeleteMapping("/{skillId}")
+    @DeleteMapping("/skills/{skillId}")
     public String deleteProject(@PathVariable("skillId") int skillId) {
         skillService.deleteById(skillId);
         return "Delete successful";

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv/educations")
+@RequestMapping("/api/v1/cv")
 public class EducationController {
     @Autowired
     EducationService educationService;
@@ -18,17 +18,17 @@ public class EducationController {
         this.educationService = educationService;
     }
 
-    @GetMapping("/{cvId}")
+    @GetMapping("/{cvId}/educations")
     public List<EducationViewDto> getAllEducation(@PathVariable("cvId") int cvId) {
         return educationService.getAllEducation(cvId);
     }
 
-    @PostMapping
+    @PostMapping("/educations")
     public EducationDto postEducation(@RequestBody EducationDto Dto) {
         return educationService.create(Dto);
     }
 
-    @PutMapping("/{educationId}")
+    @PutMapping("/educations/{educationId}")
     public String updateEducation(@PathVariable("educationId") int educationId, @RequestBody EducationViewDto Dto) {
         boolean check = educationService.updateEducation(educationId, Dto);
         if(check){
@@ -38,7 +38,7 @@ public class EducationController {
         }
     }
 
-    @DeleteMapping("/{educationId}")
+    @DeleteMapping("/educations/{educationId}")
     public String deleteCertification(@PathVariable("educationId") int educationId) {
         educationService.deleteById(educationId);
         return "Delete successful";

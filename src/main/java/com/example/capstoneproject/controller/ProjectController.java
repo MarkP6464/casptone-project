@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv/projects")
+@RequestMapping("/api/v1/cv")
 public class ProjectController {
     @Autowired
     ProjectService projectService;
@@ -20,17 +20,17 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping("/{cvId}")
+    @GetMapping("/{cvId}/projects")
     public List<ProjectViewDto> getAllProject(@PathVariable("cvId") int cvId) {
         return projectService.getAllProject(cvId);
     }
 
-    @PostMapping
+    @PostMapping("/projects")
     public ProjectDto postProject(@RequestBody ProjectDto Dto) {
         return projectService.create(Dto);
     }
 
-    @PutMapping("/{projectId}")
+    @PutMapping("/projects/{projectId}")
     public String updateProjectDto(@PathVariable("projectId") int projectId, @RequestBody ProjectViewDto Dto) {
         boolean check = projectService.updateProject(projectId, Dto);
         if(check){
@@ -40,7 +40,7 @@ public class ProjectController {
         }
     }
 
-    @DeleteMapping("/{projectId}")
+    @DeleteMapping("/projects/{projectId}")
     public String deleteProject(@PathVariable("projectId") int projectId) {
         projectService.deleteById(projectId);
         return "Delete successful";

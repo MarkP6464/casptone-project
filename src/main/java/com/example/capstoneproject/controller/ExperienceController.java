@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv/experiences")
+@RequestMapping("/api/v1/cv")
 public class ExperienceController {
     @Autowired
     ExperienceService experienceService;
@@ -20,17 +20,17 @@ public class ExperienceController {
         this.experienceService = experienceService;
     }
 
-    @GetMapping("/{cvId}")
+    @GetMapping("/{cvId}/experiences")
     public List<ExperienceViewDto> getAllExperience(@PathVariable("cvId") int cvId) {
         return experienceService.getAllExperience(cvId);
     }
 
-    @PostMapping
+    @PostMapping("/experiences")
     public ExperienceDto postExperience(@RequestBody ExperienceDto Dto) {
         return experienceService.create(Dto);
     }
 
-    @PutMapping("/{experienceId}")
+    @PutMapping("/experiences/{experienceId}")
     public String updateExperience(@PathVariable("experienceId") int experienceId, @RequestBody ExperienceViewDto Dto) {
         boolean check = experienceService.updateExperience(experienceId, Dto);
         if(check){
@@ -40,7 +40,7 @@ public class ExperienceController {
         }
     }
 
-    @DeleteMapping("/{experienceId}")
+    @DeleteMapping("/experiences/{experienceId}")
     public String deleteExperience(@PathVariable("experienceId") int experienceId) {
         experienceService.deleteById(experienceId);
         return "Delete successful";

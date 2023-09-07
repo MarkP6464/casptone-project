@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv/source-works")
+@RequestMapping("/api/v1/cv")
 public class SourceWorkController {
     @Autowired
     SourceWorkService sourceWorkService;
@@ -20,17 +20,17 @@ public class SourceWorkController {
         this.sourceWorkService = sourceWorkService;
     }
 
-    @GetMapping("/{cvId}")
+    @GetMapping("/{cvId}/source-works")
     public List<SourceWorkViewDto> getAllSourceWork(@PathVariable("cvId") int cvId) {
         return sourceWorkService.getAllSourceWork(cvId);
     }
 
-    @PostMapping
+    @PostMapping("/source-works")
     public SourceWorkDto postSourceWork(@RequestBody SourceWorkDto Dto) {
         return sourceWorkService.create(Dto);
     }
 
-    @PutMapping("/{sourceId}")
+    @PutMapping("/source-works/{sourceId}")
     public String updateSourceWork(@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkViewDto Dto) {
         boolean check = sourceWorkService.updateSourceWork(sourceId, Dto);
         if(check){
@@ -40,7 +40,7 @@ public class SourceWorkController {
         }
     }
 
-    @DeleteMapping("/{sourceId}")
+    @DeleteMapping("/source-works/{sourceId}")
     public String deleteSourceWork(@PathVariable("sourceId") int sourceId) {
         sourceWorkService.deleteById(sourceId);
         return "Delete successful";

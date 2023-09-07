@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv/involvements")
+@RequestMapping("/api/v1/cv")
 public class InvolvementController {
     @Autowired
     InvolvementService involvementService;
@@ -20,17 +20,17 @@ public class InvolvementController {
         this.involvementService = involvementService;
     }
 
-    @GetMapping("/{cvId}")
+    @GetMapping("/{cvId}/involvements")
     public List<InvolvementViewDto> getAllInvolvement(@PathVariable("cvId") int cvId) {
         return involvementService.getAllInvolvement(cvId);
     }
 
-    @PostMapping
+    @PostMapping("/involvements")
     public InvolvementDto postInvolvement(@RequestBody InvolvementDto Dto) {
         return involvementService.create(Dto);
     }
 
-    @PutMapping("/{involvementId}")
+    @PutMapping("/involvements/{involvementId}")
     public String updateInvolvement(@PathVariable("involvementId") int involvementId, @RequestBody InvolvementViewDto Dto) {
         boolean check = involvementService.updateInvolvement(involvementId, Dto);
         if(check){
@@ -40,7 +40,7 @@ public class InvolvementController {
         }
     }
 
-    @DeleteMapping("/{involvementId}")
+    @DeleteMapping("/involvements/{involvementId}")
     public String deleteInvolvement(@PathVariable("involvementId") int involvementId) {
         involvementService.deleteById(involvementId);
         return "Delete successful";
