@@ -23,14 +23,14 @@ public class EducationController {
         return educationService.getAllEducation(cvId);
     }
 
-    @PostMapping("/educations")
-    public EducationDto postEducation(@RequestBody EducationDto Dto) {
-        return educationService.create(Dto);
+    @PostMapping("/{cvId}/educations")
+    public EducationDto postEducation(@PathVariable("cvId") int cvId,@RequestBody EducationDto Dto) {
+        return educationService.createEducation(cvId,Dto);
     }
 
-    @PutMapping("/educations/{educationId}")
-    public String updateEducation(@PathVariable("educationId") int educationId, @RequestBody EducationViewDto Dto) {
-        boolean check = educationService.updateEducation(educationId, Dto);
+    @PutMapping("/{cvId}/educations/{educationId}")
+    public String updateEducation(@PathVariable("cvId") int cvId,@PathVariable("educationId") int educationId, @RequestBody EducationDto Dto) {
+        boolean check = educationService.updateEducation(cvId,educationId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -38,9 +38,9 @@ public class EducationController {
         }
     }
 
-    @DeleteMapping("/educations/{educationId}")
-    public String deleteCertification(@PathVariable("educationId") int educationId) {
-        educationService.deleteById(educationId);
+    @DeleteMapping("/{cvId}/educations/{educationId}")
+    public String deleteCertification(@PathVariable("cvId") int cvId,@PathVariable("educationId") int educationId) {
+        educationService.deleteEducationById(cvId,educationId);
         return "Delete successful";
     }
 }

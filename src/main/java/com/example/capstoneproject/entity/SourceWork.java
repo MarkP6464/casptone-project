@@ -21,11 +21,11 @@ public class SourceWork {
 
     private String CourseLocation;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String Skill;
 
-    private String Applied;
+    private String Description;
 
     @Enumerated(EnumType.ORDINAL)
     private CvStatus Status;

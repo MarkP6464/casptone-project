@@ -18,11 +18,10 @@ public class SourceWorkViewDto {
 
     private String CourseLocation;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String Skill;
 
-    private String Applied;
+    private String Description;
 
-    private CvStatus Status;
 }

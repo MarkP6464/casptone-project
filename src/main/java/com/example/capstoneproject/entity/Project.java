@@ -26,7 +26,7 @@ public class Project {
 
     private Date EndDate;
 
-    private String Url;
+    private String ProjectUrl;
 
     @Column(columnDefinition = "TEXT")
     private String Description;

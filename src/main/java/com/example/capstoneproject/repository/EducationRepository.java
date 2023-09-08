@@ -12,4 +12,6 @@ import java.util.List;
 public interface EducationRepository extends JpaRepository<Education, Integer> {
     @Query("SELECT c FROM Education c WHERE c.cv.id = :cvId AND c.Status = :status")
     List<Education> findEducationsByStatus(@Param("cvId") int id,@Param("status") CvStatus status);
+
+    boolean existsByIdAndCv_Id(Integer educationId, Integer cvId);
 }

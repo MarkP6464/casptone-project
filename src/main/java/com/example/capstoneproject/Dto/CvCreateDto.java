@@ -1,6 +1,5 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 @Data
@@ -9,8 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class SkillViewDto {
+public class CvCreateDto {
     private int id;
-
-    private String Description;
 }

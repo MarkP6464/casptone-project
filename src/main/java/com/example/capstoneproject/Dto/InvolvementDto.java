@@ -13,8 +13,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class InvolvementDto {
-    private int id;
-
     private String OrganizationRole;
 
     private String OrganizationName;
@@ -23,11 +21,7 @@ public class InvolvementDto {
 
     private Date EndDate;
 
-    private String CollegeLocation;
+    private String College;
 
     private String Description;
-
-    private CvStatus Status;
-
-    private CvAddDto cv;
 }

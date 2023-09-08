@@ -13,17 +13,13 @@ import java.util.Date;
 @Getter
 @Setter
 public class CertificationDto {
-    private int id;
-
-    private String Title;
+    private String Name;
 
     private String CertificateSource;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String CertificateRelevance;
 
-    private CvStatus Status;
-
-    private CvAddDto cv;
+    private CvCreateDto cv;
 }

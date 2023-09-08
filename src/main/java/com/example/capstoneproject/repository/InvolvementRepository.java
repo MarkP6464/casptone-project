@@ -12,4 +12,6 @@ import java.util.List;
 public interface InvolvementRepository extends JpaRepository<Involvement, Integer> {
     @Query("SELECT c FROM Involvement c WHERE c.cv.id = :cvId AND c.Status = :status")
     List<Involvement> findInvolvementsByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
+
+    boolean existsByIdAndCv_Id(Integer involvementId, Integer cvId);
 }

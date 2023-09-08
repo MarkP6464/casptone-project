@@ -12,4 +12,6 @@ import java.util.List;
 public interface ExperienceRepository extends JpaRepository<Experience, Integer> {
     @Query("SELECT c FROM Experience c WHERE c.cv.id = :cvId AND c.Status = :status")
     List<Experience> findExperiencesByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
+
+    boolean existsByIdAndCv_Id(Integer experienceId, Integer cvId);
 }

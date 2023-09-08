@@ -1,16 +1,16 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.EducationDto;
-import com.example.capstoneproject.Dto.ExperienceViewDto;
-import com.example.capstoneproject.Dto.InvolvementDto;
-import com.example.capstoneproject.Dto.InvolvementViewDto;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Education;
 import com.example.capstoneproject.entity.Involvement;
+import com.example.capstoneproject.entity.Project;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.mapper.InvolvementMapper;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.repository.InvolvementRepository;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.InvolvementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Autowired
     InvolvementMapper involvementMapper;
 
+    @Autowired
+    CvService cvService;
+
     public InvolvementServiceImpl(InvolvementRepository involvementRepository, InvolvementMapper involvementMapper) {
         super(involvementRepository, involvementMapper, involvementRepository::findById);
         this.involvementRepository = involvementRepository;
@@ -35,10 +38,23 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public boolean updateInvolvement(Integer id, InvolvementViewDto dto) {
-        Optional<Involvement> existingInvolvementOptional = involvementRepository.findById(id);
+    public InvolvementDto createInvolvement(Integer id, InvolvementDto dto) {
+        Involvement involvement = involvementMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(id);
+        involvement.setCv(cv);
+        involvement.setStatus(CvStatus.ACTIVE);
+        Involvement saved = involvementRepository.save(involvement);
+        return involvementMapper.mapEntityToDto(saved);
+    }
+
+    @Override
+    public boolean updateInvolvement(int cvId, int involvementId, InvolvementDto dto) {
+        Optional<Involvement> existingInvolvementOptional = involvementRepository.findById(involvementId);
         if (existingInvolvementOptional.isPresent()) {
             Involvement existingInvolvement = existingInvolvementOptional.get();
+            if (existingInvolvement.getCv().getId() != cvId) {
+                throw new IllegalArgumentException("Involvement does not belong to CV with id " + cvId);
+            }
             if (dto.getOrganizationRole() != null && !existingInvolvement.getOrganizationRole().equals(dto.getOrganizationRole())) {
                 existingInvolvement.setOrganizationRole(dto.getOrganizationRole());
             } else {
@@ -59,8 +75,8 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             } else {
                 throw new IllegalArgumentException("New End Date is the same as the existing involvement");
             }
-            if (dto.getCollegeLocation() != null && !existingInvolvement.getCollegeLocation().equals(dto.getCollegeLocation())) {
-                existingInvolvement.setCollegeLocation(dto.getCollegeLocation());
+            if (dto.getCollege() != null && !existingInvolvement.getCollege().equals(dto.getCollege())) {
+                existingInvolvement.setCollege(dto.getCollege());
             } else {
                 throw new IllegalArgumentException("New College Location is the same as the existing involvement");
             }
@@ -90,21 +106,26 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                     involvementViewDto.setOrganizationName(involvement.getOrganizationName());
                     involvementViewDto.setStartDate(involvement.getStartDate());
                     involvementViewDto.setEndDate(involvement.getEndDate());
-                    involvementViewDto.setCollegeLocation(involvement.getCollegeLocation());
+                    involvementViewDto.setCollege(involvement.getCollege());
                     involvementViewDto.setDescription(involvement.getDescription());
-                    involvementViewDto.setStatus(involvement.getStatus());
                     return involvementViewDto;
                 })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteById(Integer id) {
-        Optional<Involvement> Optional = involvementRepository.findById(id);
-        if (Optional.isPresent()) {
-            Involvement involvement = Optional.get();
-            involvement.setStatus(CvStatus.DELETED);
-            involvementRepository.save(involvement);
+    public void deleteInvolvementById(Integer cvId,Integer involvementId) {
+        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndCv_Id(involvementId, cvId);
+
+        if (isInvolvementBelongsToCv) {
+            Optional<Involvement> Optional = involvementRepository.findById(involvementId);
+            if (Optional.isPresent()) {
+                Involvement involvement = Optional.get();
+                involvement.setStatus(CvStatus.DELETED);
+                involvementRepository.save(involvement);
+            }
+        } else {
+            throw new IllegalArgumentException("Project with ID " + involvementId + " does not belong to CV with ID " + cvId);
         }
     }
 

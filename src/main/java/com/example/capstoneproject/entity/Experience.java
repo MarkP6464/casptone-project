@@ -17,9 +17,9 @@ public class Experience {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String RoleCompany;
+    private String Role;
 
-    private String Name;
+    private String CompanyName;
 
     private Date StartDate;
 
@@ -36,4 +36,5 @@ public class Experience {
     @ManyToOne
     @JoinColumn(name = "cv_id")
     private Cv cv;
+
 }

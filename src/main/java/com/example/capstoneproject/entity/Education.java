@@ -20,11 +20,11 @@ public class Education {
 
     private String Degree;
 
-    private String NameCollege;
+    private String CollegeName;
 
     private String Location;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String Minor;
 

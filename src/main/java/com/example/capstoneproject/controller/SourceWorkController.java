@@ -25,14 +25,14 @@ public class SourceWorkController {
         return sourceWorkService.getAllSourceWork(cvId);
     }
 
-    @PostMapping("/source-works")
-    public SourceWorkDto postSourceWork(@RequestBody SourceWorkDto Dto) {
-        return sourceWorkService.create(Dto);
+    @PostMapping("/{cvId}/source-works")
+    public SourceWorkDto postSourceWork(@PathVariable("cvId") int cvId,@RequestBody SourceWorkDto Dto) {
+        return sourceWorkService.createSourceWork(cvId,Dto);
     }
 
-    @PutMapping("/source-works/{sourceId}")
-    public String updateSourceWork(@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkViewDto Dto) {
-        boolean check = sourceWorkService.updateSourceWork(sourceId, Dto);
+    @PutMapping("/{cvId}/source-works/{sourceId}")
+    public String updateSourceWork(@PathVariable("cvId") int cvId,@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkViewDto Dto) {
+        boolean check = sourceWorkService.updateSourceWork(cvId,sourceId, Dto);
         if(check){
             return "Changes saved";
         }else{
@@ -40,9 +40,9 @@ public class SourceWorkController {
         }
     }
 
-    @DeleteMapping("/source-works/{sourceId}")
-    public String deleteSourceWork(@PathVariable("sourceId") int sourceId) {
-        sourceWorkService.deleteById(sourceId);
+    @DeleteMapping("/{cvId}/source-works/{sourceId}")
+    public String deleteSourceWork(@PathVariable("cvId") int cvId,@PathVariable("sourceId") int sourceId) {
+        sourceWorkService.deleteSourceWorkById(cvId,sourceId);
         return "Delete successful";
     }
 }

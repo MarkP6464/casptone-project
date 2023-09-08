@@ -22,9 +22,8 @@ public class ProjectViewDto {
 
     private Date EndDate;
 
-    private String Url;
+    private String ProjectUrl;
 
     private String Description;
 
-    private CvStatus Status;
 }

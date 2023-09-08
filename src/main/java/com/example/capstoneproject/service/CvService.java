@@ -2,6 +2,7 @@ package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.CvAddNewDto;
 import com.example.capstoneproject.Dto.CvDto;
+import com.example.capstoneproject.entity.Cv;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface CvService extends BaseService<CvDto, Integer> {
     CvAddNewDto createCv(CvAddNewDto dto);
     List<CvDto> GetCvsById(int customerId);
     CvDto GetCvsByCvId(int cvId);
+    Cv getCvById(int cvId);
 }

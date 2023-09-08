@@ -25,14 +25,14 @@ public class ProjectController {
         return projectService.getAllProject(cvId);
     }
 
-    @PostMapping("/projects")
-    public ProjectDto postProject(@RequestBody ProjectDto Dto) {
-        return projectService.create(Dto);
+    @PostMapping("/{cvId}/projects")
+    public ProjectDto postProject(@PathVariable("cvId") int cvId,@RequestBody ProjectDto Dto) {
+        return projectService.createProject(cvId,Dto);
     }
 
-    @PutMapping("/projects/{projectId}")
-    public String updateProjectDto(@PathVariable("projectId") int projectId, @RequestBody ProjectViewDto Dto) {
-        boolean check = projectService.updateProject(projectId, Dto);
+    @PutMapping("/{cvId}/projects/{projectId}")
+    public String updateProjectDto(@PathVariable("cvId") int cvId,@PathVariable("projectId") int projectId, @RequestBody ProjectDto Dto) {
+        boolean check = projectService.updateProject(cvId, projectId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class ProjectController {
         }
     }
 
-    @DeleteMapping("/projects/{projectId}")
-    public String deleteProject(@PathVariable("projectId") int projectId) {
-        projectService.deleteById(projectId);
+    @DeleteMapping("/{cvId}/projects/{projectId}")
+    public String deleteProject(@PathVariable("cvId") int cvId,@PathVariable("projectId") int projectId) {
+        projectService.deleteProjectById(cvId,projectId);
         return "Delete successful";
     }
 }

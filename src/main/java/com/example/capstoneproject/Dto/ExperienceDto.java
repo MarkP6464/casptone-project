@@ -12,11 +12,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class ExperienceDto {
-    private int id;
+    private String Role;
 
-    private String RoleCompany;
-
-    private String Name;
+    private String CompanyName;
 
     private Date StartDate;
 
@@ -25,8 +23,4 @@ public class ExperienceDto {
     private String Location;
 
     private String Description;
-
-    private CvStatus Status;
-
-    private CvAddDto cv;
 }

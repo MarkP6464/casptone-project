@@ -22,9 +22,7 @@ public class InvolvementViewDto {
 
     private Date EndDate;
 
-    private String CollegeLocation;
+    private String College;
 
     private String Description;
-
-    private CvStatus Status;
 }

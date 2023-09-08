@@ -25,14 +25,14 @@ public class SkillController {
         return skillService.getAllSkill(cvId);
     }
 
-    @PostMapping("/skills")
-    public SkillDto postSkill(@RequestBody SkillDto Dto) {
-        return skillService.create(Dto);
+    @PostMapping("/{cvId}/skills")
+    public SkillDto postSkill(@PathVariable("cvId") int cvId,@RequestBody SkillDto Dto) {
+        return skillService.createSkill(cvId,Dto);
     }
 
-    @PutMapping("/skills/{skillId}")
-    public String updateSkill(@PathVariable("skillId") int skillId, @RequestBody SkillViewDto Dto) {
-        boolean check = skillService.updateSkill(skillId, Dto);
+    @PutMapping("/{cvId}/skills/{skillId}")
+    public String updateSkill(@PathVariable("cvId") int cvId,@PathVariable("skillId") int skillId, @RequestBody SkillDto Dto) {
+        boolean check = skillService.updateSkill(cvId,skillId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class SkillController {
         }
     }
 
-    @DeleteMapping("/skills/{skillId}")
-    public String deleteProject(@PathVariable("skillId") int skillId) {
-        skillService.deleteById(skillId);
+    @DeleteMapping("/{cvId}/skills/{skillId}")
+    public String deleteProject(@PathVariable("cvId") int cvId,@PathVariable("skillId") int skillId) {
+        skillService.deleteSkillById(cvId,skillId);
         return "Delete successful";
     }
 }

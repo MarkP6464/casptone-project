@@ -25,7 +25,7 @@ public class Involvement {
 
     private Date EndDate;
 
-    private String CollegeLocation;
+    private String College;
 
     @Column(columnDefinition = "TEXT")
     private String Description;

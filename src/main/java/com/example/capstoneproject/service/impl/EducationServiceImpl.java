@@ -1,17 +1,14 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.CertificationDto;
-import com.example.capstoneproject.Dto.CertificationViewDto;
-import com.example.capstoneproject.Dto.EducationDto;
-import com.example.capstoneproject.Dto.EducationViewDto;
-import com.example.capstoneproject.entity.Certification;
-import com.example.capstoneproject.entity.Education;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.CertificationRepository;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.service.CertificationService;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +25,9 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     @Autowired
     EducationMapper educationMapper;
 
+    @Autowired
+    CvService cvService;
+
     public EducationServiceImpl(EducationRepository educationRepository, EducationMapper educationMapper) {
         super(educationRepository, educationMapper, educationRepository::findById);
         this.educationRepository = educationRepository;
@@ -35,17 +35,30 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public boolean updateEducation(Integer id, EducationViewDto dto) {
-        Optional<Education> existingEducationOptional = educationRepository.findById(id);
+    public EducationDto createEducation(Integer id, EducationDto dto) {
+        Education education = educationMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(id);
+        education.setCv(cv);
+        education.setStatus(CvStatus.ACTIVE);
+        Education saved = educationRepository.save(education);
+        return educationMapper.mapEntityToDto(saved);
+    }
+
+    @Override
+    public boolean updateEducation(int cvId, int educationId, EducationDto dto) {
+        Optional<Education> existingEducationOptional = educationRepository.findById(educationId);
         if (existingEducationOptional.isPresent()) {
             Education existingEducation = existingEducationOptional.get();
+            if (existingEducation.getCv().getId() != cvId) {
+                throw new IllegalArgumentException("Education does not belong to CV with id " + cvId);
+            }
             if (dto.getDegree() != null && !existingEducation.getDegree().equals(dto.getDegree())) {
                 existingEducation.setDegree(dto.getDegree());
             } else {
                 throw new IllegalArgumentException("New Degree is the same as the existing education");
             }
-            if (dto.getNameCollege() != null && !existingEducation.getNameCollege().equals(dto.getNameCollege())) {
-                existingEducation.setNameCollege(dto.getNameCollege());
+            if (dto.getCollegeName() != null && !existingEducation.getCollegeName().equals(dto.getCollegeName())) {
+                existingEducation.setCollegeName(dto.getCollegeName());
             } else {
                 throw new IllegalArgumentException("New Name College is the same as the existing education");
             }
@@ -54,8 +67,8 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             } else {
                 throw new IllegalArgumentException("New Location is the same as the existing education");
             }
-            if (dto.getEndDate() != null && !existingEducation.getEndDate().equals(dto.getEndDate())) {
-                existingEducation.setEndDate(dto.getEndDate());
+            if (dto.getEndYear() > 1950 && existingEducation.getEndYear() != dto.getEndYear()) {
+                existingEducation.setEndYear(dto.getEndYear());
             } else {
                 throw new IllegalArgumentException("New End Date is the same as the existing education");
             }
@@ -91,25 +104,30 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                     EducationViewDto educationViewDto = new EducationViewDto();
                     educationViewDto.setId(education.getId());
                     educationViewDto.setDegree(education.getDegree());
-                    educationViewDto.setNameCollege(education.getNameCollege());
+                    educationViewDto.setCollegeName(education.getCollegeName());
                     educationViewDto.setLocation(education.getLocation());
-                    educationViewDto.setEndDate(education.getEndDate());
+                    educationViewDto.setEndYear(education.getEndYear());
                     educationViewDto.setMinor(education.getMinor());
                     educationViewDto.setGpa(education.getGpa());
                     educationViewDto.setDescription(education.getDescription());
-                    educationViewDto.setStatus(education.getStatus());
                     return educationViewDto;
                 })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteById(Integer id) {
-        Optional<Education> Optional = educationRepository.findById(id);
-        if (Optional.isPresent()) {
-            Education education = Optional.get();
-            education.setStatus(CvStatus.DELETED);
-            educationRepository.save(education);
+    public void deleteEducationById(Integer cvId,Integer educationId) {
+        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCv_Id(educationId, cvId);
+
+        if (isEducationBelongsToCv) {
+            Optional<Education> Optional = educationRepository.findById(educationId);
+            if (Optional.isPresent()) {
+                Education education = Optional.get();
+                education.setStatus(CvStatus.DELETED);
+                educationRepository.save(education);
+            }
+        } else {
+            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to CV with ID " + cvId);
         }
     }
 

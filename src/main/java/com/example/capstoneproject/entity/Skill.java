@@ -18,7 +18,7 @@ public class Skill {
     private int id;
 
     @Column(columnDefinition = "TEXT")
-    private String Name;
+    private String Description;
 
     @Enumerated(EnumType.ORDINAL)
     private CvStatus Status;

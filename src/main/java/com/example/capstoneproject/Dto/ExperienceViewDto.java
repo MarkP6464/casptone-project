@@ -14,9 +14,9 @@ import java.util.Date;
 public class ExperienceViewDto {
     private int id;
 
-    private String RoleCompany;
+    private String Role;
 
-    private String Name;
+    private String CompanyName;
 
     private Date StartDate;
 
@@ -25,6 +25,4 @@ public class ExperienceViewDto {
     private String Location;
 
     private String Description;
-
-    private CvStatus Status;
 }

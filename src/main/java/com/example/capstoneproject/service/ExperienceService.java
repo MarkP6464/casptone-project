@@ -1,9 +1,6 @@
 package com.example.capstoneproject.service;
 
-import com.example.capstoneproject.Dto.EducationViewDto;
-import com.example.capstoneproject.Dto.ExperienceDto;
-import com.example.capstoneproject.Dto.ExperienceViewDto;
-import com.example.capstoneproject.Dto.InvolvementViewDto;
+import com.example.capstoneproject.Dto.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +9,8 @@ import java.util.List;
 public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
     ExperienceDto update(Integer id, ExperienceDto dto);
 
-    boolean updateExperience(Integer id, ExperienceViewDto dto);
+    boolean updateExperience(int cvId, int experienceId, ExperienceDto dto);
     List<ExperienceViewDto> getAllExperience(int cvId);
+    ExperienceDto createExperience(Integer id, ExperienceDto dto);
+    void deleteExperienceById(Integer cvId,Integer experienceId);
 }

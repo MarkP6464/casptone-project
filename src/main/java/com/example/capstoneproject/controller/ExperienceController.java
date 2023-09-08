@@ -25,14 +25,14 @@ public class ExperienceController {
         return experienceService.getAllExperience(cvId);
     }
 
-    @PostMapping("/experiences")
-    public ExperienceDto postExperience(@RequestBody ExperienceDto Dto) {
-        return experienceService.create(Dto);
+    @PostMapping("/{cvId}/experiences")
+    public ExperienceDto postExperience(@PathVariable("cvId") int cvId, @RequestBody ExperienceDto Dto) {
+        return experienceService.createExperience(cvId,Dto);
     }
 
-    @PutMapping("/experiences/{experienceId}")
-    public String updateExperience(@PathVariable("experienceId") int experienceId, @RequestBody ExperienceViewDto Dto) {
-        boolean check = experienceService.updateExperience(experienceId, Dto);
+    @PutMapping("/{cvId}/experiences/{experienceId}")
+    public String updateExperience(@PathVariable("cvId") int cvId,@PathVariable("experienceId") int experienceId, @RequestBody ExperienceDto Dto) {
+        boolean check = experienceService.updateExperience(cvId,experienceId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class ExperienceController {
         }
     }
 
-    @DeleteMapping("/experiences/{experienceId}")
-    public String deleteExperience(@PathVariable("experienceId") int experienceId) {
-        experienceService.deleteById(experienceId);
+    @DeleteMapping("/{cvId}/experiences/{experienceId}")
+    public String deleteExperience(@PathVariable("cvId") int cvId,@PathVariable("experienceId") int experienceId) {
+        experienceService.deleteExperienceById(cvId,experienceId);
         return "Delete successful";
     }
 }

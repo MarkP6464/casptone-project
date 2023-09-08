@@ -11,11 +11,6 @@ import lombok.*;
 @Getter
 @Setter
 public class SkillDto {
-    private int id;
 
-    private String Name;
-
-    private CvStatus Status;
-
-    private CvAddDto cv;
+    private String Description;
 }

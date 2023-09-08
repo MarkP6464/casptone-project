@@ -25,14 +25,14 @@ public class InvolvementController {
         return involvementService.getAllInvolvement(cvId);
     }
 
-    @PostMapping("/involvements")
-    public InvolvementDto postInvolvement(@RequestBody InvolvementDto Dto) {
-        return involvementService.create(Dto);
+    @PostMapping("/{cvId}/involvements")
+    public InvolvementDto postInvolvement(@PathVariable("cvId") int cvId,@RequestBody InvolvementDto Dto) {
+        return involvementService.createInvolvement(cvId,Dto);
     }
 
-    @PutMapping("/involvements/{involvementId}")
-    public String updateInvolvement(@PathVariable("involvementId") int involvementId, @RequestBody InvolvementViewDto Dto) {
-        boolean check = involvementService.updateInvolvement(involvementId, Dto);
+    @PutMapping("/{cvId}/involvements/{involvementId}")
+    public String updateInvolvement(@PathVariable("cvId") int cvId,@PathVariable("involvementId") int involvementId, @RequestBody InvolvementDto Dto) {
+        boolean check = involvementService.updateInvolvement(cvId,involvementId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class InvolvementController {
         }
     }
 
-    @DeleteMapping("/involvements/{involvementId}")
-    public String deleteInvolvement(@PathVariable("involvementId") int involvementId) {
-        involvementService.deleteById(involvementId);
+    @DeleteMapping("/{cvId}/involvements/{involvementId}")
+    public String deleteInvolvement(@PathVariable("cvId") int cvId,@PathVariable("involvementId") int involvementId) {
+        involvementService.deleteInvolvementById(cvId,involvementId);
         return "Delete successful";
     }
 }

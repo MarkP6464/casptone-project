@@ -1,16 +1,16 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.InvolvementDto;
-import com.example.capstoneproject.Dto.InvolvementViewDto;
-import com.example.capstoneproject.Dto.ProjectDto;
-import com.example.capstoneproject.Dto.ProjectViewDto;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Involvement;
 import com.example.capstoneproject.entity.Project;
+import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.InvolvementMapper;
 import com.example.capstoneproject.mapper.ProjectMapper;
 import com.example.capstoneproject.repository.InvolvementRepository;
 import com.example.capstoneproject.repository.ProjectRepository;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.InvolvementService;
 import com.example.capstoneproject.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Autowired
     ProjectMapper projectMapper;
 
+    @Autowired
+    CvService cvService;
+
     public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         super(projectRepository, projectMapper, projectRepository::findById);
         this.projectRepository = projectRepository;
@@ -35,10 +38,23 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public boolean updateProject(Integer id, ProjectViewDto dto) {
-        Optional<Project> existingProjectOptional = projectRepository.findById(id);
+    public ProjectDto createProject(Integer id, ProjectDto dto) {
+        Project project = projectMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(id);
+        project.setCv(cv);
+        project.setStatus(CvStatus.ACTIVE);
+        Project saved = projectRepository.save(project);
+        return projectMapper.mapEntityToDto(saved);
+    }
+
+    @Override
+    public boolean updateProject(int cvId, int projectId, ProjectDto dto) {
+        Optional<Project> existingProjectOptional = projectRepository.findById(projectId);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
+            if (existingProject.getCv().getId() != cvId) {
+                throw new IllegalArgumentException("Project does not belong to CV with id " + cvId);
+            }
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
                 existingProject.setTitle(dto.getTitle());
             } else {
@@ -59,8 +75,8 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             } else {
                 throw new IllegalArgumentException("New End Date is the same as the existing project");
             }
-            if (dto.getUrl() != null && !existingProject.getUrl().equals(dto.getUrl())) {
-                existingProject.setUrl(dto.getUrl());
+            if (dto.getProjectUrl() != null && !existingProject.getProjectUrl().equals(dto.getProjectUrl())) {
+                existingProject.setProjectUrl(dto.getProjectUrl());
             } else {
                 throw new IllegalArgumentException("New Url is the same as the existing project");
             }
@@ -90,21 +106,26 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                     projectViewDto.setOrganization(project.getOrganization());
                     projectViewDto.setStartDate(project.getStartDate());
                     projectViewDto.setEndDate(project.getEndDate());
-                    projectViewDto.setUrl(project.getUrl());
+                    projectViewDto.setProjectUrl(project.getProjectUrl());
                     projectViewDto.setDescription(project.getDescription());
-                    projectViewDto.setStatus(project.getStatus());
                     return projectViewDto;
                 })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteById(Integer id) {
-        Optional<Project> Optional = projectRepository.findById(id);
-        if (Optional.isPresent()) {
-            Project project = Optional.get();
-            project.setStatus(CvStatus.DELETED);
-            projectRepository.save(project);
+    public void deleteProjectById(Integer cvId,Integer projectId) {
+        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCv_Id(projectId, cvId);
+
+        if (isProjectBelongsToCv) {
+            Optional<Project> Optional = projectRepository.findById(projectId);
+            if (Optional.isPresent()) {
+                Project project = Optional.get();
+                project.setStatus(CvStatus.DELETED);
+                projectRepository.save(project);
+            }
+        } else {
+            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to CV with ID " + cvId);
         }
     }
 

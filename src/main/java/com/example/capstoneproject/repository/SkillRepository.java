@@ -12,4 +12,6 @@ import java.util.List;
 public interface SkillRepository extends JpaRepository<Skill, Integer> {
     @Query("SELECT c FROM Skill c WHERE c.cv.id = :cvId AND c.Status = :status")
     List<Skill> findSkillsByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
+
+    boolean existsByIdAndCv_Id(Integer skillId, Integer cvId);
 }

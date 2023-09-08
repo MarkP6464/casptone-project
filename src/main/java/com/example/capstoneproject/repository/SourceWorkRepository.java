@@ -11,5 +11,7 @@ import java.util.List;
 
 public interface SourceWorkRepository extends JpaRepository<SourceWork, Integer> {
     @Query("SELECT c FROM SourceWork c WHERE c.cv.id = :cvId AND c.Status = :status")
-    List<SourceWork> findSourceWorksByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
+    List<SourceWork> findSourceWorkByCv_IdAndStatus(@Param("cvId") int cvId, @Param("status") CvStatus status);
+
+    boolean existsByIdAndCv_Id(Integer sourceWorkId, Integer cvId);
 }

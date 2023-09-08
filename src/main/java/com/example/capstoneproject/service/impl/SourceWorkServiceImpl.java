@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.SkillDto;
 import com.example.capstoneproject.Dto.SkillViewDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
 import com.example.capstoneproject.Dto.SourceWorkViewDto;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.entity.SourceWork;
 import com.example.capstoneproject.enums.CvStatus;
@@ -11,6 +12,7 @@ import com.example.capstoneproject.mapper.SkillMapper;
 import com.example.capstoneproject.mapper.SourceWorkMapper;
 import com.example.capstoneproject.repository.SkillRepository;
 import com.example.capstoneproject.repository.SourceWorkRepository;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.SkillService;
 import com.example.capstoneproject.service.SourceWorkService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     @Autowired
     SourceWorkMapper sourceWorkMapper;
 
+    @Autowired
+    CvService cvService;
+
     public SourceWorkServiceImpl(SourceWorkRepository sourceWorkRepository, SourceWorkMapper sourceWorkMapper) {
         super(sourceWorkRepository, sourceWorkMapper, sourceWorkRepository::findById);
         this.sourceWorkRepository = sourceWorkRepository;
@@ -35,10 +40,25 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     }
 
     @Override
-    public boolean updateSourceWork(Integer id, SourceWorkViewDto dto) {
-        Optional<SourceWork> existingSourceWorkOptional = sourceWorkRepository.findById(id);
+    public SourceWorkDto createSourceWork(Integer id, SourceWorkDto dto) {
+        SourceWork sourceWork = sourceWorkMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(id);
+        sourceWork.setCv(cv);
+        sourceWork.setStatus(CvStatus.ACTIVE);
+        SourceWork saved = sourceWorkRepository.save(sourceWork);
+        return sourceWorkMapper.mapEntityToDto(saved);
+    }
+
+    @Override
+    public boolean updateSourceWork(int cvId, int sourceWorkId, SourceWorkViewDto dto) {
+        Optional<SourceWork> existingSourceWorkOptional = sourceWorkRepository.findById(sourceWorkId);
         if (existingSourceWorkOptional.isPresent()) {
             SourceWork existingSourceWork = existingSourceWorkOptional.get();
+
+            if (existingSourceWork.getCv().getId() != cvId) {
+                throw new IllegalArgumentException("Source Work does not belong to CV with id " + cvId);
+            }
+
             if (dto.getName() != null && !existingSourceWork.getName().equals(dto.getName())) {
                 existingSourceWork.setName(dto.getName());
             } else {
@@ -49,8 +69,8 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             } else {
                 throw new IllegalArgumentException("New Course Location is the same as the existing source work");
             }
-            if (dto.getEndDate() != null && !existingSourceWork.getEndDate().equals(dto.getEndDate())) {
-                existingSourceWork.setEndDate(dto.getEndDate());
+            if (dto.getEndYear() > 1950 && existingSourceWork.getEndYear() != dto.getEndYear()) {
+                existingSourceWork.setEndYear(dto.getEndYear());
             } else {
                 throw new IllegalArgumentException("New End Date is the same as the existing source work");
             }
@@ -59,22 +79,23 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             } else {
                 throw new IllegalArgumentException("New Skill is the same as the existing source work");
             }
-            if (dto.getApplied() != null && !existingSourceWork.getApplied().equals(dto.getApplied())) {
-                existingSourceWork.setApplied(dto.getApplied());
+            if (dto.getDescription() != null && !existingSourceWork.getDescription().equals(dto.getDescription())) {
+                existingSourceWork.setDescription(dto.getDescription());
             } else {
                 throw new IllegalArgumentException("New Applied is the same as the existing source work");
             }
             existingSourceWork.setStatus(CvStatus.ACTIVE);
-            SourceWork updated = sourceWorkRepository.save(existingSourceWork);
+            sourceWorkRepository.save(existingSourceWork);
             return true;
         } else {
             throw new IllegalArgumentException("Source Work ID not found");
         }
     }
 
+
     @Override
     public List<SourceWorkViewDto> getAllSourceWork(int cvId) {
-        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorksByStatus(cvId, CvStatus.ACTIVE);
+        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorkByCv_IdAndStatus(cvId, CvStatus.ACTIVE);
         return sourceWorks.stream()
                 .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
                 .map(sourceWork -> {
@@ -82,22 +103,27 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
                     sourceWorkViewDto.setId(sourceWork.getId());
                     sourceWorkViewDto.setName(sourceWork.getName());
                     sourceWorkViewDto.setCourseLocation(sourceWork.getCourseLocation());
-                    sourceWorkViewDto.setEndDate(sourceWork.getEndDate());
+                    sourceWorkViewDto.setEndYear(sourceWork.getEndYear());
                     sourceWorkViewDto.setSkill(sourceWork.getSkill());
-                    sourceWorkViewDto.setApplied(sourceWork.getApplied());
-                    sourceWorkViewDto.setStatus(sourceWork.getStatus());
+                    sourceWorkViewDto.setDescription(sourceWork.getDescription());
                     return sourceWorkViewDto;
                 })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteById(Integer id) {
-        Optional<SourceWork> Optional = sourceWorkRepository.findById(id);
-        if (Optional.isPresent()) {
-            SourceWork sourceWork = Optional.get();
-            sourceWork.setStatus(CvStatus.DELETED);
-            sourceWorkRepository.save(sourceWork);
+    public void deleteSourceWorkById(Integer cvId,Integer sourceId) {
+        boolean isSourceWorkBelongsToCv = sourceWorkRepository.existsByIdAndCv_Id(sourceId, cvId);
+
+        if (isSourceWorkBelongsToCv) {
+            Optional<SourceWork> Optional = sourceWorkRepository.findById(sourceId);
+            if (Optional.isPresent()) {
+                SourceWork sourceWork = Optional.get();
+                sourceWork.setStatus(CvStatus.DELETED);
+                sourceWorkRepository.save(sourceWork);
+            }
+        } else {
+            throw new IllegalArgumentException("Source Work with ID " + sourceId + " does not belong to CV with ID " + cvId);
         }
     }
 

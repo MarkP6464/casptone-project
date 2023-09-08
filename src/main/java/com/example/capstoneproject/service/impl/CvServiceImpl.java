@@ -58,9 +58,9 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                     .map(certification -> {
                                         CertificationViewDto certificationViewDto = new CertificationViewDto();
                                         certificationViewDto.setId(certification.getId());
-                                        certificationViewDto.setTitle(certification.getTitle());
+                                        certificationViewDto.setName(certification.getName());
                                         certificationViewDto.setCertificateSource(certification.getCertificateSource());
-                                        certificationViewDto.setEndDate(certification.getEndDate());
+                                        certificationViewDto.setEndYear(certification.getEndYear());
                                         certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
                                         certificationViewDto.setStatus(certification.getStatus());
                                         return certificationViewDto;
@@ -74,13 +74,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                         EducationViewDto educationViewDto = new EducationViewDto();
                                         educationViewDto.setId(education.getId());
                                         educationViewDto.setDegree(education.getDegree());
-                                        educationViewDto.setNameCollege(education.getNameCollege());
+                                        educationViewDto.setCollegeName(education.getCollegeName());
                                         educationViewDto.setLocation(education.getLocation());
-                                        educationViewDto.setEndDate(education.getEndDate());
+                                        educationViewDto.setEndYear(education.getEndYear());
                                         educationViewDto.setMinor(education.getMinor());
                                         educationViewDto.setGpa(education.getGpa());
                                         educationViewDto.setDescription(education.getDescription());
-                                        educationViewDto.setStatus(education.getStatus());
                                         return educationViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -91,13 +90,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                     .map(experience -> {
                                         ExperienceViewDto experienceViewDto = new ExperienceViewDto();
                                         experienceViewDto.setId(experience.getId());
-                                        experienceViewDto.setRoleCompany(experience.getRoleCompany());
-                                        experienceViewDto.setName(experience.getName());
+                                        experienceViewDto.setRole(experience.getRole());
+                                        experienceViewDto.setCompanyName(experience.getCompanyName());
                                         experienceViewDto.setStartDate(experience.getStartDate());
                                         experienceViewDto.setEndDate(experience.getEndDate());
                                         experienceViewDto.setLocation(experience.getLocation());
                                         experienceViewDto.setDescription(experience.getDescription());
-                                        experienceViewDto.setStatus(experience.getStatus());
                                         return experienceViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -112,9 +110,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                         involvementViewDto.setOrganizationName(involvement.getOrganizationName());
                                         involvementViewDto.setStartDate(involvement.getStartDate());
                                         involvementViewDto.setEndDate(involvement.getEndDate());
-                                        involvementViewDto.setCollegeLocation(involvement.getCollegeLocation());
+                                        involvementViewDto.setCollege(involvement.getCollege());
                                         involvementViewDto.setDescription(involvement.getDescription());
-                                        involvementViewDto.setStatus(involvement.getStatus());
                                         return involvementViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -129,9 +126,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                         projectViewDto.setOrganization(project.getOrganization());
                                         projectViewDto.setStartDate(project.getStartDate());
                                         projectViewDto.setEndDate(project.getEndDate());
-                                        projectViewDto.setUrl(project.getUrl());
+                                        projectViewDto.setProjectUrl(project.getProjectUrl());
                                         projectViewDto.setDescription(project.getDescription());
-                                        projectViewDto.setStatus(project.getStatus());
                                         return projectViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -142,8 +138,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                     .map(skill -> {
                                         SkillViewDto skillViewDto = new SkillViewDto();
                                         skillViewDto.setId(skill.getId());
-                                        skillViewDto.setName(skill.getName());
-                                        skillViewDto.setStatus(skill.getStatus());
+                                        skillViewDto.setDescription(skill.getDescription());
                                         return skillViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -153,13 +148,11 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                     .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
                                     .map(sourceWork -> {
                                         SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
-                                        sourceWorkViewDto.setId(sourceWork.getId());
                                         sourceWorkViewDto.setName(sourceWork.getName());
                                         sourceWorkViewDto.setCourseLocation(sourceWork.getCourseLocation());
-                                        sourceWorkViewDto.setEndDate(sourceWork.getEndDate());
+                                        sourceWorkViewDto.setEndYear(sourceWork.getEndYear());
                                         sourceWorkViewDto.setSkill(sourceWork.getSkill());
-                                        sourceWorkViewDto.setApplied(sourceWork.getApplied());
-                                        sourceWorkViewDto.setStatus(sourceWork.getStatus());
+                                        sourceWorkViewDto.setDescription(sourceWork.getDescription());
                                         return sourceWorkViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -188,9 +181,9 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                             .map(certification -> {
                                 CertificationViewDto certificationViewDto = new CertificationViewDto();
                                 certificationViewDto.setId(certification.getId());
-                                certificationViewDto.setTitle(certification.getTitle());
+                                certificationViewDto.setName(certification.getName());
                                 certificationViewDto.setCertificateSource(certification.getCertificateSource());
-                                certificationViewDto.setEndDate(certification.getEndDate());
+                                certificationViewDto.setEndYear(certification.getEndYear());
                                 certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
                                 certificationViewDto.setStatus(certification.getStatus());
                                 return certificationViewDto;
@@ -204,13 +197,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                 EducationViewDto educationViewDto = new EducationViewDto();
                                 educationViewDto.setId(education.getId());
                                 educationViewDto.setDegree(education.getDegree());
-                                educationViewDto.setNameCollege(education.getNameCollege());
+                                educationViewDto.setCollegeName(education.getCollegeName());
                                 educationViewDto.setLocation(education.getLocation());
-                                educationViewDto.setEndDate(education.getEndDate());
+                                educationViewDto.setEndYear(education.getEndYear());
                                 educationViewDto.setMinor(education.getMinor());
                                 educationViewDto.setGpa(education.getGpa());
                                 educationViewDto.setDescription(education.getDescription());
-                                educationViewDto.setStatus(education.getStatus());
                                 return educationViewDto;
                             })
                             .collect(Collectors.toList())
@@ -221,13 +213,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                             .map(experience -> {
                                 ExperienceViewDto experienceViewDto = new ExperienceViewDto();
                                 experienceViewDto.setId(experience.getId());
-                                experienceViewDto.setRoleCompany(experience.getRoleCompany());
-                                experienceViewDto.setName(experience.getName());
+                                experienceViewDto.setRole(experience.getRole());
+                                experienceViewDto.setCompanyName(experience.getCompanyName());
                                 experienceViewDto.setStartDate(experience.getStartDate());
                                 experienceViewDto.setEndDate(experience.getEndDate());
                                 experienceViewDto.setLocation(experience.getLocation());
                                 experienceViewDto.setDescription(experience.getDescription());
-                                experienceViewDto.setStatus(experience.getStatus());
                                 return experienceViewDto;
                             })
                             .collect(Collectors.toList())
@@ -242,9 +233,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                 involvementViewDto.setOrganizationName(involvement.getOrganizationName());
                                 involvementViewDto.setStartDate(involvement.getStartDate());
                                 involvementViewDto.setEndDate(involvement.getEndDate());
-                                involvementViewDto.setCollegeLocation(involvement.getCollegeLocation());
+                                involvementViewDto.setCollege(involvement.getCollege());
                                 involvementViewDto.setDescription(involvement.getDescription());
-                                involvementViewDto.setStatus(involvement.getStatus());
                                 return involvementViewDto;
                             })
                             .collect(Collectors.toList())
@@ -259,9 +249,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                 projectViewDto.setOrganization(project.getOrganization());
                                 projectViewDto.setStartDate(project.getStartDate());
                                 projectViewDto.setEndDate(project.getEndDate());
-                                projectViewDto.setUrl(project.getUrl());
+                                projectViewDto.setProjectUrl(project.getProjectUrl());
                                 projectViewDto.setDescription(project.getDescription());
-                                projectViewDto.setStatus(project.getStatus());
                                 return projectViewDto;
                             })
                             .collect(Collectors.toList())
@@ -272,8 +261,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                             .map(skill -> {
                                 SkillViewDto skillViewDto = new SkillViewDto();
                                 skillViewDto.setId(skill.getId());
-                                skillViewDto.setName(skill.getName());
-                                skillViewDto.setStatus(skill.getStatus());
+                                skillViewDto.setDescription(skill.getDescription());
                                 return skillViewDto;
                             })
                             .collect(Collectors.toList())
@@ -283,13 +271,11 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                             .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
                             .map(sourceWork -> {
                                 SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
-                                sourceWorkViewDto.setId(sourceWork.getId());
                                 sourceWorkViewDto.setName(sourceWork.getName());
                                 sourceWorkViewDto.setCourseLocation(sourceWork.getCourseLocation());
-                                sourceWorkViewDto.setEndDate(sourceWork.getEndDate());
+                                sourceWorkViewDto.setEndYear(sourceWork.getEndYear());
                                 sourceWorkViewDto.setSkill(sourceWork.getSkill());
-                                sourceWorkViewDto.setApplied(sourceWork.getApplied());
-                                sourceWorkViewDto.setStatus(sourceWork.getStatus());
+                                sourceWorkViewDto.setDescription(sourceWork.getDescription());
                                 return sourceWorkViewDto;
                             })
                             .collect(Collectors.toList())
@@ -368,6 +354,16 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         savedDto.setCustomer(savedCv.getCustomer());
 
         return savedDto;
+    }
+
+    @Override
+    public Cv getCvById(int cvId) {
+        Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        if (cvOptional.isPresent()) {
+            return cvOptional.get();
+        } else {
+            throw new IllegalArgumentException("CV not found with ID: " + cvId);
+        }
     }
 
 

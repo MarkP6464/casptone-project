@@ -1,16 +1,13 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.EducationDto;
-import com.example.capstoneproject.Dto.EducationViewDto;
-import com.example.capstoneproject.Dto.ExperienceDto;
-import com.example.capstoneproject.Dto.ExperienceViewDto;
-import com.example.capstoneproject.entity.Education;
-import com.example.capstoneproject.entity.Experience;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.repository.ExperienceRepository;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.ExperienceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +25,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     @Autowired
     ExperienceMapper experienceMapper;
 
+    @Autowired
+    CvService cvService;
+
     public ExperienceServiceImpl(ExperienceRepository experienceRepository, ExperienceMapper experienceMapper) {
         super(experienceRepository, experienceMapper, experienceRepository::findById);
         this.experienceRepository = experienceRepository;
@@ -35,17 +35,30 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public boolean updateExperience(Integer id, ExperienceViewDto dto) {
-        Optional<Experience> existingExperienceOptional = experienceRepository.findById(id);
+    public ExperienceDto createExperience(Integer id, ExperienceDto dto) {
+        Experience experience = experienceMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(id);
+        experience.setCv(cv);
+        experience.setStatus(CvStatus.ACTIVE);
+        Experience saved = experienceRepository.save(experience);
+        return experienceMapper.mapEntityToDto(saved);
+    }
+
+    @Override
+    public boolean updateExperience(int cvId, int experienceId, ExperienceDto dto) {
+        Optional<Experience> existingExperienceOptional = experienceRepository.findById(experienceId);
         if (existingExperienceOptional.isPresent()) {
             Experience existingExperience = existingExperienceOptional.get();
-            if (dto.getRoleCompany() != null && !existingExperience.getRoleCompany().equals(dto.getRoleCompany())) {
-                existingExperience.setRoleCompany(dto.getRoleCompany());
+            if (existingExperience.getCv().getId() != cvId) {
+                throw new IllegalArgumentException("Experience does not belong to CV with id " + cvId);
+            }
+            if (dto.getRole() != null && !existingExperience.getRole().equals(dto.getRole())) {
+                existingExperience.setRole(dto.getRole());
             } else {
                 throw new IllegalArgumentException("New Role Company is the same as the existing experience");
             }
-            if (dto.getName() != null && !existingExperience.getName().equals(dto.getName())) {
-                existingExperience.setName(dto.getName());
+            if (dto.getCompanyName() != null && !existingExperience.getCompanyName().equals(dto.getCompanyName())) {
+                existingExperience.setCompanyName(dto.getCompanyName());
             } else {
                 throw new IllegalArgumentException("New Name is the same as the existing experience");
             }
@@ -86,25 +99,30 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 .map(experience -> {
                     ExperienceViewDto experienceViewDto = new ExperienceViewDto();
                     experienceViewDto.setId(experience.getId());
-                    experienceViewDto.setRoleCompany(experience.getRoleCompany());
-                    experienceViewDto.setName(experience.getName());
+                    experienceViewDto.setRole(experience.getRole());
+                    experienceViewDto.setCompanyName(experience.getCompanyName());
                     experienceViewDto.setStartDate(experience.getStartDate());
                     experienceViewDto.setEndDate(experience.getEndDate());
                     experienceViewDto.setLocation(experience.getLocation());
                     experienceViewDto.setDescription(experience.getDescription());
-                    experienceViewDto.setStatus(experience.getStatus());
                     return experienceViewDto;
                 })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteById(Integer id) {
-        Optional<Experience> Optional = experienceRepository.findById(id);
-        if (Optional.isPresent()) {
-            Experience experience = Optional.get();
-            experience.setStatus(CvStatus.DELETED);
-            experienceRepository.save(experience);
+    public void deleteExperienceById(Integer cvId,Integer experienceId) {
+        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCv_Id(experienceId, cvId);
+
+        if (isExperienceBelongsToCv) {
+            Optional<Experience> Optional = experienceRepository.findById(experienceId);
+            if (Optional.isPresent()) {
+                Experience experience = Optional.get();
+                experience.setStatus(CvStatus.DELETED);
+                experienceRepository.save(experience);
+            }
+        } else {
+            throw new IllegalArgumentException("Experience with ID " + experienceId + " does not belong to CV with ID " + cvId);
         }
     }
 

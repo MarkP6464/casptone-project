@@ -19,5 +19,4 @@ public class MapperConfig {
                 .setFullTypeMatchingRequired(true);
         return modelMapper;
     }
-
 }

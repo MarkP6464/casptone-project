@@ -14,8 +14,6 @@ import java.util.Date;
 @Setter
 public class ProjectDto {
 
-    private int id;
-
     private String Title;
 
     private String Organization;
@@ -24,11 +22,7 @@ public class ProjectDto {
 
     private Date EndDate;
 
-    private String Url;
+    private String ProjectUrl;
 
     private String Description;
-
-    private CvStatus Status;
-
-    private CvAddDto cv;
 }

@@ -14,11 +14,11 @@ import java.util.Date;
 public class CertificationViewDto {
     private int id;
 
-    private String Title;
+    private String Name;
 
     private String CertificateSource;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String CertificateRelevance;
 

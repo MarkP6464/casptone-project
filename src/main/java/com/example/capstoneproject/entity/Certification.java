@@ -17,11 +17,11 @@ public class Certification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String Title;
+    private String Name;
 
     private String CertificateSource;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String CertificateRelevance;
 

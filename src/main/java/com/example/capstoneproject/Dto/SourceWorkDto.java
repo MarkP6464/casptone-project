@@ -12,19 +12,14 @@ import java.util.Date;
 @Getter
 @Setter
 public class SourceWorkDto {
-    private int id;
 
     private String Name;
 
     private String CourseLocation;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String Skill;
 
-    private String Applied;
-
-    private CvStatus Status;
-
-    private CvAddDto cv;
+    private String Description;
 }

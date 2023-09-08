@@ -2,7 +2,9 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.CertificationViewDto;
+import com.example.capstoneproject.Dto.ProjectDto;
 import com.example.capstoneproject.entity.Certification;
+import com.example.capstoneproject.entity.Project;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.AbstractMapper;
 import com.example.capstoneproject.mapper.CertificationMapper;
@@ -39,9 +41,9 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 .map(certification -> {
                     CertificationViewDto certificationViewDto = new CertificationViewDto();
                     certificationViewDto.setId(certification.getId());
-                    certificationViewDto.setTitle(certification.getTitle());
+                    certificationViewDto.setName(certification.getName());
                     certificationViewDto.setCertificateSource(certification.getCertificateSource());
-                    certificationViewDto.setEndDate(certification.getEndDate());
+                    certificationViewDto.setEndYear(certification.getEndYear());
                     certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
                     certificationViewDto.setStatus(certification.getStatus());
                     return certificationViewDto;
@@ -49,14 +51,21 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public CertificationDto create(CertificationDto dto) {
+        Certification certification = certificationMapper.mapDtoToEntity(dto);
+        certification.setStatus(CvStatus.ACTIVE);
+        Certification saved = certificationRepository.save(certification);
+        return certificationMapper.mapEntityToDto(saved);
+    }
 
     @Override
     public boolean updateCertification(Integer id, CertificationViewDto dto) {
         Optional<Certification> existingCertificationOptional = certificationRepository.findById(id);
         if (existingCertificationOptional.isPresent()) {
             Certification existingCertification = existingCertificationOptional.get();
-            if (dto.getTitle() != null && !existingCertification.getTitle().equals(dto.getTitle())) {
-                existingCertification.setTitle(dto.getTitle());
+            if (dto.getName() != null && !existingCertification.getName().equals(dto.getName())) {
+                existingCertification.setName(dto.getName());
             } else {
                 throw new IllegalArgumentException("New certification title is the same as the existing certification");
             }
@@ -65,8 +74,8 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             } else {
                 throw new IllegalArgumentException("New certification source is the same as the existing certification");
             }
-            if (dto.getEndDate() != null && !existingCertification.getEndDate().equals(dto.getEndDate())) {
-                existingCertification.setEndDate(dto.getEndDate());
+            if (dto.getEndYear() >1950 && existingCertification.getEndYear()!=dto.getEndYear()) {
+                existingCertification.setEndYear(dto.getEndYear());
             } else {
                 throw new IllegalArgumentException("New certification end date is the same as the existing certification");
             }

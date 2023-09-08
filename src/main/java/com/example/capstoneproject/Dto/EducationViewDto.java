@@ -16,17 +16,15 @@ public class EducationViewDto {
 
     private String Degree;
 
-    private String NameCollege;
+    private String CollegeName;
 
     private String Location;
 
-    private Date EndDate;
+    private int EndYear;
 
     private String Minor;
 
     private double Gpa;
 
     private String Description;
-
-    private CvStatus Status;
 }
