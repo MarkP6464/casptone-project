@@ -39,37 +39,37 @@ public class ContactServiceImpl extends AbstractBaseService<Contact, ContactDto,
             if (dto.getFullName() != null && !existingContact.getFullName().equals(dto.getFullName())) {
                 existingContact.setFullName(dto.getFullName());
             } else {
-                throw new IllegalArgumentException("New Full Name is the same as the existing contact");
+                existingContact.setFullName(existingContact.getFullName());
             }
             if (dto.getPhone() != null && !existingContact.getPhone().equals(dto.getPhone())) {
                 existingContact.setPhone(dto.getPhone());
             } else {
-                throw new IllegalArgumentException("New Phone is the same as the existing contact");
+                existingContact.setPhone(existingContact.getPhone());
             }
             if (dto.getWebsite() != null && !existingContact.getWebsite().equals(dto.getWebsite())) {
                 existingContact.setWebsite(dto.getWebsite());
             } else {
-                throw new IllegalArgumentException("New Website is the same as the existing contact");
+                existingContact.setWebsite(existingContact.getWebsite());
             }
             if (dto.getState() != null && !existingContact.getState().equals(dto.getState())) {
                 existingContact.setState(dto.getState());
             } else {
-                throw new IllegalArgumentException("New State is the same as the existing contact");
+                existingContact.setState(existingContact.getState());
             }
             if (dto.getEmail() != null && !existingContact.getEmail().equals(dto.getEmail())) {
                 existingContact.setEmail(dto.getEmail());
             } else {
-                throw new IllegalArgumentException("New Email is the same as the existing contact");
+                existingContact.setEmail(existingContact.getEmail());
             }
             if (dto.getLinkin() != null && !existingContact.getLinkin().equals(dto.getLinkin())) {
                 existingContact.setLinkin(dto.getLinkin());
             } else {
-                throw new IllegalArgumentException("New Linkin is the same as the existing contact");
+                existingContact.setLinkin(existingContact.getLinkin());
             }
             if (dto.getCountry() != null && !existingContact.getCountry().equals(dto.getCountry())) {
                 existingContact.setCountry(dto.getCountry());
             } else {
-                throw new IllegalArgumentException("New Country is the same as the existing contact");
+                existingContact.setCountry(existingContact.getCountry());
             }
             existingContact.setStatus(CvStatus.ACTIVE);
             Contact updated = contactRepository.save(existingContact);

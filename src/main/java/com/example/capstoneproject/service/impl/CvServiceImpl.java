@@ -8,7 +8,9 @@ import com.example.capstoneproject.mapper.ContactMapper;
 import com.example.capstoneproject.mapper.CvMapper;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.ContactRepository;
+import com.example.capstoneproject.repository.CustomerRepository;
 import com.example.capstoneproject.repository.CvRepository;
+import com.example.capstoneproject.repository.TemplateRepository;
 import com.example.capstoneproject.service.ContactService;
 import com.example.capstoneproject.service.CvService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,15 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     @Autowired
     EducationMapper educationMapper;
 
+    @Autowired
+    CustomerRepository customerRepository;
+
+    @Autowired
+    ContactRepository contactRepository;
+
+    @Autowired
+    TemplateRepository templateRepository;
+
     public CvServiceImpl(CvRepository cvRepository, CvMapper cvMapper) {
         super(cvRepository, cvMapper, cvRepository::findById);
         this.cvRepository = cvRepository;
@@ -48,10 +59,29 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     cvDto.setId(cv.getId());
                     cvDto.setContent(cv.getContent());
                     cvDto.setSummary(cv.getSummary());
-                    cvDto.setStatus(cv.getStatus());
-                    cvDto.setCustomer(cv.getCustomer());
-                    cvDto.setTemplate(cv.getTemplate());
-                    cvDto.setContact(cv.getContact());
+                    Customer customer = cv.getCustomer();
+                    CustomerViewDto customerViewDto = new CustomerViewDto();
+                    customerViewDto.setId(customer.getId());
+                    customerViewDto.setName(customer.getName());
+                    cvDto.setCustomer(customerViewDto);
+                    Template template = cv.getTemplate();
+                    TemplateViewDto templateViewDto = new TemplateViewDto();
+                    templateViewDto.setId(template.getId());
+                    templateViewDto.setName(template.getName());
+                    templateViewDto.setContent(template.getContent());
+                    templateViewDto.setAmountView(template.getAmountView());
+                    cvDto.setTemplate(templateViewDto);
+                    Contact contact = cv.getContact();
+                    ContactViewDto contactDto = new ContactViewDto();
+                    contactDto.setId(contact.getId());
+                    contactDto.setState(contact.getState());
+                    contactDto.setCountry(contact.getCountry());
+                    contactDto.setFullName(contact.getFullName());
+                    contactDto.setWebsite(contact.getWebsite());
+                    contactDto.setPhone(contact.getPhone());
+                    contactDto.setLinkin(contact.getLinkin());
+                    contactDto.setEmail(contact.getEmail());
+                    cvDto.setContact(contactDto);
                     cvDto.setCertifications(
                             cv.getCertifications().stream()
                                     .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
@@ -62,7 +92,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                         certificationViewDto.setCertificateSource(certification.getCertificateSource());
                                         certificationViewDto.setEndYear(certification.getEndYear());
                                         certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
-                                        certificationViewDto.setStatus(certification.getStatus());
                                         return certificationViewDto;
                                     })
                                     .collect(Collectors.toList())
@@ -171,10 +200,29 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cvDto.setId(cv.getId());
             cvDto.setContent(cv.getContent());
             cvDto.setSummary(cv.getSummary());
-            cvDto.setStatus(cv.getStatus());
-            cvDto.setCustomer(cv.getCustomer());
-            cvDto.setTemplate(cv.getTemplate());
-            cvDto.setContact(cv.getContact());
+            Customer customer = cv.getCustomer();
+            CustomerViewDto customerViewDto = new CustomerViewDto();
+            customerViewDto.setId(customer.getId());
+            customerViewDto.setName(customer.getName());
+            cvDto.setCustomer(customerViewDto);
+            Template template = cv.getTemplate();
+            TemplateViewDto templateViewDto = new TemplateViewDto();
+            templateViewDto.setId(template.getId());
+            templateViewDto.setName(template.getName());
+            templateViewDto.setContent(template.getContent());
+            templateViewDto.setAmountView(template.getAmountView());
+            cvDto.setTemplate(templateViewDto);
+            Contact contact = cv.getContact();
+            ContactViewDto contactDto = new ContactViewDto();
+            contactDto.setId(contact.getId());
+            contactDto.setState(contact.getState());
+            contactDto.setCountry(contact.getCountry());
+            contactDto.setFullName(contact.getFullName());
+            contactDto.setWebsite(contact.getWebsite());
+            contactDto.setPhone(contact.getPhone());
+            contactDto.setLinkin(contact.getLinkin());
+            contactDto.setEmail(contact.getEmail());
+            cvDto.setContact(contactDto);
             cvDto.setCertifications(
                     cv.getCertifications().stream()
                             .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
@@ -185,7 +233,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                 certificationViewDto.setCertificateSource(certification.getCertificateSource());
                                 certificationViewDto.setEndYear(certification.getEndYear());
                                 certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
-                                certificationViewDto.setStatus(certification.getStatus());
                                 return certificationViewDto;
                             })
                             .collect(Collectors.toList())
@@ -287,45 +334,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         }
     }
 
-
-    @Override
-    public boolean updateCv(Integer id, CvAddNewDto dto) {
-        Optional<Cv> existingCvOptional = cvRepository.findById(id);
-        if (existingCvOptional.isPresent()) {
-            Cv existingCv = existingCvOptional.get();
-            if (!existingCv.getContent().equals(dto.getContent())) {
-                if(dto.getContact() != null){
-                    existingCv.setContent(dto.getContent());
-                }else{
-                    existingCv.setContent(existingCv.getContent());
-                }
-            } else {
-                existingCv.setContent(existingCv.getContent());
-            }
-            if (!existingCv.getSummary().equals(dto.getSummary())) {
-                if(dto.getSummary() != null){
-                    existingCv.setSummary(dto.getSummary());
-                }else{
-                    existingCv.setSummary(existingCv.getSummary());
-                }
-            } else {
-                existingCv.setSummary(existingCv.getSummary());
-            }
-            if(dto.getTemplate().getId()>0){
-                existingCv.setTemplate(dto.getTemplate());
-            }
-            if(dto.getContact() != null && dto.getContact().getId() > 0){
-                existingCv.setContact(dto.getContact());
-            }
-
-            existingCv.setStatus(CvStatus.ACTIVE);
-            cvRepository.save(existingCv);
-            return true;
-        } else {
-            throw new IllegalArgumentException("Certification ID not found");
-        }
-    }
-
     @Override
     public void deleteById(Integer id) {
         Optional<Cv> Optional = cvRepository.findById(id);
@@ -337,24 +345,25 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public CvAddNewDto createCv(CvAddNewDto dto) {
-        Cv cv = new Cv();
-        cv.setContent(dto.getContent());
-        cv.setSummary(dto.getSummary());
-        cv.setStatus(dto.getStatus());
-        cv.setCustomer(dto.getCustomer());
+    public CvAddNewDto createCv(Integer customerId, CvAddNewDto dto) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
-        Cv savedCv = cvRepository.save(cv);
+        if (customerOptional.isPresent()) {
+            Cv cv = new Cv();
+            cv.setContent(dto.getContent());
+            cv.setStatus(CvStatus.ACTIVE);
+            Customer customer = customerOptional.get();
+            cv.setCustomer(customer);
+            Cv savedCv = cvRepository.save(cv);
+            CvAddNewDto createdDto = new CvAddNewDto();
+            createdDto.setContent(savedCv.getContent());
 
-        CvAddNewDto savedDto = new CvAddNewDto();
-        savedDto.setId(savedCv.getId());
-        savedDto.setContent(savedCv.getContent());
-        savedDto.setSummary(savedCv.getSummary());
-        savedDto.setStatus(savedCv.getStatus());
-        savedDto.setCustomer(savedCv.getCustomer());
-
-        return savedDto;
+            return createdDto;
+        } else {
+            throw new IllegalArgumentException("Không tìm thấy khách hàng với id: " + customerId);
+        }
     }
+
 
     @Override
     public Cv getCvById(int cvId) {
@@ -365,6 +374,109 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             throw new IllegalArgumentException("CV not found with ID: " + cvId);
         }
     }
+
+    @Override
+    public boolean updateCvSummary(int customerId, int cvId, CvUpdateSumDto dto) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        if (customerOptional.isPresent()) {
+            Optional<Cv> cvOptional = cvRepository.findById(cvId);
+
+            if (cvOptional.isPresent()) {
+                Cv cv = cvOptional.get();
+                cv.setSummary(dto.getSummary());
+
+                cvRepository.save(cv);
+
+                return true;
+            } else {
+                throw new IllegalArgumentException("CvId not found: " + cvId);
+            }
+        } else {
+            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+        }
+    }
+
+    @Override
+    public boolean updateCvContent(int customerId, int cvId, CvAddNewDto dto) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        if (customerOptional.isPresent()) {
+            Optional<Cv> cvOptional = cvRepository.findById(cvId);
+
+            if (cvOptional.isPresent()) {
+                Cv cv = cvOptional.get();
+                cv.setContent(dto.getContent());
+
+                cvRepository.save(cv);
+
+                return true;
+            } else {
+                throw new IllegalArgumentException("CvId not found: " + cvId);
+            }
+        } else {
+            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+        }
+    }
+
+    @Override
+    public boolean updateCvContact(int customerId, int cvId, int contactId) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        if (customerOptional.isPresent()) {
+            Optional<Cv> cvOptional = cvRepository.findById(cvId);
+
+            if (cvOptional.isPresent()) {
+                Cv cv = cvOptional.get();
+                Optional<Contact> contactOptional = contactRepository.findById(contactId);
+
+                if (contactOptional.isPresent()) {
+                    Contact contact = contactOptional.get();
+                    cv.setContact(contact);
+
+                    cvRepository.save(cv);
+
+                    return true;
+                } else {
+                    throw new IllegalArgumentException("ContactId not found: " + contactId);
+                }
+            } else {
+                throw new IllegalArgumentException("CvId not found: " + cvId);
+            }
+        } else {
+            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+        }
+    }
+
+    @Override
+    public boolean updateCvTemplate(int customerId, int cvId, int templateId) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        if (customerOptional.isPresent()) {
+            Optional<Cv> cvOptional = cvRepository.findById(cvId);
+
+            if (cvOptional.isPresent()) {
+                Cv cv = cvOptional.get();
+                Optional<Template> templateOptional = templateRepository.findById(templateId);
+
+                if (templateOptional.isPresent()) {
+                    Template template = templateOptional.get();
+                    cv.setTemplate(template);
+
+                    cvRepository.save(cv);
+
+                    return true;
+                } else {
+                    throw new IllegalArgumentException("TemplateId not found: " + templateId);
+                }
+            } else {
+                throw new IllegalArgumentException("CvId not found: " + cvId);
+            }
+        } else {
+            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+        }
+    }
+
 
 
 }

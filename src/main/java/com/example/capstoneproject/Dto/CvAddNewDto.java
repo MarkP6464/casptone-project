@@ -13,17 +13,6 @@ import lombok.*;
 @Getter
 @Setter
 public class CvAddNewDto {
-    private int id;
 
     private String Content;
-
-    private String Summary;
-
-    private CvStatus Status;
-
-    private Customer customer;
-
-    private Template template;
-
-    private Contact contact;
 }

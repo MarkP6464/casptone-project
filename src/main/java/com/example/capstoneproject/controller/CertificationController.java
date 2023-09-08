@@ -24,14 +24,14 @@ public class CertificationController {
         return certificationService.getAllCertification(cvId);
     }
 
-    @PostMapping("/certifications")
-    public CertificationDto postCertification(@RequestBody CertificationDto Dto) {
-        return certificationService.create(Dto);
+    @PostMapping("/{cvId}/certifications")
+    public CertificationDto postCertification(@PathVariable("cvId") int cvId, @RequestBody CertificationDto Dto) {
+        return certificationService.createCertification(cvId,Dto);
     }
 
-    @PutMapping("/certifications/{certificationId}")
-    public String updateCertification(@PathVariable("certificationId") int certificationId, @RequestBody CertificationViewDto Dto) {
-        boolean check = certificationService.updateCertification(certificationId, Dto);
+    @PutMapping("/{cvId}/certifications/{certificationId}")
+    public String updateCertification(@PathVariable("cvId") int cvId, @PathVariable("certificationId") int certificationId, @RequestBody CertificationDto Dto) {
+        boolean check = certificationService.updateCertification(cvId,certificationId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -39,9 +39,9 @@ public class CertificationController {
         }
     }
 
-    @DeleteMapping("/certifications/{certificationId}")
-    public String deleteCertification(@PathVariable("certificationId") int certificationId) {
-        certificationService.deleteById(certificationId);
+    @DeleteMapping("/{cvId}/certifications/{certificationId}")
+    public String deleteCertification(@PathVariable("cvId") int cvId, @PathVariable("certificationId") int certificationId) {
+        certificationService.deleteCertificationById(cvId,certificationId);
         return "Delete successful";
     }
 }

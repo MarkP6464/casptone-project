@@ -21,6 +21,4 @@ public class CertificationViewDto {
     private int EndYear;
 
     private String CertificateRelevance;
-
-    private CvStatus Status;
 }

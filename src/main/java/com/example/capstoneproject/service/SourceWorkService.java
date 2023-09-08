@@ -10,7 +10,7 @@ import java.util.List;
 public interface SourceWorkService extends BaseService<SourceWorkDto, Integer> {
     SourceWorkDto update(Integer id, SourceWorkDto dto);
 
-    boolean updateSourceWork(int cvId, int sourceWorkId, SourceWorkViewDto dto);
+    boolean updateSourceWork(int cvId, int sourceWorkId, SourceWorkDto dto);
 
     List<SourceWorkViewDto> getAllSourceWork(int cvId);
     SourceWorkDto createSourceWork(Integer id, SourceWorkDto dto);

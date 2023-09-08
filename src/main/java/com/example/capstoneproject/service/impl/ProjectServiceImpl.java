@@ -58,32 +58,32 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
                 existingProject.setTitle(dto.getTitle());
             } else {
-                throw new IllegalArgumentException("New Title is the same as the existing project");
+                existingProject.setTitle(existingProject.getTitle());
             }
             if (dto.getOrganization() != null && !existingProject.getOrganization().equals(dto.getOrganization())) {
                 existingProject.setOrganization(dto.getOrganization());
             } else {
-                throw new IllegalArgumentException("New Organization is the same as the existing project");
+                existingProject.setOrganization(existingProject.getOrganization());
             }
             if (dto.getStartDate() != null && !existingProject.getStartDate().equals(dto.getStartDate())) {
                 existingProject.setStartDate(dto.getStartDate());
             } else {
-                throw new IllegalArgumentException("New Start Date is the same as the existing project");
+                existingProject.setStartDate(existingProject.getStartDate());
             }
             if (dto.getEndDate() != null && !existingProject.getEndDate().equals(dto.getEndDate())) {
                 existingProject.setEndDate(dto.getEndDate());
             } else {
-                throw new IllegalArgumentException("New End Date is the same as the existing project");
+                existingProject.setEndDate(existingProject.getEndDate());
             }
             if (dto.getProjectUrl() != null && !existingProject.getProjectUrl().equals(dto.getProjectUrl())) {
                 existingProject.setProjectUrl(dto.getProjectUrl());
             } else {
-                throw new IllegalArgumentException("New Url is the same as the existing project");
+                existingProject.setProjectUrl(existingProject.getProjectUrl());
             }
             if (dto.getDescription() != null && !existingProject.getDescription().equals(dto.getDescription())) {
                 existingProject.setDescription(dto.getDescription());
             } else {
-                throw new IllegalArgumentException("New Description is the same as the existing project");
+                existingProject.setDescription(existingProject.getDescription());
             }
 
             existingProject.setStatus(CvStatus.ACTIVE);

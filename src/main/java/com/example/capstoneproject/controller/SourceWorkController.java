@@ -31,7 +31,7 @@ public class SourceWorkController {
     }
 
     @PutMapping("/{cvId}/source-works/{sourceId}")
-    public String updateSourceWork(@PathVariable("cvId") int cvId,@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkViewDto Dto) {
+    public String updateSourceWork(@PathVariable("cvId") int cvId,@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkDto Dto) {
         boolean check = sourceWorkService.updateSourceWork(cvId,sourceId, Dto);
         if(check){
             return "Changes saved";

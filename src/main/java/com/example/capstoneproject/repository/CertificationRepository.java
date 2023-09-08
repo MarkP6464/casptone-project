@@ -11,4 +11,6 @@ import java.util.List;
 public interface CertificationRepository extends JpaRepository<Certification, Integer> {
     @Query("SELECT c FROM Certification c WHERE c.cv.id = :cvId AND c.Status = :status")
     List<Certification> findCertificationsByStatus(@Param("cvId") int id,@Param("status") CvStatus status);
+
+    boolean existsByIdAndCv_Id(Integer certificationId, Integer cvId);
 }

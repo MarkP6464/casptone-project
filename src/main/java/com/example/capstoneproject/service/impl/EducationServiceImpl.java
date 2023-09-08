@@ -55,37 +55,37 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             if (dto.getDegree() != null && !existingEducation.getDegree().equals(dto.getDegree())) {
                 existingEducation.setDegree(dto.getDegree());
             } else {
-                throw new IllegalArgumentException("New Degree is the same as the existing education");
+                existingEducation.setDegree(existingEducation.getDegree());
             }
             if (dto.getCollegeName() != null && !existingEducation.getCollegeName().equals(dto.getCollegeName())) {
                 existingEducation.setCollegeName(dto.getCollegeName());
             } else {
-                throw new IllegalArgumentException("New Name College is the same as the existing education");
+                existingEducation.setCollegeName(existingEducation.getCollegeName());
             }
             if (dto.getLocation() != null && !existingEducation.getLocation().equals(dto.getDegree())) {
                 existingEducation.setLocation(dto.getLocation());
             } else {
-                throw new IllegalArgumentException("New Location is the same as the existing education");
+                existingEducation.setLocation(existingEducation.getLocation());
             }
             if (dto.getEndYear() > 1950 && existingEducation.getEndYear() != dto.getEndYear()) {
                 existingEducation.setEndYear(dto.getEndYear());
             } else {
-                throw new IllegalArgumentException("New End Date is the same as the existing education");
+                existingEducation.setEndYear(existingEducation.getEndYear());
             }
             if (dto.getMinor() != null && !existingEducation.getMinor().equals(dto.getMinor())) {
                 existingEducation.setMinor(dto.getMinor());
             } else {
-                throw new IllegalArgumentException("New Minor is the same as the existing education");
+                existingEducation.setMinor(existingEducation.getMinor());
             }
             if (dto.getGpa() > 1 && existingEducation.getGpa()!=dto.getGpa()) {
                 existingEducation.setGpa(dto.getGpa());
             } else {
-                throw new IllegalArgumentException("New GPA large than 1");
+                existingEducation.setGpa(existingEducation.getGpa());
             }
             if (dto.getDescription() != null && !existingEducation.getDescription().equals(dto.getDescription())) {
                 existingEducation.setDescription(dto.getDescription());
             } else {
-                throw new IllegalArgumentException("New Description is the same as the existing education");
+                existingEducation.setDescription(existingEducation.getDescription());
             }
             existingEducation.setStatus(CvStatus.ACTIVE);
             Education updated = educationRepository.save(existingEducation);

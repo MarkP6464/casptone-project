@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.ContactDto;
-import com.example.capstoneproject.Dto.CvAddNewDto;
-import com.example.capstoneproject.Dto.CvDto;
-import com.example.capstoneproject.Dto.EducationDto;
+import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.service.ContactService;
 import com.example.capstoneproject.service.CvService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +26,45 @@ public class CvController {
     public CvDto getCvsByCvId(@PathVariable("cvId") int cvId) {
         return cvService.GetCvsByCvId(cvId);
     }
-    @PostMapping
-    public CvAddNewDto postCv(@RequestBody CvAddNewDto Dto) {
-        return cvService.createCv(Dto);
+    @PostMapping("/{customerId}/cv")
+    public CvAddNewDto postCv(@PathVariable("customerId") int customerId, @RequestBody CvAddNewDto Dto) {
+        return cvService.createCv(customerId,Dto);
     }
-    @PutMapping("/cv/{cvId}")
-    public String updateContact(@PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
-        boolean check = cvService.updateCv(cvId, Dto);
-        if(check){
+    @PutMapping("/{customerId}/cv/{cvId}/summary")
+    public String updateSummary(@PathVariable("customerId") int customerId, @PathVariable("cvId") int cvId, @RequestBody CvUpdateSumDto Dto) {
+        boolean check = cvService.updateCvSummary(customerId,cvId, Dto);
+        if (check) {
             return "Changes saved";
-        }else {
+        } else {
+            return "Changes fail";
+        }
+    }
+    @PutMapping("/{customerId}/cv/{cvId}/content")
+    public String updateContent(@PathVariable("customerId") int customerId, @PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
+        boolean check = cvService.updateCvContent(customerId,cvId, Dto);
+        if (check) {
+            return "Changes saved";
+        } else {
+            return "Changes fail";
+        }
+    }
+
+    @PutMapping("/{customerId}/cv/{cvId}/contact/{contactId}")
+    public String updateContact(@PathVariable("customerId") int customerId, @PathVariable("cvId") int cvId, @PathVariable("contactId") int contactId) {
+        boolean check = cvService.updateCvContact(customerId,cvId, contactId);
+        if (check) {
+            return "Changes saved";
+        } else {
+            return "Changes fail";
+        }
+    }
+
+    @PutMapping("/{customerId}/cv/{cvId}/template/{templateId}")
+    public String updateTemplate(@PathVariable("customerId") int customerId, @PathVariable("cvId") int cvId, @PathVariable("templateId") int templateId) {
+        boolean check = cvService.updateCvTemplate(customerId,cvId, templateId);
+        if (check) {
+            return "Changes saved";
+        } else {
             return "Changes fail";
         }
     }

@@ -19,13 +19,11 @@ public class CvDto {
 
     private String Summary;
 
-    private CvStatus Status;
+    private CustomerViewDto customer;
 
-    private Customer customer;
+    private TemplateViewDto template;
 
-    private Template template;
-
-    private Contact contact;
+    private ContactViewDto contact;
     private List<CertificationViewDto> certifications;
     private List<EducationViewDto> educations;
     private List<ExperienceViewDto> experiences;

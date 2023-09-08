@@ -50,7 +50,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     }
 
     @Override
-    public boolean updateSourceWork(int cvId, int sourceWorkId, SourceWorkViewDto dto) {
+    public boolean updateSourceWork(int cvId, int sourceWorkId, SourceWorkDto dto) {
         Optional<SourceWork> existingSourceWorkOptional = sourceWorkRepository.findById(sourceWorkId);
         if (existingSourceWorkOptional.isPresent()) {
             SourceWork existingSourceWork = existingSourceWorkOptional.get();
@@ -62,27 +62,27 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             if (dto.getName() != null && !existingSourceWork.getName().equals(dto.getName())) {
                 existingSourceWork.setName(dto.getName());
             } else {
-                throw new IllegalArgumentException("New Name is the same as the existing skill");
+                existingSourceWork.setName(existingSourceWork.getName());
             }
             if (dto.getCourseLocation() != null && !existingSourceWork.getCourseLocation().equals(dto.getCourseLocation())) {
                 existingSourceWork.setCourseLocation(dto.getCourseLocation());
             } else {
-                throw new IllegalArgumentException("New Course Location is the same as the existing source work");
+                existingSourceWork.setCourseLocation(existingSourceWork.getCourseLocation());
             }
             if (dto.getEndYear() > 1950 && existingSourceWork.getEndYear() != dto.getEndYear()) {
                 existingSourceWork.setEndYear(dto.getEndYear());
             } else {
-                throw new IllegalArgumentException("New End Date is the same as the existing source work");
+                existingSourceWork.setEndYear(existingSourceWork.getEndYear());
             }
             if (dto.getSkill() != null && !existingSourceWork.getSkill().equals(dto.getSkill())) {
                 existingSourceWork.setSkill(dto.getSkill());
             } else {
-                throw new IllegalArgumentException("New Skill is the same as the existing source work");
+                existingSourceWork.setSkill(existingSourceWork.getSkill());
             }
             if (dto.getDescription() != null && !existingSourceWork.getDescription().equals(dto.getDescription())) {
                 existingSourceWork.setDescription(dto.getDescription());
             } else {
-                throw new IllegalArgumentException("New Applied is the same as the existing source work");
+                existingSourceWork.setDescription(existingSourceWork.getDescription());
             }
             existingSourceWork.setStatus(CvStatus.ACTIVE);
             sourceWorkRepository.save(existingSourceWork);

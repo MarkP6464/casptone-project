@@ -20,6 +20,4 @@ public class CertificationDto {
     private int EndYear;
 
     private String CertificateRelevance;
-
-    private CvCreateDto cv;
 }

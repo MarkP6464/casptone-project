@@ -58,32 +58,32 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             if (dto.getOrganizationRole() != null && !existingInvolvement.getOrganizationRole().equals(dto.getOrganizationRole())) {
                 existingInvolvement.setOrganizationRole(dto.getOrganizationRole());
             } else {
-                throw new IllegalArgumentException("New Organization Role is the same as the existing involvement");
+                existingInvolvement.setOrganizationRole(existingInvolvement.getOrganizationRole());
             }
             if (dto.getOrganizationName() != null && !existingInvolvement.getOrganizationName().equals(dto.getOrganizationName())) {
                 existingInvolvement.setOrganizationName(dto.getOrganizationName());
             } else {
-                throw new IllegalArgumentException("New Organization Name is the same as the existing involvement");
+                existingInvolvement.setOrganizationName(existingInvolvement.getOrganizationName());
             }
             if (dto.getStartDate() != null && !existingInvolvement.getStartDate().equals(dto.getStartDate())) {
                 existingInvolvement.setStartDate(dto.getStartDate());
             } else {
-                throw new IllegalArgumentException("New Start Date is the same as the existing involvement");
+                existingInvolvement.setStartDate(existingInvolvement.getStartDate());
             }
             if (dto.getEndDate() != null && !existingInvolvement.getEndDate().equals(dto.getEndDate())) {
                 existingInvolvement.setEndDate(dto.getEndDate());
             } else {
-                throw new IllegalArgumentException("New End Date is the same as the existing involvement");
+                existingInvolvement.setEndDate(existingInvolvement.getEndDate());
             }
             if (dto.getCollege() != null && !existingInvolvement.getCollege().equals(dto.getCollege())) {
                 existingInvolvement.setCollege(dto.getCollege());
             } else {
-                throw new IllegalArgumentException("New College Location is the same as the existing involvement");
+                existingInvolvement.setCollege(existingInvolvement.getCollege());
             }
             if (dto.getDescription() != null && !existingInvolvement.getDescription().equals(dto.getDescription())) {
                 existingInvolvement.setDescription(dto.getDescription());
             } else {
-                throw new IllegalArgumentException("New Description is the same as the existing involvement");
+                existingInvolvement.setDescription(existingInvolvement.getDescription());
             }
 
             existingInvolvement.setStatus(CvStatus.ACTIVE);

@@ -59,7 +59,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             if (dto.getDescription() != null && !existingSkill.getDescription().equals(dto.getDescription())) {
                 existingSkill.setDescription(dto.getDescription());
             } else {
-                throw new IllegalArgumentException("New Name is the same as the existing skill");
+                existingSkill.setDescription(existingSkill.getDescription());
             }
 
             existingSkill.setStatus(CvStatus.ACTIVE);

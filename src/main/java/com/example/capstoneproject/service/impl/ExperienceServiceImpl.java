@@ -55,32 +55,32 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             if (dto.getRole() != null && !existingExperience.getRole().equals(dto.getRole())) {
                 existingExperience.setRole(dto.getRole());
             } else {
-                throw new IllegalArgumentException("New Role Company is the same as the existing experience");
+                existingExperience.setRole(existingExperience.getRole());
             }
             if (dto.getCompanyName() != null && !existingExperience.getCompanyName().equals(dto.getCompanyName())) {
                 existingExperience.setCompanyName(dto.getCompanyName());
             } else {
-                throw new IllegalArgumentException("New Name is the same as the existing experience");
+                existingExperience.setCompanyName(existingExperience.getCompanyName());
             }
             if (dto.getStartDate() != null && !existingExperience.getStartDate().equals(dto.getStartDate())) {
                 existingExperience.setStartDate(dto.getStartDate());
             } else {
-                throw new IllegalArgumentException("New Start Date is the same as the existing experience");
+                existingExperience.setStartDate(existingExperience.getStartDate());
             }
             if (dto.getEndDate() != null && !existingExperience.getEndDate().equals(dto.getEndDate())) {
                 existingExperience.setEndDate(dto.getEndDate());
             } else {
-                throw new IllegalArgumentException("New End Date is the same as the existing experience");
+                existingExperience.setEndDate(existingExperience.getEndDate());
             }
             if (dto.getLocation() != null && !existingExperience.getLocation().equals(dto.getLocation())) {
                 existingExperience.setLocation(dto.getLocation());
             } else {
-                throw new IllegalArgumentException("New Location is the same as the existing experience");
+                existingExperience.setLocation(existingExperience.getLocation());
             }
             if (dto.getDescription() != null && !existingExperience.getDescription().equals(dto.getDescription())) {
                 existingExperience.setDescription(dto.getDescription());
             } else {
-                throw new IllegalArgumentException("New Description is the same as the existing experience");
+                existingExperience.setDescription(existingExperience.getDescription());
             }
 
             existingExperience.setStatus(CvStatus.ACTIVE);

@@ -1,16 +1,17 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class ContactDto {
+public class ContactViewDto {
+    private int id;
     private String FullName;
 
     private String Phone;
