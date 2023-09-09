@@ -60,28 +60,34 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     cvDto.setContent(cv.getContent());
                     cvDto.setSummary(cv.getSummary());
                     Customer customer = cv.getCustomer();
-                    CustomerViewDto customerViewDto = new CustomerViewDto();
-                    customerViewDto.setId(customer.getId());
-                    customerViewDto.setName(customer.getName());
-                    cvDto.setCustomer(customerViewDto);
+                    if (customer != null) {
+                        CustomerViewDto customerViewDto = new CustomerViewDto();
+                        customerViewDto.setId(customer.getId());
+                        customerViewDto.setName(customer.getName());
+                        cvDto.setCustomer(customerViewDto);
+                    }
                     Template template = cv.getTemplate();
-                    TemplateViewDto templateViewDto = new TemplateViewDto();
-                    templateViewDto.setId(template.getId());
-                    templateViewDto.setName(template.getName());
-                    templateViewDto.setContent(template.getContent());
-                    templateViewDto.setAmountView(template.getAmountView());
-                    cvDto.setTemplate(templateViewDto);
+                    if (template != null) {
+                        TemplateViewDto templateViewDto = new TemplateViewDto();
+                        templateViewDto.setId(template.getId());
+                        templateViewDto.setName(template.getName());
+                        templateViewDto.setContent(template.getContent());
+                        templateViewDto.setAmountView(template.getAmountView());
+                        cvDto.setTemplate(templateViewDto);
+                    }
                     Contact contact = cv.getContact();
-                    ContactViewDto contactDto = new ContactViewDto();
-                    contactDto.setId(contact.getId());
-                    contactDto.setState(contact.getState());
-                    contactDto.setCountry(contact.getCountry());
-                    contactDto.setFullName(contact.getFullName());
-                    contactDto.setWebsite(contact.getWebsite());
-                    contactDto.setPhone(contact.getPhone());
-                    contactDto.setLinkin(contact.getLinkin());
-                    contactDto.setEmail(contact.getEmail());
-                    cvDto.setContact(contactDto);
+                    if (contact != null) {
+                        ContactViewDto contactDto = new ContactViewDto();
+                        contactDto.setId(contact.getId());
+                        contactDto.setState(contact.getState());
+                        contactDto.setCountry(contact.getCountry());
+                        contactDto.setFullName(contact.getFullName());
+                        contactDto.setWebsite(contact.getWebsite());
+                        contactDto.setPhone(contact.getPhone());
+                        contactDto.setLinkin(contact.getLinkin());
+                        contactDto.setEmail(contact.getEmail());
+                        cvDto.setContact(contactDto);
+                    }
                     cvDto.setCertifications(
                             cv.getCertifications().stream()
                                     .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
@@ -201,28 +207,34 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cvDto.setContent(cv.getContent());
             cvDto.setSummary(cv.getSummary());
             Customer customer = cv.getCustomer();
-            CustomerViewDto customerViewDto = new CustomerViewDto();
-            customerViewDto.setId(customer.getId());
-            customerViewDto.setName(customer.getName());
-            cvDto.setCustomer(customerViewDto);
+            if (customer != null) {
+                CustomerViewDto customerViewDto = new CustomerViewDto();
+                customerViewDto.setId(customer.getId());
+                customerViewDto.setName(customer.getName());
+                cvDto.setCustomer(customerViewDto);
+            }
             Template template = cv.getTemplate();
-            TemplateViewDto templateViewDto = new TemplateViewDto();
-            templateViewDto.setId(template.getId());
-            templateViewDto.setName(template.getName());
-            templateViewDto.setContent(template.getContent());
-            templateViewDto.setAmountView(template.getAmountView());
-            cvDto.setTemplate(templateViewDto);
+            if (template != null) {
+                TemplateViewDto templateViewDto = new TemplateViewDto();
+                templateViewDto.setId(template.getId());
+                templateViewDto.setName(template.getName());
+                templateViewDto.setContent(template.getContent());
+                templateViewDto.setAmountView(template.getAmountView());
+                cvDto.setTemplate(templateViewDto);
+            }
             Contact contact = cv.getContact();
-            ContactViewDto contactDto = new ContactViewDto();
-            contactDto.setId(contact.getId());
-            contactDto.setState(contact.getState());
-            contactDto.setCountry(contact.getCountry());
-            contactDto.setFullName(contact.getFullName());
-            contactDto.setWebsite(contact.getWebsite());
-            contactDto.setPhone(contact.getPhone());
-            contactDto.setLinkin(contact.getLinkin());
-            contactDto.setEmail(contact.getEmail());
-            cvDto.setContact(contactDto);
+            if (contact != null) {
+                ContactViewDto contactDto = new ContactViewDto();
+                contactDto.setId(contact.getId());
+                contactDto.setState(contact.getState());
+                contactDto.setCountry(contact.getCountry());
+                contactDto.setFullName(contact.getFullName());
+                contactDto.setWebsite(contact.getWebsite());
+                contactDto.setPhone(contact.getPhone());
+                contactDto.setLinkin(contact.getLinkin());
+                contactDto.setEmail(contact.getEmail());
+                cvDto.setContact(contactDto);
+            }
             cvDto.setCertifications(
                     cv.getCertifications().stream()
                             .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
