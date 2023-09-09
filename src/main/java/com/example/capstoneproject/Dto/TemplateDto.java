@@ -10,12 +10,10 @@ import lombok.*;
 @Getter
 @Setter
 public class TemplateDto {
-    private int id;
 
     private String Name;
 
     private int AmountView;
 
     private String Content;
-    private CvStatus Status;
 }

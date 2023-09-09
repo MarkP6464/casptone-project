@@ -2,8 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.ContactDto;
+import com.example.capstoneproject.Dto.ContactViewDto;
 import com.example.capstoneproject.entity.Certification;
 import com.example.capstoneproject.entity.Contact;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.mapper.ContactMapper;
@@ -32,7 +34,15 @@ public class ContactServiceImpl extends AbstractBaseService<Contact, ContactDto,
     }
 
     @Override
-    public ContactDto update(Integer id, ContactDto dto) {
+    public ContactDto create(ContactDto dto) {
+        Contact contact = contactMapper.mapDtoToEntity(dto);
+        contact.setStatus(CvStatus.ACTIVE);
+        Contact saved = contactRepository.save(contact);
+        return contactMapper.mapEntityToDto(saved);
+    }
+
+    @Override
+    public boolean updateContact(Integer id, ContactDto dto) {
         Optional<Contact> existingContactOptional = contactRepository.findById(id);
         if (existingContactOptional.isPresent()) {
             Contact existingContact = existingContactOptional.get();
@@ -73,16 +83,30 @@ public class ContactServiceImpl extends AbstractBaseService<Contact, ContactDto,
             }
             existingContact.setStatus(CvStatus.ACTIVE);
             Contact updated = contactRepository.save(existingContact);
-            return contactMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Contact ID not found");
         }
     }
 
     @Override
-    public ContactDto GetContactById(int id) {
+    public ContactViewDto GetContactById(int id) {
         Contact contact = contactRepository.findContactByIdAndStatus(id, CvStatus.ACTIVE);
-        return contactMapper.mapEntityToDto(contact);
+        if (contact != null) {
+            ContactViewDto contactDto = new ContactViewDto();
+            contactDto.setId(contact.getId());
+            contactDto.setCountry(contact.getCountry());
+            contactDto.setEmail(contact.getEmail());
+            contactDto.setFullName(contact.getFullName());
+            contactDto.setLinkin(contact.getLinkin());
+            contactDto.setPhone(contact.getPhone());
+            contactDto.setState(contact.getState());
+            contactDto.setWebsite(contact.getWebsite());
+            return contactDto;
+        } else {
+            throw new IllegalArgumentException("Contact not found with id: " + id);
+        }
     }
+
 
 }

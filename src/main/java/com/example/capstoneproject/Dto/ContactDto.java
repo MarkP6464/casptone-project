@@ -11,6 +11,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class ContactDto {
+
     private String FullName;
 
     private String Phone;

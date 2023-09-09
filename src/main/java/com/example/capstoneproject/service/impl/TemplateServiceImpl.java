@@ -1,7 +1,10 @@
 package com.example.capstoneproject.service.impl;
 
+import com.example.capstoneproject.Dto.ContactDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
 import com.example.capstoneproject.Dto.TemplateDto;
+import com.example.capstoneproject.Dto.TemplateViewDto;
+import com.example.capstoneproject.entity.Contact;
 import com.example.capstoneproject.entity.SourceWork;
 import com.example.capstoneproject.entity.Template;
 import com.example.capstoneproject.enums.CvStatus;
@@ -14,6 +17,7 @@ import com.example.capstoneproject.service.TemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -31,29 +35,55 @@ public class TemplateServiceImpl extends AbstractBaseService<Template, TemplateD
     }
 
     @Override
-    public List<TemplateDto> getAll() {
-        List<Template> templates = templateRepository.findTemplatesByStatus(CvStatus.ACTIVE);
-        return templateMapper.mapEntitiesToDtoes(templates);
+    public TemplateDto create(TemplateDto dto) {
+        Template template = templateMapper.mapDtoToEntity(dto);
+        template.setStatus(CvStatus.ACTIVE);
+        Template saved = templateRepository.save(template);
+        return templateMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public TemplateDto update(Integer id, TemplateDto dto) {
+    public List<TemplateViewDto> getAllTemplate() {
+        List<Template> templates = templateRepository.findTemplatesByStatus(CvStatus.ACTIVE);
+        List<TemplateViewDto> templateDtos = new ArrayList<>();
+
+        for (Template template : templates) {
+            TemplateViewDto templateDto = new TemplateViewDto();
+            templateDto.setId(template.getId());
+            templateDto.setAmountView(template.getAmountView());
+            templateDto.setContent(template.getContent());
+            templateDto.setName(template.getName());
+
+            templateDtos.add(templateDto);
+        }
+
+        return templateDtos;
+    }
+
+    @Override
+    public boolean updateTemplate(Integer id, TemplateDto dto) {
         Optional<Template> existingTemplateOptional = templateRepository.findById(id);
         if (existingTemplateOptional.isPresent()) {
             Template existingTemplate = existingTemplateOptional.get();
             if (dto.getName() != null && !existingTemplate.getName().equals(dto.getName())) {
                 existingTemplate.setName(dto.getName());
             } else {
-                throw new IllegalArgumentException("New Name is the same as the existing template");
+                existingTemplate.setName(existingTemplate.getName());
             }
             if (dto.getContent() != null && !existingTemplate.getContent().equals(dto.getContent())) {
                 existingTemplate.setContent(dto.getContent());
             } else {
-                throw new IllegalArgumentException("New Content is the same as the existing template");
+                existingTemplate.setContent(existingTemplate.getContent());
+            }
+            if (dto.getAmountView() > 0 && existingTemplate.getAmountView() != dto.getAmountView()) {
+                existingTemplate.setAmountView(dto.getAmountView());
+            } else {
+                existingTemplate.setAmountView(existingTemplate.getAmountView());
             }
             existingTemplate.setStatus(CvStatus.ACTIVE);
             Template updated = templateRepository.save(existingTemplate);
-            return templateMapper.mapEntityToDto(updated);
+            templateMapper.mapEntityToDto(updated);
+            return true;
         } else {
             throw new IllegalArgumentException("Template ID not found");
         }

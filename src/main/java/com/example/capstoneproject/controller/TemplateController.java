@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.TemplateDto;
+import com.example.capstoneproject.Dto.TemplateViewDto;
 import com.example.capstoneproject.service.CertificationService;
 import com.example.capstoneproject.service.TemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class TemplateController {
     }
 
     @GetMapping
-    public List<TemplateDto> getAllTemplate() {
-        return templateService.getAll();
+    public List<TemplateViewDto> getAllTemplate() {
+        return templateService.getAllTemplate();
     }
 
     @PostMapping
@@ -30,8 +31,13 @@ public class TemplateController {
     }
 
     @PutMapping("/{templateId}")
-    public TemplateDto updateTemplate(@PathVariable("templateId") int templateId, @RequestBody TemplateDto Dto) {
-        return templateService.update(templateId, Dto);
+    public String updateTemplate(@PathVariable("templateId") int templateId, @RequestBody TemplateDto Dto) {
+        boolean check = templateService.updateTemplate(templateId, Dto);
+        if(check){
+            return "Changes saved";
+        }else{
+            return "Changes fail";
+        }
     }
 
     @DeleteMapping("/{templateId}")

@@ -12,6 +12,7 @@ import java.util.Date;
 @Setter
 public class ContactViewDto {
     private int id;
+
     private String FullName;
 
     private String Phone;
