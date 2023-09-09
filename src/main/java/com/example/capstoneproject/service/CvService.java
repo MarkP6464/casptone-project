@@ -14,8 +14,9 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     CvAddNewDto createCv(Integer id, CvAddNewDto dto);
     List<CvDto> GetCvsById(int customerId);
-    CvDto GetCvsByCvId(int cvId);
+    CvDto GetCvsByCvId(int customerId,int cvId);
     Cv getCvById(int cvId);
+    void deleteCvById(Integer customer,Integer id);
 
     boolean updateCvSummary(int customerId, int cvId, CvUpdateSumDto dto);
     boolean updateCvContent(int customerId, int cvId, CvAddNewDto dto);

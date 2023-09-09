@@ -198,8 +198,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public CvDto GetCvsByCvId(int cvId) {
-        Cv cv = cvRepository.findCvByIdAndStatus(cvId, CvStatus.ACTIVE);
+    public CvDto GetCvsByCvId(int customerId, int cvId) {
+        Cv cv = cvRepository.findCvByIdAndStatus(customerId, cvId, CvStatus.ACTIVE);
 
         if (cv != null) {
             CvDto cvDto = new CvDto();
@@ -347,14 +347,24 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public void deleteById(Integer id) {
-        Optional<Cv> Optional = cvRepository.findById(id);
-        if (Optional.isPresent()) {
-            Cv cv = Optional.get();
-            cv.setStatus(CvStatus.DELETED);
-            cvRepository.save(cv);
+    public void deleteCvById(Integer customerId, Integer id) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        if (customerOptional.isPresent()) {
+            Optional<Cv> cvOptional = cvRepository.findByIdAndCustomerId(id, customerId);
+
+            if (cvOptional.isPresent()) {
+                Cv cv = cvOptional.get();
+                cv.setStatus(CvStatus.DELETED);
+                cvRepository.save(cv);
+            } else {
+                throw new IllegalArgumentException("CV not found with id: " + id);
+            }
+        } else {
+            throw new IllegalArgumentException("Customer not found with id: " + customerId);
         }
     }
+
 
     @Override
     public CvAddNewDto createCv(Integer customerId, CvAddNewDto dto) {

@@ -22,9 +22,9 @@ public class CvController {
     public List<CvDto> getCvsById(@PathVariable("customerId") int customerId) {
         return cvService.GetCvsById(customerId);
     }
-    @GetMapping("/cv/{cvId}")
-    public CvDto getCvsByCvId(@PathVariable("cvId") int cvId) {
-        return cvService.GetCvsByCvId(cvId);
+    @GetMapping("/{customerId}/cv/{cvId}")
+    public CvDto getCvsByCvId(@PathVariable("customerId") int customerId, @PathVariable("cvId") int cvId) {
+        return cvService.GetCvsByCvId(customerId, cvId);
     }
     @PostMapping("/{customerId}/cv")
     public CvAddNewDto postCv(@PathVariable("customerId") int customerId, @RequestBody CvAddNewDto Dto) {
@@ -69,9 +69,9 @@ public class CvController {
         }
     }
 
-    @DeleteMapping("/cv/{cvId}")
-    public String deleteCv(@PathVariable("cvId") int cvId) {
-        cvService.deleteById(cvId);
+    @DeleteMapping("/{customerId}/cv/{cvId}")
+    public String deleteCv(@PathVariable("customerId") int customerId, @PathVariable("cvId") int cvId) {
+        cvService.deleteCvById(customerId, cvId);
         return "Delete successful";
     }
 }
