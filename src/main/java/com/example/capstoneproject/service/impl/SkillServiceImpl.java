@@ -1,15 +1,14 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Project;
-import com.example.capstoneproject.entity.Skill;
-import com.example.capstoneproject.entity.SourceWork;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.ProjectMapper;
 import com.example.capstoneproject.mapper.SkillMapper;
 import com.example.capstoneproject.repository.ProjectRepository;
+import com.example.capstoneproject.repository.SkillOfCvRepository;
 import com.example.capstoneproject.repository.SkillRepository;
+import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.ProjectService;
 import com.example.capstoneproject.service.SkillService;
@@ -29,7 +28,10 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     SkillMapper skillMapper;
 
     @Autowired
-    CvService cvService;
+    CustomerService customerService;
+
+    @Autowired
+    SkillOfCvRepository skillOfCvRepository;
 
     public SkillServiceImpl(SkillRepository skillRepository, SkillMapper skillMapper) {
         super(skillRepository, skillMapper, skillRepository::findById);
@@ -40,8 +42,8 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     @Override
     public SkillDto createSkill(Integer id, SkillDto dto) {
         Skill skill = skillMapper.mapDtoToEntity(dto);
-        Cv cv = cvService.getCvById(id);
-        skill.setCv(cv);
+        Customer customer = customerService.getCustomerById(id);
+        skill.setCustomer(customer);
         skill.setStatus(CvStatus.ACTIVE);
         Skill saved = skillRepository.save(skill);
         return skillMapper.mapEntityToDto(saved);
@@ -49,12 +51,12 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
 
 
     @Override
-    public boolean updateSkill(int cvId, int skillId, SkillDto dto) {
+    public boolean updateSkill(int customerId, int skillId, SkillDto dto) {
         Optional<Skill> existingSkillOptional = skillRepository.findById(skillId);
         if (existingSkillOptional.isPresent()) {
             Skill existingSkill = existingSkillOptional.get();
-            if (existingSkill.getCv().getId() != cvId) {
-                throw new IllegalArgumentException("Skill does not belong to CV with id " + cvId);
+            if (existingSkill.getCustomer().getId() != customerId) {
+                throw new IllegalArgumentException("Skill does not belong to Customer with id " + customerId);
             }
             if (dto.getDescription() != null && !existingSkill.getDescription().equals(dto.getDescription())) {
                 existingSkill.setDescription(dto.getDescription());
@@ -72,8 +74,8 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     }
 
     @Override
-    public List<SkillViewDto> getAllSkill(int cvId) {
-        List<Skill> skills = skillRepository.findSkillsByStatus(cvId,CvStatus.ACTIVE);
+    public List<SkillViewDto> getAllSkill(int customerId) {
+        List<Skill> skills = skillRepository.findSkillsByStatus(customerId,CvStatus.ACTIVE);
         return skills.stream()
                 .filter(skill -> skill.getStatus() == CvStatus.ACTIVE)
                 .map(skill -> {
@@ -86,8 +88,8 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     }
 
     @Override
-    public void deleteSkillById(Integer cvId,Integer skillId) {
-        boolean isSkillBelongsToCv = skillRepository.existsByIdAndCv_Id(skillId, cvId);
+    public void deleteSkillById(Integer customerId,Integer skillId) {
+        boolean isSkillBelongsToCv = skillRepository.existsByIdAndCustomer_Id(skillId, customerId);
 
         if (isSkillBelongsToCv) {
             Optional<Skill> Optional = skillRepository.findById(skillId);
@@ -97,7 +99,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                 skillRepository.save(skill);
             }
         } else {
-            throw new IllegalArgumentException("Skill with ID " + skillId + " does not belong to CV with ID " + cvId);
+            throw new IllegalArgumentException("Skill with ID " + skillId + " does not belong to Customer with ID " + customerId);
         }
     }
 

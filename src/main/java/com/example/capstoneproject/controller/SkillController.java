@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv")
+@RequestMapping("/api/v1/customer")
 public class SkillController {
     @Autowired
     SkillService skillService;
@@ -20,19 +20,19 @@ public class SkillController {
         this.skillService = skillService;
     }
 
-    @GetMapping("/{cvId}/skills")
-    public List<SkillViewDto> getAllSkill(@PathVariable("cvId") int cvId) {
-        return skillService.getAllSkill(cvId);
+    @GetMapping("/{customerId}/skills")
+    public List<SkillViewDto> getAllSkill(@PathVariable("customerId") int customerId) {
+        return skillService.getAllSkill(customerId);
     }
 
-    @PostMapping("/{cvId}/skills")
-    public SkillDto postSkill(@PathVariable("cvId") int cvId,@RequestBody SkillDto Dto) {
-        return skillService.createSkill(cvId,Dto);
+    @PostMapping("/{customerId}/skills")
+    public SkillDto postSkill(@PathVariable("customerId") int customerId,@RequestBody SkillDto Dto) {
+        return skillService.createSkill(customerId,Dto);
     }
 
-    @PutMapping("/{cvId}/skills/{skillId}")
-    public String updateSkill(@PathVariable("cvId") int cvId,@PathVariable("skillId") int skillId, @RequestBody SkillDto Dto) {
-        boolean check = skillService.updateSkill(cvId,skillId, Dto);
+    @PutMapping("/{customerId}/skills/{skillId}")
+    public String updateSkill(@PathVariable("customerId") int customerId,@PathVariable("skillId") int skillId, @RequestBody SkillDto Dto) {
+        boolean check = skillService.updateSkill(customerId,skillId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class SkillController {
         }
     }
 
-    @DeleteMapping("/{cvId}/skills/{skillId}")
-    public String deleteProject(@PathVariable("cvId") int cvId,@PathVariable("skillId") int skillId) {
-        skillService.deleteSkillById(cvId,skillId);
+    @DeleteMapping("/{customerId}/skills/{skillId}")
+    public String deleteProject(@PathVariable("customerId") int customerId,@PathVariable("skillId") int skillId) {
+        skillService.deleteSkillById(customerId,skillId);
         return "Delete successful";
     }
 }

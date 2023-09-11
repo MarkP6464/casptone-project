@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -36,6 +37,9 @@ public class Education {
     private CvStatus Status;
 
     @ManyToOne
-    @JoinColumn(name = "cv_id")
-    private Cv cv;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @OneToMany(mappedBy = "education", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EducationOfCv> educationOfCvList;
 }

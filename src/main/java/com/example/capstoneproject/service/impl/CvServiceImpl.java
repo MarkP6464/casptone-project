@@ -88,110 +88,20 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                         contactDto.setEmail(contact.getEmail());
                         cvDto.setContact(contactDto);
                     }
-                    cvDto.setCertifications(
-                            cv.getCertifications().stream()
-                                    .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
-                                    .map(certification -> {
-                                        CertificationViewDto certificationViewDto = new CertificationViewDto();
-                                        certificationViewDto.setId(certification.getId());
-                                        certificationViewDto.setName(certification.getName());
-                                        certificationViewDto.setCertificateSource(certification.getCertificateSource());
-                                        certificationViewDto.setEndYear(certification.getEndYear());
-                                        certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
-                                        return certificationViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
-                    cvDto.setEducations(
-                            cv.getEducations().stream()
-                                    .filter(education -> education.getStatus() == CvStatus.ACTIVE)
-                                    .map(education -> {
-                                        EducationViewDto educationViewDto = new EducationViewDto();
-                                        educationViewDto.setId(education.getId());
-                                        educationViewDto.setDegree(education.getDegree());
-                                        educationViewDto.setCollegeName(education.getCollegeName());
-                                        educationViewDto.setLocation(education.getLocation());
-                                        educationViewDto.setEndYear(education.getEndYear());
-                                        educationViewDto.setMinor(education.getMinor());
-                                        educationViewDto.setGpa(education.getGpa());
-                                        educationViewDto.setDescription(education.getDescription());
-                                        return educationViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
-                    cvDto.setExperiences(
-                            cv.getExperiences().stream()
-                                    .filter(experience -> experience.getStatus() == CvStatus.ACTIVE)
-                                    .map(experience -> {
-                                        ExperienceViewDto experienceViewDto = new ExperienceViewDto();
-                                        experienceViewDto.setId(experience.getId());
-                                        experienceViewDto.setRole(experience.getRole());
-                                        experienceViewDto.setCompanyName(experience.getCompanyName());
-                                        experienceViewDto.setStartDate(experience.getStartDate());
-                                        experienceViewDto.setEndDate(experience.getEndDate());
-                                        experienceViewDto.setLocation(experience.getLocation());
-                                        experienceViewDto.setDescription(experience.getDescription());
-                                        return experienceViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
-                    cvDto.setInvolvements(
-                            cv.getInvolvements().stream()
-                                    .filter(involvement -> involvement.getStatus() == CvStatus.ACTIVE)
-                                    .map(involvement -> {
-                                        InvolvementViewDto involvementViewDto = new InvolvementViewDto();
-                                        involvementViewDto.setId(involvement.getId());
-                                        involvementViewDto.setOrganizationRole(involvement.getOrganizationRole());
-                                        involvementViewDto.setOrganizationName(involvement.getOrganizationName());
-                                        involvementViewDto.setStartDate(involvement.getStartDate());
-                                        involvementViewDto.setEndDate(involvement.getEndDate());
-                                        involvementViewDto.setCollege(involvement.getCollege());
-                                        involvementViewDto.setDescription(involvement.getDescription());
-                                        return involvementViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
-                    cvDto.setProjects(
-                            cv.getProjects().stream()
-                                    .filter(project -> project.getStatus() == CvStatus.ACTIVE)
-                                    .map(project -> {
-                                        ProjectViewDto projectViewDto = new ProjectViewDto();
-                                        projectViewDto.setId(project.getId());
-                                        projectViewDto.setTitle(project.getTitle());
-                                        projectViewDto.setOrganization(project.getOrganization());
-                                        projectViewDto.setStartDate(project.getStartDate());
-                                        projectViewDto.setEndDate(project.getEndDate());
-                                        projectViewDto.setProjectUrl(project.getProjectUrl());
-                                        projectViewDto.setDescription(project.getDescription());
-                                        return projectViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
-                    cvDto.setSkills(
-                            cv.getSkills().stream()
-                                    .filter(skill -> skill.getStatus() == CvStatus.ACTIVE)
-                                    .map(skill -> {
-                                        SkillViewDto skillViewDto = new SkillViewDto();
-                                        skillViewDto.setId(skill.getId());
-                                        skillViewDto.setDescription(skill.getDescription());
-                                        return skillViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
-                    cvDto.setSourceWorks(
-                            cv.getSourceWorks().stream()
-                                    .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
-                                    .map(sourceWork -> {
-                                        SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
-                                        sourceWorkViewDto.setName(sourceWork.getName());
-                                        sourceWorkViewDto.setCourseLocation(sourceWork.getCourseLocation());
-                                        sourceWorkViewDto.setEndYear(sourceWork.getEndYear());
-                                        sourceWorkViewDto.setSkill(sourceWork.getSkill());
-                                        sourceWorkViewDto.setDescription(sourceWork.getDescription());
-                                        return sourceWorkViewDto;
-                                    })
-                                    .collect(Collectors.toList())
-                    );
+//                    cvDto.setCertifications(
+//                            cv.getCertifications().stream()
+//                                    .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
+//                                    .map(certification -> {
+//                                        CertificationViewDto certificationViewDto = new CertificationViewDto();
+//                                        certificationViewDto.setId(certification.getId());
+//                                        certificationViewDto.setName(certification.getName());
+//                                        certificationViewDto.setCertificateSource(certification.getCertificateSource());
+//                                        certificationViewDto.setEndYear(certification.getEndYear());
+//                                        certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
+//                                        return certificationViewDto;
+//                                    })
+//                                    .collect(Collectors.toList())
+//                    );
                     return cvDto;
                 })
                 .collect(Collectors.toList());
@@ -235,110 +145,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 contactDto.setEmail(contact.getEmail());
                 cvDto.setContact(contactDto);
             }
-            cvDto.setCertifications(
-                    cv.getCertifications().stream()
-                            .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
-                            .map(certification -> {
-                                CertificationViewDto certificationViewDto = new CertificationViewDto();
-                                certificationViewDto.setId(certification.getId());
-                                certificationViewDto.setName(certification.getName());
-                                certificationViewDto.setCertificateSource(certification.getCertificateSource());
-                                certificationViewDto.setEndYear(certification.getEndYear());
-                                certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
-                                return certificationViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
-            cvDto.setEducations(
-                    cv.getEducations().stream()
-                            .filter(education -> education.getStatus() == CvStatus.ACTIVE)
-                            .map(education -> {
-                                EducationViewDto educationViewDto = new EducationViewDto();
-                                educationViewDto.setId(education.getId());
-                                educationViewDto.setDegree(education.getDegree());
-                                educationViewDto.setCollegeName(education.getCollegeName());
-                                educationViewDto.setLocation(education.getLocation());
-                                educationViewDto.setEndYear(education.getEndYear());
-                                educationViewDto.setMinor(education.getMinor());
-                                educationViewDto.setGpa(education.getGpa());
-                                educationViewDto.setDescription(education.getDescription());
-                                return educationViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
-            cvDto.setExperiences(
-                    cv.getExperiences().stream()
-                            .filter(experience -> experience.getStatus() == CvStatus.ACTIVE)
-                            .map(experience -> {
-                                ExperienceViewDto experienceViewDto = new ExperienceViewDto();
-                                experienceViewDto.setId(experience.getId());
-                                experienceViewDto.setRole(experience.getRole());
-                                experienceViewDto.setCompanyName(experience.getCompanyName());
-                                experienceViewDto.setStartDate(experience.getStartDate());
-                                experienceViewDto.setEndDate(experience.getEndDate());
-                                experienceViewDto.setLocation(experience.getLocation());
-                                experienceViewDto.setDescription(experience.getDescription());
-                                return experienceViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
-            cvDto.setInvolvements(
-                    cv.getInvolvements().stream()
-                            .filter(involvement -> involvement.getStatus() == CvStatus.ACTIVE)
-                            .map(involvement -> {
-                                InvolvementViewDto involvementViewDto = new InvolvementViewDto();
-                                involvementViewDto.setId(involvement.getId());
-                                involvementViewDto.setOrganizationRole(involvement.getOrganizationRole());
-                                involvementViewDto.setOrganizationName(involvement.getOrganizationName());
-                                involvementViewDto.setStartDate(involvement.getStartDate());
-                                involvementViewDto.setEndDate(involvement.getEndDate());
-                                involvementViewDto.setCollege(involvement.getCollege());
-                                involvementViewDto.setDescription(involvement.getDescription());
-                                return involvementViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
-            cvDto.setProjects(
-                    cv.getProjects().stream()
-                            .filter(project -> project.getStatus() == CvStatus.ACTIVE)
-                            .map(project -> {
-                                ProjectViewDto projectViewDto = new ProjectViewDto();
-                                projectViewDto.setId(project.getId());
-                                projectViewDto.setTitle(project.getTitle());
-                                projectViewDto.setOrganization(project.getOrganization());
-                                projectViewDto.setStartDate(project.getStartDate());
-                                projectViewDto.setEndDate(project.getEndDate());
-                                projectViewDto.setProjectUrl(project.getProjectUrl());
-                                projectViewDto.setDescription(project.getDescription());
-                                return projectViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
-            cvDto.setSkills(
-                    cv.getSkills().stream()
-                            .filter(skill -> skill.getStatus() == CvStatus.ACTIVE)
-                            .map(skill -> {
-                                SkillViewDto skillViewDto = new SkillViewDto();
-                                skillViewDto.setId(skill.getId());
-                                skillViewDto.setDescription(skill.getDescription());
-                                return skillViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
-            cvDto.setSourceWorks(
-                    cv.getSourceWorks().stream()
-                            .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
-                            .map(sourceWork -> {
-                                SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
-                                sourceWorkViewDto.setName(sourceWork.getName());
-                                sourceWorkViewDto.setCourseLocation(sourceWork.getCourseLocation());
-                                sourceWorkViewDto.setEndYear(sourceWork.getEndYear());
-                                sourceWorkViewDto.setSkill(sourceWork.getSkill());
-                                sourceWorkViewDto.setDescription(sourceWork.getDescription());
-                                return sourceWorkViewDto;
-                            })
-                            .collect(Collectors.toList())
-            );
 
             return cvDto;
         } else {

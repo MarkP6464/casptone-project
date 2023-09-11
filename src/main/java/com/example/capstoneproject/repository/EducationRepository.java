@@ -10,8 +10,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface EducationRepository extends JpaRepository<Education, Integer> {
-    @Query("SELECT c FROM Education c WHERE c.cv.id = :cvId AND c.Status = :status")
-    List<Education> findEducationsByStatus(@Param("cvId") int id,@Param("status") CvStatus status);
+    @Query("SELECT c FROM Education c WHERE c.customer.id = :customerId AND c.Status = :status")
+    List<Education> findEducationsByStatus(@Param("customerId") int customerId,@Param("status") CvStatus status);
 
-    boolean existsByIdAndCv_Id(Integer educationId, Integer cvId);
+    boolean existsByIdAndCustomer_Id(Integer educationId, Integer customerId);
+
+    @Query("SELECT c FROM Education c WHERE c.id = :educationId AND c.Status = :status")
+    Education findEducationById(@Param("educationId") int educationId, @Param("status") CvStatus status);
+
+    @Query("SELECT c FROM Education c WHERE c.Status = :status")
+    List<Education> findByStatus(@Param("status") CvStatus status);
 }

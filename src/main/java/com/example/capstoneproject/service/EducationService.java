@@ -9,8 +9,8 @@ import java.util.List;
 public interface EducationService extends BaseService<EducationDto, Integer> {
     EducationDto update(Integer id, EducationDto dto);
 
-    boolean updateEducation(int cvId, int educationId, EducationDto dto);
-    List<EducationViewDto> getAllEducation(int cvId);
+    boolean updateEducation(int customerId, int educationId, EducationDto dto);
+    List<EducationViewDto> getAllEducation(int customerId);
     EducationDto createEducation(Integer id, EducationDto dto);
-    void deleteEducationById(Integer cvId,Integer educationId);
+    void deleteEducationById(Integer customerId,Integer educationId);
 }

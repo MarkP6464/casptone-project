@@ -1,15 +1,13 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Education;
-import com.example.capstoneproject.entity.Involvement;
-import com.example.capstoneproject.entity.Project;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.mapper.InvolvementMapper;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.repository.InvolvementRepository;
+import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.InvolvementService;
@@ -29,7 +27,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     InvolvementMapper involvementMapper;
 
     @Autowired
-    CvService cvService;
+    CustomerService customerService;
 
     public InvolvementServiceImpl(InvolvementRepository involvementRepository, InvolvementMapper involvementMapper) {
         super(involvementRepository, involvementMapper, involvementRepository::findById);
@@ -40,20 +38,20 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementDto createInvolvement(Integer id, InvolvementDto dto) {
         Involvement involvement = involvementMapper.mapDtoToEntity(dto);
-        Cv cv = cvService.getCvById(id);
-        involvement.setCv(cv);
+        Customer customer = customerService.getCustomerById(id);
+        involvement.setCustomer(customer);
         involvement.setStatus(CvStatus.ACTIVE);
         Involvement saved = involvementRepository.save(involvement);
         return involvementMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateInvolvement(int cvId, int involvementId, InvolvementDto dto) {
+    public boolean updateInvolvement(int customerId, int involvementId, InvolvementDto dto) {
         Optional<Involvement> existingInvolvementOptional = involvementRepository.findById(involvementId);
         if (existingInvolvementOptional.isPresent()) {
             Involvement existingInvolvement = existingInvolvementOptional.get();
-            if (existingInvolvement.getCv().getId() != cvId) {
-                throw new IllegalArgumentException("Involvement does not belong to CV with id " + cvId);
+            if (existingInvolvement.getCustomer().getId() != customerId) {
+                throw new IllegalArgumentException("Involvement does not belong to Customer with id " + customerId);
             }
             if (dto.getOrganizationRole() != null && !existingInvolvement.getOrganizationRole().equals(dto.getOrganizationRole())) {
                 existingInvolvement.setOrganizationRole(dto.getOrganizationRole());
@@ -95,8 +93,8 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public List<InvolvementViewDto> getAllInvolvement(int cvId) {
-        List<Involvement> involvements = involvementRepository.findInvolvementsByStatus(cvId,CvStatus.ACTIVE);
+    public List<InvolvementViewDto> getAllInvolvement(int customerId) {
+        List<Involvement> involvements = involvementRepository.findInvolvementsByStatus(customerId,CvStatus.ACTIVE);
         return involvements.stream()
                 .filter(involvement -> involvement.getStatus() == CvStatus.ACTIVE)
                 .map(involvement -> {
@@ -114,8 +112,8 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public void deleteInvolvementById(Integer cvId,Integer involvementId) {
-        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndCv_Id(involvementId, cvId);
+    public void deleteInvolvementById(Integer customerId,Integer involvementId) {
+        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndCustomer_Id(involvementId, customerId);
 
         if (isInvolvementBelongsToCv) {
             Optional<Involvement> Optional = involvementRepository.findById(involvementId);
@@ -125,7 +123,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 involvementRepository.save(involvement);
             }
         } else {
-            throw new IllegalArgumentException("Project with ID " + involvementId + " does not belong to CV with ID " + cvId);
+            throw new IllegalArgumentException("Project with ID " + involvementId + " does not belong to Customer with ID " + customerId);
         }
     }
 

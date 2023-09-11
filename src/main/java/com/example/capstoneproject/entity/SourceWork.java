@@ -31,6 +31,6 @@ public class SourceWork {
     private CvStatus Status;
 
     @ManyToOne
-    @JoinColumn(name = "cv_id")
-    private Cv cv;
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 }

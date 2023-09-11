@@ -7,6 +7,7 @@ import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.repository.ExperienceRepository;
+import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.ExperienceService;
@@ -26,7 +27,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     ExperienceMapper experienceMapper;
 
     @Autowired
-    CvService cvService;
+    CustomerService customerService;
 
     public ExperienceServiceImpl(ExperienceRepository experienceRepository, ExperienceMapper experienceMapper) {
         super(experienceRepository, experienceMapper, experienceRepository::findById);
@@ -37,20 +38,20 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     @Override
     public ExperienceDto createExperience(Integer id, ExperienceDto dto) {
         Experience experience = experienceMapper.mapDtoToEntity(dto);
-        Cv cv = cvService.getCvById(id);
-        experience.setCv(cv);
+        Customer customer = customerService.getCustomerById(id);
+        experience.setCustomer(customer);
         experience.setStatus(CvStatus.ACTIVE);
         Experience saved = experienceRepository.save(experience);
         return experienceMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateExperience(int cvId, int experienceId, ExperienceDto dto) {
+    public boolean updateExperience(int customerId, int experienceId, ExperienceDto dto) {
         Optional<Experience> existingExperienceOptional = experienceRepository.findById(experienceId);
         if (existingExperienceOptional.isPresent()) {
             Experience existingExperience = existingExperienceOptional.get();
-            if (existingExperience.getCv().getId() != cvId) {
-                throw new IllegalArgumentException("Experience does not belong to CV with id " + cvId);
+            if (existingExperience.getCustomer().getId() != customerId) {
+                throw new IllegalArgumentException("Experience does not belong to Customer with id " + customerId);
             }
             if (dto.getRole() != null && !existingExperience.getRole().equals(dto.getRole())) {
                 existingExperience.setRole(dto.getRole());
@@ -92,8 +93,8 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public List<ExperienceViewDto> getAllExperience(int cvId) {
-        List<Experience> experiences = experienceRepository.findExperiencesByStatus(cvId,CvStatus.ACTIVE);
+    public List<ExperienceViewDto> getAllExperience(int customerId) {
+        List<Experience> experiences = experienceRepository.findExperiencesByStatus(customerId,CvStatus.ACTIVE);
         return experiences.stream()
                 .filter(experience -> experience.getStatus() == CvStatus.ACTIVE)
                 .map(experience -> {
@@ -111,8 +112,8 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public void deleteExperienceById(Integer cvId,Integer experienceId) {
-        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCv_Id(experienceId, cvId);
+    public void deleteExperienceById(Integer customerId,Integer experienceId) {
+        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCustomer_Id(experienceId, customerId);
 
         if (isExperienceBelongsToCv) {
             Optional<Experience> Optional = experienceRepository.findById(experienceId);
@@ -122,7 +123,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 experienceRepository.save(experience);
             }
         } else {
-            throw new IllegalArgumentException("Experience with ID " + experienceId + " does not belong to CV with ID " + cvId);
+            throw new IllegalArgumentException("Experience with ID " + experienceId + " does not belong to Customer with ID " + customerId);
         }
     }
 

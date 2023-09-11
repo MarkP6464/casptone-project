@@ -39,25 +39,6 @@ public class Cv {
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<Certification> certifications = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<Education> educations = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<Experience> experiences = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<Involvement> involvements = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<Project> projects = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<Skill> skills = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
-    private List<SourceWork> sourceWorks = new ArrayList<>();
-
+    @OneToMany(mappedBy = "cv", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SkillOfCv> skills;
 }

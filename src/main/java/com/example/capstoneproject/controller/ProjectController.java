@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv")
+@RequestMapping("/api/v1/customer")
 public class ProjectController {
     @Autowired
     ProjectService projectService;
@@ -20,19 +20,19 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping("/{cvId}/projects")
-    public List<ProjectViewDto> getAllProject(@PathVariable("cvId") int cvId) {
-        return projectService.getAllProject(cvId);
+    @GetMapping("/{customerId}/projects")
+    public List<ProjectViewDto> getAllProject(@PathVariable("customerId") int customerId) {
+        return projectService.getAllProject(customerId);
     }
 
-    @PostMapping("/{cvId}/projects")
-    public ProjectDto postProject(@PathVariable("cvId") int cvId,@RequestBody ProjectDto Dto) {
-        return projectService.createProject(cvId,Dto);
+    @PostMapping("/{customerId}/projects")
+    public ProjectDto postProject(@PathVariable("customerId") int customerId,@RequestBody ProjectDto Dto) {
+        return projectService.createProject(customerId,Dto);
     }
 
-    @PutMapping("/{cvId}/projects/{projectId}")
-    public String updateProjectDto(@PathVariable("cvId") int cvId,@PathVariable("projectId") int projectId, @RequestBody ProjectDto Dto) {
-        boolean check = projectService.updateProject(cvId, projectId, Dto);
+    @PutMapping("/{customerId}/projects/{projectId}")
+    public String updateProjectDto(@PathVariable("customerId") int customerId,@PathVariable("projectId") int projectId, @RequestBody ProjectDto Dto) {
+        boolean check = projectService.updateProject(customerId, projectId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class ProjectController {
         }
     }
 
-    @DeleteMapping("/{cvId}/projects/{projectId}")
-    public String deleteProject(@PathVariable("cvId") int cvId,@PathVariable("projectId") int projectId) {
-        projectService.deleteProjectById(cvId,projectId);
+    @DeleteMapping("/{customerId}/projects/{projectId}")
+    public String deleteProject(@PathVariable("customerId") int customerId,@PathVariable("projectId") int projectId) {
+        projectService.deleteProjectById(customerId,projectId);
         return "Delete successful";
     }
 }

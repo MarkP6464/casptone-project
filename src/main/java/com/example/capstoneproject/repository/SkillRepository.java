@@ -10,8 +10,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SkillRepository extends JpaRepository<Skill, Integer> {
-    @Query("SELECT c FROM Skill c WHERE c.cv.id = :cvId AND c.Status = :status")
-    List<Skill> findSkillsByStatus(@Param("cvId") int id, @Param("status") CvStatus status);
+    @Query("SELECT c FROM Skill c WHERE c.customer.id = :customerId AND c.Status = :status")
+    List<Skill> findSkillsByStatus(@Param("customerId") int customerId, @Param("status") CvStatus status);
 
-    boolean existsByIdAndCv_Id(Integer skillId, Integer cvId);
+    boolean existsByIdAndCustomer_Id(Integer skillId, Integer customerId);
+
+    @Query("SELECT c FROM Skill c WHERE c.id = :skillId AND c.Status = :status")
+    Skill findSkillById(@Param("skillId") int skillId, @Param("status") CvStatus status);
+
+    @Query("SELECT c FROM Skill c WHERE c.Status = :status")
+    List<Skill> findByStatus(@Param("status") CvStatus status);
 }

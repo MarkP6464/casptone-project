@@ -1,15 +1,13 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Involvement;
-import com.example.capstoneproject.entity.Project;
-import com.example.capstoneproject.entity.Skill;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.InvolvementMapper;
 import com.example.capstoneproject.mapper.ProjectMapper;
 import com.example.capstoneproject.repository.InvolvementRepository;
 import com.example.capstoneproject.repository.ProjectRepository;
+import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.InvolvementService;
 import com.example.capstoneproject.service.ProjectService;
@@ -29,7 +27,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     ProjectMapper projectMapper;
 
     @Autowired
-    CvService cvService;
+    CustomerService customerService;
 
     public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         super(projectRepository, projectMapper, projectRepository::findById);
@@ -40,20 +38,20 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
-        Cv cv = cvService.getCvById(id);
-        project.setCv(cv);
+        Customer customer = customerService.getCustomerById(id);
+        project.setCustomer(customer);
         project.setStatus(CvStatus.ACTIVE);
         Project saved = projectRepository.save(project);
         return projectMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateProject(int cvId, int projectId, ProjectDto dto) {
+    public boolean updateProject(int customerId, int projectId, ProjectDto dto) {
         Optional<Project> existingProjectOptional = projectRepository.findById(projectId);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
-            if (existingProject.getCv().getId() != cvId) {
-                throw new IllegalArgumentException("Project does not belong to CV with id " + cvId);
+            if (existingProject.getCustomer().getId() != customerId) {
+                throw new IllegalArgumentException("Project does not belong to Customer with id " + customerId);
             }
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
                 existingProject.setTitle(dto.getTitle());
@@ -95,8 +93,8 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public List<ProjectViewDto> getAllProject(int cvId) {
-        List<Project> projects = projectRepository.findProjectsByStatus(cvId,CvStatus.ACTIVE);
+    public List<ProjectViewDto> getAllProject(int customerId) {
+        List<Project> projects = projectRepository.findProjectsByStatus(customerId,CvStatus.ACTIVE);
         return projects.stream()
                 .filter(project -> project.getStatus() == CvStatus.ACTIVE)
                 .map(project -> {
@@ -114,8 +112,8 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public void deleteProjectById(Integer cvId,Integer projectId) {
-        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCv_Id(projectId, cvId);
+    public void deleteProjectById(Integer customerId,Integer projectId) {
+        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCustomer_Id(projectId, customerId);
 
         if (isProjectBelongsToCv) {
             Optional<Project> Optional = projectRepository.findById(projectId);
@@ -125,7 +123,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 projectRepository.save(project);
             }
         } else {
-            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to CV with ID " + cvId);
+            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to Customer with ID " + customerId);
         }
     }
 

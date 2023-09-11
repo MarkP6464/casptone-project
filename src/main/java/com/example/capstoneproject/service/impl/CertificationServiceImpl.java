@@ -3,15 +3,13 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.CertificationViewDto;
 import com.example.capstoneproject.Dto.ProjectDto;
-import com.example.capstoneproject.entity.Certification;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Education;
-import com.example.capstoneproject.entity.Project;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.AbstractMapper;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.repository.CertificationRepository;
 import com.example.capstoneproject.service.CertificationService;
+import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,7 +29,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     CertificationMapper certificationMapper;
 
     @Autowired
-    CvService cvService;
+    CustomerService customerService;
 
     public CertificationServiceImpl(CertificationRepository certificationRepository, CertificationMapper certificationMapper) {
         super(certificationRepository, certificationMapper, certificationRepository::findById);
@@ -59,20 +57,20 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     @Override
     public CertificationDto createCertification(Integer id, CertificationDto dto) {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
-        Cv cv = cvService.getCvById(id);
-        certification.setCv(cv);
+        Customer customer = customerService.getCustomerById(id);
+        certification.setCustomer(customer);
         certification.setStatus(CvStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
         return certificationMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateCertification(int cvId, int educationId, CertificationDto dto) {
+    public boolean updateCertification(int customerId, int educationId, CertificationDto dto) {
         Optional<Certification> existingCertificationOptional = certificationRepository.findById(educationId);
         if (existingCertificationOptional.isPresent()) {
             Certification existingCertification = existingCertificationOptional.get();
-            if (existingCertification.getCv().getId() != cvId) {
-                throw new IllegalArgumentException("Certification does not belong to CV with id " + cvId);
+            if (existingCertification.getCustomer().getId() != customerId) {
+                throw new IllegalArgumentException("Certification does not belong to Customer with id " + customerId);
             }
             if (dto.getName() != null && !existingCertification.getName().equals(dto.getName())) {
                 existingCertification.setName(dto.getName());
@@ -103,8 +101,8 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     }
 
     @Override
-    public void deleteCertificationById(Integer cvId,Integer certificationId) {
-        boolean isCertificationBelongsToCv = certificationRepository.existsByIdAndCv_Id(certificationId, cvId);
+    public void deleteCertificationById(Integer customerId,Integer certificationId) {
+        boolean isCertificationBelongsToCv = certificationRepository.existsByIdAndCustomer_Id(certificationId, customerId);
 
         if (isCertificationBelongsToCv) {
             Optional<Certification> Optional = certificationRepository.findById(certificationId);
@@ -114,7 +112,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 certificationRepository.save(certification);
             }
         } else {
-            throw new IllegalArgumentException("Education with ID " + certificationId + " does not belong to CV with ID " + cvId);
+            throw new IllegalArgumentException("Education with ID " + certificationId + " does not belong to Customer with ID " + customerId);
         }
     }
 

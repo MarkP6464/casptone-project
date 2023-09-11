@@ -24,12 +24,10 @@ public class CvDto {
     private TemplateViewDto template;
 
     private ContactViewDto contact;
-    private List<CertificationViewDto> certifications;
     private List<EducationViewDto> educations;
     private List<ExperienceViewDto> experiences;
     private List<InvolvementViewDto> involvements;
     private List<ProjectViewDto> projects;
-    private List<SkillViewDto> skills;
     private List<SourceWorkViewDto> sourceWorks;
 
 }

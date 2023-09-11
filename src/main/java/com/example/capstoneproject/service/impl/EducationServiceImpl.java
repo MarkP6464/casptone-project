@@ -8,6 +8,7 @@ import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.CertificationRepository;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.service.CertificationService;
+import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     EducationMapper educationMapper;
 
     @Autowired
-    CvService cvService;
+    CustomerService customerService;
 
     public EducationServiceImpl(EducationRepository educationRepository, EducationMapper educationMapper) {
         super(educationRepository, educationMapper, educationRepository::findById);
@@ -37,20 +38,20 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     @Override
     public EducationDto createEducation(Integer id, EducationDto dto) {
         Education education = educationMapper.mapDtoToEntity(dto);
-        Cv cv = cvService.getCvById(id);
-        education.setCv(cv);
+        Customer customer = customerService.getCustomerById(id);
+        education.setCustomer(customer);
         education.setStatus(CvStatus.ACTIVE);
         Education saved = educationRepository.save(education);
         return educationMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateEducation(int cvId, int educationId, EducationDto dto) {
+    public boolean updateEducation(int customerId, int educationId, EducationDto dto) {
         Optional<Education> existingEducationOptional = educationRepository.findById(educationId);
         if (existingEducationOptional.isPresent()) {
             Education existingEducation = existingEducationOptional.get();
-            if (existingEducation.getCv().getId() != cvId) {
-                throw new IllegalArgumentException("Education does not belong to CV with id " + cvId);
+            if (existingEducation.getCustomer().getId() != customerId) {
+                throw new IllegalArgumentException("Education does not belong to Customer with id " + customerId);
             }
             if (dto.getDegree() != null && !existingEducation.getDegree().equals(dto.getDegree())) {
                 existingEducation.setDegree(dto.getDegree());
@@ -96,8 +97,8 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public List<EducationViewDto> getAllEducation(int cvId) {
-        List<Education> educations = educationRepository.findEducationsByStatus(cvId,CvStatus.ACTIVE);
+    public List<EducationViewDto> getAllEducation(int customerId) {
+        List<Education> educations = educationRepository.findEducationsByStatus(customerId,CvStatus.ACTIVE);
         return educations.stream()
                 .filter(education -> education.getStatus() == CvStatus.ACTIVE)
                 .map(education -> {
@@ -117,7 +118,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
     @Override
     public void deleteEducationById(Integer cvId,Integer educationId) {
-        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCv_Id(educationId, cvId);
+        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCustomer_Id(educationId, cvId);
 
         if (isEducationBelongsToCv) {
             Optional<Education> Optional = educationRepository.findById(educationId);
@@ -127,7 +128,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 educationRepository.save(education);
             }
         } else {
-            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to CV with ID " + cvId);
+            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Customer with ID " + cvId);
         }
     }
 

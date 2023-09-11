@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/cv")
+@RequestMapping("/api/v1/customer")
 public class SourceWorkController {
     @Autowired
     SourceWorkService sourceWorkService;
@@ -20,19 +20,19 @@ public class SourceWorkController {
         this.sourceWorkService = sourceWorkService;
     }
 
-    @GetMapping("/{cvId}/source-works")
-    public List<SourceWorkViewDto> getAllSourceWork(@PathVariable("cvId") int cvId) {
-        return sourceWorkService.getAllSourceWork(cvId);
+    @GetMapping("/{customerId}/source-works")
+    public List<SourceWorkViewDto> getAllSourceWork(@PathVariable("customerId") int customerId) {
+        return sourceWorkService.getAllSourceWork(customerId);
     }
 
-    @PostMapping("/{cvId}/source-works")
-    public SourceWorkDto postSourceWork(@PathVariable("cvId") int cvId,@RequestBody SourceWorkDto Dto) {
-        return sourceWorkService.createSourceWork(cvId,Dto);
+    @PostMapping("/{customerId}/source-works")
+    public SourceWorkDto postSourceWork(@PathVariable("customerId") int customerId,@RequestBody SourceWorkDto Dto) {
+        return sourceWorkService.createSourceWork(customerId,Dto);
     }
 
-    @PutMapping("/{cvId}/source-works/{sourceId}")
-    public String updateSourceWork(@PathVariable("cvId") int cvId,@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkDto Dto) {
-        boolean check = sourceWorkService.updateSourceWork(cvId,sourceId, Dto);
+    @PutMapping("/{customerId}/source-works/{sourceId}")
+    public String updateSourceWork(@PathVariable("customerId") int customerId,@PathVariable("sourceId") int sourceId, @RequestBody SourceWorkDto Dto) {
+        boolean check = sourceWorkService.updateSourceWork(customerId,sourceId, Dto);
         if(check){
             return "Changes saved";
         }else{
@@ -40,9 +40,9 @@ public class SourceWorkController {
         }
     }
 
-    @DeleteMapping("/{cvId}/source-works/{sourceId}")
-    public String deleteSourceWork(@PathVariable("cvId") int cvId,@PathVariable("sourceId") int sourceId) {
-        sourceWorkService.deleteSourceWorkById(cvId,sourceId);
+    @DeleteMapping("/{customerId}/source-works/{sourceId}")
+    public String deleteSourceWork(@PathVariable("customerId") int customerId,@PathVariable("sourceId") int sourceId) {
+        sourceWorkService.deleteSourceWorkById(customerId,sourceId);
         return "Delete successful";
     }
 }
