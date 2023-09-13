@@ -8,9 +8,8 @@ import java.util.List;
 
 @Service
 public interface ProjectService extends BaseService<ProjectDto, Integer> {
-    ProjectDto update(Integer id, ProjectDto dto);
-    boolean updateProject(int cvId, int projectId, ProjectDto dto);
-    List<ProjectViewDto> getAllProject(int cvId);
+    boolean updateProject(int customerId, int projectId, ProjectDto dto);
+    List<ProjectViewDto> getAllProject(int customerId);
     ProjectDto createProject(Integer id, ProjectDto dto);
-    void deleteProjectById(Integer cvId,Integer projectId);
+    void deleteProjectById(Integer customerId,Integer projectId);
 }

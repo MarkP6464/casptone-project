@@ -38,6 +38,4 @@ public class Involvement {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "involvement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<InvolvementOfCv> involvementOfCvList;
 }

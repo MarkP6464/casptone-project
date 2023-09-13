@@ -22,8 +22,6 @@ public class CvDto {
     private CustomerViewDto customer;
 
     private TemplateViewDto template;
-
-    private ContactViewDto contact;
     private List<EducationViewDto> educations;
     private List<ExperienceViewDto> experiences;
     private List<InvolvementViewDto> involvements;

@@ -15,9 +15,4 @@ public interface CertificationRepository extends JpaRepository<Certification, In
 
     boolean existsByIdAndCustomer_Id(Integer certificationId, Integer customerId);
 
-    @Query("SELECT c FROM Certification c WHERE c.id = :certificationId AND c.Status = :status")
-    Certification findCertificationById(@Param("certificationId") int certificationId, @Param("status") CvStatus status);
-
-    @Query("SELECT c FROM Certification c WHERE c.Status = :status")
-    List<Certification> findByStatus(@Param("status") CvStatus status);
 }

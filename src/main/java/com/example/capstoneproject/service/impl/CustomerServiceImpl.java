@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CustomerDto;
+import com.example.capstoneproject.Dto.CustomerViewDto;
 import com.example.capstoneproject.Dto.CvDto;
 import com.example.capstoneproject.entity.Customer;
 import com.example.capstoneproject.entity.Cv;
@@ -37,5 +38,21 @@ public class CustomerServiceImpl extends AbstractBaseService<Customer, CustomerD
         } else {
             throw new IllegalArgumentException("Customer not found with ID: " + customerId);
         }
+    }
+
+    @Override
+    public CustomerViewDto getContactById(int customerId) {
+        Customer customer =  customerRepository.findCustomerById(customerId);
+        CustomerViewDto customerViewDto = new CustomerViewDto();
+        customerViewDto.setId(customer.getId());
+        customerViewDto.setName(customer.getName());
+        customerViewDto.setAvatar(customer.getAvatar());
+        customerViewDto.setPhone(customer.getPhone());
+        customerViewDto.setPermissionWebsite(customer.getPermissionWebsite());
+        customerViewDto.setEmail(customer.getEmail());
+        customerViewDto.setLinkin(customer.getLinkin());
+        customerViewDto.setCountry(customer.getCountry());
+
+        return customerViewDto;
     }
 }

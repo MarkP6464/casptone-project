@@ -10,5 +10,5 @@ public interface SkillService extends BaseService<SkillDto, Integer> {
     boolean updateSkill(int customerId, int skillId, SkillDto dto);
     List<SkillViewDto> getAllSkill(int customerId);
     SkillDto createSkill(Integer id, SkillDto dto);
-    void deleteSkillById(Integer customerIdId,Integer skillId);
+    void deleteSkillById(Integer customerId,Integer skillId);
 }

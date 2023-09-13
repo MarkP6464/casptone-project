@@ -3,14 +3,9 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.ProjectMapper;
 import com.example.capstoneproject.mapper.SkillMapper;
-import com.example.capstoneproject.repository.ProjectRepository;
-import com.example.capstoneproject.repository.SkillOfCvRepository;
 import com.example.capstoneproject.repository.SkillRepository;
 import com.example.capstoneproject.service.CustomerService;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.ProjectService;
 import com.example.capstoneproject.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,9 +24,6 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
 
     @Autowired
     CustomerService customerService;
-
-    @Autowired
-    SkillOfCvRepository skillOfCvRepository;
 
     public SkillServiceImpl(SkillRepository skillRepository, SkillMapper skillMapper) {
         super(skillRepository, skillMapper, skillRepository::findById);

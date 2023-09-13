@@ -39,7 +39,4 @@ public class Education {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
-
-    @OneToMany(mappedBy = "education", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EducationOfCv> educationOfCvList;
 }

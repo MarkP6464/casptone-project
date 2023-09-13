@@ -14,11 +14,6 @@ public interface ExperienceRepository extends JpaRepository<Experience, Integer>
     @Query("SELECT c FROM Experience c WHERE c.customer.id = :customerId AND c.Status = :status")
     List<Experience> findExperiencesByStatus(@Param("customerId") int customerId, @Param("status") CvStatus status);
 
-    boolean existsByIdAndCustomer_Id(Integer experienceId, Integer cvId);
+    boolean existsByIdAndCustomer_Id(Integer experienceId, Integer customerId);
 
-    @Query("SELECT c FROM Experience c WHERE c.id = :experienceId AND c.Status = :status")
-    Experience findExperienceById(@Param("experienceId") int experienceId, @Param("status") CvStatus status);
-
-    @Query("SELECT c FROM Experience c WHERE c.Status = :status")
-    List<Experience> findByStatus(@Param("status") CvStatus status);
 }

@@ -32,7 +32,4 @@ public class Certification {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
-
-    @OneToMany(mappedBy = "certification", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CertificationOfCv> certificationOfCvList;
 }

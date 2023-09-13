@@ -28,6 +28,4 @@ public class Skill {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SkillOfCv> skillOfCvList;
 }

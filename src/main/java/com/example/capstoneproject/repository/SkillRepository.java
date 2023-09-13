@@ -15,9 +15,4 @@ public interface SkillRepository extends JpaRepository<Skill, Integer> {
 
     boolean existsByIdAndCustomer_Id(Integer skillId, Integer customerId);
 
-    @Query("SELECT c FROM Skill c WHERE c.id = :skillId AND c.Status = :status")
-    Skill findSkillById(@Param("skillId") int skillId, @Param("status") CvStatus status);
-
-    @Query("SELECT c FROM Skill c WHERE c.Status = :status")
-    List<Skill> findByStatus(@Param("status") CvStatus status);
 }

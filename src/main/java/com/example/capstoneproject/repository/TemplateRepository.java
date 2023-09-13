@@ -1,7 +1,5 @@
 package com.example.capstoneproject.repository;
 
-import com.example.capstoneproject.entity.Contact;
-import com.example.capstoneproject.entity.SourceWork;
 import com.example.capstoneproject.entity.Template;
 import com.example.capstoneproject.enums.CvStatus;
 import org.springframework.data.jpa.repository.JpaRepository;

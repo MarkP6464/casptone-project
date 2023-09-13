@@ -117,8 +117,8 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public void deleteEducationById(Integer cvId,Integer educationId) {
-        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCustomer_Id(educationId, cvId);
+    public void deleteEducationById(Integer customerId,Integer educationId) {
+        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCustomer_Id(educationId, customerId);
 
         if (isEducationBelongsToCv) {
             Optional<Education> Optional = educationRepository.findById(educationId);
@@ -128,7 +128,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 educationRepository.save(education);
             }
         } else {
-            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Customer with ID " + cvId);
+            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Customer with ID " + customerId);
         }
     }
 

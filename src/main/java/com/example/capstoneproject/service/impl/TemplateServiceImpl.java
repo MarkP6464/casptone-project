@@ -1,18 +1,11 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.ContactDto;
-import com.example.capstoneproject.Dto.SourceWorkDto;
 import com.example.capstoneproject.Dto.TemplateDto;
 import com.example.capstoneproject.Dto.TemplateViewDto;
-import com.example.capstoneproject.entity.Contact;
-import com.example.capstoneproject.entity.SourceWork;
 import com.example.capstoneproject.entity.Template;
 import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.SourceWorkMapper;
 import com.example.capstoneproject.mapper.TemplateMapper;
-import com.example.capstoneproject.repository.SourceWorkRepository;
 import com.example.capstoneproject.repository.TemplateRepository;
-import com.example.capstoneproject.service.SourceWorkService;
 import com.example.capstoneproject.service.TemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -34,11 +34,4 @@ public class Cv {
     @ManyToOne
     @JoinColumn(name = "template_id")
     private Template template;
-
-    @ManyToOne
-    @JoinColumn(name = "contact_id")
-    private Contact contact;
-
-    @OneToMany(mappedBy = "cv", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SkillOfCv> skills;
 }

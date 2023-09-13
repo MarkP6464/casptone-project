@@ -4,19 +4,15 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.CvStatus;
 import com.example.capstoneproject.mapper.CertificationMapper;
-import com.example.capstoneproject.mapper.ContactMapper;
 import com.example.capstoneproject.mapper.CvMapper;
 import com.example.capstoneproject.mapper.EducationMapper;
-import com.example.capstoneproject.repository.ContactRepository;
 import com.example.capstoneproject.repository.CustomerRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.TemplateRepository;
-import com.example.capstoneproject.service.ContactService;
 import com.example.capstoneproject.service.CvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,8 +33,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     @Autowired
     CustomerRepository customerRepository;
 
-    @Autowired
-    ContactRepository contactRepository;
 
     @Autowired
     TemplateRepository templateRepository;
@@ -74,19 +68,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                         templateViewDto.setContent(template.getContent());
                         templateViewDto.setAmountView(template.getAmountView());
                         cvDto.setTemplate(templateViewDto);
-                    }
-                    Contact contact = cv.getContact();
-                    if (contact != null) {
-                        ContactViewDto contactDto = new ContactViewDto();
-                        contactDto.setId(contact.getId());
-                        contactDto.setState(contact.getState());
-                        contactDto.setCountry(contact.getCountry());
-                        contactDto.setFullName(contact.getFullName());
-                        contactDto.setWebsite(contact.getWebsite());
-                        contactDto.setPhone(contact.getPhone());
-                        contactDto.setLinkin(contact.getLinkin());
-                        contactDto.setEmail(contact.getEmail());
-                        cvDto.setContact(contactDto);
                     }
 //                    cvDto.setCertifications(
 //                            cv.getCertifications().stream()
@@ -131,19 +112,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 templateViewDto.setContent(template.getContent());
                 templateViewDto.setAmountView(template.getAmountView());
                 cvDto.setTemplate(templateViewDto);
-            }
-            Contact contact = cv.getContact();
-            if (contact != null) {
-                ContactViewDto contactDto = new ContactViewDto();
-                contactDto.setId(contact.getId());
-                contactDto.setState(contact.getState());
-                contactDto.setCountry(contact.getCountry());
-                contactDto.setFullName(contact.getFullName());
-                contactDto.setWebsite(contact.getWebsite());
-                contactDto.setPhone(contact.getPhone());
-                contactDto.setLinkin(contact.getLinkin());
-                contactDto.setEmail(contact.getEmail());
-                cvDto.setContact(contactDto);
             }
 
             return cvDto;
@@ -249,31 +217,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
     @Override
     public boolean updateCvContact(int customerId, int cvId, int contactId) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
-
-        if (customerOptional.isPresent()) {
-            Optional<Cv> cvOptional = cvRepository.findById(cvId);
-
-            if (cvOptional.isPresent()) {
-                Cv cv = cvOptional.get();
-                Optional<Contact> contactOptional = contactRepository.findById(contactId);
-
-                if (contactOptional.isPresent()) {
-                    Contact contact = contactOptional.get();
-                    cv.setContact(contact);
-
-                    cvRepository.save(cv);
-
-                    return true;
-                } else {
-                    throw new IllegalArgumentException("ContactId not found: " + contactId);
-                }
-            } else {
-                throw new IllegalArgumentException("CvId not found: " + cvId);
-            }
-        } else {
-            throw new IllegalArgumentException("CustomerId not found: " + customerId);
-        }
+        return false;
     }
 
     @Override

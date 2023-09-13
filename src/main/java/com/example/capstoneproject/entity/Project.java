@@ -39,7 +39,5 @@ public class Project {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectOfCv> projectOfCvList;
 
 }

@@ -15,9 +15,4 @@ public interface EducationRepository extends JpaRepository<Education, Integer> {
 
     boolean existsByIdAndCustomer_Id(Integer educationId, Integer customerId);
 
-    @Query("SELECT c FROM Education c WHERE c.id = :educationId AND c.Status = :status")
-    Education findEducationById(@Param("educationId") int educationId, @Param("status") CvStatus status);
-
-    @Query("SELECT c FROM Education c WHERE c.Status = :status")
-    List<Education> findByStatus(@Param("status") CvStatus status);
 }
