@@ -1,9 +1,6 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
-
-import java.util.Date;
 
 @Data
 @Builder

@@ -1,21 +1,13 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.SkillDto;
-import com.example.capstoneproject.Dto.SkillViewDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
 import com.example.capstoneproject.Dto.SourceWorkViewDto;
-import com.example.capstoneproject.entity.Customer;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.entity.SourceWork;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.SkillMapper;
+import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.SourceWorkMapper;
-import com.example.capstoneproject.repository.SkillRepository;
 import com.example.capstoneproject.repository.SourceWorkRepository;
-import com.example.capstoneproject.service.CustomerService;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.SkillService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.SourceWorkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +25,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     SourceWorkMapper sourceWorkMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService UsersService;
 
     public SourceWorkServiceImpl(SourceWorkRepository sourceWorkRepository, SourceWorkMapper sourceWorkMapper) {
         super(sourceWorkRepository, sourceWorkMapper, sourceWorkRepository::findById);
@@ -44,21 +36,21 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     @Override
     public SourceWorkDto createSourceWork(Integer id, SourceWorkDto dto) {
         SourceWork sourceWork = sourceWorkMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        sourceWork.setCustomer(customer);
-        sourceWork.setStatus(CvStatus.ACTIVE);
+        Users Users = UsersService.getUsersById(id);
+        sourceWork.setUser(Users);
+        sourceWork.setStatus(BasicStatus.ACTIVE);
         SourceWork saved = sourceWorkRepository.save(sourceWork);
         return sourceWorkMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateSourceWork(int customerId, int sourceWorkId, SourceWorkDto dto) {
+    public boolean updateSourceWork(int UsersId, int sourceWorkId, SourceWorkDto dto) {
         Optional<SourceWork> existingSourceWorkOptional = sourceWorkRepository.findById(sourceWorkId);
         if (existingSourceWorkOptional.isPresent()) {
             SourceWork existingSourceWork = existingSourceWorkOptional.get();
 
-            if (existingSourceWork.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Source Work does not belong to Customer with id " + customerId);
+            if (existingSourceWork.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Source Work does not belong to Users with id " + UsersId);
             }
 
             if (dto.getName() != null && !existingSourceWork.getName().equals(dto.getName())) {
@@ -86,7 +78,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             } else {
                 existingSourceWork.setDescription(existingSourceWork.getDescription());
             }
-            existingSourceWork.setStatus(CvStatus.ACTIVE);
+            existingSourceWork.setStatus(BasicStatus.ACTIVE);
             sourceWorkRepository.save(existingSourceWork);
             return true;
         } else {
@@ -96,10 +88,10 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
 
 
     @Override
-    public List<SourceWorkViewDto> getAllSourceWork(int customerId) {
-        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorkByCv_IdAndStatus(customerId, CvStatus.ACTIVE);
+    public List<SourceWorkViewDto> getAllSourceWork(int UsersId) {
+        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorkByCv_IdAndStatus(UsersId, BasicStatus.ACTIVE);
         return sourceWorks.stream()
-                .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
+                .filter(sourceWork -> sourceWork.getStatus() == BasicStatus.ACTIVE)
                 .map(sourceWork -> {
                     SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
                     sourceWorkViewDto.setId(sourceWork.getId());
@@ -114,18 +106,18 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     }
 
     @Override
-    public void deleteSourceWorkById(Integer customerId,Integer sourceId) {
-        boolean isSourceWorkBelongsToCv = sourceWorkRepository.existsByIdAndCustomer_Id(sourceId, customerId);
+    public void deleteSourceWorkById(Integer UsersId,Integer sourceId) {
+        boolean isSourceWorkBelongsToCv = sourceWorkRepository.existsByIdAndUser_Id(sourceId, UsersId);
 
         if (isSourceWorkBelongsToCv) {
             Optional<SourceWork> Optional = sourceWorkRepository.findById(sourceId);
             if (Optional.isPresent()) {
                 SourceWork sourceWork = Optional.get();
-                sourceWork.setStatus(CvStatus.DELETED);
+                sourceWork.setStatus(BasicStatus.DELETED);
                 sourceWorkRepository.save(sourceWork);
             }
         } else {
-            throw new IllegalArgumentException("Source Work with ID " + sourceId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Source Work with ID " + sourceId + " does not belong to Users with ID " + UsersId);
         }
     }
 

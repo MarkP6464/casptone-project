@@ -1,7 +1,5 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 import java.util.List;
@@ -19,7 +17,7 @@ public class CvDto {
 
     private String Summary;
 
-    private CustomerViewDto customer;
+    private UsersViewDto Users;
 
     private TemplateViewDto template;
     private List<EducationViewDto> educations;

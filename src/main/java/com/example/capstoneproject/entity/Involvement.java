@@ -1,10 +1,9 @@
 package com.example.capstoneproject.entity;
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
@@ -31,11 +30,11 @@ public class Involvement {
     @Column(columnDefinition = "TEXT")
     private String Description;
 
-    @Enumerated(EnumType.ORDINAL)
-    private CvStatus Status;
+    @Enumerated(EnumType.STRING)
+    private BasicStatus Status;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Users user;
 
 }

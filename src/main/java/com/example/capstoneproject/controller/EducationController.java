@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/customer")
+@RequestMapping("/api/v1/Users")
 public class EducationController {
     @Autowired
     EducationService educationService;
@@ -18,19 +18,19 @@ public class EducationController {
         this.educationService = educationService;
     }
 
-    @GetMapping("/{customerId}/educations")
-    public List<EducationViewDto> getAllEducation(@PathVariable("customerId") int customerId) {
-        return educationService.getAllEducation(customerId);
+    @GetMapping("/{UsersId}/educations")
+    public List<EducationViewDto> getAllEducation(@PathVariable("UsersId") int UsersId) {
+        return educationService.getAllEducation(UsersId);
     }
 
-    @PostMapping("/{customerId}/educations")
-    public EducationDto postEducation(@PathVariable("customerId") int customerId,@RequestBody EducationDto Dto) {
-        return educationService.createEducation(customerId,Dto);
+    @PostMapping("/{UsersId}/educations")
+    public EducationDto postEducation(@PathVariable("UsersId") int UsersId,@RequestBody EducationDto Dto) {
+        return educationService.createEducation(UsersId,Dto);
     }
 
-    @PutMapping("/{customerId}/educations/{educationId}")
-    public String updateEducation(@PathVariable("customerId") int customerId,@PathVariable("educationId") int educationId, @RequestBody EducationDto Dto) {
-        boolean check = educationService.updateEducation(customerId,educationId, Dto);
+    @PutMapping("/{UsersId}/educations/{educationId}")
+    public String updateEducation(@PathVariable("UsersId") int UsersId,@PathVariable("educationId") int educationId, @RequestBody EducationDto Dto) {
+        boolean check = educationService.updateEducation(UsersId,educationId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -38,9 +38,9 @@ public class EducationController {
         }
     }
 
-    @DeleteMapping("/{customerId}/educations/{educationId}")
-    public String deleteCertification(@PathVariable("customerId") int customerId,@PathVariable("educationId") int educationId) {
-        educationService.deleteEducationById(customerId,educationId);
+    @DeleteMapping("/{UsersId}/educations/{educationId}")
+    public String deleteCertification(@PathVariable("UsersId") int UsersId,@PathVariable("educationId") int educationId) {
+        educationService.deleteEducationById(UsersId,educationId);
         return "Delete successful";
     }
 }

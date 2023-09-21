@@ -1,8 +1,7 @@
 package com.example.capstoneproject.repository;
 
-import com.example.capstoneproject.entity.Project;
 import com.example.capstoneproject.entity.Skill;
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,9 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SkillRepository extends JpaRepository<Skill, Integer> {
-    @Query("SELECT c FROM Skill c WHERE c.customer.id = :customerId AND c.Status = :status")
-    List<Skill> findSkillsByStatus(@Param("customerId") int customerId, @Param("status") CvStatus status);
+    @Query("SELECT c FROM Skill c WHERE c.user.id = :UsersId AND c.Status = :status")
+    List<Skill> findSkillsByStatus(@Param("UsersId") int UsersId, @Param("status") BasicStatus status);
 
-    boolean existsByIdAndCustomer_Id(Integer skillId, Integer customerId);
+    boolean existsByIdAndUser_Id(Integer skillId, Integer UserId);
 
 }

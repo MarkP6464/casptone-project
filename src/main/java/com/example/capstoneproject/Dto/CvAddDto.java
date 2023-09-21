@@ -1,6 +1,6 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.*;
 
 @Data
@@ -16,5 +16,5 @@ public class CvAddDto {
 
     private String Summary;
 
-    private CvStatus Status;
+    private BasicStatus Status;
 }

@@ -13,13 +13,13 @@ import java.util.List;
 public interface CvService extends BaseService<CvDto, Integer> {
 
     CvAddNewDto createCv(Integer id, CvAddNewDto dto);
-    List<CvDto> GetCvsById(int customerId);
-    CvDto GetCvsByCvId(int customerId,int cvId);
+    List<CvDto> GetCvsById(int UsersId);
+    CvDto GetCvsByCvId(int UsersId,int cvId);
     Cv getCvById(int cvId);
-    void deleteCvById(Integer customer,Integer id);
+    void deleteCvById(Integer Users,Integer id);
 
-    boolean updateCvSummary(int customerId, int cvId, CvUpdateSumDto dto);
-    boolean updateCvContent(int customerId, int cvId, CvAddNewDto dto);
-    boolean updateCvContact(int customerId, int cvId, int contactId);
-    boolean updateCvTemplate(int customerId, int cvId, int templateId);
+    boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto);
+    boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto);
+    boolean updateCvContact(int UsersId, int cvId, int contactId);
+    boolean updateCvTemplate(int UsersId, int cvId, int templateId);
 }

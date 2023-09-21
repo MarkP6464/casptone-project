@@ -1,5 +1,5 @@
 package com.example.capstoneproject.entity;
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,6 +22,6 @@ public class Template {
 
     private String Content;
 
-    @Enumerated(EnumType.ORDINAL)
-    private CvStatus Status;
+    @Enumerated(EnumType.STRING)
+    private BasicStatus Status;
 }

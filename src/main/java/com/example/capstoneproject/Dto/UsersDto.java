@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CustomerDto {
+public class UsersDto {
     private int id;
 
     private String name;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/customer")
+@RequestMapping("/api/v1/Users")
 public class InvolvementController {
     @Autowired
     InvolvementService involvementService;
@@ -20,19 +20,19 @@ public class InvolvementController {
         this.involvementService = involvementService;
     }
 
-    @GetMapping("/{customerId}/involvements")
-    public List<InvolvementViewDto> getAllInvolvement(@PathVariable("customerId") int customerId) {
-        return involvementService.getAllInvolvement(customerId);
+    @GetMapping("/{UsersId}/involvements")
+    public List<InvolvementViewDto> getAllInvolvement(@PathVariable("UsersId") int UsersId) {
+        return involvementService.getAllInvolvement(UsersId);
     }
 
-    @PostMapping("/{customerId}/involvements")
-    public InvolvementDto postInvolvement(@PathVariable("customerId") int customerId,@RequestBody InvolvementDto Dto) {
-        return involvementService.createInvolvement(customerId,Dto);
+    @PostMapping("/{UsersId}/involvements")
+    public InvolvementDto postInvolvement(@PathVariable("UsersId") int UsersId,@RequestBody InvolvementDto Dto) {
+        return involvementService.createInvolvement(UsersId,Dto);
     }
 
-    @PutMapping("/{customerId}/involvements/{involvementId}")
-    public String updateInvolvement(@PathVariable("customerId") int customerId,@PathVariable("involvementId") int involvementId, @RequestBody InvolvementDto Dto) {
-        boolean check = involvementService.updateInvolvement(customerId,involvementId, Dto);
+    @PutMapping("/{UsersId}/involvements/{involvementId}")
+    public String updateInvolvement(@PathVariable("UsersId") int UsersId,@PathVariable("involvementId") int involvementId, @RequestBody InvolvementDto Dto) {
+        boolean check = involvementService.updateInvolvement(UsersId,involvementId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +40,9 @@ public class InvolvementController {
         }
     }
 
-    @DeleteMapping("/{customerId}/involvements/{involvementId}")
-    public String deleteInvolvement(@PathVariable("customerId") int customerId,@PathVariable("involvementId") int involvementId) {
-        involvementService.deleteInvolvementById(customerId,involvementId);
+    @DeleteMapping("/{UsersId}/involvements/{involvementId}")
+    public String deleteInvolvement(@PathVariable("UsersId") int UsersId,@PathVariable("involvementId") int involvementId) {
+        involvementService.deleteInvolvementById(UsersId,involvementId);
         return "Delete successful";
     }
 }

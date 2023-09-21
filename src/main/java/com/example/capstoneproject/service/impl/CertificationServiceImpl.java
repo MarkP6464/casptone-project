@@ -2,22 +2,17 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.CertificationViewDto;
-import com.example.capstoneproject.Dto.ProjectDto;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.AbstractMapper;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.repository.CertificationRepository;
 import com.example.capstoneproject.service.CertificationService;
-import com.example.capstoneproject.service.CustomerService;
-import com.example.capstoneproject.service.CvService;
+import com.example.capstoneproject.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +24,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     CertificationMapper certificationMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService usersService;
 
     public CertificationServiceImpl(CertificationRepository certificationRepository, CertificationMapper certificationMapper) {
         super(certificationRepository, certificationMapper, certificationRepository::findById);
@@ -39,9 +34,9 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
 
     @Override
     public List<CertificationViewDto> getAllCertification(int cvId) {
-        List<Certification> certifications = certificationRepository.findCertificationsByStatus(cvId,CvStatus.ACTIVE);
+        List<Certification> certifications = certificationRepository.findCertificationsByStatus(cvId, BasicStatus.ACTIVE);
         return certifications.stream()
-                .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
+                .filter(certification -> certification.getStatus() == BasicStatus.ACTIVE)
                 .map(certification -> {
                     CertificationViewDto certificationViewDto = new CertificationViewDto();
                     certificationViewDto.setId(certification.getId());
@@ -57,20 +52,20 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     @Override
     public CertificationDto createCertification(Integer id, CertificationDto dto) {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        certification.setCustomer(customer);
-        certification.setStatus(CvStatus.ACTIVE);
+        Users Users = usersService.getUsersById(id);
+        certification.setUser(Users);
+        certification.setStatus(BasicStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
         return certificationMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateCertification(int customerId, int educationId, CertificationDto dto) {
+    public boolean updateCertification(int UsersId, int educationId, CertificationDto dto) {
         Optional<Certification> existingCertificationOptional = certificationRepository.findById(educationId);
         if (existingCertificationOptional.isPresent()) {
             Certification existingCertification = existingCertificationOptional.get();
-            if (existingCertification.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Certification does not belong to Customer with id " + customerId);
+            if (existingCertification.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Certification does not belong to Users with id " + UsersId);
             }
             if (dto.getName() != null && !existingCertification.getName().equals(dto.getName())) {
                 existingCertification.setName(dto.getName());
@@ -92,7 +87,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             } else {
                 existingCertification.setCertificateRelevance(existingCertification.getCertificateRelevance());
             }
-            existingCertification.setStatus(CvStatus.ACTIVE);
+            existingCertification.setStatus(BasicStatus.ACTIVE);
             Certification updated = certificationRepository.save(existingCertification);
             return true;
         } else {
@@ -101,18 +96,18 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     }
 
     @Override
-    public void deleteCertificationById(Integer customerId,Integer certificationId) {
-        boolean isCertificationBelongsToCv = certificationRepository.existsByIdAndCustomer_Id(certificationId, customerId);
+    public void deleteCertificationById(Integer UsersId,Integer certificationId) {
+        boolean isCertificationBelongsToCv = certificationRepository.existsByIdAndUser_Id(certificationId, UsersId);
 
         if (isCertificationBelongsToCv) {
             Optional<Certification> Optional = certificationRepository.findById(certificationId);
             if (Optional.isPresent()) {
                 Certification certification = Optional.get();
-                certification.setStatus(CvStatus.DELETED);
+                certification.setStatus(BasicStatus.DELETED);
                 certificationRepository.save(certification);
             }
         } else {
-            throw new IllegalArgumentException("Education with ID " + certificationId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Education with ID " + certificationId + " does not belong to Users with ID " + UsersId);
         }
     }
 

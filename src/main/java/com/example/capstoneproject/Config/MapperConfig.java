@@ -1,4 +1,4 @@
-package com.example.capstoneproject;
+package com.example.capstoneproject.config;
 
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.entity.Certification;

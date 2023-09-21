@@ -2,14 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.CertificationMapper;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.EducationMapper;
-import com.example.capstoneproject.repository.CertificationRepository;
 import com.example.capstoneproject.repository.EducationRepository;
-import com.example.capstoneproject.service.CertificationService;
-import com.example.capstoneproject.service.CustomerService;
-import com.example.capstoneproject.service.CvService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +23,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     EducationMapper educationMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService usersService;
 
     public EducationServiceImpl(EducationRepository educationRepository, EducationMapper educationMapper) {
         super(educationRepository, educationMapper, educationRepository::findById);
@@ -38,20 +34,20 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     @Override
     public EducationDto createEducation(Integer id, EducationDto dto) {
         Education education = educationMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        education.setCustomer(customer);
-        education.setStatus(CvStatus.ACTIVE);
+        Users Users = usersService.getUsersById(id);
+        education.setUser(Users);
+        education.setStatus(BasicStatus.ACTIVE);
         Education saved = educationRepository.save(education);
         return educationMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateEducation(int customerId, int educationId, EducationDto dto) {
+    public boolean updateEducation(int UsersId, int educationId, EducationDto dto) {
         Optional<Education> existingEducationOptional = educationRepository.findById(educationId);
         if (existingEducationOptional.isPresent()) {
             Education existingEducation = existingEducationOptional.get();
-            if (existingEducation.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Education does not belong to Customer with id " + customerId);
+            if (existingEducation.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Education does not belong to Users with id " + UsersId);
             }
             if (dto.getDegree() != null && !existingEducation.getDegree().equals(dto.getDegree())) {
                 existingEducation.setDegree(dto.getDegree());
@@ -88,7 +84,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             } else {
                 existingEducation.setDescription(existingEducation.getDescription());
             }
-            existingEducation.setStatus(CvStatus.ACTIVE);
+            existingEducation.setStatus(BasicStatus.ACTIVE);
             Education updated = educationRepository.save(existingEducation);
             return true;
         } else {
@@ -97,10 +93,10 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public List<EducationViewDto> getAllEducation(int customerId) {
-        List<Education> educations = educationRepository.findEducationsByStatus(customerId,CvStatus.ACTIVE);
+    public List<EducationViewDto> getAllEducation(int UsersId) {
+        List<Education> educations = educationRepository.findEducationsByStatus(UsersId, BasicStatus.ACTIVE);
         return educations.stream()
-                .filter(education -> education.getStatus() == CvStatus.ACTIVE)
+                .filter(education -> education.getStatus() == BasicStatus.ACTIVE)
                 .map(education -> {
                     EducationViewDto educationViewDto = new EducationViewDto();
                     educationViewDto.setId(education.getId());
@@ -117,18 +113,18 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public void deleteEducationById(Integer customerId,Integer educationId) {
-        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCustomer_Id(educationId, customerId);
+    public void deleteEducationById(Integer UsersId,Integer educationId) {
+        boolean isEducationBelongsToCv = educationRepository.existsByIdAndUser_Id(educationId, UsersId);
 
         if (isEducationBelongsToCv) {
             Optional<Education> Optional = educationRepository.findById(educationId);
             if (Optional.isPresent()) {
                 Education education = Optional.get();
-                education.setStatus(CvStatus.DELETED);
+                education.setStatus(BasicStatus.DELETED);
                 educationRepository.save(education);
             }
         } else {
-            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Users with ID " + UsersId);
         }
     }
 

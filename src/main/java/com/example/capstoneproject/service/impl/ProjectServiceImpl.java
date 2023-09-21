@@ -2,14 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.InvolvementMapper;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.ProjectMapper;
-import com.example.capstoneproject.repository.InvolvementRepository;
 import com.example.capstoneproject.repository.ProjectRepository;
-import com.example.capstoneproject.service.CustomerService;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.InvolvementService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +23,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     ProjectMapper projectMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService UsersService;
 
     public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         super(projectRepository, projectMapper, projectRepository::findById);
@@ -38,20 +34,20 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        project.setCustomer(customer);
-        project.setStatus(CvStatus.ACTIVE);
+        Users Users = UsersService.getUsersById(id);
+        project.setUser(Users);
+        project.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(project);
         return projectMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateProject(int customerId, int projectId, ProjectDto dto) {
+    public boolean updateProject(int UsersId, int projectId, ProjectDto dto) {
         Optional<Project> existingProjectOptional = projectRepository.findById(projectId);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
-            if (existingProject.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Project does not belong to Customer with id " + customerId);
+            if (existingProject.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Project does not belong to Users with id " + UsersId);
             }
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
                 existingProject.setTitle(dto.getTitle());
@@ -84,7 +80,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 existingProject.setDescription(existingProject.getDescription());
             }
 
-            existingProject.setStatus(CvStatus.ACTIVE);
+            existingProject.setStatus(BasicStatus.ACTIVE);
             Project updated = projectRepository.save(existingProject);
             return true;
         } else {
@@ -93,10 +89,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public List<ProjectViewDto> getAllProject(int customerId) {
-        List<Project> projects = projectRepository.findProjectsByStatus(customerId,CvStatus.ACTIVE);
+    public List<ProjectViewDto> getAllProject(int UsersId) {
+        List<Project> projects = projectRepository.findProjectsByStatus(UsersId, BasicStatus.ACTIVE);
         return projects.stream()
-                .filter(project -> project.getStatus() == CvStatus.ACTIVE)
+                .filter(project -> project.getStatus() == BasicStatus.ACTIVE)
                 .map(project -> {
                     ProjectViewDto projectViewDto = new ProjectViewDto();
                     projectViewDto.setId(project.getId());
@@ -112,18 +108,18 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public void deleteProjectById(Integer customerId,Integer projectId) {
-        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCustomer_Id(projectId, customerId);
+    public void deleteProjectById(Integer UsersId,Integer projectId) {
+        boolean isProjectBelongsToCv = projectRepository.existsByIdAndUser_Id(projectId, UsersId);
 
         if (isProjectBelongsToCv) {
             Optional<Project> Optional = projectRepository.findById(projectId);
             if (Optional.isPresent()) {
                 Project project = Optional.get();
-                project.setStatus(CvStatus.DELETED);
+                project.setStatus(BasicStatus.DELETED);
                 projectRepository.save(project);
             }
         } else {
-            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to Users with ID " + UsersId);
         }
     }
 

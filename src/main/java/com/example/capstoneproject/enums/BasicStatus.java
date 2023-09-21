@@ -1,5 +1,5 @@
 package com.example.capstoneproject.enums;
 
-public enum CvStatus {
+public enum BasicStatus {
     ACTIVE, DELETED
 }

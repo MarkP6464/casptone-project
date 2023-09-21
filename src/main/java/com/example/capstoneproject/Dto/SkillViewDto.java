@@ -1,6 +1,5 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 @Data

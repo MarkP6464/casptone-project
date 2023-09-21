@@ -2,14 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.EducationMapper;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.ExperienceMapper;
-import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.repository.ExperienceRepository;
-import com.example.capstoneproject.service.CustomerService;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.EducationService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.ExperienceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +23,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     ExperienceMapper experienceMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService UsersService;
 
     public ExperienceServiceImpl(ExperienceRepository experienceRepository, ExperienceMapper experienceMapper) {
         super(experienceRepository, experienceMapper, experienceRepository::findById);
@@ -38,20 +34,20 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     @Override
     public ExperienceDto createExperience(Integer id, ExperienceDto dto) {
         Experience experience = experienceMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        experience.setCustomer(customer);
-        experience.setStatus(CvStatus.ACTIVE);
+        Users Users = UsersService.getUsersById(id);
+        experience.setUser(Users);
+        experience.setStatus(BasicStatus.ACTIVE);
         Experience saved = experienceRepository.save(experience);
         return experienceMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateExperience(int customerId, int experienceId, ExperienceDto dto) {
+    public boolean updateExperience(int UsersId, int experienceId, ExperienceDto dto) {
         Optional<Experience> existingExperienceOptional = experienceRepository.findById(experienceId);
         if (existingExperienceOptional.isPresent()) {
             Experience existingExperience = existingExperienceOptional.get();
-            if (existingExperience.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Experience does not belong to Customer with id " + customerId);
+            if (existingExperience.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Experience does not belong to Users with id " + UsersId);
             }
             if (dto.getRole() != null && !existingExperience.getRole().equals(dto.getRole())) {
                 existingExperience.setRole(dto.getRole());
@@ -84,7 +80,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 existingExperience.setDescription(existingExperience.getDescription());
             }
 
-            existingExperience.setStatus(CvStatus.ACTIVE);
+            existingExperience.setStatus(BasicStatus.ACTIVE);
             Experience updated = experienceRepository.save(existingExperience);
             return true;
         } else {
@@ -93,10 +89,10 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public List<ExperienceViewDto> getAllExperience(int customerId) {
-        List<Experience> experiences = experienceRepository.findExperiencesByStatus(customerId,CvStatus.ACTIVE);
+    public List<ExperienceViewDto> getAllExperience(int UsersId) {
+        List<Experience> experiences = experienceRepository.findExperiencesByStatus(UsersId, BasicStatus.ACTIVE);
         return experiences.stream()
-                .filter(experience -> experience.getStatus() == CvStatus.ACTIVE)
+                .filter(experience -> experience.getStatus() == BasicStatus.ACTIVE)
                 .map(experience -> {
                     ExperienceViewDto experienceViewDto = new ExperienceViewDto();
                     experienceViewDto.setId(experience.getId());
@@ -112,18 +108,18 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public void deleteExperienceById(Integer customerId,Integer experienceId) {
-        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCustomer_Id(experienceId, customerId);
+    public void deleteExperienceById(Integer UsersId,Integer experienceId) {
+        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndUser_Id(experienceId, UsersId);
 
         if (isExperienceBelongsToCv) {
             Optional<Experience> Optional = experienceRepository.findById(experienceId);
             if (Optional.isPresent()) {
                 Experience experience = Optional.get();
-                experience.setStatus(CvStatus.DELETED);
+                experience.setStatus(BasicStatus.DELETED);
                 experienceRepository.save(experience);
             }
         } else {
-            throw new IllegalArgumentException("Experience with ID " + experienceId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Experience with ID " + experienceId + " does not belong to Users with ID " + UsersId);
         }
     }
 

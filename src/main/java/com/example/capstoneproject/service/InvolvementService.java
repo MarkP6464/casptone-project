@@ -7,8 +7,8 @@ import java.util.List;
 
 @Service
 public interface InvolvementService extends BaseService<InvolvementDto, Integer> {
-    boolean updateInvolvement(int customerId, int involvementId, InvolvementDto dto);
-    List<InvolvementViewDto> getAllInvolvement(int customerId);
+    boolean updateInvolvement(int UsersId, int involvementId, InvolvementDto dto);
+    List<InvolvementViewDto> getAllInvolvement(int UsersId);
     InvolvementDto createInvolvement(Integer id, InvolvementDto dto);
-    void deleteInvolvementById(Integer customerId,Integer involvementId);
+    void deleteInvolvementById(Integer UsersId,Integer involvementId);
 }
