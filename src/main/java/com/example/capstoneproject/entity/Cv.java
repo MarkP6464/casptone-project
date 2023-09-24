@@ -1,9 +1,11 @@
 package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.utils.HashMapConverter;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Map;
 
 @Data
 @Builder
@@ -24,6 +26,9 @@ public class Cv {
 
     @Enumerated(EnumType.STRING)
     private BasicStatus Status;
+
+    @Convert(converter = HashMapConverter.class)
+    private Map<String, Cv> cvBody;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

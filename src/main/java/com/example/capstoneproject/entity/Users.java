@@ -56,9 +56,6 @@ public class Users {
     @Column(name = "Vip")
     private int Vip;
 
-    @Convert(converter = HashMapConverter.class)
-    private Map<String, Object> snapshot;
-
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "Id", insertable = false, updatable = false)
     private Role role;

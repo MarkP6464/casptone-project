@@ -16,6 +16,7 @@ public class CorsConfig {
 
         // Allow requests from these origins (replace with your allowed origins)
         config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("https://cvbuilder.monoinfinity.net");
 
         // Allow specific HTTP methods (GET, POST, PUT, DELETE, etc.)
         config.addAllowedMethod("*");
