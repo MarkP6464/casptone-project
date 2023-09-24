@@ -29,7 +29,7 @@ C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capst
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\entity\Education.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\CvService.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\mapper\EducationMapper.java
-C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\config\MapperConfig.java
+C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Config\MapperConfig.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\TemplateDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\InvolvementViewDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\entity\Role.java
@@ -46,7 +46,7 @@ C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capst
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\enums\BasicStatus.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\mapper\CvMapper.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\TemplateServiceImpl.java
-C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\config\CorsConfig.java
+C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Config\CorsConfig.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\mapper\UsersMapper.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\CvUpdateSumDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\TemplateService.java

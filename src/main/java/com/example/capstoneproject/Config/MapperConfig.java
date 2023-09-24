@@ -1,8 +1,5 @@
-package com.example.capstoneproject.config;
+package com.example.capstoneproject.Config;
 
-import com.example.capstoneproject.Dto.CertificationDto;
-import com.example.capstoneproject.entity.Certification;
-import com.example.capstoneproject.mapper.AbstractMapper;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
