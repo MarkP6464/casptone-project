@@ -3,8 +3,8 @@ package com.example.capstoneproject.Dto;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,13 +17,11 @@ public class CvDto {
 
     private String Summary;
 
+
+    private Map<String, Object> cvBody;
+
     private UsersViewDto Users;
 
     private TemplateViewDto template;
-    private List<EducationViewDto> educations;
-    private List<ExperienceViewDto> experiences;
-    private List<InvolvementViewDto> involvements;
-    private List<ProjectViewDto> projects;
-    private List<SourceWorkViewDto> sourceWorks;
 
 }

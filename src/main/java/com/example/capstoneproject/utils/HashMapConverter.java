@@ -34,7 +34,6 @@ public class HashMapConverter implements AttributeConverter<Map<String, Object>,
 
     @Override
     public Map<String, Object> convertToEntityAttribute(String customerInfoJSON) {
-
         Map<String, Object> customerInfo = null;
         try {
             customerInfo = objectMapper.readValue(customerInfoJSON,

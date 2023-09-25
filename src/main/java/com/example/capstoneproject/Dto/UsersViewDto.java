@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,9 +31,8 @@ public class UsersViewDto {
 
     private String linkin;
 
-    private Map<String, Object> snapshot;
     private String country;
-    private Role role;
+    private String status;
 
     private Set<SkillDto> skills;
 
@@ -45,6 +45,6 @@ public class UsersViewDto {
     private Set<InvolvementDto> involvements ;
     
     private Set<ProjectDto> projects ;
-    
+    private List<CvDto> cvs ;
     private Set<SourceWorkDto> sourceWorks;
 }

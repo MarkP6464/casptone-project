@@ -10,12 +10,12 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Map;
 
-@Data
+
+@Entity
+@Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Entity
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +56,7 @@ public class Users {
     @Column(name = "Vip")
     private int Vip;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", referencedColumnName = "Id", insertable = false, updatable = false)
     private Role role;
 
@@ -80,5 +80,8 @@ public class Users {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<SourceWork> sourceWorks;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<Cv> cvs;
 
 }

@@ -37,6 +37,7 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
     public Users getUsersById(int usersId) {
         Optional<Users> UsersOptional = UsersRepository.findUsersById(usersId);
         if (UsersOptional.isPresent()) {
+            UsersOptional.get().getCvs();
             return UsersOptional.get();
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Users not found with ID: " + usersId);

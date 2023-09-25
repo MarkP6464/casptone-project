@@ -92,6 +92,7 @@ com\example\capstoneproject\Dto\TemplateDto.class
 com\example\capstoneproject\entity\Cv$CvBuilder.class
 com\example\capstoneproject\entity\Involvement.class
 com\example\capstoneproject\service\CvService.class
+com\example\capstoneproject\entity\Cv$1.class
 com\example\capstoneproject\Dto\UsersDto.class
 com\example\capstoneproject\mapper\AbstractMapper.class
 com\example\capstoneproject\mapper\EducationMapper.class
