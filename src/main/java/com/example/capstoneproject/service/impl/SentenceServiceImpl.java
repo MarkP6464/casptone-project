@@ -1,4 +1,6 @@
 package com.example.capstoneproject.service.impl;
+import com.example.capstoneproject.Dto.AtsDto;
+import com.example.capstoneproject.Dto.ChatRequest;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
@@ -6,14 +8,21 @@ import com.example.capstoneproject.Dto.BulletPointDto;
 import com.example.capstoneproject.Dto.ResultDto;
 import com.example.capstoneproject.service.SentenceService;
 import edu.stanford.nlp.pipeline.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class SentenceServiceImpl implements SentenceService {
+
+    @Autowired
+    ChatGPTServiceImpl chatGPTService;
     @Override
     public ResultDto checkSentences(String text) {
         List<String> sentences = splitText(text);
@@ -125,6 +134,14 @@ public class SentenceServiceImpl implements SentenceService {
         return result;
     }
 
+    @Override
+    public List<AtsDto> ListAts(ChatRequest chatRequest) {
+        String message1 = "find to keywords: JOB TITLE: " +chatRequest.getTitle()+", JOB DESCRIPTION: "+chatRequest.getMessage();
+        String response = chatGPTService.chatWithGPT(message1);
+        List<AtsDto> atsDtoList = extractKeywords(response);
+        return atsDtoList;
+    }
+
     public List<String> splitText(String text) {
         List<String> resultList = new ArrayList<>();
         String[] splitValues = text.split("• ");
@@ -228,6 +245,23 @@ public class SentenceServiceImpl implements SentenceService {
         } else {
             return "";
         }
+    }
+
+    public static List<AtsDto> extractKeywords(String response) {
+        List<AtsDto> keywordsList = new ArrayList<>();
+        Pattern pattern = Pattern.compile(":\\s*(.*?)\\s*$", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(response);
+
+        while (matcher.find()) {
+            String[] keywords = matcher.group(1).split(",\\s*|\n\\d+\\.\\s*");
+            for (String keyword : keywords) {
+                AtsDto atsDto = new AtsDto();
+                atsDto.setAst(keyword.trim());
+                keywordsList.add(atsDto);
+            }
+        }
+
+        return keywordsList;
     }
 
 
