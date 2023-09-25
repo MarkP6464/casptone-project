@@ -38,4 +38,7 @@ public class Experience {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @OneToMany(mappedBy = "experience", cascade = CascadeType.ALL)
+    private List<Evaluate> evaluates;
+
 }
