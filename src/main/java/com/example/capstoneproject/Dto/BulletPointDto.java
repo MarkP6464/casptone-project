@@ -9,6 +9,8 @@ import lombok.*;
 @Getter
 @Setter
 public class BulletPointDto {
+    private String title;
+    private String description;
     private String result;
     private String status;
 

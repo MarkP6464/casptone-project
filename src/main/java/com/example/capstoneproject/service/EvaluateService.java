@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public interface SentenceService {
+public interface EvaluateService {
     ResultDto checkSentences(String sentences);
     List<AtsDto> ListAts(ChatRequest chatRequest);
 

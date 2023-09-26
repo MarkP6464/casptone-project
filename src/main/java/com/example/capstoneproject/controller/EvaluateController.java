@@ -3,7 +3,7 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.AtsDto;
 import com.example.capstoneproject.Dto.ChatRequest;
 import com.example.capstoneproject.Dto.ResultDto;
-import com.example.capstoneproject.service.SentenceService;
+import com.example.capstoneproject.service.EvaluateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,9 @@ import java.util.List;
 public class EvaluateController {
 
     @Autowired
-    SentenceService sentenceService;
+    EvaluateService sentenceService;
 
-    public EvaluateController(SentenceService sentenceService) {
+    public EvaluateController(EvaluateService sentenceService) {
         this.sentenceService = sentenceService;
     }
     @GetMapping("/{description}")
