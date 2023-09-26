@@ -4,7 +4,9 @@ import com.example.capstoneproject.Dto.AtsDto;
 import com.example.capstoneproject.Dto.ChatRequest;
 import com.example.capstoneproject.Dto.ResultDto;
 import com.example.capstoneproject.service.EvaluateService;
+import com.example.capstoneproject.service.impl.ChatGPTServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,21 +16,24 @@ import java.util.List;
 public class EvaluateController {
 
     @Autowired
-    EvaluateService sentenceService;
+    EvaluateService evaluateService;
 
-    public EvaluateController(EvaluateService sentenceService) {
-        this.sentenceService = sentenceService;
+    @Autowired
+    ChatGPTServiceImpl chatGPTService;
+
+    public EvaluateController(EvaluateService evaluateService) {
+        this.evaluateService = evaluateService;
     }
     @GetMapping("/{description}")
     public ResultDto checkSentences(@RequestParam String sentences) {
-        return sentenceService.checkSentences(sentences);
+        return evaluateService.checkSentences(sentences);
     }
 
     @PostMapping("/extractKeywords")
     public List<AtsDto> extractKeywords(@RequestBody ChatRequest chatRequest) {
-        List<AtsDto> keywordsList = sentenceService.ListAts(chatRequest);
+        List<AtsDto> keywordsList = evaluateService.ListAts(chatRequest);
         if (keywordsList.isEmpty()) {
-            keywordsList = sentenceService.ListAts(chatRequest);
+            keywordsList = evaluateService.ListAts(chatRequest);
         }
         return keywordsList;
     }

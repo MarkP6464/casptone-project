@@ -37,6 +37,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         List<BulletPointDto> personalPronounsBulletPoints = new ArrayList<>();
         List<BulletPointDto> fillerBulletPoints = new ArrayList<>();
         List<BulletPointDto> quantifiedBulletPoints = new ArrayList<>();
+        List<BulletPointDto> buzzwordBulletPoints = new ArrayList<>();
 
         List<Integer> shortBulletErrors = new ArrayList<>();
         List<Integer> punctuatedBulletErrors = new ArrayList<>();
@@ -163,12 +164,32 @@ public class EvaluateServiceImpl implements EvaluateService {
             quantifiedBulletPoints.add(errorBulletQuantified);
         }
 
+        // Check for Buzzwords in the sentences
+        String buzzwords = checkBuzzword(sentences);
+        if (!buzzwords.isEmpty()) {
+            BulletPointDto errorBulletBuzzword = new BulletPointDto();
+            Evaluate evaluate = evaluateRepository.findById(5);
+            errorBulletBuzzword.setTitle(evaluate.getTitle());
+            errorBulletBuzzword.setDescription(evaluate.getDescription());
+            errorBulletBuzzword.setResult("Take a look at bullet " + quantified + ".");
+            errorBulletBuzzword.setStatus("Warning");
+            buzzwordBulletPoints.add(errorBulletBuzzword);
+        }else {
+            BulletPointDto errorBulletBuzzword = new BulletPointDto();
+            Evaluate evaluate = evaluateRepository.findById(5);
+            errorBulletBuzzword.setTitle(evaluate.getTitle());
+            errorBulletBuzzword.setDescription(evaluate.getDescription());
+            errorBulletBuzzword.setStatus("Pass");
+            buzzwordBulletPoints.add(errorBulletBuzzword);
+        }
+
         result.setShortList(shortBulletPoints);
         result.setPunctuatedList(punctuatedBulletPoints);
         result.setNumberList(numberBulletPoints);
         result.setPersonalPronounsList(personalPronounsBulletPoints);
         result.setFillerList(fillerBulletPoints);
         result.setQuantifiedList(quantifiedBulletPoints);
+        result.setBuzzwordsList(buzzwordBulletPoints);
 
         return result;
     }
@@ -180,6 +201,14 @@ public class EvaluateServiceImpl implements EvaluateService {
         List<AtsDto> atsDtoList = extractKeywords(response);
         return atsDtoList;
     }
+
+//    @Override
+//    public List<AtsDto> ListBuzzword() {
+//        String message1 = "Provide list of Buzzwords (no explanation needed)";
+//        String response = chatGPTService.chatWithGPT(message1);
+//        List<AtsDto> buzzwordList = extractBuzzwords(response);
+//        return buzzwordList;
+//    }
 
     public List<String> splitText(String text) {
         List<String> resultList = new ArrayList<>();
@@ -261,6 +290,29 @@ public class EvaluateServiceImpl implements EvaluateService {
         return result.toString();
     }
 
+    private String checkBuzzword(List<String> sentences1) {
+        List<AtsDto> buzzwordList = new ArrayList<>();
+
+        while (buzzwordList.isEmpty()) {
+            String message1 = "Provide list of Buzzwords (no explanation needed)";
+            String response = chatGPTService.chatWithGPT(message1);
+            buzzwordList = extractBuzzwords(response);
+        }
+        StringBuilder resultBuilder = new StringBuilder();
+
+        for (String sentence : sentences1) {
+            for (AtsDto buzzword : buzzwordList) {
+                String buzzwordText = buzzword.getAst();
+                if (sentence.contains(buzzwordText)) {
+                    resultBuilder.append(sentence).append("\n");
+                    break;
+                }
+            }
+        }
+
+        return resultBuilder.toString();
+    }
+
     private String containsNumber(List<String> sentences1) {
         List<Integer> errorIndices = new ArrayList<>();
 
@@ -301,6 +353,21 @@ public class EvaluateServiceImpl implements EvaluateService {
         }
 
         return keywordsList;
+    }
+
+    private static List<AtsDto> extractBuzzwords(String input) {
+        List<AtsDto> buzzwordsList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("([A-Za-z0-9\\s()]+)");
+
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            String buzzword = matcher.group(1).trim();
+            AtsDto atsDto = new AtsDto();
+            atsDto.setAst(buzzword);
+            buzzwordsList.add(atsDto);
+        }
+
+        return buzzwordsList;
     }
 
 

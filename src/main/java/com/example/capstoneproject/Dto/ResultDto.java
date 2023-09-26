@@ -17,4 +17,5 @@ public class ResultDto {
     private List<BulletPointDto> personalPronounsList;
     private List<BulletPointDto> FillerList;
     private List<BulletPointDto> QuantifiedList;
+    private List<BulletPointDto> BuzzwordsList;
 }
