@@ -5,6 +5,7 @@ import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.EducationRepository;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
     @Autowired
     UsersService usersService;
+
+    @Autowired
+    CvService cvService;
 
     public EducationServiceImpl(EducationRepository educationRepository, EducationMapper educationMapper) {
         super(educationRepository, educationMapper, educationRepository::findById);
@@ -127,5 +131,6 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Users with ID " + UsersId);
         }
     }
+
 
 }

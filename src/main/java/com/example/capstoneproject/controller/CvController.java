@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/Userss")
+@RequestMapping("/api/v1/Users")
 public class CvController {
     @Autowired
     CvService cvService;
@@ -90,4 +90,6 @@ public class CvController {
         cvService.deleteCvById(UsersId, cvId);
         return "Delete successful";
     }
+
+
 }
