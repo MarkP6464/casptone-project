@@ -9,6 +9,9 @@ import lombok.*;
 @Getter
 @Setter
 public class SourceWorkDto {
+    private int id;
+
+    private Boolean isDisplay;
 
     private String Name;
 

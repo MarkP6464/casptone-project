@@ -10,9 +10,13 @@ import java.util.Date;
 @Getter
 @Setter
 public class ExperienceDto {
+    private int id;
+
     private String Role;
 
     private String CompanyName;
+    private Boolean isDisplay;
+
 
     private Date StartDate;
 

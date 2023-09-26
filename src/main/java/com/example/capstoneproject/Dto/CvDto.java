@@ -11,14 +11,14 @@ import java.util.Map;
 @Getter
 @Setter
 public class CvDto {
+
     private int id;
 
     private String Content;
 
     private String Summary;
 
-
-    private Map<String, Object> cvBody;
+    private String cvBody;
 
     private UsersViewDto Users;
 

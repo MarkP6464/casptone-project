@@ -9,7 +9,11 @@ import lombok.*;
 @Getter
 @Setter
 public class CertificationDto {
+    private int id;
+
     private String Name;
+    private Boolean isDisplay;
+
 
     private String CertificateSource;
 

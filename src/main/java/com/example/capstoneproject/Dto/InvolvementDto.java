@@ -11,9 +11,14 @@ import java.util.Date;
 @Getter
 @Setter
 public class InvolvementDto {
+    private int id;
+
     private String OrganizationRole;
 
     private String OrganizationName;
+
+    private Boolean isDisplay;
+
 
     private Date StartDate;
 

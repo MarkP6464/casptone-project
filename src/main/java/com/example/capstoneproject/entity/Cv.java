@@ -1,8 +1,10 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.utils.HashMapConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
@@ -30,8 +32,9 @@ public class Cv {
     @Enumerated(EnumType.STRING)
     private BasicStatus Status;
 
-    @Convert(converter = HashMapConverter.class)
-    private Map<String, Object> cvBody = new HashMap<>();
+
+    @Column(columnDefinition = "TEXT")
+    private String cvBody;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -42,10 +45,15 @@ public class Cv {
     @JoinColumn(name = "template_id")
     private Template template;
 
-    public void toCvBody(){
+    public void toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> map = objectMapper.convertValue(this, new TypeReference<Map<String, Object>>() {});
+        String map = objectMapper.writeValueAsString(dto);
         this.setCvBody(map);
+    }
+
+    public CvBodyDto deserialize() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(this.cvBody, CvBodyDto.class);
     }
 }
 

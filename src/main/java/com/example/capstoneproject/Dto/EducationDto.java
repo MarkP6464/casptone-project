@@ -9,9 +9,13 @@ import lombok.*;
 @Getter
 @Setter
 public class EducationDto {
+    private int id;
+
     private String Degree;
 
     private String CollegeName;
+    private Boolean isDisplay;
+
 
     private String Location;
 
