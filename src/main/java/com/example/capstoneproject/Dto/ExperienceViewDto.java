@@ -25,4 +25,5 @@ public class ExperienceViewDto {
     private String Location;
 
     private String Description;
+    private ResultDto resultDto;
 }

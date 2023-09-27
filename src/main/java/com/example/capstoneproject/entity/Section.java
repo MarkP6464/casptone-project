@@ -1,5 +1,6 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.enums.SectionEvaluate;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,19 +14,15 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-public class Evaluate {
-    @Id
+public class Section {
+    @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int Id;
 
-    private String title;
-    private String more;
-    private String description;
-    private double score;
-    private double maxScore;
-    private int condition1;
-    private int condition2;
+    private SectionEvaluate TypeName;
+    private int TypeId;
+    private String Title;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "evaluate")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "section")
     private List<SectionLog> sectionLogs = new ArrayList<>();
 }
