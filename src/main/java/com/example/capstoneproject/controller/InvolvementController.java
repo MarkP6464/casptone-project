@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.ExperienceDto;
 import com.example.capstoneproject.Dto.InvolvementDto;
-import com.example.capstoneproject.Dto.InvolvementViewDto;
-import com.example.capstoneproject.service.ExperienceService;
 import com.example.capstoneproject.service.InvolvementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +13,8 @@ public class InvolvementController {
     @Autowired
     InvolvementService involvementService;
 
-    public InvolvementController(InvolvementService involvementService) {
-        this.involvementService = involvementService;
-    }
-
     @GetMapping("/{UsersId}/involvements")
-    public List<InvolvementViewDto> getAllInvolvement(@PathVariable("UsersId") int UsersId) {
+    public List<InvolvementDto> getAllInvolvement(@PathVariable("UsersId") int UsersId) {
         return involvementService.getAllInvolvement(UsersId);
     }
 

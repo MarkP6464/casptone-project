@@ -13,15 +13,6 @@ import java.util.Set;
 @Setter
 @ToString
 public class CvBodyDto {
-    private int cvId;
-
-    private String Content;
-
-    private String Summary;
-
-    private BasicStatus Status;
-
-    private TemplateViewDto template;
     private Set<SkillDto> skills;
 
     private Set<CertificationDto> certifications;

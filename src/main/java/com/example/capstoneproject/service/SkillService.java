@@ -1,9 +1,12 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.SkillViewDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public interface SkillService extends BaseService<SkillDto, Integer> {
@@ -11,4 +14,16 @@ public interface SkillService extends BaseService<SkillDto, Integer> {
     List<SkillViewDto> getAllSkill(int UsersId);
     SkillDto createSkill(Integer id, SkillDto dto);
     void deleteSkillById(Integer UsersId,Integer skillId);
+
+    SkillDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
+
+    SkillDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
+
+    Set<SkillDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
+
+    boolean updateInCvBody(int cvId, int id, SkillDto dto) throws JsonProcessingException;
+
+    SkillDto createOfUserInCvBody(int cvId, SkillDto dto) throws JsonProcessingException;
+
+    void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException;
 }

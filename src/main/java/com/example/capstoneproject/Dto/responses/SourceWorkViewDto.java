@@ -1,4 +1,4 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
 import lombok.*;
 
@@ -14,6 +14,8 @@ public class SourceWorkViewDto {
     private String Name;
 
     private String CourseLocation;
+
+    private Boolean isDisplay;
 
     private int EndYear;
 

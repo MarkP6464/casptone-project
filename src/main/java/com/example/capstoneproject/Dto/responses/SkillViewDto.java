@@ -1,4 +1,4 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
 import lombok.*;
 
@@ -12,4 +12,7 @@ public class SkillViewDto {
     private int id;
 
     private String Description;
+
+    private Boolean isDisplay;
+
 }

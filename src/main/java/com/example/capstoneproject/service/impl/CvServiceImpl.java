@@ -9,22 +9,19 @@ import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.TemplateRepository;
-import com.example.capstoneproject.service.CvService;
+import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 @Service
 public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> implements CvService {
     @Autowired
     CvRepository cvRepository;
-
     @Autowired
     CvMapper cvMapper;
 
@@ -32,11 +29,13 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     CertificationMapper certificationMapper;
 
     @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
     EducationMapper educationMapper;
 
     @Autowired
     UsersRepository UsersRepository;
-
 
     @Autowired
     TemplateRepository templateRepository;
@@ -102,7 +101,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cvDto.setSummary(cv.getSummary());
             ObjectMapper objectMapper = new ObjectMapper();
             try {
-                cvDto.setCvBody(objectMapper.writeValueAsString(cv.getCvBody()));
+                cvDto.setCvBody(cv.deserialize());
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -204,9 +203,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
     @Override
     public boolean updateCvBody(int UsersId, int cvId, CvBodyDto dto) throws JsonProcessingException {
-        Optional<Users> UsersOptional = UsersRepository.findById(UsersId);
-
-        if (UsersOptional.isPresent()) {
             Optional<Cv> cvOptional = cvRepository.findById(cvId);
 
             if (cvOptional.isPresent()) {
@@ -217,9 +213,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             } else {
                 throw new IllegalArgumentException("CvId not found: " + cvId);
             }
-        } else {
-            throw new IllegalArgumentException("UsersId not found: " + UsersId);
-        }
     }
 
     @Override
@@ -279,9 +272,33 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public CvBodyDto getCvBody(int usersId, int cvId) throws JsonProcessingException {
+    public CvBodyDto getCvBody(int cvId) throws JsonProcessingException {
         return getCvById(cvId).deserialize();
     }
 
+//    public Cv synchUp(int cvId) throws JsonProcessingException {
+//        Cv cv = cvRepository.getById(cvId);
+//        if (Objects.nonNull(cv)){
+//            CvBodyDto cvBodyDto = cv.deserialize();
+//            cvBodyDto.getEducations().forEach(x -> {
+//                EducationDto e = educationService.getById(x.getId()).get();
+//                modelMapper.map(e, x);
+//                try {
+//                    educationService.updateEducationInCvBody(cvId, x.getId(), x);
+//                } catch (JsonProcessingException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            });
+//            cvBodyDto.getSkills().forEach(x -> {
+//                SkillDto e = skillService.getById(x.getId()).get();
+//                modelMapper.map(e, x);
+//                try {
+//                    skillService.updateEducationInCvBody(cvId, x.getId(), x);
+//                } catch (JsonProcessingException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            });
+//        }
+//    }
 
 }

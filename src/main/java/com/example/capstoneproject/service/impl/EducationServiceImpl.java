@@ -3,16 +3,21 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.EducationRepository;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.EducationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +30,9 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
     @Autowired
     UsersService usersService;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     @Autowired
     CvService cvService;
@@ -97,21 +105,21 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public List<EducationViewDto> getAllEducation(int UsersId) {
+    public List<EducationDto> getAllEducation(int UsersId) {
         List<Education> educations = educationRepository.findEducationsByStatus(UsersId, BasicStatus.ACTIVE);
         return educations.stream()
                 .filter(education -> education.getStatus() == BasicStatus.ACTIVE)
                 .map(education -> {
-                    EducationViewDto educationViewDto = new EducationViewDto();
-                    educationViewDto.setId(education.getId());
-                    educationViewDto.setDegree(education.getDegree());
-                    educationViewDto.setCollegeName(education.getCollegeName());
-                    educationViewDto.setLocation(education.getLocation());
-                    educationViewDto.setEndYear(education.getEndYear());
-                    educationViewDto.setMinor(education.getMinor());
-                    educationViewDto.setGpa(education.getGpa());
-                    educationViewDto.setDescription(education.getDescription());
-                    return educationViewDto;
+                    EducationDto educationDto = new EducationDto();
+                    educationDto.setId(education.getId());
+                    educationDto.setDegree(education.getDegree());
+                    educationDto.setCollegeName(education.getCollegeName());
+                    educationDto.setLocation(education.getLocation());
+                    educationDto.setEndYear(education.getEndYear());
+                    educationDto.setMinor(education.getMinor());
+                    educationDto.setGpa(education.getGpa());
+                    educationDto.setDescription(education.getDescription());
+                    return educationDto;
                 })
                 .collect(Collectors.toList());
     }
@@ -131,6 +139,91 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             throw new IllegalArgumentException("Education with ID " + educationId + " does not belong to Users with ID " + UsersId);
         }
     }
+    @Override
+    public EducationDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+        Education education = educationRepository.getById(id);
+        if (Objects.nonNull(education)){
+            Cv cv = cvService.getCvById(cvId);
+            CvBodyDto cvBodyDto = cv.deserialize();
+            Optional<EducationDto> dto = cvBodyDto.getEducations().stream().filter(x -> x.getId()==id).findFirst();
+            if (dto.isPresent()){
+                modelMapper.map(education, dto.get());
+                return dto.get();
+            }else{
+                throw new ResourceNotFoundException("Not found that id in cvBody");
+            }
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public EducationDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<EducationDto> dto = cvBodyDto.getEducations().stream().filter(x -> x.getId()==id).findFirst();
+        if (dto.isPresent()){
+            return  dto.get();
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public Set<EducationDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        return cvBodyDto.getEducations();
+    }
+
+    @Override
+    public boolean updateInCvBody(int cvId, int id, EducationDto dto) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<EducationDto> relationDto = cvBodyDto.getEducations().stream().filter(x -> x.getId()==id).findFirst();
+        if (relationDto.isPresent()) {
+            Education education = educationRepository.getById(id);
+            modelMapper.map(dto, education);
+            educationRepository.save(education);
+            EducationDto educationDto = relationDto.get();
+            educationDto.setIsDisplay(dto.getIsDisplay());
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+            return true;
+        } else {
+            throw new IllegalArgumentException("education ID not found in cvBody");
+        }
+    }
+
+
+    @Override
+    public EducationDto createOfUserInCvBody(int cvId, EducationDto dto) throws JsonProcessingException {
+        Education education = educationMapper.mapDtoToEntity(dto);
+        Users Users = usersService.getUsersById(cvId);
+        education.setUser(Users);
+        education.setStatus(BasicStatus.ACTIVE);
+        Education saved = educationRepository.save(education);
+        EducationDto educationDto = new EducationDto();
+        educationDto.setId(saved.getId());
+        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+        cvBodyDto.getEducations().add(educationDto);
+        cvService.updateCvBody(0, cvId, cvBodyDto);
+        return educationDto;
+    }
+
+    @Override
+    public void deleteInCvBody(Integer cvId, Integer educationId) throws JsonProcessingException {
+
+            Optional<Education> Optional = educationRepository.findById(educationId);
+            if (Optional.isPresent()) {
+                Education education = Optional.get();
+                education.setStatus(BasicStatus.DELETED);
+                educationRepository.save(education);
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                cvBodyDto.getEducations().removeIf(x -> x.getId() == educationId);
+                cvService.updateCvBody(0, cvId, cvBodyDto);
+            }
+        }
 
 
 }
+

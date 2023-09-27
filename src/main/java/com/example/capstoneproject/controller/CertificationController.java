@@ -1,7 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.CertificationDto;
-import com.example.capstoneproject.Dto.CertificationViewDto;
+import com.example.capstoneproject.Dto.responses.CertificationViewDto;
 import com.example.capstoneproject.service.CertificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

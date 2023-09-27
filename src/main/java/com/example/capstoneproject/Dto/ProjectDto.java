@@ -11,11 +11,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class ProjectDto {
-    private int id;
+    private Integer id;
 
     private Boolean isDisplay;
-
-
     private String Title;
 
     private String Organization;

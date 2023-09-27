@@ -1,4 +1,4 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
 import lombok.*;
 
@@ -10,6 +10,8 @@ import lombok.*;
 @Setter
 public class CertificationViewDto {
     private int id;
+
+    private Boolean isDisplay;
 
     private String Name;
 

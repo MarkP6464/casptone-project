@@ -1,9 +1,7 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.InvolvementDto;
 import com.example.capstoneproject.Dto.ProjectDto;
-import com.example.capstoneproject.Dto.ProjectViewDto;
-import com.example.capstoneproject.service.InvolvementService;
+import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

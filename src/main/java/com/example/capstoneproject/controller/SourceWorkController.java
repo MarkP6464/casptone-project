@@ -1,9 +1,7 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.SkillDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
-import com.example.capstoneproject.Dto.SourceWorkViewDto;
-import com.example.capstoneproject.service.SkillService;
+import com.example.capstoneproject.Dto.responses.SourceWorkViewDto;
 import com.example.capstoneproject.service.SourceWorkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

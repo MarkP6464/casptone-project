@@ -8,9 +8,8 @@ import lombok.*;
 @Getter
 @Setter
 public class SkillDto {
-    private int id;
+    private Integer id;
+    private Boolean isDisplay;
 
     private String Description;
-
-    private Boolean isDisplay;
 }

@@ -1,7 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.EducationDto;
-import com.example.capstoneproject.Dto.EducationViewDto;
+import com.example.capstoneproject.Dto.responses.EducationViewDto;
 import com.example.capstoneproject.service.EducationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class EducationController {
     }
 
     @GetMapping("/{UsersId}/educations")
-    public List<EducationViewDto> getAllEducation(@PathVariable("UsersId") int UsersId) {
+    public List<EducationDto> getAllEducation(@PathVariable("UsersId") int UsersId) {
         return educationService.getAllEducation(UsersId);
     }
 

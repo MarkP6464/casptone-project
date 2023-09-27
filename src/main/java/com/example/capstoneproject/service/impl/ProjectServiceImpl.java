@@ -1,17 +1,24 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ProjectMapper;
 import com.example.capstoneproject.repository.ProjectRepository;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.ProjectService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,7 +30,14 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     ProjectMapper projectMapper;
 
     @Autowired
-    UsersService UsersService;
+    UsersService usersService;
+
+
+    @Autowired
+    CvService cvService;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         super(projectRepository, projectMapper, projectRepository::findById);
@@ -34,7 +48,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
-        Users Users = UsersService.getUsersById(id);
+        Users Users = usersService.getUsersById(id);
         project.setUser(Users);
         project.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(project);
@@ -122,5 +136,91 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to Users with ID " + UsersId);
         }
     }
+
+    @Override
+    public ProjectDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+        Project education = projectRepository.getById(id);
+        if (Objects.nonNull(education)){
+            Cv cv = cvService.getCvById(cvId);
+            CvBodyDto cvBodyDto = cv.deserialize();
+            Optional<ProjectDto> dto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+            if (dto.isPresent()){
+                modelMapper.map(education, dto.get());
+                return dto.get();
+            }else{
+                throw new ResourceNotFoundException("Not found that id in cvBody");
+            }
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public ProjectDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<ProjectDto> dto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+        if (dto.isPresent()){
+            return  dto.get();
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public Set<ProjectDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        return cvBodyDto.getProjects();
+    }
+
+    @Override
+    public boolean updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<ProjectDto> relationDto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+        if (relationDto.isPresent()) {
+            Project education = projectRepository.getById(id);
+            modelMapper.map(dto, education);
+            projectRepository.save(education);
+            ProjectDto educationDto = relationDto.get();
+            educationDto.setIsDisplay(dto.getIsDisplay());
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+            return true;
+        } else {
+            throw new IllegalArgumentException("education ID not found in cvBody");
+        }
+    }
+
+
+    @Override
+    public ProjectDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
+        Project education = projectMapper.mapDtoToEntity(dto);
+        Users Users = usersService.getUsersById(cvId);
+        education.setUser(Users);
+        education.setStatus(BasicStatus.ACTIVE);
+        Project saved = projectRepository.save(education);
+        ProjectDto educationViewDto = new ProjectDto();
+        educationViewDto.setId(saved.getId());
+        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+        cvBodyDto.getProjects().add(educationViewDto);
+        cvService.updateCvBody(0, cvId, cvBodyDto);
+        return educationViewDto;
+    }
+
+    @Override
+    public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {
+
+        Optional<Project> Optional = projectRepository.findById(id);
+        if (Optional.isPresent()) {
+            Project education = Optional.get();
+            education.setStatus(BasicStatus.DELETED);
+            projectRepository.save(education);
+            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+        }
+    }
+
 
 }

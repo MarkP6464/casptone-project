@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Education {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String Degree;
 
@@ -23,7 +23,7 @@ public class Education {
 
     private String Location;
 
-    private int EndYear;
+    private Integer EndYear;
 
     private String Minor;
 

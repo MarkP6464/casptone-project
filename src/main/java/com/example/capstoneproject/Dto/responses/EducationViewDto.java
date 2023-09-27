@@ -1,6 +1,8 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
 import lombok.*;
+
+import javax.persistence.PrePersist;
 
 @Data
 @Builder
@@ -9,7 +11,9 @@ import lombok.*;
 @Getter
 @Setter
 public class EducationViewDto {
-    private int id;
+    private Integer id;
+
+    private Boolean isDisplay = true;
 
     private String Degree;
 
@@ -17,7 +21,7 @@ public class EducationViewDto {
 
     private String Location;
 
-    private int EndYear;
+    private Integer EndYear;
 
     private String Minor;
 

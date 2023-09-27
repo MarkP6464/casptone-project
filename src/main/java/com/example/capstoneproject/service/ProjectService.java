@@ -1,10 +1,12 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Project;
+import com.example.capstoneproject.Dto.responses.ProjectViewDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public interface ProjectService extends BaseService<ProjectDto, Integer> {
@@ -12,4 +14,16 @@ public interface ProjectService extends BaseService<ProjectDto, Integer> {
     List<ProjectViewDto> getAllProject(int UsersId);
     ProjectDto createProject(Integer id, ProjectDto dto);
     void deleteProjectById(Integer UsersId,Integer projectId);
+
+    ProjectDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
+
+    ProjectDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
+
+    Set<ProjectDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
+
+    boolean updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException;
+
+    ProjectDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException;
+
+    void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException;
 }

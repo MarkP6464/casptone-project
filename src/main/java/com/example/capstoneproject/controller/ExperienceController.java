@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.Dto.ExperienceDto;
-import com.example.capstoneproject.Dto.ExperienceViewDto;
-import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.ExperienceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +18,7 @@ public class ExperienceController {
     }
 
     @GetMapping("/{UsersId}/experiences")
-    public List<ExperienceViewDto> getAllExperience(@PathVariable("UsersId") int UsersId) {
+    public List<ExperienceDto> getAllExperience(@PathVariable("UsersId") int UsersId) {
         return experienceService.getAllExperience(UsersId);
     }
 

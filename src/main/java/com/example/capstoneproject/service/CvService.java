@@ -24,5 +24,5 @@ public interface CvService extends BaseService<CvDto, Integer> {
     boolean updateCvContact(int UsersId, int cvId, int contactId);
     boolean updateCvTemplate(int UsersId, int cvId, int templateId);
 
-    CvBodyDto getCvBody(int usersId, int cvId) throws JsonProcessingException;
+    CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 }

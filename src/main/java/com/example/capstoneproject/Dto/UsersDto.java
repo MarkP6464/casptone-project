@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 public class UsersDto {
-    private int id;
+    private Integer id;
 
     private String name;
 }

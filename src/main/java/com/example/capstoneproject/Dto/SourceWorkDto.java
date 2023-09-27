@@ -9,10 +9,9 @@ import lombok.*;
 @Getter
 @Setter
 public class SourceWorkDto {
-    private int id;
+    private Integer id;
 
     private Boolean isDisplay;
-
     private String Name;
 
     private String CourseLocation;

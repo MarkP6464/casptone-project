@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.*;
 
 import java.util.List;
@@ -12,13 +13,14 @@ import java.util.Map;
 @Setter
 public class CvDto {
 
-    private int id;
+    private Integer id;
 
     private String Content;
 
     private String Summary;
+    private BasicStatus Status;
 
-    private String cvBody;
+    private CvBodyDto cvBody;
 
     private UsersViewDto Users;
 

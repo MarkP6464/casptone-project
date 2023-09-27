@@ -9,12 +9,10 @@ import lombok.*;
 @Getter
 @Setter
 public class CertificationDto {
-    private int id;
+    private Boolean isDisplay;
+    private Integer id;
 
     private String Name;
-    private Boolean isDisplay;
-
-
     private String CertificateSource;
 
     private int EndYear;

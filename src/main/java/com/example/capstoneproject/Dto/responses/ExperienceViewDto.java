@@ -1,4 +1,4 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
 import lombok.*;
 
@@ -10,19 +10,20 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ProjectViewDto {
+public class ExperienceViewDto {
     private int id;
 
-    private String Title;
+    private Boolean isDisplay;
 
-    private String Organization;
+    private String Role;
+
+    private String CompanyName;
 
     private Date StartDate;
 
     private Date EndDate;
 
-    private String ProjectUrl;
+    private String Location;
 
     private String Description;
-
 }

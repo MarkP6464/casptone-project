@@ -34,7 +34,7 @@ public class Cv {
 
 
     @Column(columnDefinition = "TEXT")
-    private String cvBody;
+    private String cvBody = "{}";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore

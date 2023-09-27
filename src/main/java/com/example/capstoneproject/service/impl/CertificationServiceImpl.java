@@ -1,18 +1,25 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
-import com.example.capstoneproject.Dto.CertificationViewDto;
+import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.Dto.responses.CertificationViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.repository.CertificationRepository;
 import com.example.capstoneproject.service.CertificationService;
+import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.UsersService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +32,12 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
 
     @Autowired
     UsersService usersService;
+
+
+    @Autowired
+    CvService cvService;
+    @Autowired
+    ModelMapper modelMapper;
 
     public CertificationServiceImpl(CertificationRepository certificationRepository, CertificationMapper certificationMapper) {
         super(certificationRepository, certificationMapper, certificationRepository::findById);
@@ -60,8 +73,8 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     }
 
     @Override
-    public boolean updateCertification(int UsersId, int educationId, CertificationDto dto) {
-        Optional<Certification> existingCertificationOptional = certificationRepository.findById(educationId);
+    public boolean updateCertification(int UsersId, int certificationId, CertificationDto dto) {
+        Optional<Certification> existingCertificationOptional = certificationRepository.findById(certificationId);
         if (existingCertificationOptional.isPresent()) {
             Certification existingCertification = existingCertificationOptional.get();
             if (existingCertification.getUser().getId() != UsersId) {
@@ -107,7 +120,92 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 certificationRepository.save(certification);
             }
         } else {
-            throw new IllegalArgumentException("Education with ID " + certificationId + " does not belong to Users with ID " + UsersId);
+            throw new IllegalArgumentException("certification with ID " + certificationId + " does not belong to Users with ID " + UsersId);
+        }
+    }
+
+    @Override
+    public CertificationDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+        Certification certification = certificationRepository.getById(id);
+        if (Objects.nonNull(certification)){
+            Cv cv = cvService.getCvById(cvId);
+            CvBodyDto cvBodyDto = cv.deserialize();
+            Optional<CertificationDto> dto = cvBodyDto.getCertifications().stream().filter(x -> x.getId()==id).findFirst();
+            if (dto.isPresent()){
+                modelMapper.map(certification, dto.get());
+                return dto.get();
+            }else{
+                throw new ResourceNotFoundException("Not found that id in cvBody");
+            }
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public CertificationDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<CertificationDto> dto = cvBodyDto.getCertifications().stream().filter(x -> x.getId()==id).findFirst();
+        if (dto.isPresent()){
+            return  dto.get();
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public Set<CertificationDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        return cvBodyDto.getCertifications();
+    }
+
+    @Override
+    public boolean updateInCvBody(int cvId, int id, CertificationDto dto) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<CertificationDto> relationDto = cvBodyDto.getCertifications().stream().filter(x -> x.getId()==id).findFirst();
+        if (relationDto.isPresent()) {
+            Certification certification = certificationRepository.getById(id);
+            modelMapper.map(dto, certification);
+            certificationRepository.save(certification);
+            CertificationDto CertificationDto = relationDto.get();
+            CertificationDto.setIsDisplay(dto.getIsDisplay());
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+            return true;
+        } else {
+            throw new IllegalArgumentException("Certification ID not found in cvBody");
+        }
+    }
+
+
+    @Override
+    public CertificationDto createOfUserInCvBody(int cvId, CertificationDto dto) throws JsonProcessingException {
+        Certification certification = certificationMapper.mapDtoToEntity(dto);
+        Users Users = usersService.getUsersById(cvId);
+        certification.setUser(Users);
+        certification.setStatus(BasicStatus.ACTIVE);
+        Certification saved = certificationRepository.save(certification);
+        CertificationDto CertificationDto = new CertificationDto();
+        CertificationDto.setId(saved.getId());
+        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+        cvBodyDto.getCertifications().add(CertificationDto);
+        cvService.updateCvBody(0, cvId, cvBodyDto);
+        return CertificationDto;
+    }
+
+    @Override
+    public void deleteInCvBody(Integer cvId, Integer CertificationId) throws JsonProcessingException {
+
+        Optional<Certification> Optional = certificationRepository.findById(CertificationId);
+        if (Optional.isPresent()) {
+            Certification certification = Optional.get();
+            certification.setStatus(BasicStatus.DELETED);
+            certificationRepository.save(certification);
+            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+            cvBodyDto.getCertifications().removeIf(x -> x.getId() == CertificationId);
+            cvService.updateCvBody(0, cvId, cvBodyDto);
         }
     }
 
