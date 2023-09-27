@@ -1,10 +1,9 @@
 package com.example.capstoneproject.entity;
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +17,7 @@ public class Certification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @NotNull
     private String Name;
 
     private String CertificateSource;
@@ -26,10 +26,10 @@ public class Certification {
 
     private String CertificateRelevance;
 
-    @Enumerated(EnumType.ORDINAL)
-    private CvStatus Status;
+    @Enumerated(EnumType.STRING)
+    private BasicStatus Status;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+    @JoinColumn(name = "user_id")
+    private Users user;
 }

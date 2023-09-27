@@ -1,10 +1,6 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
-
-import java.util.Date;
 
 @Data
 @Builder
@@ -13,8 +9,10 @@ import java.util.Date;
 @Getter
 @Setter
 public class CertificationDto {
-    private String Name;
+    private Boolean isDisplay;
+    private Integer id;
 
+    private String Name;
     private String CertificateSource;
 
     private int EndYear;

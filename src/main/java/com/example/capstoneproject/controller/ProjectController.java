@@ -1,9 +1,7 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.InvolvementDto;
 import com.example.capstoneproject.Dto.ProjectDto;
-import com.example.capstoneproject.Dto.ProjectViewDto;
-import com.example.capstoneproject.service.InvolvementService;
+import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/customer")
+@RequestMapping("/api/v1/Users")
 public class ProjectController {
     @Autowired
     ProjectService projectService;
@@ -20,19 +18,19 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping("/{customerId}/projects")
-    public List<ProjectViewDto> getAllProject(@PathVariable("customerId") int customerId) {
-        return projectService.getAllProject(customerId);
+    @GetMapping("/{UsersId}/projects")
+    public List<ProjectViewDto> getAllProject(@PathVariable("UsersId") int UsersId) {
+        return projectService.getAllProject(UsersId);
     }
 
-    @PostMapping("/{customerId}/projects")
-    public ProjectDto postProject(@PathVariable("customerId") int customerId,@RequestBody ProjectDto Dto) {
-        return projectService.createProject(customerId,Dto);
+    @PostMapping("/{UsersId}/projects")
+    public ProjectDto postProject(@PathVariable("UsersId") int UsersId,@RequestBody ProjectDto Dto) {
+        return projectService.createProject(UsersId,Dto);
     }
 
-    @PutMapping("/{customerId}/projects/{projectId}")
-    public String updateProjectDto(@PathVariable("customerId") int customerId,@PathVariable("projectId") int projectId, @RequestBody ProjectDto Dto) {
-        boolean check = projectService.updateProject(customerId, projectId, Dto);
+    @PutMapping("/{UsersId}/projects/{projectId}")
+    public String updateProjectDto(@PathVariable("UsersId") int UsersId,@PathVariable("projectId") int projectId, @RequestBody ProjectDto Dto) {
+        boolean check = projectService.updateProject(UsersId, projectId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +38,9 @@ public class ProjectController {
         }
     }
 
-    @DeleteMapping("/{customerId}/projects/{projectId}")
-    public String deleteProject(@PathVariable("customerId") int customerId,@PathVariable("projectId") int projectId) {
-        projectService.deleteProjectById(customerId,projectId);
+    @DeleteMapping("/{UsersId}/projects/{projectId}")
+    public String deleteProject(@PathVariable("UsersId") int UsersId,@PathVariable("projectId") int projectId) {
+        projectService.deleteProjectById(UsersId,projectId);
         return "Delete successful";
     }
 }

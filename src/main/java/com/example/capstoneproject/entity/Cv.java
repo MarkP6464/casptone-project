@@ -1,19 +1,24 @@
 package com.example.capstoneproject.entity;
 
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.utils.HashMapConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-@Data
+@Entity
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@Entity
 public class Cv {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,14 +29,31 @@ public class Cv {
     @Column(columnDefinition = "TEXT")
     private String Summary;
 
-    @Enumerated(EnumType.ORDINAL)
-    private CvStatus Status;
+    @Enumerated(EnumType.STRING)
+    private BasicStatus Status;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
+
+    @Column(columnDefinition = "TEXT")
+    private String cvBody = "{}";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "user_id")
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name = "template_id")
     private Template template;
+
+    public void toCvBody(CvBodyDto dto) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String map = objectMapper.writeValueAsString(dto);
+        this.setCvBody(map);
+    }
+
+    public CvBodyDto deserialize() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(this.cvBody, CvBodyDto.class);
+    }
 }
+

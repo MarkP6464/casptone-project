@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.Dto.ExperienceDto;
-import com.example.capstoneproject.Dto.ExperienceViewDto;
-import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.ExperienceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/customer")
+@RequestMapping("/api/v1/Users")
 public class ExperienceController {
     @Autowired
     ExperienceService experienceService;
@@ -20,19 +17,19 @@ public class ExperienceController {
         this.experienceService = experienceService;
     }
 
-    @GetMapping("/{customerId}/experiences")
-    public List<ExperienceViewDto> getAllExperience(@PathVariable("customerId") int customerId) {
-        return experienceService.getAllExperience(customerId);
+    @GetMapping("/{UsersId}/experiences")
+    public List<ExperienceDto> getAllExperience(@PathVariable("UsersId") int UsersId) {
+        return experienceService.getAllExperience(UsersId);
     }
 
-    @PostMapping("/{customerId}/experiences")
-    public ExperienceDto postExperience(@PathVariable("customerId") int customerId, @RequestBody ExperienceDto Dto) {
-        return experienceService.createExperience(customerId,Dto);
+    @PostMapping("/{UsersId}/experiences")
+    public ExperienceDto postExperience(@PathVariable("UsersId") int UsersId, @RequestBody ExperienceDto Dto) {
+        return experienceService.createExperience(UsersId,Dto);
     }
 
-    @PutMapping("/{customerId}/experiences/{experienceId}")
-    public String updateExperience(@PathVariable("customerId") int customerId,@PathVariable("experienceId") int experienceId, @RequestBody ExperienceDto Dto) {
-        boolean check = experienceService.updateExperience(customerId,experienceId, Dto);
+    @PutMapping("/{UsersId}/experiences/{experienceId}")
+    public String updateExperience(@PathVariable("UsersId") int UsersId,@PathVariable("experienceId") int experienceId, @RequestBody ExperienceDto Dto) {
+        boolean check = experienceService.updateExperience(UsersId,experienceId, Dto);
         if(check){
             return "Changes saved";
         }else {
@@ -40,9 +37,9 @@ public class ExperienceController {
         }
     }
 
-    @DeleteMapping("/{customerId}/experiences/{experienceId}")
-    public String deleteExperience(@PathVariable("customerId") int customerId,@PathVariable("experienceId") int experienceId) {
-        experienceService.deleteExperienceById(customerId,experienceId);
+    @DeleteMapping("/{UsersId}/experiences/{experienceId}")
+    public String deleteExperience(@PathVariable("UsersId") int UsersId,@PathVariable("experienceId") int experienceId) {
+        experienceService.deleteExperienceById(UsersId,experienceId);
         return "Delete successful";
     }
 }

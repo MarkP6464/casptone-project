@@ -3,7 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.TemplateDto;
 import com.example.capstoneproject.Dto.TemplateViewDto;
 import com.example.capstoneproject.entity.Template;
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.TemplateMapper;
 import com.example.capstoneproject.repository.TemplateRepository;
 import com.example.capstoneproject.service.TemplateService;
@@ -30,14 +30,14 @@ public class TemplateServiceImpl extends AbstractBaseService<Template, TemplateD
     @Override
     public TemplateDto create(TemplateDto dto) {
         Template template = templateMapper.mapDtoToEntity(dto);
-        template.setStatus(CvStatus.ACTIVE);
+        template.setStatus(BasicStatus.ACTIVE);
         Template saved = templateRepository.save(template);
         return templateMapper.mapEntityToDto(saved);
     }
 
     @Override
     public List<TemplateViewDto> getAllTemplate() {
-        List<Template> templates = templateRepository.findTemplatesByStatus(CvStatus.ACTIVE);
+        List<Template> templates = templateRepository.findTemplatesByStatus(BasicStatus.ACTIVE);
         List<TemplateViewDto> templateDtos = new ArrayList<>();
 
         for (Template template : templates) {
@@ -73,7 +73,7 @@ public class TemplateServiceImpl extends AbstractBaseService<Template, TemplateD
             } else {
                 existingTemplate.setAmountView(existingTemplate.getAmountView());
             }
-            existingTemplate.setStatus(CvStatus.ACTIVE);
+            existingTemplate.setStatus(BasicStatus.ACTIVE);
             Template updated = templateRepository.save(existingTemplate);
             templateMapper.mapEntityToDto(updated);
             return true;
@@ -100,7 +100,7 @@ public class TemplateServiceImpl extends AbstractBaseService<Template, TemplateD
         Optional<Template> Optional = templateRepository.findById(id);
         if (Optional.isPresent()) {
             Template template = Optional.get();
-            template.setStatus(CvStatus.DELETED);
+            template.setStatus(BasicStatus.DELETED);
             templateRepository.save(template);
         }
     }

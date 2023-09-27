@@ -1,10 +1,7 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
-import java.util.Date;
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,7 +9,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class SourceWorkDto {
+    private Integer id;
 
+    private Boolean isDisplay;
     private String Name;
 
     private String CourseLocation;

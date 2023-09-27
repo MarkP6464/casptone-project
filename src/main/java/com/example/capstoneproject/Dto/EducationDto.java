@@ -1,10 +1,6 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
-
-import java.util.Date;
 
 @Data
 @Builder
@@ -13,10 +9,13 @@ import java.util.Date;
 @Getter
 @Setter
 public class EducationDto {
+    private Integer id;
+
+    private Boolean isDisplay;
+
     private String Degree;
 
     private String CollegeName;
-
     private String Location;
 
     private int EndYear;

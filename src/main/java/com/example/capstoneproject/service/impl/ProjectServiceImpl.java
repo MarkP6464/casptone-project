@@ -1,21 +1,24 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.InvolvementMapper;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ProjectMapper;
-import com.example.capstoneproject.repository.InvolvementRepository;
 import com.example.capstoneproject.repository.ProjectRepository;
-import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.InvolvementService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.ProjectService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +30,14 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     ProjectMapper projectMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService usersService;
+
+
+    @Autowired
+    CvService cvService;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMapper projectMapper) {
         super(projectRepository, projectMapper, projectRepository::findById);
@@ -38,20 +48,20 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        project.setCustomer(customer);
-        project.setStatus(CvStatus.ACTIVE);
+        Users Users = usersService.getUsersById(id);
+        project.setUser(Users);
+        project.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(project);
         return projectMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateProject(int customerId, int projectId, ProjectDto dto) {
+    public boolean updateProject(int UsersId, int projectId, ProjectDto dto) {
         Optional<Project> existingProjectOptional = projectRepository.findById(projectId);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
-            if (existingProject.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Project does not belong to Customer with id " + customerId);
+            if (existingProject.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Project does not belong to Users with id " + UsersId);
             }
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
                 existingProject.setTitle(dto.getTitle());
@@ -84,7 +94,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 existingProject.setDescription(existingProject.getDescription());
             }
 
-            existingProject.setStatus(CvStatus.ACTIVE);
+            existingProject.setStatus(BasicStatus.ACTIVE);
             Project updated = projectRepository.save(existingProject);
             return true;
         } else {
@@ -93,10 +103,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public List<ProjectViewDto> getAllProject(int customerId) {
-        List<Project> projects = projectRepository.findProjectsByStatus(customerId,CvStatus.ACTIVE);
+    public List<ProjectViewDto> getAllProject(int UsersId) {
+        List<Project> projects = projectRepository.findProjectsByStatus(UsersId, BasicStatus.ACTIVE);
         return projects.stream()
-                .filter(project -> project.getStatus() == CvStatus.ACTIVE)
+                .filter(project -> project.getStatus() == BasicStatus.ACTIVE)
                 .map(project -> {
                     ProjectViewDto projectViewDto = new ProjectViewDto();
                     projectViewDto.setId(project.getId());
@@ -112,19 +122,105 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public void deleteProjectById(Integer customerId,Integer projectId) {
-        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCustomer_Id(projectId, customerId);
+    public void deleteProjectById(Integer UsersId,Integer projectId) {
+        boolean isProjectBelongsToCv = projectRepository.existsByIdAndUser_Id(projectId, UsersId);
 
         if (isProjectBelongsToCv) {
             Optional<Project> Optional = projectRepository.findById(projectId);
             if (Optional.isPresent()) {
                 Project project = Optional.get();
-                project.setStatus(CvStatus.DELETED);
+                project.setStatus(BasicStatus.DELETED);
                 projectRepository.save(project);
             }
         } else {
-            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Project with ID " + projectId + " does not belong to Users with ID " + UsersId);
         }
     }
+
+    @Override
+    public ProjectDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+        Project education = projectRepository.getById(id);
+        if (Objects.nonNull(education)){
+            Cv cv = cvService.getCvById(cvId);
+            CvBodyDto cvBodyDto = cv.deserialize();
+            Optional<ProjectDto> dto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+            if (dto.isPresent()){
+                modelMapper.map(education, dto.get());
+                return dto.get();
+            }else{
+                throw new ResourceNotFoundException("Not found that id in cvBody");
+            }
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public ProjectDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<ProjectDto> dto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+        if (dto.isPresent()){
+            return  dto.get();
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public Set<ProjectDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        return cvBodyDto.getProjects();
+    }
+
+    @Override
+    public boolean updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<ProjectDto> relationDto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+        if (relationDto.isPresent()) {
+            Project education = projectRepository.getById(id);
+            modelMapper.map(dto, education);
+            projectRepository.save(education);
+            ProjectDto educationDto = relationDto.get();
+            educationDto.setIsDisplay(dto.getIsDisplay());
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+            return true;
+        } else {
+            throw new IllegalArgumentException("education ID not found in cvBody");
+        }
+    }
+
+
+    @Override
+    public ProjectDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
+        Project education = projectMapper.mapDtoToEntity(dto);
+        Users Users = usersService.getUsersById(cvId);
+        education.setUser(Users);
+        education.setStatus(BasicStatus.ACTIVE);
+        Project saved = projectRepository.save(education);
+        ProjectDto educationViewDto = new ProjectDto();
+        educationViewDto.setId(saved.getId());
+        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+        cvBodyDto.getProjects().add(educationViewDto);
+        cvService.updateCvBody(0, cvId, cvBodyDto);
+        return educationViewDto;
+    }
+
+    @Override
+    public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {
+
+        Optional<Project> Optional = projectRepository.findById(id);
+        if (Optional.isPresent()) {
+            Project education = Optional.get();
+            education.setStatus(BasicStatus.DELETED);
+            projectRepository.save(education);
+            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+        }
+    }
+
 
 }

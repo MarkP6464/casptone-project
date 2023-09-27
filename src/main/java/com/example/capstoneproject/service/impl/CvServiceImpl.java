@@ -2,25 +2,26 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.CvStatus;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.mapper.CvMapper;
 import com.example.capstoneproject.mapper.EducationMapper;
-import com.example.capstoneproject.repository.CustomerRepository;
+import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.TemplateRepository;
-import com.example.capstoneproject.service.CvService;
+import com.example.capstoneproject.service.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 @Service
 public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> implements CvService {
     @Autowired
     CvRepository cvRepository;
-
     @Autowired
     CvMapper cvMapper;
 
@@ -28,11 +29,13 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     CertificationMapper certificationMapper;
 
     @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
     EducationMapper educationMapper;
 
     @Autowired
-    CustomerRepository customerRepository;
-
+    UsersRepository UsersRepository;
 
     @Autowired
     TemplateRepository templateRepository;
@@ -45,20 +48,20 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
 
     @Override
-    public List<CvDto> GetCvsById(int customerId) {
-        return cvRepository.findAllByCustomerIdAndStatus(customerId, CvStatus.ACTIVE)
+    public List<CvDto> GetCvsById(int UsersId) {
+        return cvRepository.findAllByUsersIdAndStatus(UsersId, BasicStatus.ACTIVE)
                 .stream()
                 .map(cv -> {
                     CvDto cvDto = new CvDto();
                     cvDto.setId(cv.getId());
                     cvDto.setContent(cv.getContent());
                     cvDto.setSummary(cv.getSummary());
-                    Customer customer = cv.getCustomer();
-                    if (customer != null) {
-                        CustomerViewDto customerViewDto = new CustomerViewDto();
-                        customerViewDto.setId(customer.getId());
-                        customerViewDto.setName(customer.getName());
-                        cvDto.setCustomer(customerViewDto);
+                    Users Users = cv.getUser();
+                    if (Users != null) {
+                        UsersViewDto UsersViewDto = new UsersViewDto();
+                        UsersViewDto.setId(Users.getId());
+                        UsersViewDto.setName(Users.getName());
+                        cvDto.setUsers(UsersViewDto);
                     }
                     Template template = cv.getTemplate();
                     if (template != null) {
@@ -89,20 +92,25 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public CvDto GetCvsByCvId(int customerId, int cvId) {
-        Cv cv = cvRepository.findCvByIdAndStatus(customerId, cvId, CvStatus.ACTIVE);
-
+    public CvDto GetCvsByCvId(int UsersId, int cvId) {
+        Cv cv = cvRepository.findCvByIdAndStatus(UsersId, cvId, BasicStatus.ACTIVE);
         if (cv != null) {
             CvDto cvDto = new CvDto();
             cvDto.setId(cv.getId());
             cvDto.setContent(cv.getContent());
             cvDto.setSummary(cv.getSummary());
-            Customer customer = cv.getCustomer();
-            if (customer != null) {
-                CustomerViewDto customerViewDto = new CustomerViewDto();
-                customerViewDto.setId(customer.getId());
-                customerViewDto.setName(customer.getName());
-                cvDto.setCustomer(customerViewDto);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                cvDto.setCvBody(cv.deserialize());
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            Users Users = cv.getUser();
+            if (Users != null) {
+                UsersViewDto UsersViewDto = new UsersViewDto();
+                UsersViewDto.setId(Users.getId());
+                UsersViewDto.setName(Users.getName());
+                cvDto.setUsers(UsersViewDto);
             }
             Template template = cv.getTemplate();
             if (template != null) {
@@ -121,42 +129,42 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public void deleteCvById(Integer customerId, Integer id) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+    public void deleteCvById(Integer UsersId, Integer id) {
+        Optional<Users> UsersOptional = UsersRepository.findById(UsersId);
 
-        if (customerOptional.isPresent()) {
-            Optional<Cv> cvOptional = cvRepository.findByIdAndCustomerId(id, customerId);
+        if (UsersOptional.isPresent()) {
+            Optional<Cv> cvOptional = cvRepository.findByIdAndUserId(id, UsersId);
 
             if (cvOptional.isPresent()) {
                 Cv cv = cvOptional.get();
-                cv.setStatus(CvStatus.DELETED);
+                cv.setStatus(BasicStatus.DELETED);
                 cvRepository.save(cv);
             } else {
                 throw new IllegalArgumentException("CV not found with id: " + id);
             }
         } else {
-            throw new IllegalArgumentException("Customer not found with id: " + customerId);
+            throw new IllegalArgumentException("Users not found with id: " + UsersId);
         }
     }
 
 
     @Override
-    public CvAddNewDto createCv(Integer customerId, CvAddNewDto dto) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+    public CvAddNewDto createCv(Integer UsersId, CvAddNewDto dto) {
+        Optional<Users> UsersOptional = UsersRepository.findById(UsersId);
 
-        if (customerOptional.isPresent()) {
+        if (UsersOptional.isPresent()) {
             Cv cv = new Cv();
             cv.setContent(dto.getContent());
-            cv.setStatus(CvStatus.ACTIVE);
-            Customer customer = customerOptional.get();
-            cv.setCustomer(customer);
+            cv.setStatus(BasicStatus.ACTIVE);
+            Users Users = UsersOptional.get();
+            cv.setUser(Users);
             Cv savedCv = cvRepository.save(cv);
             CvAddNewDto createdDto = new CvAddNewDto();
             createdDto.setContent(savedCv.getContent());
 
             return createdDto;
         } else {
-            throw new IllegalArgumentException("Không tìm thấy khách hàng với id: " + customerId);
+            throw new IllegalArgumentException("Not found user with ID: " + UsersId);
         }
     }
 
@@ -172,10 +180,10 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public boolean updateCvSummary(int customerId, int cvId, CvUpdateSumDto dto) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+    public boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto) {
+        Optional<Users> UsersOptional = UsersRepository.findById(UsersId);
 
-        if (customerOptional.isPresent()) {
+        if (UsersOptional.isPresent()) {
             Optional<Cv> cvOptional = cvRepository.findById(cvId);
 
             if (cvOptional.isPresent()) {
@@ -189,15 +197,29 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 throw new IllegalArgumentException("CvId not found: " + cvId);
             }
         } else {
-            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+            throw new IllegalArgumentException("UsersId not found: " + UsersId);
         }
     }
 
     @Override
-    public boolean updateCvContent(int customerId, int cvId, CvAddNewDto dto) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+    public boolean updateCvBody(int UsersId, int cvId, CvBodyDto dto) throws JsonProcessingException {
+            Optional<Cv> cvOptional = cvRepository.findById(cvId);
 
-        if (customerOptional.isPresent()) {
+            if (cvOptional.isPresent()) {
+                Cv cv = cvOptional.get();
+                cv.toCvBody(dto);
+                cvRepository.save(cv);
+                return true;
+            } else {
+                throw new IllegalArgumentException("CvId not found: " + cvId);
+            }
+    }
+
+    @Override
+    public boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto) {
+        Optional<Users> UsersOptional = UsersRepository.findById(UsersId);
+
+        if (UsersOptional.isPresent()) {
             Optional<Cv> cvOptional = cvRepository.findById(cvId);
 
             if (cvOptional.isPresent()) {
@@ -211,20 +233,20 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 throw new IllegalArgumentException("CvId not found: " + cvId);
             }
         } else {
-            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+            throw new IllegalArgumentException("UsersId not found: " + UsersId);
         }
     }
 
     @Override
-    public boolean updateCvContact(int customerId, int cvId, int contactId) {
+    public boolean updateCvContact(int UsersId, int cvId, int contactId) {
         return false;
     }
 
     @Override
-    public boolean updateCvTemplate(int customerId, int cvId, int templateId) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+    public boolean updateCvTemplate(int UsersId, int cvId, int templateId) {
+        Optional<Users> UsersOptional = UsersRepository.findById(UsersId);
 
-        if (customerOptional.isPresent()) {
+        if (UsersOptional.isPresent()) {
             Optional<Cv> cvOptional = cvRepository.findById(cvId);
 
             if (cvOptional.isPresent()) {
@@ -245,10 +267,38 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 throw new IllegalArgumentException("CvId not found: " + cvId);
             }
         } else {
-            throw new IllegalArgumentException("CustomerId not found: " + customerId);
+            throw new IllegalArgumentException("UsersId not found: " + UsersId);
         }
     }
 
+    @Override
+    public CvBodyDto getCvBody(int cvId) throws JsonProcessingException {
+        return getCvById(cvId).deserialize();
+    }
 
+//    public Cv synchUp(int cvId) throws JsonProcessingException {
+//        Cv cv = cvRepository.getById(cvId);
+//        if (Objects.nonNull(cv)){
+//            CvBodyDto cvBodyDto = cv.deserialize();
+//            cvBodyDto.getEducations().forEach(x -> {
+//                EducationDto e = educationService.getById(x.getId()).get();
+//                modelMapper.map(e, x);
+//                try {
+//                    educationService.updateEducationInCvBody(cvId, x.getId(), x);
+//                } catch (JsonProcessingException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            });
+//            cvBodyDto.getSkills().forEach(x -> {
+//                SkillDto e = skillService.getById(x.getId()).get();
+//                modelMapper.map(e, x);
+//                try {
+//                    skillService.updateEducationInCvBody(cvId, x.getId(), x);
+//                } catch (JsonProcessingException ex) {
+//                    throw new RuntimeException(ex);
+//                }
+//            });
+//        }
+//    }
 
 }

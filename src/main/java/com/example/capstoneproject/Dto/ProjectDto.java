@@ -1,7 +1,5 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.enums.CvStatus;
 import lombok.*;
 
 import java.util.Date;
@@ -13,7 +11,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class ProjectDto {
+    private Integer id;
 
+    private Boolean isDisplay;
     private String Title;
 
     private String Organization;

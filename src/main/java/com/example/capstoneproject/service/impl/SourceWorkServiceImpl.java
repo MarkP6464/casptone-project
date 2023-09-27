@@ -1,27 +1,27 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.SkillDto;
-import com.example.capstoneproject.Dto.SkillViewDto;
+import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.Dto.SourceWorkDto;
-import com.example.capstoneproject.Dto.SourceWorkViewDto;
-import com.example.capstoneproject.entity.Customer;
+import com.example.capstoneproject.Dto.responses.SourceWorkViewDto;
 import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.entity.SourceWork;
-import com.example.capstoneproject.enums.CvStatus;
-import com.example.capstoneproject.mapper.SkillMapper;
+import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.SourceWorkMapper;
-import com.example.capstoneproject.repository.SkillRepository;
 import com.example.capstoneproject.repository.SourceWorkRepository;
-import com.example.capstoneproject.service.CustomerService;
 import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.SkillService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.SourceWorkService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +33,14 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     SourceWorkMapper sourceWorkMapper;
 
     @Autowired
-    CustomerService customerService;
+    UsersService usersService;
+
+
+    @Autowired
+    CvService cvService;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     public SourceWorkServiceImpl(SourceWorkRepository sourceWorkRepository, SourceWorkMapper sourceWorkMapper) {
         super(sourceWorkRepository, sourceWorkMapper, sourceWorkRepository::findById);
@@ -44,21 +51,21 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     @Override
     public SourceWorkDto createSourceWork(Integer id, SourceWorkDto dto) {
         SourceWork sourceWork = sourceWorkMapper.mapDtoToEntity(dto);
-        Customer customer = customerService.getCustomerById(id);
-        sourceWork.setCustomer(customer);
-        sourceWork.setStatus(CvStatus.ACTIVE);
+        Users Users = usersService.getUsersById(id);
+        sourceWork.setUser(Users);
+        sourceWork.setStatus(BasicStatus.ACTIVE);
         SourceWork saved = sourceWorkRepository.save(sourceWork);
         return sourceWorkMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateSourceWork(int customerId, int sourceWorkId, SourceWorkDto dto) {
+    public boolean updateSourceWork(int UsersId, int sourceWorkId, SourceWorkDto dto) {
         Optional<SourceWork> existingSourceWorkOptional = sourceWorkRepository.findById(sourceWorkId);
         if (existingSourceWorkOptional.isPresent()) {
             SourceWork existingSourceWork = existingSourceWorkOptional.get();
 
-            if (existingSourceWork.getCustomer().getId() != customerId) {
-                throw new IllegalArgumentException("Source Work does not belong to Customer with id " + customerId);
+            if (existingSourceWork.getUser().getId() != UsersId) {
+                throw new IllegalArgumentException("Source Work does not belong to Users with id " + UsersId);
             }
 
             if (dto.getName() != null && !existingSourceWork.getName().equals(dto.getName())) {
@@ -86,7 +93,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             } else {
                 existingSourceWork.setDescription(existingSourceWork.getDescription());
             }
-            existingSourceWork.setStatus(CvStatus.ACTIVE);
+            existingSourceWork.setStatus(BasicStatus.ACTIVE);
             sourceWorkRepository.save(existingSourceWork);
             return true;
         } else {
@@ -96,10 +103,10 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
 
 
     @Override
-    public List<SourceWorkViewDto> getAllSourceWork(int customerId) {
-        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorkByCv_IdAndStatus(customerId, CvStatus.ACTIVE);
+    public List<SourceWorkViewDto> getAllSourceWork(int UsersId) {
+        List<SourceWork> sourceWorks = sourceWorkRepository.findSourceWorkByCv_IdAndStatus(UsersId, BasicStatus.ACTIVE);
         return sourceWorks.stream()
-                .filter(sourceWork -> sourceWork.getStatus() == CvStatus.ACTIVE)
+                .filter(sourceWork -> sourceWork.getStatus() == BasicStatus.ACTIVE)
                 .map(sourceWork -> {
                     SourceWorkViewDto sourceWorkViewDto = new SourceWorkViewDto();
                     sourceWorkViewDto.setId(sourceWork.getId());
@@ -114,19 +121,106 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     }
 
     @Override
-    public void deleteSourceWorkById(Integer customerId,Integer sourceId) {
-        boolean isSourceWorkBelongsToCv = sourceWorkRepository.existsByIdAndCustomer_Id(sourceId, customerId);
+    public void deleteSourceWorkById(Integer UsersId,Integer sourceId) {
+        boolean isSourceWorkBelongsToCv = sourceWorkRepository.existsByIdAndUser_Id(sourceId, UsersId);
 
         if (isSourceWorkBelongsToCv) {
             Optional<SourceWork> Optional = sourceWorkRepository.findById(sourceId);
             if (Optional.isPresent()) {
                 SourceWork sourceWork = Optional.get();
-                sourceWork.setStatus(CvStatus.DELETED);
+                sourceWork.setStatus(BasicStatus.DELETED);
                 sourceWorkRepository.save(sourceWork);
             }
         } else {
-            throw new IllegalArgumentException("Source Work with ID " + sourceId + " does not belong to Customer with ID " + customerId);
+            throw new IllegalArgumentException("Source Work with ID " + sourceId + " does not belong to Users with ID " + UsersId);
         }
     }
+
+
+    @Override
+    public SourceWorkDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+        SourceWork education = sourceWorkRepository.getById(id);
+        if (Objects.nonNull(education)){
+            Cv cv = cvService.getCvById(cvId);
+            CvBodyDto cvBodyDto = cv.deserialize();
+            Optional<SourceWorkDto> dto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId()==id).findFirst();
+            if (dto.isPresent()){
+                modelMapper.map(education, dto.get());
+                return dto.get();
+            }else{
+                throw new ResourceNotFoundException("Not found that id in cvBody");
+            }
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public SourceWorkDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<SourceWorkDto> dto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId()==id).findFirst();
+        if (dto.isPresent()){
+            return  dto.get();
+        }else{
+            throw new ResourceNotFoundException("Not found that id in cvBody");
+        }
+    }
+
+    @Override
+    public Set<SourceWorkDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        return cvBodyDto.getSourceWorks();
+    }
+
+    @Override
+    public boolean updateInCvBody(int cvId, int id, SourceWorkDto dto) throws JsonProcessingException {
+        Cv cv = cvService.getCvById(cvId);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Optional<SourceWorkDto> relationDto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId()==id).findFirst();
+        if (relationDto.isPresent()) {
+            SourceWork education = sourceWorkRepository.getById(id);
+            modelMapper.map(dto, education);
+            sourceWorkRepository.save(education);
+            SourceWorkDto educationDto = relationDto.get();
+            educationDto.setIsDisplay(dto.getIsDisplay());
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+            return true;
+        } else {
+            throw new IllegalArgumentException("education ID not found in cvBody");
+        }
+    }
+
+
+    @Override
+    public SourceWorkDto createOfUserInCvBody(int cvId, SourceWorkDto dto) throws JsonProcessingException {
+        SourceWork education = sourceWorkMapper.mapDtoToEntity(dto);
+        Users Users = usersService.getUsersById(cvId);
+        education.setUser(Users);
+        education.setStatus(BasicStatus.ACTIVE);
+        SourceWork saved = sourceWorkRepository.save(education);
+        SourceWorkDto educationViewDto = new SourceWorkDto();
+        educationViewDto.setId(saved.getId());
+        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+        cvBodyDto.getSourceWorks().add(educationViewDto);
+        cvService.updateCvBody(0, cvId, cvBodyDto);
+        return educationViewDto;
+    }
+
+    @Override
+    public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {
+
+        Optional<SourceWork> Optional = sourceWorkRepository.findById(id);
+        if (Optional.isPresent()) {
+            SourceWork education = Optional.get();
+            education.setStatus(BasicStatus.DELETED);
+            sourceWorkRepository.save(education);
+            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvService.updateCvBody(0, cvId, cvBodyDto);
+        }
+    }
+
 
 }
