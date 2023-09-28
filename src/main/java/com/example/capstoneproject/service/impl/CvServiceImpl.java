@@ -4,9 +4,7 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.mapper.CvMapper;
-import com.example.capstoneproject.repository.UsersRepository;
-import com.example.capstoneproject.repository.CvRepository;
-import com.example.capstoneproject.repository.TemplateRepository;
+import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,6 +39,21 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     @Autowired
     @Lazy
     ProjectService projectService;
+
+    @Autowired
+    EducationRepository educationRepository;
+    @Autowired
+    SkillRepository skillRepository;
+    @Autowired
+    ExperienceRepository experienceRepository;
+    @Autowired
+    CertificationRepository certificationRepository;
+    @Autowired
+    InvolvementRepository involvementRepository;
+    @Autowired
+    SourceWorkRepository sourceWorkRepository;
+    @Autowired
+    ProjectRepository projectRepository;
 
     @Autowired
     @Lazy
@@ -221,9 +234,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public boolean updateCvBody(int UsersId, int cvId, CvBodyDto dto) throws JsonProcessingException {
+    public boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException {
             Optional<Cv> cvOptional = cvRepository.findById(cvId);
-
             if (cvOptional.isPresent()) {
                 Cv cv = cvOptional.get();
                 cv.toCvBody(dto);
@@ -296,75 +308,41 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public Cv synchUp(int cvId) throws JsonProcessingException {
+    public CvDto synchUp(int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.getById(cvId);
         if (Objects.nonNull(cv)){
             CvBodyDto cvBodyDto = cv.deserialize();
             cvBodyDto.getEducations().forEach(x -> {
-                EducationDto e = educationService.getById(x.getId()).get();
+                Education e = educationRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    educationService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
             cvBodyDto.getSkills().forEach(x -> {
-                SkillDto e = skillService.getById(x.getId()).get();
+                Skill e = skillRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    skillService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
             cvBodyDto.getExperiences().forEach(x -> {
-                ExperienceDto e = experienceService.getById(x.getId()).get();
+                Experience e = experienceRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    experienceService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
             cvBodyDto.getInvolvements().forEach(x -> {
-                InvolvementDto e = involvementService.getById(x.getId()).get();
+                Involvement e = involvementRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    involvementService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
             cvBodyDto.getCertifications().forEach(x -> {
-                CertificationDto e = certificationService.getById(x.getId()).get();
+                Certification e = certificationRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    certificationService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
             cvBodyDto.getProjects().forEach(x -> {
-                ProjectDto e = projectService.getById(x.getId()).get();
+                Project e = projectRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    projectService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
             cvBodyDto.getSourceWorks().forEach(x -> {
-                SourceWorkDto e = sourceWorkService.getById(x.getId()).get();
+                SourceWork e = sourceWorkRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
-                try {
-                    sourceWorkService.updateInCvBody(cvId, x.getId(), x);
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException(ex);
-                }
             });
+            updateCvBody(cvId, cvBodyDto);
         }
-        return cv;
+        return cvMapper.mapEntityToDto(cv);
     }
 
 }

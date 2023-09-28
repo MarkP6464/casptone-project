@@ -32,7 +32,7 @@ public class CvController {
     }
     @PutMapping("/{UsersId}/updateCvBody/{cvId}")
     public String updateCvBody(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
-        boolean check = cvService.updateCvBody(UsersId,cvId, Dto);
+        boolean check = cvService.updateCvBody(cvId, Dto);
         if (check) {
             return "Changes saved";
         } else {

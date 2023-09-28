@@ -172,7 +172,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             certificationRepository.save(certification);
             CertificationDto CertificationDto = relationDto.get();
             CertificationDto.setIsDisplay(dto.getIsDisplay());
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
             throw new IllegalArgumentException("Certification ID not found in cvBody");
@@ -192,7 +192,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getCertifications().add(certificationDto);
         certificationDto.setIsDisplay(true);
-        cvService.updateCvBody(0, cvId, cvBodyDto);
+        cvService.updateCvBody(cvId, cvBodyDto);
         return certificationDto;
     }
 
@@ -206,7 +206,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             certificationRepository.save(certification);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getCertifications().removeIf(x -> x.getId() == CertificationId);
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
 

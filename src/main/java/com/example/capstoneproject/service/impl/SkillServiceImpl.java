@@ -157,7 +157,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             skillRepository.save(education);
             SkillDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
@@ -177,7 +177,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getSkills().add(educationViewDto);
         educationViewDto.setIsDisplay(true);
-        cvService.updateCvBody(0, cvId, cvBodyDto);
+        cvService.updateCvBody(cvId, cvBodyDto);
         return educationViewDto;
     }
 
@@ -191,7 +191,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             skillRepository.save(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
 

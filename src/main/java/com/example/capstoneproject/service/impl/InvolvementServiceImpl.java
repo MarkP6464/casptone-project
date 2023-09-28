@@ -187,7 +187,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             involvementRepository.save(education);
             InvolvementDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
@@ -207,7 +207,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getInvolvements().add(involvementDto);
         involvementDto.setIsDisplay(true);
-        cvService.updateCvBody(0, cvId, cvBodyDto);
+        cvService.updateCvBody(cvId, cvBodyDto);
         return involvementDto;
     }
 
@@ -221,7 +221,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             involvementRepository.save(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
 
