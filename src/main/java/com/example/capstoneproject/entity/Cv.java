@@ -22,7 +22,7 @@ import java.util.Map;
 public class Cv {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String Content;
 
@@ -34,7 +34,7 @@ public class Cv {
 
 
     @Column(columnDefinition = "TEXT")
-    private String cvBody = "{}";
+    private String cvBody = "{\"skills\":[],\"certifications\":[],\"educations\":[],\"experiences\":[],\"involvements\":[],\"projects\":[],\"sourceWorks\":[]}";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore

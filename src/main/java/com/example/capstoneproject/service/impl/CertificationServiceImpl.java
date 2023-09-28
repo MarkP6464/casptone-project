@@ -183,16 +183,17 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     @Override
     public CertificationDto createOfUserInCvBody(int cvId, CertificationDto dto) throws JsonProcessingException {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         certification.setUser(Users);
         certification.setStatus(BasicStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
-        CertificationDto CertificationDto = new CertificationDto();
-        CertificationDto.setId(saved.getId());
+        CertificationDto certificationDto = new CertificationDto();
+        certificationDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getCertifications().add(CertificationDto);
+        cvBodyDto.getCertifications().add(certificationDto);
+        certificationDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
-        return CertificationDto;
+        return certificationDto;
     }
 
     @Override

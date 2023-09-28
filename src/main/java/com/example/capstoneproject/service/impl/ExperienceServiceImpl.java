@@ -10,6 +10,7 @@ import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
 import com.example.capstoneproject.repository.EvaluateRepository;
 import com.example.capstoneproject.repository.ExperienceRepository;
+import com.example.capstoneproject.repository.SectionRepository;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
@@ -37,6 +38,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     SectionService sectionService;
 
     @Autowired
+    SectionRepository sectionRepository;
+
+    @Autowired
     SectionMapper sectionMapper;
 
     @Autowired
@@ -62,48 +66,48 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public ExperienceViewDto createExperience(Integer id, ExperienceDto dto) {
-        Experience experience = experienceMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(id);
-        experience.setUser(Users);
-        experience.setStatus(BasicStatus.ACTIVE);
-        Experience saved = experienceRepository.save(experience);
-
-        //Save evaluate db
-        SectionDto sectionDto = new SectionDto();
-        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(id, BasicStatus.ACTIVE);
-        if (!experiences.isEmpty()) {
-            sectionDto.setTypeId(experiences.get(0).getId());
-        }
-        sectionDto.setTitle(saved.getRole());
-        sectionDto.setTypeName(SectionEvaluate.experience);
-        SectionDto section = sectionService.create(sectionDto);
-
-        //Get process evaluate
-        List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
-        ExperienceViewDto experienceViewDto = new ExperienceViewDto();
-        experienceViewDto.setId(saved.getId());
-        experienceViewDto.setRole(saved.getRole());
-        experienceViewDto.setCompanyName(saved.getCompanyName());
-        experienceViewDto.setStartDate(saved.getStartDate());
-        experienceViewDto.setEndDate(saved.getEndDate());
-        experienceViewDto.setLocation(saved.getLocation());
-        experienceViewDto.setDescription(saved.getDescription());
-        experienceViewDto.setBulletPointDtos(evaluateResult);
-
-        //Save evaluateLog into db
-        List<Evaluate> evaluates = evaluateRepository.findAll();
-
-        for (int i = 0; i < evaluates.size(); i++) {
-            Evaluate evaluate = evaluates.get(i);
-            BulletPointDto bulletPointDto = evaluateResult.get(i);
-            SectionLogDto sectionLogDto1 = new SectionLogDto();
-            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
-            sectionLogDto1.setEvaluate(evaluate);
-            sectionLogDto1.setBullet(bulletPointDto.getResult());
-            sectionLogDto1.setStatus(bulletPointDto.getStatus());
-            sectionLogService.create(sectionLogDto1);
-        }
-        return experienceViewDto;
+//        Experience experience = experienceMapper.mapDtoToEntity(dto);
+//        Users Users = usersService.getUsersById(id);
+//        experience.setUser(Users);
+//        experience.setStatus(BasicStatus.ACTIVE);
+//        Experience saved = experienceRepository.save(experience);
+//
+//        //Save evaluate db
+//        SectionDto sectionDto = new SectionDto();
+//        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(id, BasicStatus.ACTIVE);
+//        if (!experiences.isEmpty()) {
+//            sectionDto.setTypeId(experiences.get(0).getId());
+//        }
+//        sectionDto.setTitle(saved.getRole());
+//        sectionDto.setTypeName(SectionEvaluate.experience);
+//        SectionDto section = sectionService.create(sectionDto);
+//
+//        //Get process evaluate
+//        List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
+//        ExperienceViewDto experienceViewDto = new ExperienceViewDto();
+//        experienceViewDto.setId(saved.getId());
+//        experienceViewDto.setRole(saved.getRole());
+//        experienceViewDto.setCompanyName(saved.getCompanyName());
+//        experienceViewDto.setStartDate(saved.getStartDate());
+//        experienceViewDto.setEndDate(saved.getEndDate());
+//        experienceViewDto.setLocation(saved.getLocation());
+//        experienceViewDto.setDescription(saved.getDescription());
+//        experienceViewDto.setBulletPointDtos(evaluateResult);
+//
+//        //Save evaluateLog into db
+//        List<Evaluate> evaluates = evaluateRepository.findAll();
+//
+//        for (int i = 0; i < evaluates.size(); i++) {
+//            Evaluate evaluate = evaluates.get(i);
+//            BulletPointDto bulletPointDto = evaluateResult.get(i);
+//            SectionLogDto sectionLogDto1 = new SectionLogDto();
+//            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
+//            sectionLogDto1.setEvaluate(evaluate);
+//            sectionLogDto1.setBullet(bulletPointDto.getResult());
+//            sectionLogDto1.setStatus(bulletPointDto.getStatus());
+//            sectionLogService.create(sectionLogDto1);
+//        }
+        return null;
     }
 
     @Override
@@ -189,15 +193,26 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public ExperienceDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+    public ExperienceViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
         Experience education = experienceRepository.getById(id);
         if (Objects.nonNull(education)){
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
             Optional<ExperienceDto> dto = cvBodyDto.getExperiences().stream().filter(x -> x.getId()==id).findFirst();
+            List<BulletPointDto> bulletPointDtos = sectionRepository.findBulletPointDtoByTypeIdAndTypeName(id,SectionEvaluate.experience);
             if (dto.isPresent()){
-                modelMapper.map(education, dto.get());
-                return dto.get();
+                ExperienceDto experienceDto = dto.get();
+                ExperienceViewDto experienceViewDto = new ExperienceViewDto();
+                experienceViewDto.setId(experienceDto.getId());
+                experienceViewDto.setIsDisplay(experienceDto.getIsDisplay());
+                experienceViewDto.setRole(experienceDto.getRole());
+                experienceViewDto.setCompanyName(experienceDto.getCompanyName());
+                experienceViewDto.setStartDate(experienceDto.getStartDate());
+                experienceViewDto.setEndDate(experienceDto.getEndDate());
+                experienceViewDto.setLocation(experienceDto.getLocation());
+                experienceViewDto.setDescription(experienceDto.getDescription());
+                experienceViewDto.setBulletPointDtos(bulletPointDtos);
+                return experienceViewDto;
             }else{
                 throw new ResourceNotFoundException("Not found that id in cvBody");
             }
@@ -231,9 +246,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         CvBodyDto cvBodyDto = cv.deserialize();
         Optional<ExperienceDto> relationDto = cvBodyDto.getExperiences().stream().filter(x -> x.getId()==id).findFirst();
         if (relationDto.isPresent()) {
-            Experience education = experienceRepository.getById(id);
-            modelMapper.map(dto, education);
-            experienceRepository.save(education);
+            Experience experience = experienceRepository.getById(id);
+            modelMapper.map(dto, experience);
+            experienceRepository.save(experience);
             ExperienceDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
             cvService.updateCvBody(0, cvId, cvBodyDto);
@@ -245,19 +260,54 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
 
     @Override
-    public ExperienceDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException {
+    public ExperienceViewDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException {
         Experience experience = experienceMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         experience.setUser(Users);
         experience.setStatus(BasicStatus.ACTIVE);
         Experience saved = experienceRepository.save(experience);
-        ExperienceDto experienceViewDto = new ExperienceDto();
-        experienceViewDto.setId(saved.getId());
+        dto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getExperiences().add(experienceViewDto);
+        cvBodyDto.getExperiences().add(dto);
+//        dto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
 
+        //Save evaluate db
+        SectionDto sectionDto = new SectionDto();
+        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(Users.getId(), BasicStatus.ACTIVE);
+        if (!experiences.isEmpty()) {
+            sectionDto.setTypeId(experiences.get(0).getId());
+        }
+        sectionDto.setTitle(saved.getRole());
+        sectionDto.setTypeName(SectionEvaluate.experience);
+        SectionDto section = sectionService.create(sectionDto);
 
+        //Get process evaluate
+        List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
+        ExperienceViewDto experienceViewDto = new ExperienceViewDto();
+        experienceViewDto.setId(saved.getId());
+        experienceViewDto.setIsDisplay(true);
+        experienceViewDto.setRole(saved.getRole());
+        experienceViewDto.setCompanyName(saved.getCompanyName());
+        experienceViewDto.setStartDate(saved.getStartDate());
+        experienceViewDto.setEndDate(saved.getEndDate());
+        experienceViewDto.setLocation(saved.getLocation());
+        experienceViewDto.setDescription(saved.getDescription());
+        experienceViewDto.setBulletPointDtos(evaluateResult);
+
+        //Save evaluateLog into db
+        List<Evaluate> evaluates = evaluateRepository.findAll();
+
+        for (int i = 0; i < evaluates.size(); i++) {
+            Evaluate evaluate = evaluates.get(i);
+            BulletPointDto bulletPointDto = evaluateResult.get(i);
+            SectionLogDto sectionLogDto1 = new SectionLogDto();
+            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
+            sectionLogDto1.setEvaluate(evaluate);
+            sectionLogDto1.setBullet(bulletPointDto.getResult());
+            sectionLogDto1.setStatus(bulletPointDto.getStatus());
+            sectionLogService.create(sectionLogDto1);
+        }
         return experienceViewDto;
     }
 

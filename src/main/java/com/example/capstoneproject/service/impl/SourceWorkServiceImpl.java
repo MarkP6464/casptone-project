@@ -196,7 +196,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     @Override
     public SourceWorkDto createOfUserInCvBody(int cvId, SourceWorkDto dto) throws JsonProcessingException {
         SourceWork education = sourceWorkMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(Users);
         education.setStatus(BasicStatus.ACTIVE);
         SourceWork saved = sourceWorkRepository.save(education);
@@ -204,6 +204,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
         educationViewDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getSourceWorks().add(educationViewDto);
+        educationViewDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
         return educationViewDto;
     }

@@ -17,7 +17,7 @@ public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
     ExperienceViewDto createExperience(Integer id, ExperienceDto dto);
     void deleteExperienceById(Integer UsersId,Integer experienceId);
 
-    ExperienceDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
+    ExperienceViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
 
     ExperienceDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
 
@@ -25,7 +25,7 @@ public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
 
     boolean updateInCvBody(int cvId, int id, ExperienceDto dto) throws JsonProcessingException;
 
-    ExperienceDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException;
+    ExperienceViewDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException;
 
     void deleteInCvBody(Integer cvId, Integer educationId) throws JsonProcessingException;
 }

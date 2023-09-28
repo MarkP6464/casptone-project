@@ -1,8 +1,10 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ public class CvRelationController {
 
     @Autowired
     ObjectMapper objectMapper;
+
 
     @GetMapping("/{cvId}/{theRelation}")
     public Set<?> getAllARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation) throws Exception {
@@ -183,9 +186,9 @@ public class CvRelationController {
         return "Delete successful";
     }
 
-//    @GetMapping("/synchUp/{cvId}")
-//    public String synchUp(@PathVariable("cvId") int cvId){
-//
-//    }
+    @GetMapping("/synchUp/{cvId}")
+    public Cv synchUp(@PathVariable("cvId") int cvId) throws JsonProcessingException {
+        return cvService.synchUp(cvId);
+    }
 
 }

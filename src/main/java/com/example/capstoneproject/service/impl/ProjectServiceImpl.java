@@ -196,16 +196,17 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
         Project education = projectMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(Users);
         education.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(education);
-        ProjectDto educationViewDto = new ProjectDto();
-        educationViewDto.setId(saved.getId());
+        ProjectDto projectDto = new ProjectDto();
+        projectDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getProjects().add(educationViewDto);
+        cvBodyDto.getProjects().add(projectDto);
+        projectDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
-        return educationViewDto;
+        return projectDto;
     }
 
     @Override

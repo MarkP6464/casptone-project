@@ -3,9 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.mapper.CvMapper;
-import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.TemplateRepository;
@@ -14,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,23 +21,43 @@ import java.util.stream.Collectors;
 public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> implements CvService {
     @Autowired
     CvRepository cvRepository;
+
+    @Autowired
+    @Lazy
+    EducationService educationService;
+
+    @Autowired
+    @Lazy
+    SkillService skillService;
+    @Autowired
+    @Lazy
+    SourceWorkService sourceWorkService;
+    @Autowired
+    @Lazy
+    ExperienceService experienceService;
+    @Autowired
+    @Lazy
+    InvolvementService involvementService;
+    @Autowired
+    @Lazy
+    ProjectService projectService;
+
+    @Autowired
+    @Lazy
+    CertificationService certificationService;
+
     @Autowired
     CvMapper cvMapper;
 
     @Autowired
-    CertificationMapper certificationMapper;
-
-    @Autowired
     ModelMapper modelMapper;
-
-    @Autowired
-    EducationMapper educationMapper;
 
     @Autowired
     UsersRepository UsersRepository;
 
     @Autowired
     TemplateRepository templateRepository;
+
 
     public CvServiceImpl(CvRepository cvRepository, CvMapper cvMapper) {
         super(cvRepository, cvMapper, cvRepository::findById);
@@ -276,29 +295,76 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         return getCvById(cvId).deserialize();
     }
 
-//    public Cv synchUp(int cvId) throws JsonProcessingException {
-//        Cv cv = cvRepository.getById(cvId);
-//        if (Objects.nonNull(cv)){
-//            CvBodyDto cvBodyDto = cv.deserialize();
-//            cvBodyDto.getEducations().forEach(x -> {
-//                EducationDto e = educationService.getById(x.getId()).get();
-//                modelMapper.map(e, x);
-//                try {
-//                    educationService.updateEducationInCvBody(cvId, x.getId(), x);
-//                } catch (JsonProcessingException ex) {
-//                    throw new RuntimeException(ex);
-//                }
-//            });
-//            cvBodyDto.getSkills().forEach(x -> {
-//                SkillDto e = skillService.getById(x.getId()).get();
-//                modelMapper.map(e, x);
-//                try {
-//                    skillService.updateEducationInCvBody(cvId, x.getId(), x);
-//                } catch (JsonProcessingException ex) {
-//                    throw new RuntimeException(ex);
-//                }
-//            });
-//        }
-//    }
+    @Override
+    public Cv synchUp(int cvId) throws JsonProcessingException {
+        Cv cv = cvRepository.getById(cvId);
+        if (Objects.nonNull(cv)){
+            CvBodyDto cvBodyDto = cv.deserialize();
+            cvBodyDto.getEducations().forEach(x -> {
+                EducationDto e = educationService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    educationService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            cvBodyDto.getSkills().forEach(x -> {
+                SkillDto e = skillService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    skillService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            cvBodyDto.getExperiences().forEach(x -> {
+                ExperienceDto e = experienceService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    experienceService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            cvBodyDto.getInvolvements().forEach(x -> {
+                InvolvementDto e = involvementService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    involvementService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            cvBodyDto.getCertifications().forEach(x -> {
+                CertificationDto e = certificationService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    certificationService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            cvBodyDto.getProjects().forEach(x -> {
+                ProjectDto e = projectService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    projectService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            cvBodyDto.getSourceWorks().forEach(x -> {
+                SourceWorkDto e = sourceWorkService.getById(x.getId()).get();
+                modelMapper.map(e, x);
+                try {
+                    sourceWorkService.updateInCvBody(cvId, x.getId(), x);
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+        }
+        return cv;
+    }
 
 }
