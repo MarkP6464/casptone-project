@@ -187,12 +187,13 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
         certification.setUser(Users);
         certification.setStatus(BasicStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
-        CertificationDto CertificationDto = new CertificationDto();
-        CertificationDto.setId(saved.getId());
+        CertificationDto certificationDto = new CertificationDto();
+        certificationDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getCertifications().add(CertificationDto);
+        cvBodyDto.getCertifications().add(certificationDto);
+        certificationDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
-        return CertificationDto;
+        return certificationDto;
     }
 
     @Override

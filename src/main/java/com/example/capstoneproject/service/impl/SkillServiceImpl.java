@@ -176,6 +176,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         educationViewDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getSkills().add(educationViewDto);
+        educationViewDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
         return educationViewDto;
     }

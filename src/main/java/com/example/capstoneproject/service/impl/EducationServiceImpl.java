@@ -205,7 +205,9 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
         EducationDto educationDto = new EducationDto();
         educationDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+        educationDto.setIsDisplay(true);
         cvBodyDto.getEducations().add(educationDto);
+        educationDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
         return educationDto;
     }

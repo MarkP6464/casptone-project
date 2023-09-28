@@ -202,12 +202,13 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         education.setUser(Users);
         education.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(education);
-        InvolvementDto educationViewDto = new InvolvementDto();
-        educationViewDto.setId(saved.getId());
+        InvolvementDto involvementDto = new InvolvementDto();
+        involvementDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getInvolvements().add(educationViewDto);
+        cvBodyDto.getInvolvements().add(involvementDto);
+        involvementDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
-        return educationViewDto;
+        return involvementDto;
     }
 
     @Override

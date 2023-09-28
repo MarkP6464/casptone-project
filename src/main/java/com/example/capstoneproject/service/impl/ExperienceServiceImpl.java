@@ -202,6 +202,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         educationViewDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getExperiences().add(educationViewDto);
+        educationViewDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
         return educationViewDto;
     }

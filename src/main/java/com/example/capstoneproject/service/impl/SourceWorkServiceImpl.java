@@ -204,6 +204,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
         educationViewDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getSourceWorks().add(educationViewDto);
+        educationViewDto.setIsDisplay(true);
         cvService.updateCvBody(0, cvId, cvBodyDto);
         return educationViewDto;
     }

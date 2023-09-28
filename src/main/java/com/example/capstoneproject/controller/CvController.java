@@ -40,9 +40,9 @@ public class CvController {
         }
     }
 
-    @GetMapping("/{UsersId}/getCvBody/{cvId}")
-    public CvBodyDto getCvBody(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId) throws JsonProcessingException {
-        CvBodyDto cvBody = cvService.getCvBody(UsersId);
+    @GetMapping("/getCvBody/{cvId}")
+    public CvBodyDto getCvBody(@PathVariable("cvId") int cvId) throws JsonProcessingException {
+        CvBodyDto cvBody = cvService.getCvBody(cvId);
         return cvBody;
     }
 
