@@ -185,7 +185,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             projectRepository.save(education);
             ProjectDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
@@ -205,7 +205,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getProjects().add(projectDto);
         projectDto.setIsDisplay(true);
-        cvService.updateCvBody(0, cvId, cvBodyDto);
+        cvService.updateCvBody(cvId, cvBodyDto);
         return projectDto;
     }
 
@@ -219,7 +219,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             projectRepository.save(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
 

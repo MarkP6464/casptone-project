@@ -18,7 +18,7 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto);
 
-    boolean updateCvBody(int UsersId, int cvId, CvBodyDto dto) throws JsonProcessingException;
+    boolean updateCvBody( int cvId, CvBodyDto dto) throws JsonProcessingException;
 
     boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto);
     boolean updateCvContact(int UsersId, int cvId, int contactId);
@@ -26,5 +26,5 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 
-    Cv synchUp(int cvId) throws JsonProcessingException;
+    CvDto synchUp(int cvId) throws JsonProcessingException;
 }

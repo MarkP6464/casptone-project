@@ -185,7 +185,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             sourceWorkRepository.save(education);
             SourceWorkDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
@@ -205,7 +205,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getSourceWorks().add(educationViewDto);
         educationViewDto.setIsDisplay(true);
-        cvService.updateCvBody(0, cvId, cvBodyDto);
+        cvService.updateCvBody(cvId, cvBodyDto);
         return educationViewDto;
     }
 
@@ -219,7 +219,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
             sourceWorkRepository.save(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
 

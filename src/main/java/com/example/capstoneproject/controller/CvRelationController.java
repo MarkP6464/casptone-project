@@ -182,12 +182,11 @@ public class CvRelationController {
             default:
                 throw new Exception("Invalid request!!");
         }
-        educationService.deleteEducationById(cvId,id);
         return "Delete successful";
     }
 
     @GetMapping("/synchUp/{cvId}")
-    public Cv synchUp(@PathVariable("cvId") int cvId) throws JsonProcessingException {
+    public CvDto synchUp(@PathVariable("cvId") int cvId) throws JsonProcessingException {
         return cvService.synchUp(cvId);
     }
 

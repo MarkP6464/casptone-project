@@ -251,7 +251,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             experienceRepository.save(experience);
             ExperienceDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
@@ -270,7 +270,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
         cvBodyDto.getExperiences().add(dto);
 //        dto.setIsDisplay(true);
-        cvService.updateCvBody(0, cvId, cvBodyDto);
+        cvService.updateCvBody( cvId, cvBodyDto);
 
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
@@ -321,7 +321,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             experienceRepository.save(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getEducations().removeIf(x -> x.getId() == educationId);
-            cvService.updateCvBody(0, cvId, cvBodyDto);
+            cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
 
