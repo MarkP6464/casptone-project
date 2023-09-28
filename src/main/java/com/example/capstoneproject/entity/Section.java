@@ -19,6 +19,7 @@ public class Section {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Id;
 
+    @Enumerated(EnumType.STRING)
     private SectionEvaluate TypeName;
     private int TypeId;
     private String Title;

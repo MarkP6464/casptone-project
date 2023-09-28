@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ExperienceDto;
+import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.service.ExperienceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class ExperienceController {
     }
 
     @PostMapping("/{UsersId}/experiences")
-    public ExperienceDto postExperience(@PathVariable("UsersId") int UsersId, @RequestBody ExperienceDto Dto) {
+    public ExperienceViewDto postExperience(@PathVariable("UsersId") int UsersId, @RequestBody ExperienceDto Dto) {
         return experienceService.createExperience(UsersId,Dto);
     }
 

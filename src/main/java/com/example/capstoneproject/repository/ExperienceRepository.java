@@ -14,4 +14,7 @@ public interface ExperienceRepository extends JpaRepository<Experience, Integer>
 
     boolean existsByIdAndUser_Id(Integer experienceId, Integer UserId);
 
+    @Query("SELECT c FROM Experience c WHERE c.user.id = :userId AND c.Status = :status ORDER BY c.id DESC")
+    List<Experience> findExperiencesByStatusOrderedByStartDateDesc(@Param("userId") Integer userId, @Param("status") BasicStatus status);
+
 }

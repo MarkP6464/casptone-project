@@ -24,10 +24,10 @@ public class EvaluateController {
     public EvaluateController(EvaluateService evaluateService) {
         this.evaluateService = evaluateService;
     }
-    @GetMapping("/{description}")
-    public ResultDto checkSentences(@RequestParam String sentences) {
-        return evaluateService.checkSentences(sentences);
-    }
+//    @GetMapping("/{description}")
+//    public ResultDto checkSentences(@RequestParam String sentences) {
+//        return evaluateService.checkSentences(sentences);
+//    }
 
     @PostMapping("/extractKeywords")
     public List<AtsDto> extractKeywords(@RequestBody ChatRequest chatRequest) {

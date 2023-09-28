@@ -1,8 +1,11 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.Dto.BulletPointDto;
+import com.example.capstoneproject.Dto.ResultDto;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,5 +29,6 @@ public class ExperienceViewDto {
     private String Location;
 
     private String Description;
-    private ResultDto resultDto;
+
+    private List<BulletPointDto> bulletPointDtos;
 }

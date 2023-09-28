@@ -28,16 +28,18 @@ public class EvaluateServiceImpl implements EvaluateService {
     @Autowired
     EvaluateRepository evaluateRepository;
     @Override
-    public ResultDto checkSentences(String text) {
+    public List<BulletPointDto> checkSentences(String text) {
         List<String> sentences = splitText(text);
-        ResultDto result = new ResultDto();
-        List<BulletPointDto> shortBulletPoints = new ArrayList<>();
-        List<BulletPointDto> punctuatedBulletPoints = new ArrayList<>();
-        List<BulletPointDto> numberBulletPoints = new ArrayList<>();
-        List<BulletPointDto> personalPronounsBulletPoints = new ArrayList<>();
-        List<BulletPointDto> fillerBulletPoints = new ArrayList<>();
-        List<BulletPointDto> quantifiedBulletPoints = new ArrayList<>();
-        List<BulletPointDto> buzzwordBulletPoints = new ArrayList<>();
+//        ResultDto result = new ResultDto();
+//        List<BulletPointDto> shortBulletPoints = new ArrayList<>();
+//        List<BulletPointDto> punctuatedBulletPoints = new ArrayList<>();
+//        List<BulletPointDto> numberBulletPoints = new ArrayList<>();
+//        List<BulletPointDto> personalPronounsBulletPoints = new ArrayList<>();
+//        List<BulletPointDto> fillerBulletPoints = new ArrayList<>();
+//        List<BulletPointDto> quantifiedBulletPoints = new ArrayList<>();
+//        List<BulletPointDto> buzzwordBulletPoints = new ArrayList<>();
+
+        List<BulletPointDto> allBulletPoints = new ArrayList<>();
 
         List<Integer> shortBulletErrors = new ArrayList<>();
         List<Integer> punctuatedBulletErrors = new ArrayList<>();
@@ -63,48 +65,48 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
             errorBulletShort.setStatus("Error");
-            shortBulletPoints.add(errorBulletShort);
+            allBulletPoints.add(errorBulletShort);
         }else {
             BulletPointDto errorBulletShort = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setStatus("Pass");
-            shortBulletPoints.add(errorBulletShort);
+            allBulletPoints.add(errorBulletShort);
         }
 
         if (!punctuatedBulletErrors.isEmpty()) {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(4);
+            Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
             errorBulletPunctuated.setStatus("Error");
-            punctuatedBulletPoints.add(errorBulletPunctuated);
+            allBulletPoints.add(errorBulletPunctuated);
         }else{
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(4);
+            Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setStatus("Pass");
-            punctuatedBulletPoints.add(errorBulletPunctuated);
+            allBulletPoints.add(errorBulletPunctuated);
         }
 
         if (validShortBulletCount < 3 || validShortBulletCount > 6) {
             BulletPointDto errorBulletCount = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(5);
+            Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
             errorBulletCount.setResult("Only " + validShortBulletCount + " found in this section.");
             errorBulletCount.setStatus("Warning");
-            numberBulletPoints.add(errorBulletCount);
+            allBulletPoints.add(errorBulletCount);
         } else {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(5);
+            Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setStatus("Pass");
-            numberBulletPoints.add(errorBulletPunctuated);
+            allBulletPoints.add(errorBulletPunctuated);
         }
 
         // Check for Personal Pronouns in the sentences
@@ -116,82 +118,84 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
             errorBulletPersonalPronouns.setStatus("Warning");
-            personalPronounsBulletPoints.add(errorBulletPersonalPronouns);
+            allBulletPoints.add(errorBulletPersonalPronouns);
         }else{
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setStatus("Pass");
-            personalPronounsBulletPoints.add(errorBulletPersonalPronouns);
+            allBulletPoints.add(errorBulletPersonalPronouns);
         }
 
         // Check for Filler Words in the sentences
         String fillerWord = checkFiller(sentences);
         if (!fillerWord.isEmpty()) {
             BulletPointDto errorBulletFillers = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(4);
+            Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
             errorBulletFillers.setStatus("Warning");
-            fillerBulletPoints.add(errorBulletFillers);
+            allBulletPoints.add(errorBulletFillers);
         }else {
             BulletPointDto errorBulletFillers = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(4);
+            Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setStatus("Pass");
-            fillerBulletPoints.add(errorBulletFillers);
+            allBulletPoints.add(errorBulletFillers);
         }
 
         // Check for Quantified in the sentences
         String quantified = containsNumber(sentences);
         if (!quantified.isEmpty()) {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(5);
+            Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
             errorBulletQuantified.setStatus("Warning");
-            quantifiedBulletPoints.add(errorBulletQuantified);
+            allBulletPoints.add(errorBulletQuantified);
         }else {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(5);
+            Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setStatus("Pass");
-            quantifiedBulletPoints.add(errorBulletQuantified);
+            allBulletPoints.add(errorBulletQuantified);
         }
 
         // Check for Buzzwords in the sentences
-        String buzzwords = checkBuzzword(sentences);
-        if (!buzzwords.isEmpty()) {
-            BulletPointDto errorBulletBuzzword = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(5);
-            errorBulletBuzzword.setTitle(evaluate.getTitle());
-            errorBulletBuzzword.setDescription(evaluate.getDescription());
-            errorBulletBuzzword.setResult("Take a look at bullet " + quantified + ".");
-            errorBulletBuzzword.setStatus("Warning");
-            buzzwordBulletPoints.add(errorBulletBuzzword);
-        }else {
-            BulletPointDto errorBulletBuzzword = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(5);
-            errorBulletBuzzword.setTitle(evaluate.getTitle());
-            errorBulletBuzzword.setDescription(evaluate.getDescription());
-            errorBulletBuzzword.setStatus("Pass");
-            buzzwordBulletPoints.add(errorBulletBuzzword);
-        }
+//        String buzzwords = checkBuzzword(sentences);
+//        if (!buzzwords.isEmpty()) {
+//            BulletPointDto errorBulletBuzzword = new BulletPointDto();
+//            Evaluate evaluate = evaluateRepository.findById(3);
+//            errorBulletBuzzword.setTitle(evaluate.getTitle());
+//            errorBulletBuzzword.setDescription(evaluate.getDescription());
+//            errorBulletBuzzword.setResult("Take a look at bullet " + quantified + ".");
+//            errorBulletBuzzword.setStatus("Warning");
+//            buzzwordBulletPoints.add(errorBulletBuzzword);
+//        }else {
+//            BulletPointDto errorBulletBuzzword = new BulletPointDto();
+//            Evaluate evaluate = evaluateRepository.findById(3);
+//            errorBulletBuzzword.setTitle(evaluate.getTitle());
+//            errorBulletBuzzword.setDescription(evaluate.getDescription());
+//            errorBulletBuzzword.setStatus("Pass");
+//            buzzwordBulletPoints.add(errorBulletBuzzword);
+//        }
 
-        result.setShortList(shortBulletPoints);
-        result.setPunctuatedList(punctuatedBulletPoints);
-        result.setNumberList(numberBulletPoints);
-        result.setPersonalPronounsList(personalPronounsBulletPoints);
-        result.setFillerList(fillerBulletPoints);
-        result.setQuantifiedList(quantifiedBulletPoints);
-        result.setBuzzwordsList(buzzwordBulletPoints);
+//        result.setEvaluate(shortBulletPoints);
+//        result.setEvaluate(punctuatedBulletPoints);
+//        result.setEvaluate(numberBulletPoints);
+//        result.setEvaluate(personalPronounsBulletPoints);
+//        result.setEvaluate(fillerBulletPoints);
+//        result.setEvaluate(quantifiedBulletPoints);
+//        result.setEvaluate(buzzwordBulletPoints);
 
-        return result;
+//        result.setEvaluate(allBulletPoints);
+
+        return allBulletPoints;
     }
 
     @Override

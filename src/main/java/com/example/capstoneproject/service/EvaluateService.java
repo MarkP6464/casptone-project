@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.AtsDto;
+import com.example.capstoneproject.Dto.BulletPointDto;
 import com.example.capstoneproject.Dto.ChatRequest;
 import com.example.capstoneproject.Dto.ResultDto;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Service
 public interface EvaluateService {
-    ResultDto checkSentences(String sentences);
+    List<BulletPointDto> checkSentences(String sentences);
     List<AtsDto> ListAts(ChatRequest chatRequest);
 
 //    String checkShortBulletPoint(String text);

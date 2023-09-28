@@ -1,14 +1,16 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ExperienceMapper;
+import com.example.capstoneproject.mapper.SectionMapper;
+import com.example.capstoneproject.repository.EvaluateRepository;
 import com.example.capstoneproject.repository.ExperienceRepository;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.UsersService;
-import com.example.capstoneproject.service.ExperienceService;
+import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,18 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     CvService cvService;
 
     @Autowired
+    EvaluateRepository evaluateRepository;
+
+    @Autowired
+    SectionService sectionService;
+
+    @Autowired
+    SectionMapper sectionMapper;
+
+    @Autowired
+    SectionLogService sectionLogService;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Autowired
@@ -37,6 +51,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     @Autowired
     UsersService usersService;
 
+    @Autowired
+    EvaluateService evaluateService;
+
     public ExperienceServiceImpl(ExperienceRepository experienceRepository, ExperienceMapper experienceMapper) {
         super(experienceRepository, experienceMapper, experienceRepository::findById);
         this.experienceRepository = experienceRepository;
@@ -44,13 +61,56 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public ExperienceDto createExperience(Integer id, ExperienceDto dto) {
+    public ExperienceViewDto createExperience(Integer id, ExperienceDto dto) {
         Experience experience = experienceMapper.mapDtoToEntity(dto);
         Users Users = usersService.getUsersById(id);
         experience.setUser(Users);
         experience.setStatus(BasicStatus.ACTIVE);
         Experience saved = experienceRepository.save(experience);
-        return experienceMapper.mapEntityToDto(saved);
+
+        //Save evaluate db
+        SectionDto sectionDto = new SectionDto();
+        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(id, BasicStatus.ACTIVE);
+        if (!experiences.isEmpty()) {
+            sectionDto.setTypeId(experiences.get(0).getId());
+        }
+        sectionDto.setTitle(saved.getRole());
+        sectionDto.setTypeName(SectionEvaluate.experience);
+        SectionDto section = sectionService.create(sectionDto);
+
+        //Get process evaluate
+        List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
+        ExperienceViewDto experienceViewDto = new ExperienceViewDto();
+        experienceViewDto.setId(saved.getId());
+        experienceViewDto.setRole(saved.getRole());
+        experienceViewDto.setCompanyName(saved.getCompanyName());
+        experienceViewDto.setStartDate(saved.getStartDate());
+        experienceViewDto.setEndDate(saved.getEndDate());
+        experienceViewDto.setLocation(saved.getLocation());
+        experienceViewDto.setDescription(saved.getDescription());
+        experienceViewDto.setBulletPointDtos(evaluateResult);
+
+        //Save evaluateLog into db
+        List<Evaluate> evaluates = evaluateRepository.findAll();
+        SectionLogDto sectionLogDto = new SectionLogDto();
+//        for (Evaluate evaluate : evaluates){
+//            sectionLogDto.setSection(sectionMapper.mapDtoToEntity(section));
+//            sectionLogDto.setEvaluate(evaluate);
+//            sectionLogDto.setBullet(evaluateResult.getFillerList().get(0));
+//            sectionLogDto.setStatus(evaluateResult.getFillerList().get(2));
+//            sectionLogService.create(sectionLogDto);
+//        }
+        for (int i = 0; i < evaluates.size(); i++) {
+            Evaluate evaluate = evaluates.get(i);
+            BulletPointDto bulletPointDto = evaluateResult.get(i);
+            SectionLogDto sectionLogDto1 = new SectionLogDto();
+            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
+            sectionLogDto1.setEvaluate(evaluate);
+            sectionLogDto1.setBullet(bulletPointDto.getResult());
+            sectionLogDto1.setStatus(bulletPointDto.getStatus());
+            sectionLogService.create(sectionLogDto1);
+        }
+        return experienceViewDto;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
 
     boolean updateExperience(int UsersId, int experienceId, ExperienceDto dto);
     List<ExperienceDto> getAllExperience(int UsersId);
-    ExperienceDto createExperience(Integer id, ExperienceDto dto);
+    ExperienceViewDto createExperience(Integer id, ExperienceDto dto);
     void deleteExperienceById(Integer UsersId,Integer experienceId);
 
     ExperienceDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
