@@ -198,7 +198,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
         Involvement education = involvementMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(Users);
         education.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(education);

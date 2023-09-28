@@ -198,7 +198,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     @Override
     public EducationDto createOfUserInCvBody(int cvId, EducationDto dto) throws JsonProcessingException {
         Education education = educationMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(Users);
         education.setStatus(BasicStatus.ACTIVE);
         Education saved = educationRepository.save(education);

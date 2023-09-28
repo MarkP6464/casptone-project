@@ -168,7 +168,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     @Override
     public SkillDto createOfUserInCvBody(int cvId, SkillDto dto) throws JsonProcessingException {
         Skill education = skillMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvId);
+        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(Users);
         education.setStatus(BasicStatus.ACTIVE);
         Skill saved = skillRepository.save(education);
