@@ -7,7 +7,6 @@ import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import com.example.capstoneproject.Dto.BulletPointDto;
-import com.example.capstoneproject.Dto.ResultDto;
 import com.example.capstoneproject.service.EvaluateService;
 import edu.stanford.nlp.pipeline.*;
 import org.springframework.beans.factory.annotation.Autowired;

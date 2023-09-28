@@ -92,14 +92,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
         //Save evaluateLog into db
         List<Evaluate> evaluates = evaluateRepository.findAll();
-        SectionLogDto sectionLogDto = new SectionLogDto();
-//        for (Evaluate evaluate : evaluates){
-//            sectionLogDto.setSection(sectionMapper.mapDtoToEntity(section));
-//            sectionLogDto.setEvaluate(evaluate);
-//            sectionLogDto.setBullet(evaluateResult.getFillerList().get(0));
-//            sectionLogDto.setStatus(evaluateResult.getFillerList().get(2));
-//            sectionLogService.create(sectionLogDto);
-//        }
+
         for (int i = 0; i < evaluates.size(); i++) {
             Evaluate evaluate = evaluates.get(i);
             BulletPointDto bulletPointDto = evaluateResult.get(i);
@@ -253,17 +246,19 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public ExperienceDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException {
-        Experience education = experienceMapper.mapDtoToEntity(dto);
+        Experience experience = experienceMapper.mapDtoToEntity(dto);
         Users Users = usersService.getUsersById(cvId);
-        education.setUser(Users);
-        education.setStatus(BasicStatus.ACTIVE);
-        Experience saved = experienceRepository.save(education);
-        ExperienceDto educationViewDto = new ExperienceDto();
-        educationViewDto.setId(saved.getId());
+        experience.setUser(Users);
+        experience.setStatus(BasicStatus.ACTIVE);
+        Experience saved = experienceRepository.save(experience);
+        ExperienceDto experienceViewDto = new ExperienceDto();
+        experienceViewDto.setId(saved.getId());
         CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getExperiences().add(educationViewDto);
+        cvBodyDto.getExperiences().add(experienceViewDto);
         cvService.updateCvBody(0, cvId, cvBodyDto);
-        return educationViewDto;
+
+
+        return experienceViewDto;
     }
 
     @Override
