@@ -23,7 +23,7 @@ public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
 
     Set<ExperienceDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
 
-    boolean updateInCvBody(int cvId, int id, ExperienceDto dto) throws JsonProcessingException;
+    ExperienceViewDto updateInCvBody(int cvId, int id, ExperienceDto dto) throws JsonProcessingException;
 
     ExperienceViewDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException;
 

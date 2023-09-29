@@ -15,9 +15,9 @@ import java.util.List;
 @Setter
 @Entity
 public class Section {
-    @javax.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;
+    private int id;
 
     @Enumerated(EnumType.STRING)
     private SectionEvaluate TypeName;

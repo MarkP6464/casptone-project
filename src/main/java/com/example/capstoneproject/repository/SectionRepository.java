@@ -16,4 +16,8 @@ public interface SectionRepository extends JpaRepository<Section, Integer> {
             "JOIN sl.evaluate e " +
             "WHERE s.TypeId = :typeId AND s.TypeName = :typeName")
     List<BulletPointDto> findBulletPointDtoByTypeIdAndTypeName(@Param("typeId") int typeId, @Param("typeName") SectionEvaluate typeName);
+
+    @Query("SELECT s FROM Section s WHERE s.TypeName = :typeName AND s.TypeId = :typeId")
+    Section findByTypeNameAndTypeId(@Param("typeName") SectionEvaluate typeName, @Param("typeId") int typeId);
+
 }

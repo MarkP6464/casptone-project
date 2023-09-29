@@ -10,6 +10,7 @@ import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
 import com.example.capstoneproject.repository.EvaluateRepository;
 import com.example.capstoneproject.repository.ExperienceRepository;
+import com.example.capstoneproject.repository.SectionLogRepository;
 import com.example.capstoneproject.repository.SectionRepository;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,6 +43,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Autowired
     SectionMapper sectionMapper;
+
+    @Autowired
+    SectionLogRepository sectionLogRepository;
 
     @Autowired
     SectionLogService sectionLogService;
@@ -241,18 +245,49 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public boolean updateInCvBody(int cvId, int id, ExperienceDto dto) throws JsonProcessingException {
+    public ExperienceViewDto updateInCvBody(int cvId, int id, ExperienceDto dto) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
         Optional<ExperienceDto> relationDto = cvBodyDto.getExperiences().stream().filter(x -> x.getId()==id).findFirst();
         if (relationDto.isPresent()) {
             Experience experience = experienceRepository.getById(id);
             modelMapper.map(dto, experience);
-            experienceRepository.save(experience);
-            ExperienceDto educationDto = relationDto.get();
-            educationDto.setIsDisplay(dto.getIsDisplay());
+            Experience saved = experienceRepository.save(experience);
+            ExperienceDto experienceDto = relationDto.get();
+            experienceDto.setIsDisplay(dto.getIsDisplay());
             cvService.updateCvBody(cvId, cvBodyDto);
-            return true;
+
+            //Delete section_log in db
+            Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, experience.getId());
+            sectionLogRepository.deleteBySection_Id(section.getId());
+                //Get process evaluate
+                List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
+                ExperienceViewDto experienceViewDto = new ExperienceViewDto();
+                experienceViewDto.setId(saved.getId());
+                experienceViewDto.setIsDisplay(dto.getIsDisplay());
+                experienceViewDto.setRole(saved.getRole());
+                experienceViewDto.setCompanyName(saved.getCompanyName());
+                experienceViewDto.setStartDate(saved.getStartDate());
+                experienceViewDto.setEndDate(saved.getEndDate());
+                experienceViewDto.setLocation(saved.getLocation());
+                experienceViewDto.setDescription(saved.getDescription());
+                experienceViewDto.setBulletPointDtos(evaluateResult);
+
+                //Save evaluateLog into db
+                List<Evaluate> evaluates = evaluateRepository.findAll();
+
+                for (int i = 0; i < evaluates.size(); i++) {
+                    Evaluate evaluate = evaluates.get(i);
+                    BulletPointDto bulletPointDto = evaluateResult.get(i);
+                    SectionLogDto sectionLogDto1 = new SectionLogDto();
+                    sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(sectionMapper.mapEntityToDto(section)));
+                    sectionLogDto1.setEvaluate(evaluate);
+                    sectionLogDto1.setBullet(bulletPointDto.getResult());
+                    sectionLogDto1.setStatus(bulletPointDto.getStatus());
+                    sectionLogService.create(sectionLogDto1);
+                }
+                return experienceViewDto;
+
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
         }

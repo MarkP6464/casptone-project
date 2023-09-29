@@ -12,9 +12,9 @@ import javax.persistence.*;
 @Setter
 @Entity
 public class SectionLog {
-    @javax.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;
+    private int id;
 
     private String Bullet;
     private String Status;
