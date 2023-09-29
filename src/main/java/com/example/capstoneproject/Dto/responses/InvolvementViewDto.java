@@ -1,8 +1,10 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.Dto.BulletPointDto;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -26,4 +28,6 @@ public class InvolvementViewDto {
     private String College;
 
     private String Description;
+
+    private List<BulletPointDto> bulletPointDtos;
 }

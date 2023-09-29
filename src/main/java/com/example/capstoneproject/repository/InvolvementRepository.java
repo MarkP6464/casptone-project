@@ -1,5 +1,6 @@
 package com.example.capstoneproject.repository;
 
+import com.example.capstoneproject.entity.Experience;
 import com.example.capstoneproject.entity.Involvement;
 import com.example.capstoneproject.enums.BasicStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,8 @@ public interface InvolvementRepository extends JpaRepository<Involvement, Intege
     List<Involvement> findInvolvementsByStatus(@Param("cvId") int id, @Param("status") BasicStatus status);
 
     boolean existsByIdAndUser_Id(Integer involvementId, Integer UserId);
+
+    @Query("SELECT c FROM Involvement c WHERE c.user.id = :userId AND c.Status = :status ORDER BY c.id DESC")
+    List<Involvement> findExperiencesByStatusOrderedByStartDateDesc(@Param("userId") Integer userId, @Param("status") BasicStatus status);
 
 }
