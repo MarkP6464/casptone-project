@@ -15,15 +15,15 @@ public interface ProjectService extends BaseService<ProjectDto, Integer> {
     ProjectDto createProject(Integer id, ProjectDto dto);
     void deleteProjectById(Integer UsersId,Integer projectId);
 
-    ProjectDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
+    ProjectViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
 
     ProjectDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
 
     Set<ProjectDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
 
-    boolean updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException;
+    ProjectViewDto updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException;
 
-    ProjectDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException;
+    ProjectViewDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException;
 
     void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException;
 }

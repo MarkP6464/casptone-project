@@ -8,5 +8,6 @@ import javax.transaction.Transactional;
 
 public interface SectionLogRepository extends JpaRepository<SectionLog, Integer> {
 
+    @Transactional
     void deleteBySection_Id(int sectionId);
 }

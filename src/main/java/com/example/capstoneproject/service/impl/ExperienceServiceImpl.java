@@ -198,8 +198,8 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public ExperienceViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
-        Experience education = experienceRepository.getById(id);
-        if (Objects.nonNull(education)){
+        Experience experience = experienceRepository.getById(id);
+        if (Objects.nonNull(experience)){
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
             Optional<ExperienceDto> dto = cvBodyDto.getExperiences().stream().filter(x -> x.getId()==id).findFirst();
@@ -207,14 +207,14 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             if (dto.isPresent()){
                 ExperienceDto experienceDto = dto.get();
                 ExperienceViewDto experienceViewDto = new ExperienceViewDto();
-                experienceViewDto.setId(experienceDto.getId());
+                experienceViewDto.setId(experience.getId());
                 experienceViewDto.setIsDisplay(experienceDto.getIsDisplay());
-                experienceViewDto.setRole(experienceDto.getRole());
-                experienceViewDto.setCompanyName(experienceDto.getCompanyName());
-                experienceViewDto.setStartDate(experienceDto.getStartDate());
-                experienceViewDto.setEndDate(experienceDto.getEndDate());
-                experienceViewDto.setLocation(experienceDto.getLocation());
-                experienceViewDto.setDescription(experienceDto.getDescription());
+                experienceViewDto.setRole(experience.getRole());
+                experienceViewDto.setCompanyName(experience.getCompanyName());
+                experienceViewDto.setStartDate(experience.getStartDate());
+                experienceViewDto.setEndDate(experience.getEndDate());
+                experienceViewDto.setLocation(experience.getLocation());
+                experienceViewDto.setDescription(experience.getDescription());
                 experienceViewDto.setBulletPointDtos(bulletPointDtos);
                 return experienceViewDto;
             }else{

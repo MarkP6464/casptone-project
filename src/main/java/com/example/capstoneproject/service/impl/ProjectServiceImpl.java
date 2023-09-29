@@ -1,15 +1,19 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ProjectMapper;
+import com.example.capstoneproject.mapper.SectionMapper;
+import com.example.capstoneproject.repository.EvaluateRepository;
 import com.example.capstoneproject.repository.ProjectRepository;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.UsersService;
-import com.example.capstoneproject.service.ProjectService;
+import com.example.capstoneproject.repository.SectionLogRepository;
+import com.example.capstoneproject.repository.SectionRepository;
+import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +36,26 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Autowired
     UsersService usersService;
 
+    @Autowired
+    SectionService sectionService;
+
+    @Autowired
+    SectionRepository sectionRepository;
+
+    @Autowired
+    SectionMapper sectionMapper;
+
+    @Autowired
+    SectionLogService sectionLogService;
+
+    @Autowired
+    SectionLogRepository sectionLogRepository;
+
+    @Autowired
+    EvaluateService evaluateService;
+
+    @Autowired
+    EvaluateRepository evaluateRepository;
 
     @Autowired
     CvService cvService;
@@ -138,15 +162,26 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public ProjectDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
-        Project education = projectRepository.getById(id);
-        if (Objects.nonNull(education)){
+    public ProjectViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
+        Project project = projectRepository.getById(id);
+        if (Objects.nonNull(project)){
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
             Optional<ProjectDto> dto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
+            List<BulletPointDto> bulletPointDtos = sectionRepository.findBulletPointDtoByTypeIdAndTypeName(id,SectionEvaluate.project);
             if (dto.isPresent()){
-                modelMapper.map(education, dto.get());
-                return dto.get();
+                ProjectDto projectDto = dto.get();
+                ProjectViewDto projectViewDto = new ProjectViewDto();
+                projectViewDto.setId(project.getId());
+                projectViewDto.setIsDisplay(projectDto.getIsDisplay());
+                projectViewDto.setTitle(project.getTitle());
+                projectViewDto.setOrganization(project.getOrganization());
+                projectViewDto.setStartDate(project.getStartDate());
+                projectViewDto.setEndDate(project.getEndDate());
+                projectViewDto.setProjectUrl(project.getProjectUrl());
+                projectViewDto.setDescription(project.getDescription());
+                projectViewDto.setBulletPointDtos(bulletPointDtos);
+                return projectViewDto;
             }else{
                 throw new ResourceNotFoundException("Not found that id in cvBody");
             }
@@ -175,18 +210,48 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     }
 
     @Override
-    public boolean updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException {
+    public ProjectViewDto updateInCvBody(int cvId, int id, ProjectDto dto) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
         Optional<ProjectDto> relationDto = cvBodyDto.getProjects().stream().filter(x -> x.getId()==id).findFirst();
         if (relationDto.isPresent()) {
-            Project education = projectRepository.getById(id);
-            modelMapper.map(dto, education);
-            projectRepository.save(education);
+            Project project = projectRepository.getById(id);
+            modelMapper.map(dto, project);
+            Project saved = projectRepository.save(project);
             ProjectDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
             cvService.updateCvBody(cvId, cvBodyDto);
-            return true;
+
+            //Delete section_log in db
+            Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.project, project.getId());
+            sectionLogRepository.deleteBySection_Id(section.getId());
+            //Get process evaluate
+            List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
+            ProjectViewDto projectViewDto = new ProjectViewDto();
+            projectViewDto.setId(saved.getId());
+            projectViewDto.setIsDisplay(dto.getIsDisplay());
+            projectViewDto.setTitle(saved.getTitle());
+            projectViewDto.setOrganization(saved.getOrganization());
+            projectViewDto.setStartDate(saved.getStartDate());
+            projectViewDto.setEndDate(saved.getEndDate());
+            projectViewDto.setProjectUrl(saved.getProjectUrl());
+            projectViewDto.setDescription(saved.getDescription());
+            projectViewDto.setBulletPointDtos(evaluateResult);
+
+            //Save evaluateLog into db
+            List<Evaluate> evaluates = evaluateRepository.findAll();
+
+            for (int i = 0; i < evaluates.size(); i++) {
+                Evaluate evaluate = evaluates.get(i);
+                BulletPointDto bulletPointDto = evaluateResult.get(i);
+                SectionLogDto sectionLogDto1 = new SectionLogDto();
+                sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(sectionMapper.mapEntityToDto(section)));
+                sectionLogDto1.setEvaluate(evaluate);
+                sectionLogDto1.setBullet(bulletPointDto.getResult());
+                sectionLogDto1.setStatus(bulletPointDto.getStatus());
+                sectionLogService.create(sectionLogDto1);
+            }
+            return projectViewDto;
         } else {
             throw new IllegalArgumentException("education ID not found in cvBody");
         }
@@ -194,7 +259,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
 
     @Override
-    public ProjectDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
+    public ProjectViewDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
         Project education = projectMapper.mapDtoToEntity(dto);
         Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(Users);
@@ -206,7 +271,44 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         cvBodyDto.getProjects().add(projectDto);
         projectDto.setIsDisplay(true);
         cvService.updateCvBody(cvId, cvBodyDto);
-        return projectDto;
+
+        //Save evaluate db
+        SectionDto sectionDto = new SectionDto();
+        List<Project> projects = projectRepository.findExperiencesByStatusOrderedByStartDateDesc(Users.getId(), BasicStatus.ACTIVE);
+        if (!projects.isEmpty()) {
+            sectionDto.setTypeId(projects.get(0).getId());
+        }
+        sectionDto.setTitle(saved.getTitle());
+        sectionDto.setTypeName(SectionEvaluate.project);
+        SectionDto section = sectionService.create(sectionDto);
+
+        //Get process evaluate
+        List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
+        ProjectViewDto projectViewDto = new ProjectViewDto();
+        projectViewDto.setId(saved.getId());
+        projectViewDto.setIsDisplay(true);
+        projectViewDto.setTitle(saved.getTitle());
+        projectViewDto.setOrganization(saved.getOrganization());
+        projectViewDto.setStartDate(saved.getStartDate());
+        projectViewDto.setEndDate(saved.getEndDate());
+        projectViewDto.setProjectUrl(saved.getProjectUrl());
+        projectViewDto.setDescription(saved.getDescription());
+        projectViewDto.setBulletPointDtos(evaluateResult);
+
+        //Save evaluateLog into db
+        List<Evaluate> evaluates = evaluateRepository.findAll();
+
+        for (int i = 0; i < evaluates.size(); i++) {
+            Evaluate evaluate = evaluates.get(i);
+            BulletPointDto bulletPointDto = evaluateResult.get(i);
+            SectionLogDto sectionLogDto1 = new SectionLogDto();
+            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
+            sectionLogDto1.setEvaluate(evaluate);
+            sectionLogDto1.setBullet(bulletPointDto.getResult());
+            sectionLogDto1.setStatus(bulletPointDto.getStatus());
+            sectionLogService.create(sectionLogDto1);
+        }
+        return projectViewDto;
     }
 
     @Override
