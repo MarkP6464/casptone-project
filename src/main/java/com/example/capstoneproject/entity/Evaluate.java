@@ -15,7 +15,6 @@ import java.util.List;
 @Entity
 public class Evaluate {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String title;

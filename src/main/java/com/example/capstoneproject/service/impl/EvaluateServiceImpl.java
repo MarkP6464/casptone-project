@@ -59,7 +59,7 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         if (!shortBulletErrors.isEmpty()) {
             BulletPointDto errorBulletShort = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(3);
+            Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
@@ -67,7 +67,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletShort);
         }else {
             BulletPointDto errorBulletShort = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(3);
+            Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setStatus("Pass");
@@ -76,7 +76,7 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         if (!punctuatedBulletErrors.isEmpty()) {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(1);
+            Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
@@ -84,7 +84,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletPunctuated);
         }else{
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(1);
+            Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setStatus("Pass");
@@ -93,7 +93,7 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         if (validShortBulletCount < 3 || validShortBulletCount > 6) {
             BulletPointDto errorBulletCount = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(2);
+            Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
             errorBulletCount.setResult("Only " + validShortBulletCount + " found in this section.");
@@ -101,7 +101,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletCount);
         } else {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(2);
+            Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setStatus("Pass");
@@ -112,7 +112,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         String personalPronouns = checkPersonalPronouns(sentences);
         if (!personalPronouns.isEmpty()) {
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(3);
+            Evaluate evaluate = evaluateRepository.findById(4);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
@@ -120,7 +120,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletPersonalPronouns);
         }else{
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(3);
+            Evaluate evaluate = evaluateRepository.findById(4);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setStatus("Pass");
@@ -131,7 +131,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         String fillerWord = checkFiller(sentences);
         if (!fillerWord.isEmpty()) {
             BulletPointDto errorBulletFillers = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(1);
+            Evaluate evaluate = evaluateRepository.findById(5);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
@@ -139,7 +139,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletFillers);
         }else {
             BulletPointDto errorBulletFillers = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(1);
+            Evaluate evaluate = evaluateRepository.findById(5);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setStatus("Pass");
@@ -150,7 +150,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         String quantified = containsNumber(sentences);
         if (!quantified.isEmpty()) {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(2);
+            Evaluate evaluate = evaluateRepository.findById(6);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
@@ -158,7 +158,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletQuantified);
         }else {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
-            Evaluate evaluate = evaluateRepository.findById(2);
+            Evaluate evaluate = evaluateRepository.findById(6);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setStatus("Pass");
