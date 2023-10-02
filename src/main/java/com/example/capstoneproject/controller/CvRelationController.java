@@ -119,40 +119,32 @@ public class CvRelationController {
     }
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
-    public String updateEducation(@PathVariable("cvId") int cvId,@PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
+    public ResponseEntity<?> updateEducation(@PathVariable("cvId") int cvId,@PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
         switch (theRelation){
             case "educations":
                 EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
-                educationService.updateInCvBody(cvId, id, educationDto);
-                break;
+                return ResponseEntity.ok(educationService.updateInCvBody(cvId, id, educationDto));
             case "skills":
                 SkillDto skillDto = objectMapper.convertValue(obj, SkillDto.class);
-                skillService.updateInCvBody(cvId, id, skillDto);
-                break;
+                return ResponseEntity.ok(skillService.updateInCvBody(cvId, id, skillDto));
             case "experiences":
                 ExperienceDto experienceDto = objectMapper.convertValue(obj, ExperienceDto.class);
-                experienceService.updateInCvBody(cvId, id, experienceDto);
-                break;
+                return ResponseEntity.ok(experienceService.updateInCvBody(cvId, id, experienceDto));
             case "involvements":
                 InvolvementDto involvementDto = objectMapper.convertValue(obj, InvolvementDto.class);
-                involvementService.updateInCvBody(cvId, id, involvementDto);
-                break;
+                return ResponseEntity.ok(involvementService.updateInCvBody(cvId, id, involvementDto));
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
-                projectService.updateInCvBody(cvId, id, projectDto);
-                break;
+                return ResponseEntity.ok(projectService.updateInCvBody(cvId, id, projectDto));
             case "soureworks":
                 SourceWorkDto sourceWorkDto = objectMapper.convertValue(obj, SourceWorkDto.class);
-                sourceWorkService.updateInCvBody(cvId, id, sourceWorkDto);
-                break;
+                return ResponseEntity.ok(sourceWorkService.updateInCvBody(cvId, id, sourceWorkDto));
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
-                certificationService.updateInCvBody(cvId, id, certificationDto);
-                break;
+                return ResponseEntity.ok(certificationService.updateInCvBody(cvId, id, certificationDto));
             default:
                 throw new Exception("Invalid request!!");
         }
-        return "Changes saved";
     }
 
     @DeleteMapping("/{cvId}/{theRelation}/{id}")
