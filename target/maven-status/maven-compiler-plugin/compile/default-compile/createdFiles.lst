@@ -115,7 +115,6 @@ com\example\capstoneproject\mapper\TemplateMapper.class
 com\example\capstoneproject\Dto\SkillDto$SkillDtoBuilder.class
 com\example\capstoneproject\Dto\CvCreateDto$CvCreateDtoBuilder.class
 com\example\capstoneproject\Dto\responses\CertificationViewDto$CertificationViewDtoBuilder.class
-com\example\capstoneproject\Config\CorsConfig$1.class
 com\example\capstoneproject\entity\Project$ProjectBuilder.class
 com\example\capstoneproject\service\InvolvementService.class
 com\example\capstoneproject\entity\Users.class
