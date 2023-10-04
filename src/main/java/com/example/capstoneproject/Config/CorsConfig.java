@@ -51,7 +51,7 @@ public class CorsConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().ignoringAntMatchers("/api/*").and()
+        httpSecurity.csrf().ignoringAntMatchers("/api/v1/cv/**").and()
                 .cors().configurationSource(request -> {
                     CorsConfiguration cors = new CorsConfiguration();
                     cors.setAllowedOrigins(Arrays.asList("https://cvbuilder.monoinfinity.net","http://localhost:3000"));
