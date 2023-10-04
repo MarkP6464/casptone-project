@@ -88,7 +88,7 @@ public class CvRelationController {
         }
     }
 
-    @PostMapping("/{cvId}/{theRelation}")
+    @PostMapping(value = "/{cvId}/{theRelation}", consumes="application/json")
     public ResponseEntity<?> postEducation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
 
         switch (theRelation){
