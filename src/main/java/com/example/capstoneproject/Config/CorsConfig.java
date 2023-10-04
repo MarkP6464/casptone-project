@@ -51,12 +51,14 @@ public class CorsConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable().cors().configurationSource(request -> {
-            CorsConfiguration cors = new CorsConfiguration();
-            cors.setAllowedOrigins(Arrays.asList("https://cvbuilder.monoinfinity.net","http://localhost:3000"));
-            cors.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
-            cors.setAllowedHeaders(Arrays.asList("*"));
-            return cors;
+        httpSecurity.csrf().ignoringAntMatchers("/api/*").and()
+                .cors().configurationSource(request -> {
+                    CorsConfiguration cors = new CorsConfiguration();
+                    cors.setAllowedOrigins(Arrays.asList("https://cvbuilder.monoinfinity.net","http://localhost:3000"));
+                    cors.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
+                    cors.setAllowedHeaders(Arrays.asList("*"));
+                    cors.setAllowCredentials(true);
+                    return cors;
         }).and().authorizeRequests().antMatchers("/").permitAll();
     }
 }
