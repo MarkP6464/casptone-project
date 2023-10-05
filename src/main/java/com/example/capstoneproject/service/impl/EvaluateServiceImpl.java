@@ -1,20 +1,22 @@
 package com.example.capstoneproject.service.impl;
-import com.example.capstoneproject.Dto.AtsDto;
-import com.example.capstoneproject.Dto.ChatRequest;
-import com.example.capstoneproject.entity.Evaluate;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.enums.SectionLogStatus;
+import com.example.capstoneproject.mapper.AtsMapper;
+import com.example.capstoneproject.repository.AtsRepository;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.EvaluateRepository;
+import com.example.capstoneproject.repository.JobDescriptionRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
-import com.example.capstoneproject.Dto.BulletPointDto;
 import com.example.capstoneproject.service.EvaluateService;
 import edu.stanford.nlp.pipeline.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +28,22 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     @Autowired
     EvaluateRepository evaluateRepository;
+
+    @Autowired
+    CvRepository cvRepository;
+
+    @Autowired
+    AtsRepository atsRepository;
+
+    @Autowired
+    AtsServiceImpl atsService;
+
+    @Autowired
+    AtsMapper atsMapper;
+
+    @Autowired
+    JobDescriptionRepository jobDescriptionRepository;
+
     @Override
     public List<BulletPointDto> checkSentences(String text) {
         List<String> sentences = splitText(text);
@@ -63,14 +81,14 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
-            errorBulletShort.setStatus("Error");
+            errorBulletShort.setStatus(SectionLogStatus.Error);
             allBulletPoints.add(errorBulletShort);
         }else {
             BulletPointDto errorBulletShort = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
-            errorBulletShort.setStatus("Pass");
+            errorBulletShort.setStatus(SectionLogStatus.Pass);
             allBulletPoints.add(errorBulletShort);
         }
 
@@ -80,14 +98,14 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
-            errorBulletPunctuated.setStatus("Error");
+            errorBulletPunctuated.setStatus(SectionLogStatus.Error);
             allBulletPoints.add(errorBulletPunctuated);
         }else{
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
-            errorBulletPunctuated.setStatus("Pass");
+            errorBulletPunctuated.setStatus(SectionLogStatus.Pass);
             allBulletPoints.add(errorBulletPunctuated);
         }
 
@@ -97,14 +115,14 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
             errorBulletCount.setResult("Only " + validShortBulletCount + " found in this section.");
-            errorBulletCount.setStatus("Warning");
+            errorBulletCount.setStatus(SectionLogStatus.Warning);
             allBulletPoints.add(errorBulletCount);
         } else {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
-            errorBulletPunctuated.setStatus("Pass");
+            errorBulletPunctuated.setStatus(SectionLogStatus.Pass);
             allBulletPoints.add(errorBulletPunctuated);
         }
 
@@ -116,14 +134,14 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
-            errorBulletPersonalPronouns.setStatus("Warning");
+            errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
             allBulletPoints.add(errorBulletPersonalPronouns);
         }else{
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(4);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
-            errorBulletPersonalPronouns.setStatus("Pass");
+            errorBulletPersonalPronouns.setStatus(SectionLogStatus.Pass);
             allBulletPoints.add(errorBulletPersonalPronouns);
         }
 
@@ -135,14 +153,14 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
-            errorBulletFillers.setStatus("Warning");
+            errorBulletFillers.setStatus(SectionLogStatus.Warning);
             allBulletPoints.add(errorBulletFillers);
         }else {
             BulletPointDto errorBulletFillers = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(5);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
-            errorBulletFillers.setStatus("Pass");
+            errorBulletFillers.setStatus(SectionLogStatus.Pass);
             allBulletPoints.add(errorBulletFillers);
         }
 
@@ -154,14 +172,14 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
-            errorBulletQuantified.setStatus("Warning");
+            errorBulletQuantified.setStatus(SectionLogStatus.Warning);
             allBulletPoints.add(errorBulletQuantified);
         }else {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(6);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
-            errorBulletQuantified.setStatus("Pass");
+            errorBulletQuantified.setStatus(SectionLogStatus.Pass);
             allBulletPoints.add(errorBulletQuantified);
         }
 
@@ -198,12 +216,134 @@ public class EvaluateServiceImpl implements EvaluateService {
     }
 
     @Override
-    public List<AtsDto> ListAts(ChatRequest chatRequest) {
-        String message1 = "find to keywords: JOB TITLE: " +chatRequest.getTitle()+", JOB DESCRIPTION: "+chatRequest.getMessage();
+    public List<AtsDto> ListAts(int cvId, int jobId, JobDescriptionDto chatRequest) throws JsonProcessingException {
+        String message1 = "find 10 keywords: JOB TITLE: " +chatRequest.getTitle()+", JOB DESCRIPTION: "+chatRequest.getDescription();
         String response = chatGPTService.chatWithGPT(message1);
         List<AtsDto> atsDtoList = extractKeywords(response);
-        return atsDtoList;
+        List<AtsDto> atsList = new ArrayList<>();
+        Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(jobId);
+        if (jobDescription.isPresent()) {
+            for (AtsDto atsDto : atsDtoList) {
+                Ats ats = new Ats();
+                ats.setAts(atsDto.getAts());
+                ats.setJobDescription(jobDescription.get());
+                atsService.createAts(ats);
+            }
+        }
+        //check status of Ats
+        List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobId);
+        Cv cv = cvRepository.getById(cvId);
+        StringBuilder combinedDescription = new StringBuilder();
+        if (Objects.nonNull(cv)){
+            CvBodyDto cvBodyDto = cv.deserialize();
+
+            cvBodyDto.getSkills().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getCertifications().forEach(x -> {
+                String description = x.getCertificateRelevance();
+                String name = x.getName();
+                combinedDescription.append(description).append(" ").append(name).append(" ");
+            });
+
+            cvBodyDto.getEducations().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getExperiences().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getProjects().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getInvolvements().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getSourceWorks().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+            String combinedString = combinedDescription.toString();
+            for (Ats ats1 : ats) {
+                String atsValue = ats1.getAts();
+                if (combinedString.contains(atsValue)) {
+                    atsList.add(new AtsDto(ats1.getAts(),SectionLogStatus.Pass));
+                }else{
+                    atsList.add(new AtsDto(ats1.getAts(),SectionLogStatus.Warning));
+                }
+            }
+        }
+
+
+        return atsList;
     }
+
+    @Override
+    public List<AtsDto> getAts(int cvId, int jobId) throws JsonProcessingException {
+        List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobId);
+        List<AtsDto> atsList = new ArrayList<>();
+        Cv cv = cvRepository.getById(cvId);
+        StringBuilder combinedDescription = new StringBuilder();
+        if (Objects.nonNull(cv)){
+            CvBodyDto cvBodyDto = cv.deserialize();
+
+            cvBodyDto.getSkills().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getCertifications().forEach(x -> {
+                String description = x.getCertificateRelevance();
+                String name = x.getName();
+                combinedDescription.append(description).append(" ").append(name).append(" ");
+            });
+
+            cvBodyDto.getEducations().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getExperiences().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getProjects().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getInvolvements().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+
+            cvBodyDto.getSourceWorks().forEach(x -> {
+                String description = x.getDescription();
+                combinedDescription.append(description).append(" ");
+            });
+            String combinedString = combinedDescription.toString();
+            for (Ats ats1 : ats) {
+                String atsValue = ats1.getAts();
+                if (combinedString.contains(atsValue)) {
+                    atsList.add(new AtsDto(ats1.getAts(),SectionLogStatus.Pass));
+                }else{
+                    atsList.add(new AtsDto(ats1.getAts(),SectionLogStatus.Warning));
+                }
+            }
+        }
+        return atsList;
+    }
+
 
 //    @Override
 //    public List<AtsDto> ListBuzzword() {
@@ -305,7 +445,7 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         for (String sentence : sentences1) {
             for (AtsDto buzzword : buzzwordList) {
-                String buzzwordText = buzzword.getAst();
+                String buzzwordText = buzzword.getAts();
                 if (sentence.contains(buzzwordText)) {
                     resultBuilder.append(sentence).append("\n");
                     break;
@@ -341,22 +481,42 @@ public class EvaluateServiceImpl implements EvaluateService {
         }
     }
 
+//    public static List<AtsDto> extractKeywords(String response) {
+//        List<AtsDto> keywordsList = new ArrayList<>();
+//        Pattern pattern = Pattern.compile(":\\s*(.*?)\\s*$", Pattern.DOTALL);
+//        Matcher matcher = pattern.matcher(response);
+//
+//        while (matcher.find()) {
+//            String[] keywords = matcher.group(1).split(",\\s*|\n\\d+\\.\\s*");
+//            for (String keyword : keywords) {
+//                AtsDto atsDto = new AtsDto();
+//                atsDto.setAst(keyword.trim());
+//                keywordsList.add(atsDto);
+//            }
+//        }
+//
+//        return keywordsList;
+//    }
     public static List<AtsDto> extractKeywords(String response) {
-        List<AtsDto> keywordsList = new ArrayList<>();
-        Pattern pattern = Pattern.compile(":\\s*(.*?)\\s*$", Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(response);
+    List<AtsDto> keywordsList = new ArrayList<>();
+    Pattern pattern = Pattern.compile("(\\d+\\.\\s*)(.*?)\\n|$");
+    Matcher matcher = pattern.matcher(response);
 
-        while (matcher.find()) {
-            String[] keywords = matcher.group(1).split(",\\s*|\n\\d+\\.\\s*");
-            for (String keyword : keywords) {
+    while (matcher.find()) {
+        String keyword = matcher.group(2);
+        if (keyword != null) {
+            String[] keywords = keyword.split(",\\s*");
+            for (String k : keywords) {
                 AtsDto atsDto = new AtsDto();
-                atsDto.setAst(keyword.trim());
+                atsDto.setAts(k.trim());
                 keywordsList.add(atsDto);
             }
         }
-
-        return keywordsList;
     }
+
+    return keywordsList;
+}
+
 
     private static List<AtsDto> extractBuzzwords(String input) {
         List<AtsDto> buzzwordsList = new ArrayList<>();
@@ -366,7 +526,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         while (matcher.find()) {
             String buzzword = matcher.group(1).trim();
             AtsDto atsDto = new AtsDto();
-            atsDto.setAst(buzzword);
+            atsDto.setAts(buzzword);
             buzzwordsList.add(atsDto);
         }
 

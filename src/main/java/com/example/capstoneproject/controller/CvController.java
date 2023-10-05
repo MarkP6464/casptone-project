@@ -92,4 +92,8 @@ public class CvController {
     }
 
 
+    @GetMapping("{userId}/cvs/{cvId}")
+    public List<ScoreDto> getCvsById1(@PathVariable("userId") int userId, @PathVariable("cvId") int cvId) throws JsonProcessingException {
+        return cvService.getEvaluateCv(userId, cvId);
+    }
 }

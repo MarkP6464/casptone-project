@@ -7,7 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @OpenAPIDefinition(
 		servers = {
 				@Server(url = "https://cvbuilder-api.monoinfinity.net", description = "Default Server URL"),
-				@Server(url = "http://localhost:8080", description = "Environment Dev")
+				@Server(url = "http://localhost:8080", description = "Environment Dev"),
+				@Server(url = "http://localhost:3000", description = "Open Cors")
 		}
 )
 @SpringBootApplication

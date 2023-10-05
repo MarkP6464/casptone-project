@@ -1,5 +1,6 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.enums.SectionLogStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,7 +18,9 @@ public class SectionLog {
     private int id;
 
     private String Bullet;
-    private String Status;
+
+    @Enumerated(EnumType.STRING)
+    private SectionLogStatus Status;
 
     @ManyToOne
     @JoinColumn(name = "section_id")

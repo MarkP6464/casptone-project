@@ -240,7 +240,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
             //Save evaluateLog into db
             List<Evaluate> evaluates = evaluateRepository.findAll();
-
+            int evaluateId = 1;
             for (int i = 0; i < evaluates.size(); i++) {
                 Evaluate evaluate = evaluates.get(i);
                 BulletPointDto bulletPointDto = evaluateResult.get(i);
@@ -250,6 +250,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 sectionLogDto1.setBullet(bulletPointDto.getResult());
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
+                evaluateId++;
+                if(evaluateId==7){
+                    break;
+                }
             }
             return projectViewDto;
         } else {
@@ -297,7 +301,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
         //Save evaluateLog into db
         List<Evaluate> evaluates = evaluateRepository.findAll();
-
+        int evaluateId = 1;
         for (int i = 0; i < evaluates.size(); i++) {
             Evaluate evaluate = evaluates.get(i);
             BulletPointDto bulletPointDto = evaluateResult.get(i);
@@ -307,6 +311,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             sectionLogDto1.setBullet(bulletPointDto.getResult());
             sectionLogDto1.setStatus(bulletPointDto.getStatus());
             sectionLogService.create(sectionLogDto1);
+            evaluateId++;
+            if(evaluateId==7){
+                break;
+            }
         }
         return projectViewDto;
     }

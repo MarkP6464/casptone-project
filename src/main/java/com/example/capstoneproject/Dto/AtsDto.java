@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.enums.SectionLogStatus;
 import lombok.*;
 
 @Data
@@ -9,5 +10,6 @@ import lombok.*;
 @Getter
 @Setter
 public class AtsDto {
-    private String Ast;
+    private String ats;
+    private SectionLogStatus status;
 }

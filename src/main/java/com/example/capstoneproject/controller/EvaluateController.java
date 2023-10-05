@@ -1,12 +1,12 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.AtsDto;
-import com.example.capstoneproject.Dto.ChatRequest;
-import com.example.capstoneproject.Dto.ResultDto;
+import com.example.capstoneproject.Dto.JobDescriptionDto;
+import com.example.capstoneproject.Dto.JobDescriptionViewDto;
 import com.example.capstoneproject.service.EvaluateService;
 import com.example.capstoneproject.service.impl.ChatGPTServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +29,11 @@ public class EvaluateController {
 //        return evaluateService.checkSentences(sentences);
 //    }
 
-    @PostMapping("/extractKeywords")
-    public List<AtsDto> extractKeywords(@RequestBody ChatRequest chatRequest) {
-        List<AtsDto> keywordsList = evaluateService.ListAts(chatRequest);
+    @PostMapping("{cvId}/extractKeywords")
+    public List<AtsDto> extractKeywords(@PathVariable("cvId") int cvId, @PathVariable("jobId") int jobId,  @RequestBody JobDescriptionDto jobDescriptionViewDto) throws JsonProcessingException {
+        List<AtsDto> keywordsList = evaluateService.ListAts(cvId,jobId, jobDescriptionViewDto);
         if (keywordsList.isEmpty()) {
-            keywordsList = evaluateService.ListAts(chatRequest);
+            keywordsList = evaluateService.ListAts(cvId,jobId, jobDescriptionViewDto);
         }
         return keywordsList;
     }

@@ -20,4 +20,5 @@ public interface SectionRepository extends JpaRepository<Section, Integer> {
     @Query("SELECT s FROM Section s WHERE s.TypeName = :typeName AND s.TypeId = :typeId")
     Section findByTypeNameAndTypeId(@Param("typeName") SectionEvaluate typeName, @Param("typeId") int typeId);
 
+
 }

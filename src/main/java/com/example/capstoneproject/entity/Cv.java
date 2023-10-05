@@ -45,6 +45,10 @@ public class Cv {
     @JoinColumn(name = "template_id")
     private Template template;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_job_description_id")
+    private JobDescription jobDescription;
+
     public void toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String map = objectMapper.writeValueAsString(dto);

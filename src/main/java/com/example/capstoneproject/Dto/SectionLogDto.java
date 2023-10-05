@@ -2,7 +2,11 @@ package com.example.capstoneproject.Dto;
 
 import com.example.capstoneproject.entity.Evaluate;
 import com.example.capstoneproject.entity.Section;
+import com.example.capstoneproject.enums.SectionLogStatus;
 import lombok.*;
+
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @Data
 @Builder
@@ -12,7 +16,10 @@ import lombok.*;
 @Setter
 public class SectionLogDto {
     private String Bullet;
-    private String Status;
+
+    @Enumerated(EnumType.STRING)
+    private SectionLogStatus Status;
+
     private Section section;
     private Evaluate evaluate;
 }

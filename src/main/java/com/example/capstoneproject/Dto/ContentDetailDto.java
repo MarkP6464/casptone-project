@@ -1,6 +1,6 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.SectionLogStatus;
+import com.example.capstoneproject.enums.SectionEvaluate;
 import lombok.*;
 
 import javax.persistence.EnumType;
@@ -12,12 +12,9 @@ import javax.persistence.Enumerated;
 @AllArgsConstructor
 @Getter
 @Setter
-public class BulletPointDto {
-    private String title;
-    private String description;
-    private String result;
-
+public class ContentDetailDto {
     @Enumerated(EnumType.STRING)
-    private SectionLogStatus status;
-
+    private SectionEvaluate typeName;
+    private int typeId;
+    private String title;
 }

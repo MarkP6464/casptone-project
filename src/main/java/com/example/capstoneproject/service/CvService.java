@@ -27,4 +27,6 @@ public interface CvService extends BaseService<CvDto, Integer> {
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 
     CvDto synchUp(int cvId) throws JsonProcessingException;
+
+    List<ScoreDto> getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
 }
