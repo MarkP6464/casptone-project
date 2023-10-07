@@ -3,9 +3,11 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.mapper.CoverLetterMapper;
 import com.example.capstoneproject.repository.CoverLetterRepository;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CoverLetterService;
 import com.example.capstoneproject.service.UsersService;
@@ -38,13 +40,16 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     @Autowired
     UsersRepository usersRepository;
 
+    @Autowired
+    CvRepository cvRepository;
+
     public CoverLetterServiceImpl(CoverLetterRepository coverLetterRepository, CoverLetterMapper coverLetterMapper) {
         super(coverLetterRepository, coverLetterMapper, coverLetterRepository::findById);
         this.coverLetterRepository = coverLetterRepository;
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public String generateCoverLetter(float temperature,String title, String content, String dear, String name, String company, String description) throws JsonProcessingException {
+    public String generateCoverLetter(float temperature,String title, int cvId, String dear, String name, String company, String description) throws JsonProcessingException {
         String completeCoverLetter = "You are a cover letter generator.\n" +
                 "You will be given a job description along with the job applicant's resume.\n" +
                 "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
@@ -64,6 +69,13 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 //        } else {
 //            command = ideasForCoverLetter;
 //        }
+        String content = "";
+        Optional<Cv> cvsOptional = cvRepository.findById(cvId);
+        if(cvsOptional.isPresent()){
+            Cv cv = cvsOptional.get();
+            content = cv.getCvBody();
+
+        }
 
         String userMessage = "My Resume: " + content + ". Dear: " + dear +". Job title: " + title + "Company: " + company +  " Job Description: " + description + "." + " My name: " + name + ".";
         List<Map<String, Object>> messagesList = new ArrayList<>();
@@ -79,7 +91,6 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
         return response;
     }
-
 
     @Override
     public CoverLetterViewDto createCoverLetter(Integer userId, CoverLetterAddDto dto) {
@@ -169,5 +180,23 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             throw new IllegalArgumentException("cover letter with ID " + coverLetterId + " does not belong to Users with ID " + userId);
         }
         return coverLetterDto;
+    }
+
+    @Override
+    public String reviseCoverLetter(String content, String improvement) throws JsonProcessingException {
+        String revise = "You are a cover letter editor. You will be given a piece of isolated text from within a cover letter and told how you can improve it. Only respond with the revision. Make sure the revision is in the same language as the given isolated text.";
+        String userMessage = "Isolated text from within cover letter: " + content + ". It should be improved by making it more: " + improvement;
+        List<Map<String, Object>> messagesList = new ArrayList<>();
+        Map<String, Object> systemMessage = new HashMap<>();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", revise);
+        messagesList.add(systemMessage);
+        Map<String, Object> userMessageMap = new HashMap<>();
+        userMessageMap.put("role", "user");
+        userMessageMap.put("content", userMessage);
+        messagesList.add(userMessageMap);
+        String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+        String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
+        return response;
     }
 }

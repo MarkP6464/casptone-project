@@ -31,7 +31,7 @@ public class CoverLetterController {
             @RequestParam float temperature,
             @RequestParam String company,
             @RequestParam String title,
-            @RequestParam String content,
+            @RequestParam int cvId,
             @RequestParam String dear,
             @RequestParam String name,
             @RequestParam String description
@@ -43,11 +43,24 @@ public class CoverLetterController {
         String result = coverLetterService.generateCoverLetter(
                 temperature,
                 title,
-                content,
+                cvId,
                 dear,
                 name,
                 company,
                 description
+        );
+        return result;
+    }
+
+    @PostMapping("/cover-letter/revise")
+    public String generateCoverLetterRevise(
+            @RequestParam String content,
+            @RequestParam String improvement
+    ) throws JsonProcessingException {
+
+        String result = coverLetterService.reviseCoverLetter(
+                content,
+                improvement
         );
         return result;
     }
