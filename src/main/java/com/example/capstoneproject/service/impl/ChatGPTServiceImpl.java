@@ -46,6 +46,26 @@ public class ChatGPTServiceImpl {
         }
     }
 
+    public String chatWithGPTCoverLetter(String message, float temperature) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(openAIConfig.getApiKey());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
+        );
+
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            // Phân tích JSON và lấy nội dung
+            String responseBody = responseEntity.getBody();
+            return extractContentFromResponse(responseBody);
+        } else {
+            throw new RuntimeException("Error communicating with ChatGPT");
+        }
+    }
+
     private String extractContentFromResponse(String responseBody) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();

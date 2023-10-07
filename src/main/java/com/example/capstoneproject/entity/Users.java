@@ -28,6 +28,8 @@ public class Users {
     @Column(name = "Avatar")
     private String Avatar;
 
+    private String Address;
+
     @Column(name = "Password")
     private String Password;
 
