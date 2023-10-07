@@ -1,14 +1,35 @@
 package com.example.capstoneproject.Dto;
 
-import lombok.*;
+import com.example.capstoneproject.enums.BasicStatus;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
+import java.util.List;
+
+
 @NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Setter
 public class CvAddNewDto {
+    private String email;
+    private String personalWebsite;
+    private String phone;
+    private String name;
+    private Long id;
+    private String content;
+    private String summary;
+    private BasicStatus status;
+    private String templateType;
+    private CvStyleDto cvStyle;
+    private List<SkillDto> skills;
+    private List<CertificationDto> certifications;
+    private List<EducationDto> educations;
+    private List<ExperienceDto> experiences;
+    private List<InvolvementDto> involvements;
+    private List<ProjectDto> projects;
 
-    private String Content;
+    private List<SourceWorkDto> sourceWorks;
+
 }

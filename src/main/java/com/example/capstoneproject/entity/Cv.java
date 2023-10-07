@@ -2,23 +2,23 @@ package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.utils.HashMapConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.*;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class Cv {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +32,11 @@ public class Cv {
     @Enumerated(EnumType.STRING)
     private BasicStatus Status;
 
-
-    @Column(columnDefinition = "TEXT")
-    private String cvBody = "{\"skills\":[],\"certifications\":[],\"educations\":[],\"experiences\":[],\"involvements\":[],\"projects\":[],\"sourceWorks\":[]}";
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private String cvBody;
+//            = "{\"skills\":[],\"certifications\":[],\"educations\":[]," +
+//            "\"experiences\":[],\"involvements\":[],\"projects\":[],\"sourceWorks\":[]}";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -45,10 +47,11 @@ public class Cv {
     @JoinColumn(name = "template_id")
     private Template template;
 
-    public void toCvBody(CvBodyDto dto) throws JsonProcessingException {
+    public String toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String map = objectMapper.writeValueAsString(dto);
         this.setCvBody(map);
+        return map;
     }
 
     public CvBodyDto deserialize() throws JsonProcessingException {

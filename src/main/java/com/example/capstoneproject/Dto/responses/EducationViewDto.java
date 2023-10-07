@@ -1,13 +1,12 @@
 package com.example.capstoneproject.Dto.responses;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.PrePersist;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Setter
 public class EducationViewDto {

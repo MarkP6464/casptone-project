@@ -10,18 +10,26 @@ import java.util.List;
 @Service
 public interface CvService extends BaseService<CvDto, Integer> {
 
-    CvAddNewDto createCv(Integer id, CvAddNewDto dto);
+    CvAddNewDto createCv(Integer id, CvBodyDto dto) throws JsonProcessingException;
+
     List<CvDto> GetCvsById(int UsersId);
-    CvDto GetCvsByCvId(int UsersId,int cvId) throws JsonProcessingException;
+
+    CvAddNewDto GetCvByCvId(int UsersId, int cvId) throws JsonProcessingException;
+
     Cv getCvById(int cvId);
-    void deleteCvById(Integer Users,Integer id);
+
+    CvAddNewDto finishUp(int cvId) throws JsonProcessingException;
+
+    void deleteCvById(Integer Users, Integer id);
 
     boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto);
 
-    boolean updateCvBody( int cvId, CvBodyDto dto) throws JsonProcessingException;
+    boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
     boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto);
-    boolean updateCvContact(int UsersId, int cvId, int contactId);
+
+    UsersViewDto updateCvContact(int UsersId, UsersViewDto dto);
+
     boolean updateCvTemplate(int UsersId, int cvId, int templateId);
 
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;

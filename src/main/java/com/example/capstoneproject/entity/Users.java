@@ -1,60 +1,58 @@
 package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.utils.HashMapConverter;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
 
 
 @Entity
-@Getter @Setter
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(name = "Name")
+    @Column(name = "name")
     @NotNull
-    private String Name;
+    private String name;
 
-    @Column(name = "Avatar")
-    private String Avatar;
+    @Column(name = "avatar")
+    private String avatar;
 
-    @Column(name = "Password")
-    private String Password;
+    @Column(name = "password")
+    private String password;
 
-    @Column(name = "Status")
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private BasicStatus Status;
+    private BasicStatus status;
 
-    @Column(name = "Phone")
-    private String Phone;
+    @Column(name = "phone")
+    private String phone;
 
-    @Column(name = "Permission_Website")
-    private String PermissionWebsite;
+    @Column(name = "personal_Website")
+    private String personalWebsite;
 
-    @Column(name = "Email")
-    private String Email;
+    @Column(name = "email")
+    private String email;
 
-    @Column(name = "Linkin")
-    private String Linkin;
+    @Column(name = "linkin")
+    private String linkin;
 
-    @Column(name = "Country")
-    private String Country;
+    @Column(name = "country")
+    private String country;
 
-    @Column(name = "Account_Balance")
-    private String AccountBalance;
+    @Column(name = "account_Balance")
+    private String accountBalance;
 
-    @Column(name = "Vip")
-    private int Vip;
+    @Column(name = "vip")
+    private Integer vip;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", referencedColumnName = "Id", insertable = false, updatable = false)
@@ -70,13 +68,13 @@ public class Users {
     private List<Education> educations;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Experience> experiences ;
+    private List<Experience> experiences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Involvement> involvements ;
+    private List<Involvement> involvements;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Project> projects ;
+    private List<Project> projects;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<SourceWork> sourceWorks;

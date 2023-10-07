@@ -12,7 +12,6 @@ C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capst
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\UsersServiceImpl.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\UsersDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\EducationServiceImpl.java
-C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\CvAddDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\controller\EducationController.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\AbstractBaseService.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\UsersService.java
@@ -21,6 +20,7 @@ C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capst
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\mapper\AbstractMapper.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\mapper\SourceWorkMapper.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\controller\ProjectController.java
+C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\CvStyleDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\ProjectServiceImpl.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\CapstoneProjectApplication.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\repository\SourceWorkRepository.java
@@ -76,7 +76,6 @@ C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capst
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\responses\ExperienceViewDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\entity\Project.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\controller\CvRelationController.java
-C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\Dto\CvCreateDto.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\repository\InvolvementRepository.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\CertificationServiceImpl.java
 C:\Users\quang\Desktop\capstone\capstone-project\src\main\java\com\example\capstoneproject\service\impl\ExperienceServiceImpl.java

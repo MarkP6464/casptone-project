@@ -17,10 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,7 +120,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public void deleteInvolvementById(Integer UsersId,Integer involvementId) {
+    public void deleteInvolvementById(Integer UsersId, Integer involvementId) {
         boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndUser_Id(involvementId, UsersId);
 
         if (isInvolvementBelongsToCv) {
@@ -142,17 +139,17 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
         Involvement education = involvementRepository.getById(id);
-        if (Objects.nonNull(education)){
+        if (Objects.nonNull(education)) {
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
-            Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId()==id).findFirst();
-            if (dto.isPresent()){
+            Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId() == id).findFirst();
+            if (dto.isPresent()) {
                 modelMapper.map(education, dto.get());
                 return dto.get();
-            }else{
+            } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
             }
-        }else{
+        } else {
             throw new ResourceNotFoundException("Not found that id in cvBody");
         }
     }
@@ -161,10 +158,10 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     public InvolvementDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId()==id).findFirst();
-        if (dto.isPresent()){
-            return  dto.get();
-        }else{
+        Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId() == id).findFirst();
+        if (dto.isPresent()) {
+            return dto.get();
+        } else {
             throw new ResourceNotFoundException("Not found that id in cvBody");
         }
     }
@@ -173,14 +170,24 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     public Set<InvolvementDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        return cvBodyDto.getInvolvements();
+        Set<InvolvementDto> set = new HashSet<>();
+        cvBodyDto.getInvolvements().stream().forEach(
+                e -> {
+                    try {
+                        set.add(getAndIsDisplay(cvId, e.getId()));
+                    } catch (JsonProcessingException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+        );
+        return set;
     }
 
     @Override
     public boolean updateInCvBody(int cvId, int id, InvolvementDto dto) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Optional<InvolvementDto> relationDto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId()==id).findFirst();
+        Optional<InvolvementDto> relationDto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId() == id).findFirst();
         if (relationDto.isPresent()) {
             Involvement education = involvementRepository.getById(id);
             modelMapper.map(dto, education);

@@ -17,37 +17,6 @@ import java.util.Arrays;
 @EnableWebSecurity
 @Configuration
 public class CorsConfig extends WebSecurityConfigurerAdapter {
-//    @Bean
-//    public CorsConfigurationSource corsFilter() {
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        CorsConfiguration config = new CorsConfiguration();
-//
-//        config.setAllowedOriginPatterns(Arrays.asList("https://cvbuilder-api.monoinfinity.net","http://localhost:3000"));
-//        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept"));
-//        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE","OPTIONS"));
-//
-//
-//        source.registerCorsConfiguration("/**", config);
-//        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-//        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-//        return source;
-//    }
-//    @Override
-//    protected void configure(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity
-//                .authorizeRequests().antMatchers("/").permitAll();
-//    }
-//    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Arrays.asList("https://cvbuilder.monoinfinity.net","http://localhost:3000"));
-//        configuration.setAllowedMethods(Arrays.asList("*"));
-//        configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setAllowCredentials(true);
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {

@@ -1,23 +1,17 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
+@Setter
 public class UsersViewDto {
-    private int id;
+    private Integer id;
 
     private String name;
 
@@ -34,17 +28,17 @@ public class UsersViewDto {
     private String country;
     private String status;
 
-    private Set<SkillDto> skills;
+    private List<SkillDto> skills;
 
-    private Set<CertificationDto> certifications;
+    private List<CertificationDto> certifications;
 
-    private Set<EducationDto> educations;
+    private List<EducationDto> educations;
 
-    private Set<ExperienceDto> experiences ;
-    
-    private Set<InvolvementDto> involvements ;
-    
-    private Set<ProjectDto> projects ;
-    private List<CvDto> cvs ;
-    private Set<SourceWorkDto> sourceWorks;
+    private List<ExperienceDto> experiences;
+
+    private List<InvolvementDto> involvements;
+
+    private List<ProjectDto> projects;
+    private List<CvDto> cvs;
+    private List<SourceWorkDto> sourceWorks;
 }

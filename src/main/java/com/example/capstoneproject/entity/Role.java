@@ -1,20 +1,16 @@
 package com.example.capstoneproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
-@Getter @Setter
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "Role")
 public class Role {
     @Id
@@ -25,6 +21,5 @@ public class Role {
     private String roleName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    @JsonIgnore
     private List<Users> user;
 }
