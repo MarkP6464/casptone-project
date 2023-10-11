@@ -10,6 +10,7 @@ import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.CertificationMapper;
 import com.example.capstoneproject.repository.CertificationRepository;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.service.CertificationService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.UsersService;
@@ -18,7 +19,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +41,9 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     CvService cvService;
     @Autowired
     ModelMapper modelMapper;
+
+    @Autowired
+    CvRepository cvRepository;
 
     public CertificationServiceImpl(CertificationRepository certificationRepository, CertificationMapper certificationMapper) {
         super(certificationRepository, certificationMapper, certificationRepository::findById);
@@ -154,10 +161,10 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     }
 
     @Override
-    public Set<CertificationDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+    public List<CertificationDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Set<CertificationDto> set = new HashSet<>();
+        List<CertificationDto> set = new ArrayList<>();
         cvBodyDto.getCertifications().stream().forEach(
                 e -> {
                     try {
@@ -192,16 +199,27 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     @Override
     public CertificationDto createOfUserInCvBody(int cvId, CertificationDto dto) throws JsonProcessingException {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        certification.setUser(Users);
+        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
+        certification.setUser(user);
         certification.setStatus(BasicStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
         CertificationDto certificationDto = new CertificationDto();
         certificationDto.setId(saved.getId());
-        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getCertifications().add(certificationDto);
-        certificationDto.setIsDisplay(true);
-        cvService.updateCvBody(cvId, cvBodyDto);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        list.stream().forEach(x -> {
+            if (x.getId().equals(cvId)) {
+                certificationDto.setIsDisplay(true);
+            } else {
+                certificationDto.setIsDisplay(false);
+            }
+            try {
+                CvBodyDto cvBodyDto = x.deserialize();
+                cvBodyDto.getCertifications().add(certificationDto);
+                cvService.updateCvBody(x.getId(), cvBodyDto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return certificationDto;
     }
 
@@ -213,9 +231,19 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             Certification certification = Optional.get();
             certification.setStatus(BasicStatus.DELETED);
             certificationRepository.delete(certification);
-            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getCertifications().removeIf(x -> x.getId() == CertificationId);
-            cvService.updateCvBody(cvId, cvBodyDto);
+
+            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(certification.getUser().getId(), BasicStatus.ACTIVE);
+            list.stream().forEach(x -> {
+                CvBodyDto cvBodyDto = null;
+                try {
+                    cvBodyDto = cvService.getCvBody(cvId);
+                    cvBodyDto.getEducations().removeIf(e -> e.getId() == CertificationId);
+                    cvService.updateCvBody(cvId, cvBodyDto);
+
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 

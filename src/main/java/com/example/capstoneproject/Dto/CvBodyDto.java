@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @NoArgsConstructor
@@ -18,17 +18,17 @@ public class CvBodyDto {
     private String templateType = "classical";
     private CvStyleDto cvStyle = new CvStyleDto();
 
-    private Set<SkillDto> skills = new HashSet<>();
+    private List<SkillDto> skills = new ArrayList<>();
 
-    private Set<CertificationDto> certifications = new HashSet<>();
+    private List<CertificationDto> certifications = new ArrayList<>();
 
-    private Set<EducationDto> educations = new HashSet<>();
+    private List<EducationDto> educations = new ArrayList<>();
 
-    private Set<ExperienceDto> experiences = new HashSet<>();
+    private List<ExperienceDto> experiences = new ArrayList<>();
 
-    private Set<InvolvementDto> involvements = new HashSet<>();
+    private List<InvolvementDto> involvements = new ArrayList<>();
 
-    private Set<ProjectDto> projects = new HashSet<>();
+    private List<ProjectDto> projects = new ArrayList<>();
 
-    private Set<SourceWorkDto> sourceWorks = new HashSet<>();
+    private List<SourceWorkDto> sourceWorks = new ArrayList<>();
 }

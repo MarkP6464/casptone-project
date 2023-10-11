@@ -8,6 +8,7 @@ import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.InvolvementMapper;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.InvolvementRepository;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.InvolvementService;
@@ -17,7 +18,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +40,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
     @Autowired
     UsersService usersService;
+
+    @Autowired
+    CvRepository cvRepository;
 
     public InvolvementServiceImpl(InvolvementRepository involvementRepository, InvolvementMapper involvementMapper) {
         super(involvementRepository, involvementMapper, involvementRepository::findById);
@@ -167,10 +174,10 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public Set<InvolvementDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+    public List<InvolvementDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Set<InvolvementDto> set = new HashSet<>();
+        List<InvolvementDto> set = new ArrayList<>();
         cvBodyDto.getInvolvements().stream().forEach(
                 e -> {
                     try {
@@ -205,16 +212,27 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
         Involvement education = involvementMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(Users);
+        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
+        education.setUser(user);
         education.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(education);
         InvolvementDto involvementDto = new InvolvementDto();
         involvementDto.setId(saved.getId());
-        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getInvolvements().add(involvementDto);
-        involvementDto.setIsDisplay(true);
-        cvService.updateCvBody(cvId, cvBodyDto);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        list.stream().forEach(x -> {
+            if (x.getId().equals(cvId)) {
+                involvementDto.setIsDisplay(true);
+            } else {
+                involvementDto.setIsDisplay(false);
+            }
+            try {
+                CvBodyDto cvBodyDto = x.deserialize();
+                cvBodyDto.getInvolvements().add(involvementDto);
+                cvService.updateCvBody(x.getId(), cvBodyDto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return involvementDto;
     }
 
@@ -226,9 +244,18 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             Involvement education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             involvementRepository.delete(education);
-            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getInvolvements().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(cvId, cvBodyDto);
+            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
+            list.stream().forEach(x -> {
+                CvBodyDto cvBodyDto = null;
+                try {
+                    cvBodyDto = cvService.getCvBody(cvId);
+                    cvBodyDto.getEducations().removeIf(e -> e.getId() == id);
+                    cvService.updateCvBody(cvId, cvBodyDto);
+
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 

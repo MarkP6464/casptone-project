@@ -166,7 +166,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         }
     }
 
-
     @Override
     public void deleteCvById(Integer UsersId, Integer id) {
         Optional<Users> UsersOptional = usersRepository.findById(UsersId);
@@ -189,33 +188,92 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
     @Override
     public CvAddNewDto createCv(Integer UsersId, CvBodyDto dto) throws JsonProcessingException {
-        Optional<Users> UsersOptional = usersRepository.findById(UsersId);
+        Optional<Users> user = usersRepository.findById(UsersId);
 
-        if (UsersOptional.isPresent()) {
+        if (user.isPresent()) {
             Cv cv = new Cv();
             cv.setStatus(BasicStatus.ACTIVE);
-            cv.setCvBody(cv.toCvBody(dto));
-            Users users = UsersOptional.get();
-            cv.setUser(users);
-            Cv savedCv = cvRepository.save(cv);
+
+            Users users = user.get();
             UsersViewDto usersViewDto = modelMapper.map(users, UsersViewDto.class);
+            cv.setUser(users);
+
+            dto.setCertifications(usersViewDto.getCertifications());
+            List<CertificationDto> list = dto.getCertifications().stream().map(x -> {
+                CertificationDto theDto = new CertificationDto();
+                theDto.setIsDisplay(false);
+                theDto.setId(x.getId());
+                return theDto;
+            }).collect(Collectors.toList());
+            dto.setCertifications(list);
+
+            dto.setEducations(usersViewDto.getEducations());
+            List<EducationDto> educationDtoList = dto.getEducations().stream().map(x -> {
+                EducationDto educationDto = new EducationDto();
+                educationDto.setIsDisplay(false);
+                educationDto.setId(x.getId());
+                return educationDto;
+            }).collect(Collectors.toList());
+            dto.setEducations(educationDtoList);
+
+            dto.setInvolvements(usersViewDto.getInvolvements());
+            List<InvolvementDto> involvementDtos = dto.getInvolvements().stream().map(x -> {
+                InvolvementDto theDto = new InvolvementDto();
+                theDto.setIsDisplay(false);
+                theDto.setId(x.getId());
+                return theDto;
+            }).collect(Collectors.toList());
+            dto.setInvolvements(involvementDtos);
+
+            dto.setExperiences(usersViewDto.getExperiences());
+            List<ExperienceDto> experienceDtos = dto.getExperiences().stream().map(x -> {
+                ExperienceDto theDto = new ExperienceDto();
+                theDto.setIsDisplay(false);
+                theDto.setId(x.getId());
+                return theDto;
+            }).collect(Collectors.toList());
+            dto.setExperiences(experienceDtos);
+
+            dto.setProjects(usersViewDto.getProjects());
+            List<ProjectDto> projectDtos = dto.getProjects().stream().map(x -> {
+                ProjectDto theDto = new ProjectDto();
+                theDto.setIsDisplay(false);
+                theDto.setId(x.getId());
+                return theDto;
+            }).collect(Collectors.toList());
+            dto.setProjects(projectDtos);
+
+            dto.setSkills(usersViewDto.getSkills());
+            List<SkillDto> skillDtos = dto.getSkills().stream().map(x -> {
+                SkillDto theDto = new SkillDto();
+                theDto.setIsDisplay(false);
+                theDto.setId(x.getId());
+                return theDto;
+            }).collect(Collectors.toList());
+            dto.setSkills(skillDtos);
+
+            dto.setSourceWorks(usersViewDto.getSourceWorks());
+            List<SourceWorkDto> sourceWorkDtos = dto.getSourceWorks().stream().map(x -> {
+                SourceWorkDto theDto = new SourceWorkDto();
+                theDto.setIsDisplay(false);
+                theDto.setId(x.getId());
+                return theDto;
+            }).collect(Collectors.toList());
+            dto.setSourceWorks(sourceWorkDtos);
+
+            cv.setCvBody(cv.toCvBody(dto));
+            Cv savedCv = cvRepository.save(cv);
             CvAddNewDto response = cvMapper.cvAddNewDto(savedCv);
+
             CvBodyDto cvBodyDto = savedCv.deserialize();
             response.setCvStyle(cvBodyDto.getCvStyle());
             response.setTemplateType(cvBodyDto.getTemplateType());
-            response.setCertifications(usersViewDto.getCertifications());
-            response.setEducations(usersViewDto.getEducations());
-            response.setInvolvements(usersViewDto.getInvolvements());
-            response.setExperiences(usersViewDto.getExperiences());
-            response.setProjects(usersViewDto.getProjects());
-            response.setSkills(usersViewDto.getSkills());
-            response.setSourceWorks(usersViewDto.getSourceWorks());
+
             return response;
         } else {
             throw new IllegalArgumentException("Not found user with ID: " + UsersId);
         }
     }
-
 
     @Override
     public Cv getCvById(int cvId) {
