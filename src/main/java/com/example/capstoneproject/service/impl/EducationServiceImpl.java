@@ -252,9 +252,8 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
-                CvBodyDto cvBodyDto = null;
                 try {
-                    cvBodyDto = cvService.getCvBody(cvId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getEducations().removeIf(e -> e.getId() == educationId);
                     cvService.updateCvBody(cvId, cvBodyDto);
 

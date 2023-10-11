@@ -234,10 +234,9 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
 
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(certification.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
-                CvBodyDto cvBodyDto = null;
                 try {
-                    cvBodyDto = cvService.getCvBody(cvId);
-                    cvBodyDto.getEducations().removeIf(e -> e.getId() == CertificationId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    cvBodyDto.getCertifications().removeIf(e -> e.getId() == CertificationId);
                     cvService.updateCvBody(cvId, cvBodyDto);
 
                 } catch (JsonProcessingException e) {

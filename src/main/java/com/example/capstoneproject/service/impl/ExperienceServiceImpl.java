@@ -247,10 +247,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             experienceRepository.delete(education);
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
-                CvBodyDto cvBodyDto = null;
                 try {
-                    cvBodyDto = cvService.getCvBody(cvId);
-                    cvBodyDto.getEducations().removeIf(e -> e.getId() == educationId);
+                    CvBodyDto cvBodyDto = x.deserialize();
+                    cvBodyDto.getExperiences().removeIf(e -> e.getId() == educationId);
                     cvService.updateCvBody(cvId, cvBodyDto);
 
                 } catch (JsonProcessingException e) {

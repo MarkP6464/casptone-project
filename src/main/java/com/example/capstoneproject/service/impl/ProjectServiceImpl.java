@@ -247,10 +247,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             projectRepository.delete(education);
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
-                CvBodyDto cvBodyDto = null;
                 try {
-                    cvBodyDto = cvService.getCvBody(cvId);
-                    cvBodyDto.getEducations().removeIf(e -> e.getId() == id);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    cvBodyDto.getProjects().removeIf(e -> e.getId() == id);
                     cvService.updateCvBody(cvId, cvBodyDto);
 
                 } catch (JsonProcessingException e) {
