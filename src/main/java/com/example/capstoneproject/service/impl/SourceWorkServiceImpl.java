@@ -247,7 +247,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getSourceWorks().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);

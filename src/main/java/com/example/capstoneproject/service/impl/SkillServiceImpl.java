@@ -222,7 +222,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getSkills().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);

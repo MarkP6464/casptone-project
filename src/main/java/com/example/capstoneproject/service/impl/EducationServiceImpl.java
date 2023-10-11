@@ -255,7 +255,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getEducations().removeIf(e -> e.getId() == educationId);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);

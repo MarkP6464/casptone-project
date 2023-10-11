@@ -250,7 +250,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 try {
                     CvBodyDto cvBodyDto = x.deserialize();
                     cvBodyDto.getExperiences().removeIf(e -> e.getId() == educationId);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);

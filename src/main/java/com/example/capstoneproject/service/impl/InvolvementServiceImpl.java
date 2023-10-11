@@ -249,7 +249,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getInvolvements().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);

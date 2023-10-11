@@ -250,7 +250,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getProjects().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);

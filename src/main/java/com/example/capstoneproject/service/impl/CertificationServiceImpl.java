@@ -237,7 +237,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                     cvBodyDto.getCertifications().removeIf(e -> e.getId() == CertificationId);
-                    cvService.updateCvBody(cvId, cvBodyDto);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
 
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
