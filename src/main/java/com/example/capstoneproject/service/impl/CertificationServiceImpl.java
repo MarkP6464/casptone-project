@@ -212,7 +212,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
         if (Optional.isPresent()) {
             Certification certification = Optional.get();
             certification.setStatus(BasicStatus.DELETED);
-            certificationRepository.save(certification);
+            certificationRepository.delete(certification);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getCertifications().removeIf(x -> x.getId() == CertificationId);
             cvService.updateCvBody(cvId, cvBodyDto);

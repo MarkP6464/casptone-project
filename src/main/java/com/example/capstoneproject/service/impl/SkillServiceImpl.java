@@ -198,9 +198,9 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         if (Optional.isPresent()) {
             Skill education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            skillRepository.save(education);
+            skillRepository.delete(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvBodyDto.getSkills().removeIf(x -> x.getId() == id);
             cvService.updateCvBody(cvId, cvBodyDto);
         }
     }

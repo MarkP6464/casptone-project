@@ -223,9 +223,9 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
         if (Optional.isPresent()) {
             SourceWork education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            sourceWorkRepository.save(education);
+            sourceWorkRepository.delete(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvBodyDto.getSourceWorks().removeIf(x -> x.getId() == id);
             cvService.updateCvBody(cvId, cvBodyDto);
         }
     }

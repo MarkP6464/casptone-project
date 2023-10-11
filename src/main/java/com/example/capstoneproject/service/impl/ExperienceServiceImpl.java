@@ -224,9 +224,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         if (Optional.isPresent()) {
             Experience education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            experienceRepository.save(education);
+            experienceRepository.delete(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == educationId);
+            cvBodyDto.getExperiences().removeIf(x -> x.getId() == educationId);
             cvService.updateCvBody(cvId, cvBodyDto);
         }
     }

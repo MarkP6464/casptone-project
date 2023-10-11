@@ -35,9 +35,10 @@ public class Cv {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private String cvBody;
-//            = "{\"skills\":[],\"certifications\":[],\"educations\":[]," +
-//            "\"experiences\":[],\"involvements\":[],\"projects\":[],\"sourceWorks\":[]}";
 
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private String evaluation;
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "user_id")

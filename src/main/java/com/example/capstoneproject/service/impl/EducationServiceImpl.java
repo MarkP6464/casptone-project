@@ -230,7 +230,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
         if (Optional.isPresent()) {
             Education education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            educationRepository.save(education);
+            educationRepository.delete(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
             cvBodyDto.getEducations().removeIf(x -> x.getId() == educationId);
             cvService.updateCvBody(cvId, cvBodyDto);

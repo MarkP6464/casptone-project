@@ -225,9 +225,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         if (Optional.isPresent()) {
             Involvement education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            involvementRepository.save(education);
+            involvementRepository.delete(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvBodyDto.getInvolvements().removeIf(x -> x.getId() == id);
             cvService.updateCvBody(cvId, cvBodyDto);
         }
     }

@@ -226,9 +226,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         if (Optional.isPresent()) {
             Project education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            projectRepository.save(education);
+            projectRepository.delete(education);
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
+            cvBodyDto.getProjects().removeIf(x -> x.getId() == id);
             cvService.updateCvBody(cvId, cvBodyDto);
         }
     }
