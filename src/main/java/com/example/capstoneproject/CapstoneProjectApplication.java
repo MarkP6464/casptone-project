@@ -23,15 +23,15 @@ import java.util.Properties;
 public class CapstoneProjectApplication {
 
 	public static void main(String[] args) {
-//		initializeStanfordCoreNLP();
+		initializeStanfordCoreNLP();
 
 		SpringApplication.run(CapstoneProjectApplication.class, args);
 	}
 
-//	private static void initializeStanfordCoreNLP() {
-//		Properties props = new Properties();
-//		props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-//		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-//	}
+	private static void initializeStanfordCoreNLP() {
+		Properties props = new Properties();
+		props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+	}
 
 }
