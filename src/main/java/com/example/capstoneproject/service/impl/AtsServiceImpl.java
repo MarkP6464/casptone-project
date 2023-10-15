@@ -8,6 +8,8 @@ import com.example.capstoneproject.service.AtsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AtsServiceImpl extends AbstractBaseService<Ats, AtsDto, Integer> implements AtsService {
 
@@ -29,5 +31,16 @@ public class AtsServiceImpl extends AbstractBaseService<Ats, AtsDto, Integer> im
         ats.setJobDescription(ats1.getJobDescription());
         ats.setAts(ats1.getAts());
         return atsRepository.save(ats);
+    }
+
+    @Override
+    public boolean deleteAts(Integer atsId) {
+        Optional<Ats> atsOptional = atsRepository.findById(atsId);
+        if(atsOptional.isPresent()){
+            Ats ats = atsOptional.get();
+            atsRepository.delete(ats);
+            return true;
+        }
+        return false;
     }
 }

@@ -7,4 +7,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface AtsService extends BaseService<AtsDto, Integer> {
     Ats createAts(Ats ats);
+    boolean deleteAts(Integer atsId);
 }

@@ -1,5 +1,5 @@
 package com.example.capstoneproject.entity;
-import com.example.capstoneproject.enums.BasicStatus;
+
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,19 +11,18 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-public class Skill {
+public class ReviewResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(columnDefinition = "TEXT")
-    private String Description;
+    private String overall;
 
-    @Enumerated(EnumType.STRING)
-    private BasicStatus Status;
+    @Column(columnDefinition = "TEXT")
+    private String feedbackDetail;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Users user;
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_review_request_id")
+    private ReviewRequest reviewRequest;
 }

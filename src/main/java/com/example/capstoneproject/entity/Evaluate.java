@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 public class Evaluate {
     @Id
-    private int id;
+    private Integer id;
 
     private String title;
     private String more;

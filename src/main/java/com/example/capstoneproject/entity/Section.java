@@ -17,7 +17,7 @@ import java.util.List;
 public class Section {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Enumerated(EnumType.STRING)
     private SectionEvaluate TypeName;

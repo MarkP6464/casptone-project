@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class SectionLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String Bullet;
 

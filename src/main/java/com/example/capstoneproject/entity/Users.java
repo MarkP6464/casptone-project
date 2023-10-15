@@ -11,51 +11,44 @@ import java.util.List;
 import java.util.Map;
 
 
-@Entity
 @Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorValue("customer")
+@DiscriminatorColumn(name = "user_type")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
-    @Column(name = "Name")
     @NotNull
     private String Name;
 
-    @Column(name = "Avatar")
     private String Avatar;
 
     private String Address;
 
-    @Column(name = "Password")
     private String Password;
 
     @Column(name = "Status")
     @Enumerated(EnumType.STRING)
     private BasicStatus Status;
 
-    @Column(name = "Phone")
     private String Phone;
 
-    @Column(name = "Permission_Website")
     private String PermissionWebsite;
 
-    @Column(name = "Email")
     private String Email;
 
-    @Column(name = "Linkin")
     private String Linkin;
 
-    @Column(name = "Country")
     private String Country;
 
-    @Column(name = "Account_Balance")
     private String AccountBalance;
 
-    @Column(name = "Vip")
     private int Vip;
 
     @ManyToOne(fetch = FetchType.LAZY)

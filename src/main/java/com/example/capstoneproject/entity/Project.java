@@ -16,7 +16,7 @@ import java.util.Date;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String Title;
 
