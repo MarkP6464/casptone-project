@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class CapstoneProjectApplication {
 
 	public static void main(String[] args) {
-		initializeStanfordCoreNLP();
+//		initializeStanfordCoreNLP();
 //		String fullString = "Participating in MoMo Talent Program 2022. Contributing to the gamification campaign, MoMo Barista, with a target of achieving 4,000,000 MAU. Defining data tracking in collaboration with developers. Collaborating with marketing, agencies, and developers to manage 800 recipes and 8000 categories.";
 //		String substring = "achieving 4,000,000 MAU. Defining";
 //
@@ -42,11 +42,11 @@ public class CapstoneProjectApplication {
 		SpringApplication.run(CapstoneProjectApplication.class, args);
 	}
 
-	private static void initializeStanfordCoreNLP() {
-		Properties props = new Properties();
-		props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-	}
+//	private static void initializeStanfordCoreNLP() {
+//		Properties props = new Properties();
+//		props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+//		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+//	}
 
 //	public static boolean isSubstringInString(String fullString, String substring) {
 //		int fullLength = fullString.length();
