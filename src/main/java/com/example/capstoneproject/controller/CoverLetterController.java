@@ -1,13 +1,11 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.CoverLetterAddDto;
-import com.example.capstoneproject.Dto.CoverLetterDto;
-import com.example.capstoneproject.Dto.CoverLetterUpdateDto;
-import com.example.capstoneproject.Dto.EducationDto;
+import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,20 +25,20 @@ public class CoverLetterController {
     }
 
     @PostMapping("/cover-letter")
-    public String generateCoverLetter(
+    public ResponseEntity<?> generateCoverLetter(
             @RequestParam float temperature,
             @RequestParam String company,
             @RequestParam String title,
             @RequestParam int cvId,
-            @RequestParam String dear,
+            @RequestParam(required = false) String dear,
             @RequestParam String name,
             @RequestParam String description
     ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
-            return "Temperature value is invalid. Must be between 0.2 and 1.0.";
+            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
         }
 
-        String result = coverLetterService.generateCoverLetter(
+        ChatResponse result = coverLetterService.generateCoverLetter(
                 temperature,
                 title,
                 cvId,
@@ -49,16 +47,17 @@ public class CoverLetterController {
                 company,
                 description
         );
-        return result;
+        return ResponseEntity.ok(result);
     }
 
+
     @PostMapping("/cover-letter/revise")
-    public String generateCoverLetterRevise(
+    public ChatResponse generateCoverLetterRevise(
             @RequestParam String content,
             @RequestParam String improvement
     ) throws JsonProcessingException {
 
-        String result = coverLetterService.reviseCoverLetter(
+        ChatResponse result = coverLetterService.reviseCoverLetter(
                 content,
                 improvement
         );

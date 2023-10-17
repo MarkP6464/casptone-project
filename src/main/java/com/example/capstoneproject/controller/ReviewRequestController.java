@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.service.ReviewRequestService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,7 @@ public class ReviewRequestController {
     }
 
     @PutMapping("/expert/{expertId}/review-request/{requestId}")
-    public ResponseEntity<?> updateEducation(@PathVariable("expertId") Integer expertId, @PathVariable("requestId") Integer requestId, String theRelation) {
+    public ResponseEntity<?> updateEducation(@PathVariable("expertId") Integer expertId, @PathVariable("requestId") Integer requestId, String theRelation) throws JsonProcessingException {
         switch (theRelation) {
             case "accept":
                 return ResponseEntity.ok(reviewRequestService.acceptReviewRequest(expertId, requestId));

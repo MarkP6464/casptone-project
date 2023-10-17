@@ -49,7 +49,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public String generateCoverLetter(float temperature,String title, int cvId, String dear, String name, String company, String description) throws JsonProcessingException {
+    public ChatResponse generateCoverLetter(float temperature,String title, int cvId, String dear, String name, String company, String description) throws JsonProcessingException {
         String completeCoverLetter = "You are a cover letter generator.\n" +
                 "You will be given a job description along with the job applicant's resume.\n" +
                 "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
@@ -70,14 +70,18 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 //            command = ideasForCoverLetter;
 //        }
         String content = "";
+        String userMessage = "";
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if(cvsOptional.isPresent()){
             Cv cv = cvsOptional.get();
             content = cv.getCvBody();
 
         }
-
-        String userMessage = "My Resume: " + content + ". Dear: " + dear +". Job title: " + title + "Company: " + company +  " Job Description: " + description + "." + " My name: " + name + ".";
+        if(dear!=null){
+            userMessage = "My Resume: " + content + ". Dear: " + dear +". Job title: " + title + "Company: " + company +  " Job Description: " + description + "." + " My name: " + name + ".";
+        }else{
+            userMessage = "My Resume: " + content + ". Job title: " + title + "Company: " + company +  " Job Description: " + description + "." + " My name: " + name + ".";
+        }
         List<Map<String, Object>> messagesList = new ArrayList<>();
         Map<String, Object> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");
@@ -89,7 +93,9 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         messagesList.add(userMessageMap);
         String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
         String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
-        return response;
+        ChatResponse chatResponse = new ChatResponse();
+        chatResponse.setReply(response);
+        return chatResponse;
     }
 
     @Override
@@ -183,9 +189,10 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public String reviseCoverLetter(String content, String improvement) throws JsonProcessingException {
+    public ChatResponse reviseCoverLetter(String content, String improvement) throws JsonProcessingException {
         String revise = "You are a cover letter editor. You will be given a piece of isolated text from within a cover letter and told how you can improve it. Only respond with the revision. Make sure the revision is in the same language as the given isolated text.";
         String userMessage = "Isolated text from within cover letter: " + content + ". It should be improved by making it more: " + improvement;
+        ChatResponse chatResponse = new ChatResponse();
         List<Map<String, Object>> messagesList = new ArrayList<>();
         Map<String, Object> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");
@@ -197,6 +204,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         messagesList.add(userMessageMap);
         String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
         String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
-        return response;
+        chatResponse.setReply(response);
+        return chatResponse;
     }
 }

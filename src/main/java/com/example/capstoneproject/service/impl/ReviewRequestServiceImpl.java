@@ -12,6 +12,8 @@ import com.example.capstoneproject.repository.ReviewRequestRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.ReviewRequestService;
+import com.example.capstoneproject.service.ReviewResponseService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
 
     @Autowired
     UsersRepository usersRepository;
+
+    @Autowired
+    ReviewResponseService reviewResponseService;
 
     public ReviewRequestServiceImpl(ReviewRequestRepository reviewRequestRepository, ReviewRequestMapper reviewRequestMapper) {
         super(reviewRequestRepository, reviewRequestMapper, reviewRequestRepository::findById);
@@ -95,7 +100,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     }
 
     @Override
-    public ReviewRequestDto acceptReviewRequest(Integer expertId, Integer requestId) {
+    public ReviewRequestDto acceptReviewRequest(Integer expertId, Integer requestId) throws JsonProcessingException {
         Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(expertId, RoleType.EXPERT);
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findReviewRequestByExpertIdAndIdAndStatus(expertId,requestId,ReviewStatus.PROCESSING);
         ReviewRequest saved;
@@ -104,6 +109,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 ReviewRequest reviewRequest = reviewRequestOptional.get();
                 reviewRequest.setStatus(ReviewStatus.ACCEPT);
                 saved = reviewRequestRepository.save(reviewRequest);
+                reviewResponseService.createReviewResponse(reviewRequest.getCv().getId(), reviewRequest.getId());
                 sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
             } else {
                 throw new RuntimeException("Expert ID incorrect or Request ID incorrect");

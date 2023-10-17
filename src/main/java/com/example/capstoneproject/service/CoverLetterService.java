@@ -1,5 +1,6 @@
 package com.example.capstoneproject.service;
 
+import com.example.capstoneproject.Dto.ChatResponse;
 import com.example.capstoneproject.Dto.CoverLetterAddDto;
 import com.example.capstoneproject.Dto.CoverLetterDto;
 import com.example.capstoneproject.Dto.CoverLetterUpdateDto;
@@ -13,5 +14,5 @@ public interface CoverLetterService extends BaseService<CoverLetterDto, Integer>
     boolean updateCoverLetter(int UsersId, int coverLetterId, CoverLetterUpdateDto dto);
     boolean deleteCoverLetterById(Integer UsersId,Integer coverLetterId);
     CoverLetterDto getCoverLetter(Integer userId, Integer coverLetterId);
-    String reviseCoverLetter(String content, String improve) throws JsonProcessingException;
+    ChatResponse reviseCoverLetter(String content, String improve) throws JsonProcessingException;
 }

@@ -17,4 +17,6 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequest, In
             @Param("id") Integer id,
             @Param("status") ReviewStatus status
     );
+
+    Optional<ReviewRequest> findByIdAndStatus(Integer requestId, ReviewStatus reviewStatus);
 }
