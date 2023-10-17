@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/expert")
+@RequestMapping("/api/v1")
 public class ExpertController {
 
     @Autowired
@@ -17,7 +17,7 @@ public class ExpertController {
         this.expertService = expertService;
     }
 
-    @PutMapping("/{expertId}")
+    @PutMapping("/expert/{expertId}")
     public ResponseEntity<?> updateExpert(@PathVariable("expertId") Integer expertId, ExpertUpdateDto dto) {
         if (expertService.updateExpert(expertId, dto)) {
             return ResponseEntity.ok("Update success");
@@ -26,8 +26,13 @@ public class ExpertController {
         }
     }
 
-    @GetMapping("/{expertId}")
+    @GetMapping("/expert/{expertId}")
     public ResponseEntity<?> getExpert(@PathVariable("expertId") Integer expertId){
         return ResponseEntity.ok(expertService.getProfileExpert(expertId));
+    }
+
+    @GetMapping("/experts")
+    public ResponseEntity<?> getAllExpert(){
+        return ResponseEntity.ok(expertService.getExpertList());
     }
 }

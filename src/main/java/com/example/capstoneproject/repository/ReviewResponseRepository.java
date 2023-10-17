@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface ReviewResponseRepository extends JpaRepository<ReviewResponse, Integer> {
     Optional<ReviewResponse> findByReviewRequest_ExpertIdAndIdAndStatus(Integer expertId, Integer responseId, ReviewStatus status);
+
+    Optional<ReviewResponse> findByReviewRequest_IdAndStatus(Integer requestId, ReviewStatus status);
 }

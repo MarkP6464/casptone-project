@@ -15,10 +15,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -406,6 +406,57 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         }
     }
 
+    @Override
+    public boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) {
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId,responseId,ReviewStatus.DRAFT);
+        if(reviewResponseOptional.isPresent()){
+            ReviewResponse reviewResponse = reviewResponseOptional.get();
+            if(dto.getOverall()!=null && !dto.getOverall().equals(reviewResponse.getOverall())){
+                reviewResponse.setOverall(dto.getOverall());
+                reviewResponseRepository.save(reviewResponse);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean publicReviewResponse(Integer expertId, Integer responseId) {
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId,responseId,ReviewStatus.DRAFT);
+        if(reviewResponseOptional.isPresent()){
+            ReviewResponse reviewResponse = reviewResponseOptional.get();
+            reviewResponse.setStatus(ReviewStatus.SEND);
+            reviewResponseRepository.save(reviewResponse);
+            sendEmail(reviewResponse.getReviewRequest().getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) {
+        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
+        ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
+        if(reviewRequestOptional.isPresent()){
+            ReviewRequest reviewRequest = reviewRequestOptional.get();
+            if(Objects.equals(userId, reviewRequest.getCv().getUser().getId())){
+                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_IdAndStatus(reviewRequest.getId(), ReviewStatus.SEND);
+                if(reviewResponseOptional.isPresent()){
+                    ReviewResponse reviewResponse = reviewResponseOptional.get();
+                    reviewResponseDto.setId(reviewResponse.getId());
+                    reviewResponseDto.setFeedbackDetail(reviewResponse.getFeedbackDetail());
+                    reviewResponseDto.setOverall(reviewResponse.getOverall());
+                    return reviewResponseDto;
+                }
+            }else {
+                throw new RuntimeException("UserId incorrect with requestId");
+            }
+        }else{
+            throw new RuntimeException("RequestId incorrect");
+        }
+        return reviewResponseDto;
+    }
+
     public static boolean isSubstringInString(String fullString, String substring) {
         int fullLength = fullString.length();
         int subLength = substring.length();
@@ -457,6 +508,45 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         return result.toString();
     }
 
+    private void sendEmail(String toEmail, String subject, String message) {
+        // Cấu hình thông tin SMTP
+        String host = "smtp.gmail.com";
+        String username = "cvbuilder.ai@gmail.com";
+        String password = "cvbtldosldixpkeh";
 
+        // Cấu hình các thuộc tính cho session
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.port", "587");
+        properties.put("mail.smtp.starttls.enable", "true");
+
+        // Tạo một phiên gửi email
+        Session session = Session.getInstance(properties, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            MimeMessage mimeMessage = new MimeMessage(session);
+
+            mimeMessage.setFrom(new InternetAddress(username));
+
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+
+            mimeMessage.setSubject(subject);
+
+            mimeMessage.setText(message);
+
+            Transport.send(mimeMessage);
+
+            System.out.println("Email sent successfully.");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send email.");
+        }
+    }
 
 }

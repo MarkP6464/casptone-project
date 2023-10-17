@@ -12,11 +12,11 @@ import lombok.*;
 @Getter
 @Setter
 public class ReviewResponseDto {
+
+    private Integer id;
+
     private String overall;
 
     private String feedbackDetail;
 
-    private ReviewStatus status;
-
-    private ReviewRequest reviewRequest;
 }
