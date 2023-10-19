@@ -17,6 +17,6 @@ public class ReviewResponseDto {
 
     private String overall;
 
-    private String feedbackDetail;
+    private CvBodyReviewDto feedbackDetail;
 
 }

@@ -1,10 +1,10 @@
 package com.example.capstoneproject.Dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class SkillDto {

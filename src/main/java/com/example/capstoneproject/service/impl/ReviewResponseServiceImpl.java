@@ -3,9 +3,11 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
+import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.mapper.ReviewResponseMapper;
 import com.example.capstoneproject.repository.CvRepository;
+import com.example.capstoneproject.repository.ExpertRepository;
 import com.example.capstoneproject.repository.ReviewRequestRepository;
 import com.example.capstoneproject.repository.ReviewResponseRepository;
 import com.example.capstoneproject.service.ReviewResponseService;
@@ -21,6 +23,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewResponseServiceImpl implements ReviewResponseService {
@@ -38,6 +41,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     ModelMapper modelMapper;
 
     @Autowired
+    ExpertRepository expertRepository;
+
+    @Autowired
     ReviewRequestRepository reviewRequestRepository;
 
     @Override
@@ -51,6 +57,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
             // Tạo CvBodyReviewDto và thiết lập trường skills
             CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
+            cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
+            cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
             cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
             cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
             cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
@@ -62,7 +70,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             cvBodyReviewDto.setName(cv.getUser().getName());
             cvBodyReviewDto.setAddress(cv.getUser().getAddress());
             cvBodyReviewDto.setPhone(cv.getUser().getPhone());
-            cvBodyReviewDto.setPermissionWebsite(cv.getUser().getPermissionWebsite());
+            cvBodyReviewDto.setPermissionWebsite(cv.getUser().getPersonalWebsite());
             cvBodyReviewDto.setEmail(cv.getUser().getEmail());
             cvBodyReviewDto.setLinkin(cv.getUser().getLinkin());
 
@@ -81,48 +89,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
             // Thiết lập trường feedbackDetail của ReviewResponse
             reviewResponse.toCvBodyReview(cvBodyReviewDto);
-
-            // Lưu lại ReviewResponse sau khi đã thiết lập feedbackDetail
             reviewResponseRepository.save(reviewResponse);
-
-            // Trả về ReviewResponseDto nếu cần
         }
     }
-
-//    @Override
-//    public boolean createComment(Integer expertId, Integer responseId, CommentDto dto) throws JsonProcessingException {
-//        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
-//        if(reviewResponseOptional.isPresent()){
-//            ReviewResponse reviewResponse = reviewResponseOptional.get();
-//            CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
-//            cvBodyReviewDto.getExperiences().forEach(x -> {
-//                String description = x.getDescription();
-//                if (isSubstringInString(description, dto.getText())) {
-//                    // Tìm vị trí bắt đầu của text trong description
-//                    int startIndex = description.indexOf(dto.getText());
-//                    if (startIndex >= 0) {
-//                        // Tạo chuỗi mới với đoạn text đã được thay thế
-//                        String newDescription = description.substring(0, startIndex) +
-//                                "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>" + dto.getText() + "</comment>" +
-//                                description.substring(startIndex + dto.getText().length());
-//
-//                        // Thay thế tất cả dấu ngoặc kép bằng dấu nháy đơn
-//                        newDescription = newDescription.replace("\"", "'");
-//
-//                        // Cập nhật trường description với chuỗi mới
-//                        x.setDescription(newDescription);
-//
-//                    }
-//                }
-//            });
-//            reviewResponse.toCvBodyReview(cvBodyReviewDto);
-//            reviewResponseRepository.save(reviewResponse);
-//            return true;
-//
-//        }else{
-//            throw new RuntimeException("ReviewResponse not found or not in DRAFT status.");
-//        }
-//    }
 
     @Override
     public boolean createComment(Integer expertId, Integer responseId, CommentDto dto) throws JsonProcessingException {
@@ -434,7 +403,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) {
+    public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if(reviewRequestOptional.isPresent()){
@@ -444,7 +413,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 if(reviewResponseOptional.isPresent()){
                     ReviewResponse reviewResponse = reviewResponseOptional.get();
                     reviewResponseDto.setId(reviewResponse.getId());
-                    reviewResponseDto.setFeedbackDetail(reviewResponse.getFeedbackDetail());
+                    reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
                     reviewResponseDto.setOverall(reviewResponse.getOverall());
                     return reviewResponseDto;
                 }
@@ -456,6 +425,52 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         }
         return reviewResponseDto;
     }
+
+    @Override
+    public List<ReviewResponseDto> daftReviewResponse(Integer expertId, ReviewStatus status) throws JsonProcessingException {
+        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+
+        if (expertOptional.isPresent()) {
+            Expert expert = expertOptional.get();
+            List<ReviewResponse> reviewResponses = reviewResponseRepository.findByReviewRequest_ExpertId(expert.getId());
+
+            List<ReviewResponseDto> daftReviewResponses = new ArrayList<>();
+
+            for (ReviewResponse response : reviewResponses) {
+                if (status == null || response.getStatus() == status) {
+                    ReviewResponseDto responseDto = new ReviewResponseDto();
+                    responseDto.setId(response.getId());
+                    responseDto.setOverall(response.getOverall());
+                    responseDto.setFeedbackDetail(response.deserialize());
+                    daftReviewResponses.add(responseDto);
+                }
+            }
+
+            return daftReviewResponses;
+        } else {
+            throw new RuntimeException("Expert ID not found.");
+        }
+    }
+
+    @Override
+    public ReviewResponseDto getReviewResponse(Integer expertId, Integer responseId) throws JsonProcessingException {
+        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+        ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
+        if (expertOptional.isPresent()) {
+            Expert expert = expertOptional.get();
+            Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expert.getId(),responseId);
+            if (reviewResponseOptional.isPresent()){
+                ReviewResponse reviewResponse = reviewResponseOptional.get();
+                reviewResponseDto.setId(reviewResponse.getId());
+                reviewResponseDto.setOverall(reviewResponse.getOverall());
+                reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
+            }
+            return reviewResponseDto;
+        } else {
+            throw new RuntimeException("Expert ID not found.");
+        }
+    }
+
 
     public static boolean isSubstringInString(String fullString, String substring) {
         int fullLength = fullString.length();

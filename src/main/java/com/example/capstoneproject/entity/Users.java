@@ -1,20 +1,17 @@
 package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.utils.HashMapConverter;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sun.istack.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Map;
 
-
-@Getter @Setter
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorValue("customer")
@@ -24,32 +21,42 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name")
     @NotNull
-    private String Name;
+    private String name;
 
-    private String Avatar;
+    private String address;
 
-    private String Address;
+    @Column(name = "avatar")
+    private String avatar;
 
-    private String Password;
+    @Column(name = "password")
+    private String password;
 
-    @Column(name = "Status")
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private BasicStatus Status;
+    private BasicStatus status;
 
-    private String Phone;
+    @Column(name = "phone")
+    private String phone;
 
-    private String PermissionWebsite;
+    @Column(name = "personal_Website")
+    private String personalWebsite;
 
-    private String Email;
+    @Column(name = "email")
+    private String email;
 
-    private String Linkin;
+    @Column(name = "linkin")
+    private String linkin;
 
-    private String Country;
+    @Column(name = "country")
+    private String country;
 
-    private String AccountBalance;
+    @Column(name = "account_Balance")
+    private String accountBalance;
 
-    private int Vip;
+    @Column(name = "vip")
+    private Integer vip;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", referencedColumnName = "Id", insertable = false, updatable = false)
@@ -65,13 +72,13 @@ public class Users {
     private List<Education> educations;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Experience> experiences ;
+    private List<Experience> experiences;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Involvement> involvements ;
+    private List<Involvement> involvements;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Project> projects ;
+    private List<Project> projects;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<SourceWork> sourceWorks;

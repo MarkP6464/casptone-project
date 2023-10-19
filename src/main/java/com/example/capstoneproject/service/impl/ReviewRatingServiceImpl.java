@@ -3,19 +3,25 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.ReviewRatingDto;
 import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.ReviewRating;
+import com.example.capstoneproject.entity.ReviewResponse;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.ReviewRatingMapper;
 import com.example.capstoneproject.repository.ExpertRepository;
 import com.example.capstoneproject.repository.ReviewRatingRepository;
+import com.example.capstoneproject.repository.ReviewResponseRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.ReviewRatingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -31,7 +37,7 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
     UsersRepository usersRepository;
 
     @Autowired
-    ExpertRepository expertRepository;
+    ReviewResponseRepository reviewResponseRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -39,10 +45,10 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
     @Override
     public boolean updateReviewRating(Integer userId, Integer ratingId, ReviewRatingDto dto) {
         Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(userId, RoleType.USER);
-        Date currentDate = Calendar.getInstance().getTime();
+        LocalDate currentDate = LocalDate.now();
         if(usersOptional.isPresent()){
             Users customer = usersOptional.get();
-            Optional<ReviewRating> reviewRatingOptional = reviewRatingRepository.findByIdAndUser(ratingId,customer);
+            Optional<ReviewRating> reviewRatingOptional = reviewRatingRepository.findByIdAndUserAndStatus(ratingId,customer, BasicStatus.ACTIVE);
             if (reviewRatingOptional.isPresent()){
                 ReviewRating reviewRating = reviewRatingOptional.get();
                 reviewRating.setDateComment(currentDate);
@@ -63,23 +69,34 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
     }
 
     @Override
-    public ReviewRatingDto createReviewRating(Integer userId, Integer expertId, ReviewRatingDto dto) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+    public ReviewRatingDto createReviewRating(Integer userId, Integer responseId, ReviewRatingDto dto) {
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByIdAndStatus(responseId, ReviewStatus.SEND);
         Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(userId, RoleType.USER);
-        Date currentDate = Calendar.getInstance().getTime();
+        Optional<ReviewRating> reviewRatingOptional = reviewRatingRepository.findByUser_IdAndReviewResponse_Id(userId,responseId);
+        LocalDate currentDate = LocalDate.now();
         ReviewRating reviewRating = new ReviewRating();
-        if(usersOptional.isPresent() && expertOptional.isPresent()){
-            Users customer = usersOptional.get();
-            Expert expert = expertOptional.get();
-            reviewRating.setUser(customer);
-            reviewRating.setExpert(expert);
-            reviewRating.setScore(dto.getScore());
-            reviewRating.setComment(dto.getComment());
-            reviewRating.setDateComment(currentDate);
-            reviewRatingRepository.save(reviewRating);
-        }else{
-            throw new RuntimeException("User ID or Expert ID not found.");
+        if (reviewRatingOptional.isPresent()){
+            throw new RuntimeException("You commented previous for this review response.");
+        }else {
+            if(usersOptional.isPresent() && reviewResponseOptional.isPresent()){
+                Users customer = usersOptional.get();
+                ReviewResponse reviewResponse = reviewResponseOptional.get();
+                if(Objects.equals(reviewResponse.getReviewRequest().getCv().getUser().getId(), customer.getId())){
+                    reviewRating.setUser(customer);
+                    reviewRating.setReviewResponse(reviewResponse);
+                    reviewRating.setScore(dto.getScore());
+                    reviewRating.setComment(dto.getComment());
+                    reviewRating.setDateComment(currentDate);
+                    reviewRating.setStatus(BasicStatus.ACTIVE);
+                    reviewRatingRepository.save(reviewRating);
+                }else{
+                    throw new RuntimeException("User ID not exist in Response ID");
+                }
+            }else{
+                throw new RuntimeException("User ID or Expert ID not found.");
+            }
         }
+
 
         return modelMapper.map(reviewRating, ReviewRatingDto.class);
     }
@@ -89,10 +106,11 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
         Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(userId, RoleType.USER);
         if(usersOptional.isPresent()){
             Users customer = usersOptional.get();
-            Optional<ReviewRating> reviewRatingOptional = reviewRatingRepository.findByIdAndUser(ratingId,customer);
+            Optional<ReviewRating> reviewRatingOptional = reviewRatingRepository.findByIdAndUserAndStatus(ratingId,customer,BasicStatus.ACTIVE);
             if (reviewRatingOptional.isPresent()){
                 ReviewRating reviewRating = reviewRatingOptional.get();
-                reviewRatingRepository.delete(reviewRating);
+                reviewRating.setStatus(BasicStatus.DELETED);
+                reviewRatingRepository.save(reviewRating);
                 return true;
             }else {
                 throw new RuntimeException("Rating ID not found.");

@@ -1,29 +1,34 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.BasicStatus;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-@Builder
+
 @NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Setter
 @ToString
 public class CvBodyDto {
-    private Set<SkillDto> skills;
+    private String templateType = "classical";
+    private CvStyleDto cvStyle = new CvStyleDto();
 
-    private Set<CertificationDto> certifications;
+    private List<SkillDto> skills = new ArrayList<>();
 
-    private Set<EducationDto> educations;
+    private List<CertificationDto> certifications = new ArrayList<>();
 
-    private Set<ExperienceDto> experiences ;
+    private List<EducationDto> educations = new ArrayList<>();
 
-    private Set<InvolvementDto> involvements;
+    private List<ExperienceDto> experiences = new ArrayList<>();
 
-    private Set<ProjectDto> projects ;
+    private List<InvolvementDto> involvements = new ArrayList<>();
 
-    private Set<SourceWorkDto> sourceWorks;
+    private List<ProjectDto> projects = new ArrayList<>();
+
+    private List<SourceWorkDto> sourceWorks = new ArrayList<>();
 }

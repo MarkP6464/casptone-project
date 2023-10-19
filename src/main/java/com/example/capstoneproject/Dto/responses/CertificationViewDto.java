@@ -1,11 +1,12 @@
 package com.example.capstoneproject.Dto.responses;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
+
 @NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Setter
 public class CertificationViewDto {

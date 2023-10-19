@@ -8,10 +8,10 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Getter @Setter
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "Role")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +22,5 @@ public class Role {
     private RoleType roleName;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    @JsonIgnore
     private List<Users> user;
 }

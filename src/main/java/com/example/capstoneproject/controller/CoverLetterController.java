@@ -5,11 +5,12 @@ import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -20,12 +21,13 @@ public class CoverLetterController {
     @Autowired
     CoverLetterServiceImpl coverLetterService;
 
+
     public CoverLetterController(CoverLetterServiceImpl coverLetterService) {
         this.coverLetterService = coverLetterService;
     }
 
-    @PostMapping("/cover-letter")
-    public ResponseEntity<?> generateCoverLetter(
+    @PostMapping(value = "/generate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> generateCoverLetter(
             @RequestParam float temperature,
             @RequestParam String company,
             @RequestParam String title,
@@ -33,21 +35,24 @@ public class CoverLetterController {
             @RequestParam(required = false) String dear,
             @RequestParam String name,
             @RequestParam String description
-    ) throws JsonProcessingException {
+    ) {
         if (temperature < 0.2 || temperature > 1.0) {
-            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
+            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
         }
 
-        ChatResponse result = coverLetterService.generateCoverLetter(
-                temperature,
-                title,
-                cvId,
-                dear,
-                name,
-                company,
-                description
-        );
-        return ResponseEntity.ok(result);
+        return coverLetterService.generateCoverLetter(temperature, title, cvId, dear, name, company, description);
+    }
+
+    @PostMapping(value = "/checkBuzz", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> generatedCoverLetter(
+            @RequestParam float temperature,
+            @RequestParam String description
+    ) {
+        if (temperature < 0.2 || temperature > 1.0) {
+            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
+        }
+
+        return coverLetterService.generateEvaluate(temperature, description);
     }
 
 

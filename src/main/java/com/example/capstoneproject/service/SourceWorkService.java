@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public interface SourceWorkService extends BaseService<SourceWorkDto, Integer> {
@@ -15,14 +14,16 @@ public interface SourceWorkService extends BaseService<SourceWorkDto, Integer> {
     boolean updateSourceWork(int UsersId, int sourceWorkId, SourceWorkDto dto);
 
     List<SourceWorkViewDto> getAllSourceWork(int UsersId);
+
     SourceWorkDto createSourceWork(Integer id, SourceWorkDto dto);
-    void deleteSourceWorkById(Integer UsersId,Integer sourceId);
+
+    void deleteSourceWorkById(Integer UsersId, Integer sourceId);
 
     SourceWorkDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
 
     SourceWorkDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
 
-    Set<SourceWorkDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
+    List<SourceWorkDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
 
     boolean updateInCvBody(int cvId, int id, SourceWorkDto dto) throws JsonProcessingException;
 

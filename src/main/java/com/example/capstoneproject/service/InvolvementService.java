@@ -6,20 +6,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public interface InvolvementService extends BaseService<InvolvementDto, Integer> {
     boolean updateInvolvement(int UsersId, int involvementId, InvolvementDto dto);
+
     List<InvolvementDto> getAllInvolvement(int UsersId);
+
     InvolvementDto createInvolvement(Integer id, InvolvementDto dto);
-    void deleteInvolvementById(Integer UsersId,Integer involvementId);
+
+    void deleteInvolvementById(Integer UsersId, Integer involvementId);
 
     InvolvementViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
 
     InvolvementDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
 
-    Set<InvolvementDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
+    List<InvolvementViewDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
 
     InvolvementViewDto updateInCvBody(int cvId, int id, InvolvementDto dto) throws JsonProcessingException;
 

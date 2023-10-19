@@ -35,8 +35,8 @@ public class ReviewRatingController {
         }
     }
 
-    @PostMapping("/{userId}/expert/{expertId}")
-    public ResponseEntity<?> createRating(@PathVariable("userId") Integer userId, @PathVariable("expertId") Integer expertId, ReviewRatingDto dto) {
-        return ResponseEntity.ok(reviewRatingService.createReviewRating(userId, expertId, dto));
+    @PostMapping("/{userId}/review-response/{responseId}")
+    public ResponseEntity<?> createRating(@PathVariable("userId") Integer userId, @PathVariable("responseId") Integer responseId, ReviewRatingDto dto) {
+        return ResponseEntity.ok(reviewRatingService.createReviewRating(userId, responseId, dto));
     }
 }

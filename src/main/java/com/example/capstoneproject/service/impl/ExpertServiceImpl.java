@@ -7,6 +7,7 @@ import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewDto;
 import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.ReviewRating;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.*;
@@ -44,7 +45,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertViewDto.setName(expert.getName());
             expertViewDto.setAvatar(expert.getAvatar());
             expertViewDto.setPhone(expert.getPhone());
-            expertViewDto.setPermissionWebsite(expert.getPermissionWebsite());
+            expertViewDto.setPermissionWebsite(expert.getPersonalWebsite());
             expertViewDto.setEmail(expert.getEmail());
             expertViewDto.setLinkin(expert.getEmail());
 
@@ -52,7 +53,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertDto.setTitle(expert.getTitle());
             expertDto.setDescription(expert.getDescription());
             expertDto.setPrice(expert.getPrice());
-            List<ReviewRating> reviewRatings = reviewRatingRepository.findAllByExpertId(expert.getId());
+            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(), BasicStatus.ACTIVE);
 
             // Chuyển đổi từ ReviewRating sang ReviewRatingViewDto và thêm vào danh sách ratings của expertDto
             List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();
@@ -108,7 +109,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertViewDto.setName(expert.getName());
             expertViewDto.setAvatar(expert.getAvatar());
             expertViewDto.setPhone(expert.getPhone());
-            expertViewDto.setPermissionWebsite(expert.getPermissionWebsite());
+            expertViewDto.setPermissionWebsite(expert.getPersonalWebsite());
             expertViewDto.setEmail(expert.getEmail());
             expertViewDto.setLinkin(expert.getLinkin());
 
@@ -117,7 +118,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertDTO.setDescription(expert.getDescription());
             expertDTO.setPrice(expert.getPrice());
 
-            List<ReviewRating> reviewRatings = reviewRatingRepository.findAllByExpertId(expert.getId());
+            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(),BasicStatus.ACTIVE);
             List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();
 
             for (ReviewRating reviewRating : reviewRatings) {

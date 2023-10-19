@@ -17,9 +17,6 @@ public class Expert extends Users{
 
     private String description;
 
-    private double price;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<ReviewRating> reviewRatings;
+    private Double price;
 
 }

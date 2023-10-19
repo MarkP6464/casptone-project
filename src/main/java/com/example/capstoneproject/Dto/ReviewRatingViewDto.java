@@ -2,6 +2,7 @@ package com.example.capstoneproject.Dto;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -15,7 +16,7 @@ public class ReviewRatingViewDto {
 
     private double score;
 
-    private Date dateComment;
+    private LocalDate dateComment;
 
     private String comment;
 

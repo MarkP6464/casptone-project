@@ -7,6 +7,7 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -18,7 +19,7 @@ import java.util.Date;
 public class ReviewRequestDto {
     private Integer id;
 
-    private Date receivedDate;
+    private LocalDate receivedDate;
 
     private ReviewStatus status;
 

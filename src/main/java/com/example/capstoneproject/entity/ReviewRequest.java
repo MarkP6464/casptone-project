@@ -4,6 +4,7 @@ import com.example.capstoneproject.enums.ReviewStatus;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -19,7 +20,7 @@ public class ReviewRequest {
     @Column(name = "review_request_id")
     private Integer id;
 
-    private Date receivedDate;
+    private LocalDate receivedDate;
 
     @Enumerated(EnumType.STRING)
     private ReviewStatus status;

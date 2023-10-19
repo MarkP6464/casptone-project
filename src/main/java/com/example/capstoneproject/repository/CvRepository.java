@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CvRepository extends JpaRepository<Cv, Integer> {
-    @Query("SELECT c FROM Cv c WHERE c.user.id = :UsersId AND c.Status = :status")
-    List<Cv> findAllByUsersIdAndStatus(@Param("UsersId") int id, @Param("status") BasicStatus status);
 
     @Query("SELECT c FROM Cv c WHERE c.user.id =:UsersId AND c.id = :cvId AND c.Status = :status")
     Cv findCvByIdAndStatus(@Param("UsersId") int UsersId, @Param("cvId") int id, @Param("status") BasicStatus status);
@@ -34,6 +32,9 @@ public interface CvRepository extends JpaRepository<Cv, Integer> {
 
     @Query("SELECT s FROM Section s WHERE s.TypeName IN :typeNames")
     List<Section> findAllByTypeNames(@Param("typeNames") List<SectionEvaluate> typeNames);
+
+    @Query("SELECT c FROM Cv c WHERE c.user.id = :UsersId AND c.Status = :status")
+    List<Cv> findAllByUsersIdAndStatus(@Param("UsersId") int id, @Param("status") BasicStatus status);
 
 
 }

@@ -9,19 +9,20 @@ import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.SourceWorkMapper;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.SourceWorkRepository;
 import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.SourceWorkService;
+import com.example.capstoneproject.service.UsersService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +42,8 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
 
     @Autowired
     ModelMapper modelMapper;
+    @Autowired
+    CvRepository cvRepository;
 
     public SourceWorkServiceImpl(SourceWorkRepository sourceWorkRepository, SourceWorkMapper sourceWorkMapper) {
         super(sourceWorkRepository, sourceWorkMapper, sourceWorkRepository::findById);
@@ -121,7 +124,7 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     }
 
     @Override
-    public void deleteSourceWorkById(Integer UsersId,Integer sourceId) {
+    public void deleteSourceWorkById(Integer UsersId, Integer sourceId) {
         boolean isSourceWorkBelongsToCv = sourceWorkRepository.existsByIdAndUser_Id(sourceId, UsersId);
 
         if (isSourceWorkBelongsToCv) {
@@ -140,17 +143,17 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     @Override
     public SourceWorkDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
         SourceWork education = sourceWorkRepository.getById(id);
-        if (Objects.nonNull(education)){
+        if (Objects.nonNull(education)) {
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
-            Optional<SourceWorkDto> dto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId()==id).findFirst();
-            if (dto.isPresent()){
+            Optional<SourceWorkDto> dto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId() == id).findFirst();
+            if (dto.isPresent()) {
                 modelMapper.map(education, dto.get());
                 return dto.get();
-            }else{
+            } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
             }
-        }else{
+        } else {
             throw new ResourceNotFoundException("Not found that id in cvBody");
         }
     }
@@ -159,26 +162,36 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     public SourceWorkDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Optional<SourceWorkDto> dto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId()==id).findFirst();
-        if (dto.isPresent()){
-            return  dto.get();
-        }else{
+        Optional<SourceWorkDto> dto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId() == id).findFirst();
+        if (dto.isPresent()) {
+            return dto.get();
+        } else {
             throw new ResourceNotFoundException("Not found that id in cvBody");
         }
     }
 
     @Override
-    public Set<SourceWorkDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+    public List<SourceWorkDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        return cvBodyDto.getSourceWorks();
+        List<SourceWorkDto> set = new ArrayList<>();
+        cvBodyDto.getSourceWorks().stream().forEach(
+                e -> {
+                    try {
+                        set.add(getAndIsDisplay(cvId, e.getId()));
+                    } catch (JsonProcessingException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+        );
+        return set;
     }
 
     @Override
     public boolean updateInCvBody(int cvId, int id, SourceWorkDto dto) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Optional<SourceWorkDto> relationDto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId()==id).findFirst();
+        Optional<SourceWorkDto> relationDto = cvBodyDto.getSourceWorks().stream().filter(x -> x.getId() == id).findFirst();
         if (relationDto.isPresent()) {
             SourceWork education = sourceWorkRepository.getById(id);
             modelMapper.map(dto, education);
@@ -196,16 +209,28 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
     @Override
     public SourceWorkDto createOfUserInCvBody(int cvId, SourceWorkDto dto) throws JsonProcessingException {
         SourceWork education = sourceWorkMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(Users);
+        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
+        education.setUser(user);
         education.setStatus(BasicStatus.ACTIVE);
         SourceWork saved = sourceWorkRepository.save(education);
         SourceWorkDto educationViewDto = new SourceWorkDto();
         educationViewDto.setId(saved.getId());
-        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getSourceWorks().add(educationViewDto);
-        educationViewDto.setIsDisplay(true);
-        cvService.updateCvBody(cvId, cvBodyDto);
+
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        list.stream().forEach(x -> {
+            if (x.getId().equals(cvId)) {
+                educationViewDto.setIsDisplay(true);
+            } else {
+                educationViewDto.setIsDisplay(false);
+            }
+            try {
+                CvBodyDto cvBodyDto = x.deserialize();
+                cvBodyDto.getSourceWorks().add(educationViewDto);
+                cvService.updateCvBody(x.getId(), cvBodyDto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
         return educationViewDto;
     }
 
@@ -216,10 +241,18 @@ public class SourceWorkServiceImpl extends AbstractBaseService<SourceWork, Sourc
         if (Optional.isPresent()) {
             SourceWork education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            sourceWorkRepository.save(education);
-            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(cvId, cvBodyDto);
+            sourceWorkRepository.delete(education);
+            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
+            list.stream().forEach(x -> {
+                try {
+                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    cvBodyDto.getSourceWorks().removeIf(e -> e.getId() == id);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
+
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 

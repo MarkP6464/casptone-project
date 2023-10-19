@@ -1,14 +1,15 @@
 package com.example.capstoneproject.entity;
+
 import com.example.capstoneproject.enums.BasicStatus;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
-@Builder
+
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity

@@ -1,19 +1,14 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.service.*;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Set;
+import java.util.List;
 
 
 @RestController
@@ -43,9 +38,9 @@ public class CvRelationController {
 
 
     @GetMapping("/{cvId}/{theRelation}")
-    public Set<?> getAllARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation) throws Exception {
+    public List<?> getAllARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation) throws Exception {
 
-        switch (theRelation){
+        switch (theRelation) {
             case "educations":
                 return educationService.getAllARelationInCvBody(cvId);
             case "skills":
@@ -68,7 +63,7 @@ public class CvRelationController {
     @GetMapping("/{cvId}/{theRelation}/{id}")
     public ResponseEntity<?> getARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
 
-        switch (theRelation){
+        switch (theRelation) {
             case "educations":
                 return ResponseEntity.ok(educationService.getAndIsDisplay(cvId, id));
             case "skills":
@@ -88,10 +83,10 @@ public class CvRelationController {
         }
     }
 
-    @PostMapping("/{cvId}/{theRelation}")
+    @PostMapping(value = "/{cvId}/{theRelation}", consumes = "application/json")
     public ResponseEntity<?> postEducation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
 
-        switch (theRelation){
+        switch (theRelation) {
             case "educations":
                 EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
                 return ResponseEntity.ok(educationService.createOfUserInCvBody(cvId, educationDto));
@@ -119,65 +114,57 @@ public class CvRelationController {
     }
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
-    public String updateEducation(@PathVariable("cvId") int cvId,@PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
-        switch (theRelation){
+    public ResponseEntity<?> updateEducation(@PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
+        switch (theRelation) {
             case "educations":
                 EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
-                educationService.updateInCvBody(cvId, id, educationDto);
-                break;
+                return ResponseEntity.ok(educationService.updateInCvBody(cvId, id, educationDto));
             case "skills":
                 SkillDto skillDto = objectMapper.convertValue(obj, SkillDto.class);
-                skillService.updateInCvBody(cvId, id, skillDto);
-                break;
+                return ResponseEntity.ok(skillService.updateInCvBody(cvId, id, skillDto));
             case "experiences":
                 ExperienceDto experienceDto = objectMapper.convertValue(obj, ExperienceDto.class);
-                experienceService.updateInCvBody(cvId, id, experienceDto);
-                break;
+                return ResponseEntity.ok(experienceService.updateInCvBody(cvId, id, experienceDto));
             case "involvements":
                 InvolvementDto involvementDto = objectMapper.convertValue(obj, InvolvementDto.class);
-                involvementService.updateInCvBody(cvId, id, involvementDto);
-                break;
+                return ResponseEntity.ok(involvementService.updateInCvBody(cvId, id, involvementDto));
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
-                projectService.updateInCvBody(cvId, id, projectDto);
-                break;
+                return ResponseEntity.ok(projectService.updateInCvBody(cvId, id, projectDto));
             case "soureworks":
                 SourceWorkDto sourceWorkDto = objectMapper.convertValue(obj, SourceWorkDto.class);
-                sourceWorkService.updateInCvBody(cvId, id, sourceWorkDto);
-                break;
+                return ResponseEntity.ok(sourceWorkService.updateInCvBody(cvId, id, sourceWorkDto));
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
-                certificationService.updateInCvBody(cvId, id, certificationDto);
-                break;
+                return ResponseEntity.ok(certificationService.updateInCvBody(cvId, id, certificationDto));
             default:
                 throw new Exception("Invalid request!!");
         }
-        return "Changes saved";
     }
 
     @DeleteMapping("/{cvId}/{theRelation}/{id}")
-    public String deleteCertification(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation,@PathVariable("id") int id) throws Exception {
-        switch (theRelation){
+    public String deleteARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
+        switch (theRelation) {
             case "educations":
                 educationService.deleteInCvBody(cvId, id);
                 break;
             case "skills":
-                 skillService.deleteInCvBody(cvId, id);
+                skillService.deleteInCvBody(cvId, id);
                 break;
             case "experiences":
-                 experienceService.deleteInCvBody(cvId, id);
+                experienceService.deleteInCvBody(cvId, id);
                 break;
             case "involvements":
-                 involvementService.deleteInCvBody(cvId, id);
+                involvementService.deleteInCvBody(cvId, id);
                 break;
             case "projects":
-                 projectService.deleteInCvBody(cvId, id);
+                projectService.deleteInCvBody(cvId, id);
                 break;
             case "soureworks":
-                 sourceWorkService.deleteInCvBody(cvId, id);
+                sourceWorkService.deleteInCvBody(cvId, id);
                 break;
             case "certifications":
-                 certificationService.deleteInCvBody(cvId, id);
+                certificationService.deleteInCvBody(cvId, id);
                 break;
             default:
                 throw new Exception("Invalid request!!");

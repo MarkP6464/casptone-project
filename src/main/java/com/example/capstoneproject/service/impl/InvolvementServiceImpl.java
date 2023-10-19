@@ -9,20 +9,17 @@ import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.InvolvementMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
-import com.example.capstoneproject.repository.EvaluateRepository;
-import com.example.capstoneproject.repository.InvolvementRepository;
-import com.example.capstoneproject.repository.SectionLogRepository;
-import com.example.capstoneproject.repository.SectionRepository;
+import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +59,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
     @Autowired
     UsersService usersService;
+
+    @Autowired
+    CvRepository cvRepository;
 
     public InvolvementServiceImpl(InvolvementRepository involvementRepository, InvolvementMapper involvementMapper) {
         super(involvementRepository, involvementMapper, involvementRepository::findById);
@@ -146,7 +146,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
     @Override
-    public void deleteInvolvementById(Integer UsersId,Integer involvementId) {
+    public void deleteInvolvementById(Integer UsersId, Integer involvementId) {
         boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndUser_Id(involvementId, UsersId);
 
         if (isInvolvementBelongsToCv) {
@@ -165,12 +165,12 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
         Involvement involvement = involvementRepository.getById(id);
-        if (Objects.nonNull(involvement)){
+        if (Objects.nonNull(involvement)) {
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
-            Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId()==id).findFirst();
-            List<BulletPointDto> bulletPointDtos = sectionRepository.findBulletPointDtoByTypeIdAndTypeName(id,SectionEvaluate.involvement);
-            if (dto.isPresent()){
+            Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId() == id).findFirst();
+            List<BulletPointDto> bulletPointDtos = sectionRepository.findBulletPointDtoByTypeIdAndTypeName(id, SectionEvaluate.involvement);
+            if (dto.isPresent()) {
                 InvolvementDto involvementDto = dto.get();
                 InvolvementViewDto involvementViewDto = new InvolvementViewDto();
                 involvementViewDto.setId(involvement.getId());
@@ -183,10 +183,10 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 involvementViewDto.setDescription(involvement.getDescription());
                 involvementViewDto.setBulletPointDtos(bulletPointDtos);
                 return involvementViewDto;
-            }else{
+            } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
             }
-        }else{
+        } else {
             throw new ResourceNotFoundException("Not found that id in cvBody");
         }
     }
@@ -195,26 +195,36 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     public InvolvementDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId()==id).findFirst();
-        if (dto.isPresent()){
-            return  dto.get();
-        }else{
+        Optional<InvolvementDto> dto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId() == id).findFirst();
+        if (dto.isPresent()) {
+            return dto.get();
+        } else {
             throw new ResourceNotFoundException("Not found that id in cvBody");
         }
     }
 
     @Override
-    public Set<InvolvementDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
+    public List<InvolvementViewDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        return cvBodyDto.getInvolvements();
+        List<InvolvementViewDto> set = new ArrayList<>();
+        cvBodyDto.getInvolvements().stream().forEach(
+                e -> {
+                    try {
+                        set.add(getAndIsDisplay(cvId, e.getId()));
+                    } catch (JsonProcessingException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+        );
+        return set;
     }
 
     @Override
     public InvolvementViewDto updateInCvBody(int cvId, int id, InvolvementDto dto) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Optional<InvolvementDto> relationDto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId()==id).findFirst();
+        Optional<InvolvementDto> relationDto = cvBodyDto.getInvolvements().stream().filter(x -> x.getId() == id).findFirst();
         if (relationDto.isPresent()) {
             Involvement involvement = involvementRepository.getById(id);
             modelMapper.map(dto, involvement);
@@ -264,25 +274,35 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
 
-    @Override
-    public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
+@Override
+public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
         Involvement education = involvementMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(Users);
+        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
+        education.setUser(user);
         education.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(education);
         InvolvementDto involvementDto = new InvolvementDto();
         involvementDto.setId(saved.getId());
-        CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-        cvBodyDto.getInvolvements().add(involvementDto);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        list.stream().forEach(x -> {
+        if (x.getId().equals(cvId)) {
         involvementDto.setIsDisplay(true);
-        cvService.updateCvBody(cvId, cvBodyDto);
-
+        } else {
+        involvementDto.setIsDisplay(false);
+        }
+        try {
+        CvBodyDto cvBodyDto = x.deserialize();
+        cvBodyDto.getInvolvements().add(involvementDto);
+        cvService.updateCvBody(x.getId(), cvBodyDto);
+        } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+        }
+        });
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
-        List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(Users.getId(), BasicStatus.ACTIVE);
+        List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(user.getId(), BasicStatus.ACTIVE);
         if (!projects.isEmpty()) {
-            sectionDto.setTypeId(projects.get(0).getId());
+        sectionDto.setTypeId(projects.get(0).getId());
         }
         sectionDto.setTitle(saved.getOrganizationRole());
         sectionDto.setTypeName(SectionEvaluate.involvement);
@@ -305,21 +325,21 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         List<Evaluate> evaluates = evaluateRepository.findAll();
         int evaluateId = 1;
         for (int i = 0; i < evaluates.size(); i++) {
-            Evaluate evaluate = evaluates.get(i);
-            BulletPointDto bulletPointDto = evaluateResult.get(i);
-            SectionLogDto sectionLogDto1 = new SectionLogDto();
-            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
-            sectionLogDto1.setEvaluate(evaluate);
-            sectionLogDto1.setBullet(bulletPointDto.getResult());
-            sectionLogDto1.setStatus(bulletPointDto.getStatus());
-            sectionLogService.create(sectionLogDto1);
-            evaluateId++;
-            if(evaluateId==7){
-                break;
-            }
+        Evaluate evaluate = evaluates.get(i);
+        BulletPointDto bulletPointDto = evaluateResult.get(i);
+        SectionLogDto sectionLogDto1 = new SectionLogDto();
+        sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
+        sectionLogDto1.setEvaluate(evaluate);
+        sectionLogDto1.setBullet(bulletPointDto.getResult());
+        sectionLogDto1.setStatus(bulletPointDto.getStatus());
+        sectionLogService.create(sectionLogDto1);
+        evaluateId++;
+        if (evaluateId == 7) {
+        break;
+        }
         }
         return involvementViewDto;
-    }
+        }
 
     @Override
     public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {
@@ -328,10 +348,18 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         if (Optional.isPresent()) {
             Involvement education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            involvementRepository.save(education);
-            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            cvBodyDto.getEducations().removeIf(x -> x.getId() == id);
-            cvService.updateCvBody(cvId, cvBodyDto);
+            involvementRepository.delete(education);
+            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
+            list.stream().forEach(x -> {
+                try {
+                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    cvBodyDto.getInvolvements().removeIf(e -> e.getId() == id);
+                    cvService.updateCvBody(x.getId(), cvBodyDto);
+
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
     }
 

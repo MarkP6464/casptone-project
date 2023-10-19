@@ -2,6 +2,7 @@ package com.example.capstoneproject.Dto;
 
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 @Builder
 @NoArgsConstructor
@@ -10,6 +11,10 @@ import java.util.Set;
 @Setter
 @ToString
 public class CvBodyReviewDto {
+    private String templateType = "classical";
+
+    private CvStyleDto cvStyle = new CvStyleDto();
+
     private String name;
 
     private String address;
@@ -24,17 +29,17 @@ public class CvBodyReviewDto {
 
     private  String summary;
 
-    private Set<SkillDto> skills;
+    private List<SkillDto> skills;
 
-    private Set<CertificationDto> certifications;
+    private List<CertificationDto> certifications;
 
-    private Set<EducationDto> educations;
+    private List<EducationDto> educations;
 
-    private Set<ExperienceDto> experiences ;
+    private List<ExperienceDto> experiences ;
 
-    private Set<InvolvementDto> involvements;
+    private List<InvolvementDto> involvements;
 
-    private Set<ProjectDto> projects ;
+    private List<ProjectDto> projects ;
 
-    private Set<SourceWorkDto> sourceWorks;
+    private List<SourceWorkDto> sourceWorks;
 }

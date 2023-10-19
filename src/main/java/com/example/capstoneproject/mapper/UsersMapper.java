@@ -14,4 +14,7 @@ public class UsersMapper extends AbstractMapper<Users, UsersDto> {
     public UsersViewDto toView(Users users){
         return modelMapper.map(users, UsersViewDto.class);
     }
+    public Users toEntity(UsersViewDto usersViewDto){
+        return modelMapper.map(usersViewDto, Users.class);
+    }
 }
