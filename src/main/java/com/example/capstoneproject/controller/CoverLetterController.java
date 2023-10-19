@@ -27,7 +27,7 @@ public class CoverLetterController {
     }
 
     @PostMapping(value = "/generate", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> generateCoverLetter(
+    public Flux<ChatResponse> generateCoverLetter(
             @RequestParam float temperature,
             @RequestParam String company,
             @RequestParam String title,
@@ -37,7 +37,7 @@ public class CoverLetterController {
             @RequestParam String description
     ) {
         if (temperature < 0.2 || temperature > 1.0) {
-            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
+            return Flux.error(new IllegalArgumentException("Temperature value is invalid. Must be between 0.2 and 1.0."));
         }
 
         return coverLetterService.generateCoverLetter(temperature, title, cvId, dear, name, company, description);
@@ -52,7 +52,8 @@ public class CoverLetterController {
             return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
         }
 
-        return coverLetterService.generateEvaluate(temperature, description);
+        //return coverLetterService.generateEvaluate(temperature, description);
+        return null;
     }
 
 

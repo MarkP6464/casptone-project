@@ -54,7 +54,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public Flux<String> generateCoverLetter(float temperature, String title, int cvId, String dear, String name, String company, String description) {
+    public Flux<ChatResponse> generateCoverLetter(float temperature, String title, int cvId, String dear, String name, String company, String description) {
         return Flux.create(sink -> {
             String completeCoverLetter = "You are a cover letter generator.\n" +
                 "You will be given a job description along with the job applicant's resume.\n" +
@@ -95,8 +95,10 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 String messagesJson = objectMapper.writeValueAsString(messagesList);
 
                 String response = chatGPTService.chatWithGPTCoverLetter(messagesJson, temperature);
+                ChatResponse chatResponse = new ChatResponse();
+                chatResponse.setReply(response);
 
-                sink.next(response);
+                sink.next(chatResponse);
                 sink.complete();
             } catch (JsonProcessingException e) {
                 sink.error(e);
@@ -104,7 +106,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         });
     }
 
-    public Flux<String> generateEvaluate(float temperature, String description) {
+    public Flux<ChatResponse> generateEvaluate(float temperature, String description) {
         return Flux.create(sink -> {
             String completeCoverLetter = "You are the person reviewing your CV\n" +
                     "You will be provided with a job description along with relevant applicant information fields.\n" +
@@ -130,8 +132,10 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 String messagesJson = objectMapper.writeValueAsString(messagesList);
 
                 String response = chatGPTService.chatWithGPTCoverLetter(messagesJson, temperature);
+                ChatResponse chatResponse = new ChatResponse();
+                chatResponse.setReply(response);
 
-                sink.next(response);
+                sink.next(chatResponse);
                 sink.complete();
             } catch (JsonProcessingException e) {
                 sink.error(e);
