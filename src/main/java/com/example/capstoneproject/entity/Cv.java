@@ -24,6 +24,12 @@ public class Cv {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String resumeName;
+
+    private String fieldOrDomain;
+
+    private String experience;
+
     private String Content;
 
     @Column(columnDefinition = "TEXT")
@@ -47,6 +53,10 @@ public class Cv {
     @ManyToOne
     @JoinColumn(name = "template_id")
     private Template template;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_job_description_id")
+    private JobDescription jobDescription;
 
     public String toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

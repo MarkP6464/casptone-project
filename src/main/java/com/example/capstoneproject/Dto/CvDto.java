@@ -13,6 +13,11 @@ import lombok.Setter;
 public class CvDto {
 
     private Integer id;
+    private String resumeName;
+
+    private String fieldOrDomain;
+
+    private String experience;
 
     private String Content;
     private String Summary;

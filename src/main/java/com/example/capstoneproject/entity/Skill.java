@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(columnDefinition = "TEXT")
     private String Description;

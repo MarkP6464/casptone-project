@@ -1,14 +1,14 @@
 package com.example.capstoneproject.Dto.responses;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.example.capstoneproject.Dto.BulletPointDto;
+import com.example.capstoneproject.Dto.ResultDto;
+import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 
 @NoArgsConstructor
-
 @Getter
 @Setter
 public class ExperienceViewDto {
@@ -27,4 +27,6 @@ public class ExperienceViewDto {
     private String Location;
 
     private String Description;
+
+    private List<BulletPointDto> bulletPointDtos;
 }

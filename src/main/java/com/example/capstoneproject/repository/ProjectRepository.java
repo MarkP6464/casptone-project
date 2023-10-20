@@ -1,5 +1,6 @@
 package com.example.capstoneproject.repository;
 
+import com.example.capstoneproject.entity.Experience;
 import com.example.capstoneproject.entity.Project;
 import com.example.capstoneproject.enums.BasicStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,9 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
     List<Project> findProjectsByStatus(@Param("cvId") int id, @Param("status") BasicStatus status);
 
     boolean existsByIdAndUser_Id(Integer projectId, Integer UserId);
+
+    @Query("SELECT c FROM Project c WHERE c.user.id = :userId AND c.Status = :status ORDER BY c.id DESC")
+    List<Project> findExperiencesByStatusOrderedByStartDateDesc(@Param("userId") Integer userId, @Param("status") BasicStatus status);
+
 
 }
