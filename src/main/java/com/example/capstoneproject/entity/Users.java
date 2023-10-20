@@ -2,18 +2,19 @@ package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
 import com.sun.istack.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
 
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorValue("customer")
+@DiscriminatorColumn(name = "user_type")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +22,9 @@ public class Users {
 
     @Column(name = "name")
     @NotNull
-    private String name;
+    private String Name;
+
+    private String address;
 
     @Column(name = "avatar")
     private String avatar;
