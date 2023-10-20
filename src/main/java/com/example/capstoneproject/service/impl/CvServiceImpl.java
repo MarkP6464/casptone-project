@@ -443,7 +443,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         Cv cv = cvRepository.getById(cvId);
         List<SectionCvDto> sectionCvDtos = new ArrayList<>();
         List<Evaluate> evaluates = evaluateRepository.findAll();
-        final int[] totalWords = {0};
+        final int[] totalWords = { 0 };
 
         if (Objects.nonNull(cv)) {
             CvBodyDto cvBodyDto = cv.deserialize();
@@ -557,7 +557,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 //                evaluateId++;
 //            }
 
-            contentList = evaluateContentSections(cv, evaluates, sectionCvDtos);
+            contentList = evaluateContentSections(cv,evaluates,sectionCvDtos);
 
             //Evaluate with Best Practices
 //            for (int i = 6; i <= 11; i++) {
@@ -668,7 +668,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 //            }
             optimizationList = evaluateOptimational(evaluates, cvId);
 
-            ScoreDto scoreDto = new ScoreDto(contentList, practiceList, optimizationList);
+            ScoreDto scoreDto = new ScoreDto(contentList, practiceList,optimizationList);
             List<ScoreDto> result = new ArrayList<>();
             result.add(scoreDto);
 
@@ -706,7 +706,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         for (SectionCvDto sectionCvDto : sectionCvDtos) {
             for (Section section : sections) {
                 if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
-                        && sectionCvDto.getTitle() != null) {
+                    && sectionCvDto.getTitle()!=null) {
                     sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
                 }
             }

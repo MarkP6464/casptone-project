@@ -1,12 +1,10 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Expert;
-import com.example.capstoneproject.entity.ReviewRequest;
-import com.example.capstoneproject.entity.ReviewResponse;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.mapper.ReviewResponseMapper;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.ExpertRepository;
@@ -25,6 +23,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewResponseServiceImpl implements ReviewResponseService {
@@ -70,7 +69,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     public void createReviewResponse(Integer cvId, Integer requestId) throws JsonProcessingException {
         Cv cv = cvRepository.getById(cvId);
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
-        if (Objects.nonNull(cv) && reviewRequestOptional.isPresent()) {
+        if (Objects.nonNull(cv) && reviewRequestOptional.isPresent()){
             // Lấy CvBody từ CV
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             CvBodyDto cvBodyDto = cv.deserialize();
@@ -121,7 +120,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
             String sp = removeCommentTagsWithoutIdAndContent(dto.getText());
             cvBodyReviewDto.getExperiences().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
+                if(isSubstringInString(x.getDescription(), sp)){
                     try {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
@@ -135,7 +134,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 x.setDescription(description);
             });
             cvBodyReviewDto.getInvolvements().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
+                if(isSubstringInString(x.getDescription(), sp)){
                     try {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
@@ -149,7 +148,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 x.setDescription(description);
             });
             cvBodyReviewDto.getProjects().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
+                if(isSubstringInString(x.getDescription(), sp)){
                     try {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
@@ -163,7 +162,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 x.setDescription(description);
             });
             cvBodyReviewDto.getSkills().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
+                if(isSubstringInString(x.getDescription(), sp)){
                     try {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
@@ -411,8 +410,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public boolean publicReviewResponse(Integer expertId, Integer responseId) {
-        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
-        if (reviewResponseOptional.isPresent()) {
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId,responseId,ReviewStatus.DRAFT);
+        if(reviewResponseOptional.isPresent()){
             ReviewResponse reviewResponse = reviewResponseOptional.get();
             reviewResponse.setStatus(ReviewStatus.SEND);
             reviewResponseRepository.save(reviewResponse);
@@ -426,21 +425,21 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
-        if (reviewRequestOptional.isPresent()) {
+        if(reviewRequestOptional.isPresent()){
             ReviewRequest reviewRequest = reviewRequestOptional.get();
-            if (Objects.equals(userId, reviewRequest.getCv().getUser().getId())) {
+            if(Objects.equals(userId, reviewRequest.getCv().getUser().getId())){
                 Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_IdAndStatus(reviewRequest.getId(), ReviewStatus.SEND);
-                if (reviewResponseOptional.isPresent()) {
+                if(reviewResponseOptional.isPresent()){
                     ReviewResponse reviewResponse = reviewResponseOptional.get();
                     reviewResponseDto.setId(reviewResponse.getId());
                     reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
                     reviewResponseDto.setOverall(reviewResponse.getOverall());
                     return reviewResponseDto;
                 }
-            } else {
+            }else {
                 throw new RuntimeException("UserId incorrect with requestId");
             }
-        } else {
+        }else{
             throw new RuntimeException("RequestId incorrect");
         }
         return reviewResponseDto;
@@ -478,8 +477,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
-            Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expert.getId(), responseId);
-            if (reviewResponseOptional.isPresent()) {
+            Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expert.getId(),responseId);
+            if (reviewResponseOptional.isPresent()){
                 ReviewResponse reviewResponse = reviewResponseOptional.get();
                 reviewResponseDto.setId(reviewResponse.getId());
                 reviewResponseDto.setOverall(reviewResponse.getOverall());
@@ -489,6 +488,26 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         } else {
             throw new RuntimeException("Expert ID not found.");
         }
+    }
+
+
+    public static boolean isSubstringInString(String fullString, String substring) {
+        int fullLength = fullString.length();
+        int subLength = substring.length();
+
+        int[][] dp = new int[fullLength + 1][subLength + 1];
+
+        for (int i = 1; i <= fullLength; i++) {
+            for (int j = 1; j <= subLength; j++) {
+                if (fullString.charAt(i - 1) == substring.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[fullLength][subLength] == subLength;
     }
 
     public String removeCommentTagsWithoutIdAndContent(String input) {
@@ -565,4 +584,3 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
 }
-

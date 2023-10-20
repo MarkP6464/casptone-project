@@ -15,8 +15,7 @@ public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
 
     List<ExperienceDto> getAllExperience(int UsersId);
     ExperienceViewDto createExperience(Integer id, ExperienceDto dto);
-
-    void deleteExperienceById(Integer UsersId, Integer experienceId);
+    void deleteExperienceById(Integer UsersId,Integer experienceId);
 
     ExperienceViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
 

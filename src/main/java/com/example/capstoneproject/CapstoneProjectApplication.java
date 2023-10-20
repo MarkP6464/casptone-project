@@ -3,6 +3,7 @@ package com.example.capstoneproject;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

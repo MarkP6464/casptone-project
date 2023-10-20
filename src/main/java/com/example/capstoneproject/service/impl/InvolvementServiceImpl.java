@@ -2,6 +2,7 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.InvolvementViewDto;
+import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
@@ -262,7 +263,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
-                if (evaluateId == 7) {
+                if(evaluateId==7){
                     break;
                 }
             }
@@ -338,7 +339,7 @@ public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) thr
         }
         }
         return involvementViewDto;
-    }
+        }
 
     @Override
     public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {

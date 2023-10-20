@@ -261,7 +261,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
-                if (evaluateId == 7) {
+                if(evaluateId==7){
                     break;
                 }
             }
