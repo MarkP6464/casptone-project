@@ -54,56 +54,53 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public Flux<ChatResponse> generateCoverLetter(float temperature, String title, int cvId, String dear, String name, String company, String description) {
-        return Flux.create(sink -> {
-            String completeCoverLetter = "You are a cover letter generator.\n" +
+    public ChatResponse generateCoverLetter(float temperature, String title, int cvId, String dear, String name, String company, String description) throws JsonProcessingException {
+        String completeCoverLetter = "You are a cover letter generator.\n" +
                 "You will be given a job description along with the job applicant's resume.\n" +
                 "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
                 "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
                 "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
-            String content = "";
-            String userMessage = "";
+//        String coverLetterWithAWittyRemark = "You are a cover letter generator.\n" +
+//                "You will be given a job description along with the job applicant's resume.\n" +
+//                "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
+//                "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
+//                "You will write the cover letter in a modern, relaxed style, as a modern employee might do naturally.\n" +
+//                "Include a job related joke at the end of the cover letter.";
+//        String ideasForCoverLetter = "You are a cover letter idea generator. You will be given a job description along with the job applicant's resume. You will generate a bullet point list of ideas for the applicant to use in their cover letter. ";
+//        String command ;
+//
+//        if (isCompleteCoverLetter) {
+//            command = includeWittyRemark ? coverLetterWithAWittyRemark : completeCoverLetter;
+//        } else {
+//            command = ideasForCoverLetter;
+//        }
+        String content = "";
+        String userMessage = "";
+        Optional<Cv> cvsOptional = cvRepository.findById(cvId);
+        if (cvsOptional.isPresent()) {
+            Cv cv = cvsOptional.get();
+            content = cv.getCvBody();
 
-            // Thực hiện các thao tác cần thiết để lấy thông tin và xử lý nó
-            // Ví dụ: Lấy thông tin từ cơ sở dữ liệu
-            Optional<Cv> cvsOptional = cvRepository.findById(cvId);
-            if (cvsOptional.isPresent()) {
-                Cv cv = cvsOptional.get();
-                content = cv.getCvBody();
-            }
-
-            // Xây dựng thông điệp người dùng
-            if (dear != null) {
-                userMessage = "My Resume: " + content + ". Dear: " + dear + ". Job title: " + title + " Company: " + company + " Job Description: " + description + "." + " My name: " + name + ".";
-            } else {
-                userMessage = "My Resume: " + content + ". Job title: " + title + " Company: " + company + " Job Description: " + description + "." + " My name: " + name + ".";
-            }
-
-            // Xây dựng danh sách thông điệp
-            List<Map<String, Object>> messagesList = new ArrayList<>();
-            Map<String, Object> systemMessage = new HashMap<>();
-            systemMessage.put("role", "system");
-            systemMessage.put("content", completeCoverLetter);
-            messagesList.add(systemMessage);
-            Map<String, Object> userMessageMap = new HashMap<>();
-            userMessageMap.put("role", "user");
-            userMessageMap.put("content", userMessage);
-            messagesList.add(userMessageMap);
-
-            // Chuyển danh sách thông điệp thành JSON
-            try {
-                String messagesJson = objectMapper.writeValueAsString(messagesList);
-
-                String response = chatGPTService.chatWithGPTCoverLetter(messagesJson, temperature);
-                ChatResponse chatResponse = new ChatResponse();
-                chatResponse.setReply(response);
-
-                sink.next(chatResponse);
-                sink.complete();
-            } catch (JsonProcessingException e) {
-                sink.error(e);
-            }
-        });
+        }
+        if (dear != null) {
+            userMessage = "My Resume: " + content + ". Dear: " + dear + ". Job title: " + title + "Company: " + company + " Job Description: " + description + "." + " My name: " + name + ".";
+        } else {
+            userMessage = "My Resume: " + content + ". Job title: " + title + "Company: " + company + " Job Description: " + description + "." + " My name: " + name + ".";
+        }
+        List<Map<String, Object>> messagesList = new ArrayList<>();
+        Map<String, Object> systemMessage = new HashMap<>();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", completeCoverLetter);
+        messagesList.add(systemMessage);
+        Map<String, Object> userMessageMap = new HashMap<>();
+        userMessageMap.put("role", "user");
+        userMessageMap.put("content", userMessage);
+        messagesList.add(userMessageMap);
+        String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+        String response = chatGPTService.chatWithGPTCoverLetter(messagesJson, temperature);
+        ChatResponse chatResponse = new ChatResponse();
+        chatResponse.setReply(response);
+        return chatResponse;
     }
 
     public Flux<ChatResponse> generateEvaluate(float temperature, String description) {
@@ -264,7 +261,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 CoverLetter coverLetter = Optional.get();
                 coverLetterRepository.delete(coverLetter);
                 return true;
-            }else {
+            } else {
                 return false;
             }
         } else {
@@ -276,10 +273,10 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     public CoverLetterDto getCoverLetter(Integer userId, Integer coverLetterId) {
         boolean isCoverLetter = coverLetterRepository.existsByUser_IdAndId(userId, coverLetterId);
         CoverLetterDto coverLetterDto = new CoverLetterDto();
-        if (isCoverLetter){
+        if (isCoverLetter) {
             Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverLetterId);
             Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-            if (coverLetterOptional.isPresent() && usersOptional.isPresent()){
+            if (coverLetterOptional.isPresent() && usersOptional.isPresent()) {
                 CoverLetter coverLetter = coverLetterOptional.get();
                 Users users = usersOptional.get();
                 coverLetterDto.setId(coverLetter.getId());
@@ -289,7 +286,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterDto.setDescription(coverLetter.getDescription());
                 coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterDto.class));
             }
-        }else {
+        } else {
             throw new IllegalArgumentException("cover letter with ID " + coverLetterId + " does not belong to Users with ID " + userId);
         }
         return coverLetterDto;

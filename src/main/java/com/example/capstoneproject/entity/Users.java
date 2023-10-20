@@ -2,7 +2,9 @@ package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
 import com.sun.istack.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
@@ -22,8 +24,6 @@ public class Users {
     @Column(name = "name")
     @NotNull
     private String Name;
-
-    private String address;
 
     private String address;
 
