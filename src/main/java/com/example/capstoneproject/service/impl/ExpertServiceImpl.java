@@ -7,6 +7,7 @@ import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewDto;
 import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.ReviewRating;
+import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.ExperienceMapper;
@@ -33,26 +34,39 @@ public class ExpertServiceImpl implements ExpertService {
     ModelMapper modelMapper;
 
     @Autowired
+    UsersRepository usersRepository;
+
+    @Autowired
     ReviewRatingRepository reviewRatingRepository;
 
     @Override
     public ExpertViewDto getProfileExpert(Integer expertId) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         ExpertViewDto expertViewDto = new ExpertViewDto();
-        if (expertOptional.isPresent()) {
+        if(usersOptional.isPresent()){
+            Users users = usersOptional.get();
+            Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(users.getId() ,RoleType.EXPERT);
+            if(!expertOptional.isPresent()){
+                Expert expertSave = new Expert();
+                expertSave.setId(users.getId());
+                expertSave.setUsers(users);
+                expertRepository.save(expertSave);
+            }
             Expert expert = expertOptional.get();
-            expertViewDto.setId(expert.getId());
-            expertViewDto.setName(expert.getName());
-            expertViewDto.setAvatar(expert.getAvatar());
-            expertViewDto.setPhone(expert.getPhone());
-            expertViewDto.setPermissionWebsite(expert.getPersonalWebsite());
-            expertViewDto.setEmail(expert.getEmail());
-            expertViewDto.setLinkin(expert.getEmail());
-
+            expertViewDto.setId(users.getId());
+            expertViewDto.setName(users.getName());
+            expertViewDto.setAvatar(users.getAvatar());
+            expertViewDto.setPhone(users.getPhone());
+            expertViewDto.setPermissionWebsite(users.getPersonalWebsite());
+            expertViewDto.setEmail(users.getEmail());
+            expertViewDto.setLinkin(users.getEmail());
             ExpertDto expertDto = new ExpertDto();
+            expertDto.setId(expert.getId());
             expertDto.setTitle(expert.getTitle());
             expertDto.setDescription(expert.getDescription());
-            expertDto.setPrice(expert.getPrice());
+            if (expert.getPrice() != null) {
+                expertDto.setPrice(expert.getPrice());
+            }
             List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(), BasicStatus.ACTIVE);
 
             // Chuyển đổi từ ReviewRating sang ReviewRatingViewDto và thêm vào danh sách ratings của expertDto
@@ -69,15 +83,16 @@ public class ExpertServiceImpl implements ExpertService {
 
             expertDto.setRatings(reviewRatingViewDtoList);
             expertViewDto.setExpert(expertDto);
-        } else {
-            throw new RuntimeException("Expert ID not found.");
+
+        }else {
+            throw new RuntimeException("Expert ID not found");
         }
         return expertViewDto;
     }
 
     @Override
     public boolean updateExpert(Integer expertId, ExpertUpdateDto dto) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
             if (dto != null) {
@@ -87,9 +102,10 @@ public class ExpertServiceImpl implements ExpertService {
                 if (dto.getDescription() != null && !dto.getDescription().equals(expert.getDescription())) {
                     expert.setDescription(dto.getDescription());
                 }
-                if (dto.getPrice() != expert.getPrice()) {
+                if (dto.getPrice() != null && !dto.getPrice().equals(expert.getPrice())) {
                     expert.setPrice(dto.getPrice());
                 }
+
                 expertRepository.save(expert);
             }
 
@@ -100,23 +116,33 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public List<ExpertViewDto> getExpertList() {
-        List<Expert> experts = expertRepository.findByRole_RoleName(RoleType.EXPERT);
+        List<Users> users = usersRepository.findAllByRole_RoleName(RoleType.EXPERT);
         List<ExpertViewDto> expertDTOList = new ArrayList<>();
-
-        for (Expert expert : experts) {
+        for (Users users1 : users) {
+            Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(users1.getId() ,RoleType.EXPERT);
+            if(!expertOptional.isPresent()){
+                Expert expertSave = new Expert();
+                expertSave.setId(users1.getId());
+                expertSave.setUsers(users1);
+                expertRepository.save(expertSave);
+            }
+            Expert expert = expertOptional.get();
             ExpertViewDto expertViewDto = new ExpertViewDto();
-            expertViewDto.setId(expert.getId());
-            expertViewDto.setName(expert.getName());
-            expertViewDto.setAvatar(expert.getAvatar());
-            expertViewDto.setPhone(expert.getPhone());
-            expertViewDto.setPermissionWebsite(expert.getPersonalWebsite());
-            expertViewDto.setEmail(expert.getEmail());
-            expertViewDto.setLinkin(expert.getLinkin());
+            expertViewDto.setId(users1.getId());
+            expertViewDto.setName(users1.getName());
+            expertViewDto.setAvatar(users1.getAvatar());
+            expertViewDto.setPhone(users1.getPhone());
+            expertViewDto.setPermissionWebsite(users1.getPersonalWebsite());
+            expertViewDto.setEmail(users1.getEmail());
+            expertViewDto.setLinkin(users1.getLinkin());
 
             ExpertDto expertDTO = new ExpertDto();
+            expertDTO.setId(expert.getId());
             expertDTO.setTitle(expert.getTitle());
             expertDTO.setDescription(expert.getDescription());
-            expertDTO.setPrice(expert.getPrice());
+            if (expert.getPrice() != null) {
+                expertDTO.setPrice(expert.getPrice());
+            }
 
             List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(),BasicStatus.ACTIVE);
             List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();

@@ -22,8 +22,6 @@ public class CvRelationController {
     @Autowired
     CvService cvService;
     @Autowired
-    SourceWorkService sourceWorkService;
-    @Autowired
     ExperienceService experienceService;
     @Autowired
     InvolvementService involvementService;
@@ -51,8 +49,6 @@ public class CvRelationController {
                 return involvementService.getAllARelationInCvBody(cvId);
             case "projects":
                 return projectService.getAllARelationInCvBody(cvId);
-            case "soureworks":
-                return sourceWorkService.getAllARelationInCvBody(cvId);
             case "certifications":
                 return certificationService.getAllARelationInCvBody(cvId);
             default:
@@ -68,8 +64,6 @@ public class CvRelationController {
                 return ResponseEntity.ok(educationService.getAndIsDisplay(cvId, id));
             case "skills":
                 return ResponseEntity.ok(skillService.getAndIsDisplay(cvId, id));
-            case "soureworks":
-                return ResponseEntity.ok(sourceWorkService.getAndIsDisplay(cvId, id));
             case "experiences":
                 return ResponseEntity.ok(experienceService.getAndIsDisplay(cvId, id));
             case "involvements":
@@ -102,9 +96,6 @@ public class CvRelationController {
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
                 return ResponseEntity.ok(projectService.createOfUserInCvBody(cvId, projectDto));
-            case "soureworks":
-                SourceWorkDto sourceWorkDto = objectMapper.convertValue(obj, SourceWorkDto.class);
-                return ResponseEntity.ok(sourceWorkService.createOfUserInCvBody(cvId, sourceWorkDto));
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
                 return ResponseEntity.ok(certificationService.createOfUserInCvBody(cvId, certificationDto));
@@ -131,9 +122,6 @@ public class CvRelationController {
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
                 return ResponseEntity.ok(projectService.updateInCvBody(cvId, id, projectDto));
-            case "soureworks":
-                SourceWorkDto sourceWorkDto = objectMapper.convertValue(obj, SourceWorkDto.class);
-                return ResponseEntity.ok(sourceWorkService.updateInCvBody(cvId, id, sourceWorkDto));
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
                 return ResponseEntity.ok(certificationService.updateInCvBody(cvId, id, certificationDto));
@@ -159,9 +147,6 @@ public class CvRelationController {
                 break;
             case "projects":
                 projectService.deleteInCvBody(cvId, id);
-                break;
-            case "soureworks":
-                sourceWorkService.deleteInCvBody(cvId, id);
                 break;
             case "certifications":
                 certificationService.deleteInCvBody(cvId, id);

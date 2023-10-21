@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,9 +32,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     @Autowired
     @Lazy
     SkillService skillService;
-    @Autowired
-    @Lazy
-    SourceWorkService sourceWorkService;
+
     @Autowired
     @Lazy
     ExperienceService experienceService;
@@ -56,8 +53,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     CertificationRepository certificationRepository;
     @Autowired
     InvolvementRepository involvementRepository;
-    @Autowired
-    SourceWorkRepository sourceWorkRepository;
+
     @Autowired
     ProjectRepository projectRepository;
 
@@ -166,7 +162,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cvDto.getInvolvements().clear();
             cvDto.getEducations().clear();
             cvDto.getProjects().clear();
-            cvDto.getSourceWorks().clear();
             cvDto.getSkills().clear();
             modelMapper.map(cv.deserialize(), cvDto);
 
@@ -261,15 +256,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 return theDto;
             }).collect(Collectors.toList());
             dto.setSkills(skillDtos);
-
-            dto.setSourceWorks(usersViewDto.getSourceWorks());
-            List<SourceWorkDto> sourceWorkDtos = dto.getSourceWorks().stream().map(x -> {
-                SourceWorkDto theDto = new SourceWorkDto();
-                theDto.setIsDisplay(false);
-                theDto.setId(x.getId());
-                return theDto;
-            }).collect(Collectors.toList());
-            dto.setSourceWorks(sourceWorkDtos);
 
             cv.setCvBody(cv.toCvBody(dto));
             Cv savedCv = cvRepository.save(cv);
@@ -429,10 +415,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 Project e = projectRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
             });
-            cvBodyDto.getSourceWorks().forEach(x -> {
-                SourceWork e = sourceWorkRepository.findById(x.getId().intValue()).get();
-                modelMapper.map(e, x);
-            });
             updateCvBody(cvId, cvBodyDto);
         }
         return cvMapper.mapEntityToDto(cv);
@@ -453,13 +435,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cvBodyDto.getSkills().forEach(x -> {
                 String description = x.getDescription();
                 String word = description;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
-            });
-            cvBodyDto.getSourceWorks().forEach(x -> {
-                String skill = x.getSkill();
-                String description = x.getDescription();
-                String word = description + " " + skill;
                 String[] words = word.split("\\s+");
                 totalWords[0] += words.length;
             });

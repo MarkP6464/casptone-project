@@ -13,5 +13,5 @@ public class ExpertUpdateDto {
 
     private String description;
 
-    private double price;
+    private Double price;
 }

@@ -31,7 +31,7 @@ public class ReviewResponse {
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
-    private String feedbackDetail = "{\"skills\":[],\"certifications\":[],\"educations\":[],\"experiences\":[],\"involvements\":[],\"projects\":[],\"sourceWorks\":[]}";
+    private String feedbackDetail;
 
     @Enumerated(EnumType.STRING)
     private ReviewStatus status;

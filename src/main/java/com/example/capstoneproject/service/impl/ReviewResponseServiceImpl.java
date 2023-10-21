@@ -65,7 +65,6 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
             cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
             cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
-            cvBodyReviewDto.setSourceWorks(cvBodyDto.getSourceWorks());
             cvBodyReviewDto.setSummary(cv.getSummary());
             cvBodyReviewDto.setName(cv.getUser().getName());
             cvBodyReviewDto.setAddress(cv.getUser().getAddress());
@@ -428,7 +427,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public List<ReviewResponseDto> daftReviewResponse(Integer expertId, ReviewStatus status) throws JsonProcessingException {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
 
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
@@ -454,7 +453,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public ReviewResponseDto getReviewResponse(Integer expertId, Integer responseId) throws JsonProcessingException {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();

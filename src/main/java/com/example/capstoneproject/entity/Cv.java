@@ -49,7 +49,7 @@ public class Cv {
     private Template template;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_job_description_id")
+    @JoinColumn(name = "job_description_id")
     private JobDescription jobDescription;
 
     public String toCvBody(CvBodyDto dto) throws JsonProcessingException {

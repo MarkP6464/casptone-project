@@ -3,11 +3,13 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
 import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.ReviewRequest;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.ReviewRequestMapper;
+import com.example.capstoneproject.repository.ExpertRepository;
 import com.example.capstoneproject.repository.ReviewRequestRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CvService;
@@ -46,6 +48,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     UsersRepository usersRepository;
 
     @Autowired
+    ExpertRepository expertRepository;
+
+    @Autowired
     ReviewResponseService reviewResponseService;
 
     public ReviewRequestServiceImpl(ReviewRequestRepository reviewRequestRepository, ReviewRequestMapper reviewRequestMapper) {
@@ -59,24 +64,28 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         ReviewRequest reviewRequest = modelMapper.map(dto,ReviewRequest.class);
         Cv cv = cvService.getCvById(cvId);
         Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(expertId, RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId,RoleType.EXPERT);
         ReviewRequest saved;
-        if (cv != null) {
-            if (usersOptional.isPresent()) {
-                Users users = usersOptional.get();
-                reviewRequest.setReceivedDate(dto.getReceivedDate());
-                reviewRequest.setNote(dto.getNote());
-                reviewRequest.setStatus(ReviewStatus.PROCESSING);
-                reviewRequest.setExpertId(users.getId());
-                reviewRequest.setCv(cv);
-                saved = reviewRequestRepository.save(reviewRequest);
-                sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
+        if(expertOptional.isPresent() && expertOptional.get().getPrice()!=null){
+            if (cv != null) {
+                if (usersOptional.isPresent()) {
+                    Users users = usersOptional.get();
+                    reviewRequest.setReceivedDate(dto.getReceivedDate());
+                    reviewRequest.setNote(dto.getNote());
+                    reviewRequest.setStatus(ReviewStatus.PROCESSING);
+                    reviewRequest.setExpertId(users.getId());
+                    reviewRequest.setCv(cv);
+                    saved = reviewRequestRepository.save(reviewRequest);
+                    sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                    return reviewRequestMapper.mapEntityToDto(saved);
+                } else {
+                    throw new RuntimeException("Expert ID not found");
+                }
             } else {
-                throw new RuntimeException("Expert ID not found");
+                throw new RuntimeException("CV ID not found");
             }
-        } else {
-            throw new RuntimeException("CV ID not found");
         }
-        return reviewRequestMapper.mapEntityToDto(saved);
+        throw new RuntimeException("Please choose someone else, this expert does not have a specific price yet.");
     }
 
     @Override

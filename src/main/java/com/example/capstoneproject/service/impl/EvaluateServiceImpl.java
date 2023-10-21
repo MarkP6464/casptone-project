@@ -267,11 +267,6 @@ public class EvaluateServiceImpl implements EvaluateService {
                 String description = x.getDescription();
                 combinedDescription.append(description).append(" ");
             });
-
-            cvBodyDto.getSourceWorks().forEach(x -> {
-                String description = x.getDescription();
-                combinedDescription.append(description).append(" ");
-            });
             String combinedString = combinedDescription.toString();
             for (Ats ats1 : ats) {
                 String atsValue = ats1.getAts();
@@ -323,11 +318,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             });
 
             cvBodyDto.getInvolvements().forEach(x -> {
-                String description = x.getDescription();
-                combinedDescription.append(description).append(" ");
-            });
-
-            cvBodyDto.getSourceWorks().forEach(x -> {
                 String description = x.getDescription();
                 combinedDescription.append(description).append(" ");
             });

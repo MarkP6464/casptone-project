@@ -11,6 +11,9 @@ import java.util.List;
 @Getter
 @Setter
 public class ExpertDto {
+
+    private Integer id;
+
     private String title;
 
     private String description;

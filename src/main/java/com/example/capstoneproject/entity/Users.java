@@ -13,9 +13,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorValue("customer")
-@DiscriminatorColumn(name = "user_type")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -79,9 +76,6 @@ public class Users {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Project> projects;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<SourceWork> sourceWorks;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Cv> cvs;
