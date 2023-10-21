@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.service.CvService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,13 @@ public class CvController {
     }
 
     @GetMapping("/{UsersId}/cvs")
-    public List<CvDto> getCvsById(@PathVariable("UsersId") int UsersId) {
-        return cvService.GetCvsById(UsersId);
+    public List<CvViewDto> getCvsById(@PathVariable("UsersId") Integer UsersId, String content) {
+        return cvService.GetCvsById(UsersId, content);
+    }
+
+    @PostMapping("/user/cv/{cvId}")
+    public CvDto duplicationCv(@PathVariable("cvId") Integer cvId) throws JsonProcessingException {
+        return  cvService.duplicateCv(cvId);
     }
 
     @GetMapping("/{UsersId}/cv/{cvId}")

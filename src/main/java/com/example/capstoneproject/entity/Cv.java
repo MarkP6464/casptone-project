@@ -1,6 +1,7 @@
 package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.Dto.ScoreDto;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,6 +63,11 @@ public class Cv {
     public CvBodyDto deserialize() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.readValue(this.cvBody, CvBodyDto.class);
+    }
+
+    public ScoreDto deserializeScore() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(this.evaluation, ScoreDto.class);
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
@@ -91,43 +92,20 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
 
     @Override
-    public List<CvDto> GetCvsById(int UsersId) {
+    public List<CvViewDto> GetCvsById(Integer UsersId, String content) {
         return cvRepository.findAllByUsersIdAndStatus(UsersId, BasicStatus.ACTIVE)
                 .stream()
+                .filter(cv -> cv.getContent().contains(content))
                 .map(cv -> {
-                    CvDto cvDto = new CvDto();
+                    CvViewDto cvDto = new CvViewDto();
                     cvDto.setId(cv.getId());
                     cvDto.setContent(cv.getContent());
                     cvDto.setSummary(cv.getSummary());
-                    Users Users = cv.getUser();
-                    if (Users != null) {
-                        UsersViewDto UsersViewDto = new UsersViewDto();
-                        UsersViewDto.setId(Users.getId());
-                        UsersViewDto.setName(Users.getName());
+                    try {
+                        cvDto.setCvBody(cv.deserialize());
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException();
                     }
-                    Template template = cv.getTemplate();
-                    if (template != null) {
-                        TemplateViewDto templateViewDto = new TemplateViewDto();
-                        templateViewDto.setId(template.getId());
-                        templateViewDto.setName(template.getName());
-                        templateViewDto.setContent(template.getContent());
-                        templateViewDto.setAmountView(template.getAmountView());
-                        cvDto.setTemplate(templateViewDto);
-                    }
-//                    cvDto.setCertifications(
-//                            cv.getCertifications().stream()
-//                                    .filter(certification -> certification.getStatus() == CvStatus.ACTIVE)
-//                                    .map(certification -> {
-//                                        CertificationViewDto certificationViewDto = new CertificationViewDto();
-//                                        certificationViewDto.setId(certification.getId());
-//                                        certificationViewDto.setName(certification.getName());
-//                                        certificationViewDto.setCertificateSource(certification.getCertificateSource());
-//                                        certificationViewDto.setEndYear(certification.getEndYear());
-//                                        certificationViewDto.setCertificateRelevance(certification.getCertificateRelevance());
-//                                        return certificationViewDto;
-//                                    })
-//                                    .collect(Collectors.toList())
-//                    );
                     return cvDto;
                 })
                 .collect(Collectors.toList());
@@ -269,6 +247,58 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         } else {
             throw new IllegalArgumentException("Not found user with ID: " + UsersId);
         }
+    }
+
+    @Override
+    public CvDto duplicateCv(Integer cvId) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId,BasicStatus.ACTIVE);
+        JobDescription newJobDescription = new JobDescription();
+        CvDto cvDto = new CvDto();
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            CvDupDto cvDupDto = new CvDupDto();
+            cvDupDto.setContent(cv.getContent());
+            cvDupDto.setStatus(BasicStatus.ACTIVE);
+            cvDupDto.setSummary(cv.getSummary());
+            cvDupDto.setCvBody(cv.getCvBody());
+            cvDupDto.setEvaluation(cv.getEvaluation());
+            if(cv.getJobDescription()!=null){
+                Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
+                if(jobDescriptionOptional.isPresent()){
+                    JobDescriptionDto jobDescriptionDto = new JobDescriptionDto();
+                    JobDescription jobDescription = jobDescriptionOptional.get();
+                    jobDescriptionDto.setTitle(jobDescription.getTitle());
+                    jobDescriptionDto.setDescription(jobDescription.getDescription());
+                    newJobDescription = jobDescriptionRepository.save(modelMapper.map(jobDescriptionDto, JobDescription.class));
+                }
+                if(jobDescriptionOptional.isPresent()){
+                    Ats atsAdd = new Ats();
+                    List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionOptional.get().getId());
+                    for (Ats ats1 : ats){
+                        atsAdd.setAts(ats1.getAts());
+                        atsAdd.setJobDescription(newJobDescription);
+                        atsRepository.save(atsAdd);
+                    }
+
+                }
+
+            }
+            cvDupDto.setJobDescription(newJobDescription);
+            cvDupDto.setTemplate(cv.getTemplate());
+            cvDupDto.setUser(cv.getUser());
+            Cv cvReturn = cvRepository.save(modelMapper.map(cvDupDto, Cv.class));
+            cvDto.setId(cvReturn.getId());
+            cvDto.setContent(cvReturn.getContent());
+            cvDto.setStatus(cvReturn.getStatus());
+            cvDto.setSummary(cvReturn.getSummary());
+            cvDto.setCvBody(cvReturn.deserialize());
+            cvDto.setEvaluate(cvReturn.deserializeScore());
+            cvDto.setJobDescription(cvReturn.getJobDescription());
+            cvDto.setUsersDto(modelMapper.map(cvReturn.getUser(), UsersDto.class));
+        }else {
+            throw new RuntimeException("CV ID not found.");
+        }
+        return cvDto;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,9 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     CvAddNewDto createCv(Integer id, CvBodyDto dto) throws JsonProcessingException;
 
-    List<CvDto> GetCvsById(int UsersId);
+    CvDto duplicateCv(Integer cvId) throws JsonProcessingException;
+
+    List<CvViewDto> GetCvsById(Integer UsersId, String content);
 
     CvAddNewDto GetCvByCvId(int UsersId, int cvId) throws JsonProcessingException;
 
