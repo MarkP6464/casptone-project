@@ -20,13 +20,13 @@ public class CvController {
     }
 
     @GetMapping("/{UsersId}/cvs")
-    public List<CvViewDto> getCvsById(@PathVariable("UsersId") Integer UsersId, String content) {
+    public List<CvViewDto> getCvsById(@PathVariable("UsersId") Integer UsersId, @RequestParam(required = false) String content) {
         return cvService.GetCvsById(UsersId, content);
     }
 
-    @PostMapping("/user/cv/{cvId}")
-    public CvDto duplicationCv(@PathVariable("cvId") Integer cvId) throws JsonProcessingException {
-        return  cvService.duplicateCv(cvId);
+    @PostMapping("/user/{userId}/cv/{cvId}/duplicate")
+    public CvDto duplicationCv(@PathVariable("userId") Integer userId, @PathVariable("cvId") Integer cvId) throws JsonProcessingException {
+        return  cvService.duplicateCv(userId, cvId);
     }
 
     @GetMapping("/{UsersId}/cv/{cvId}")
@@ -64,15 +64,15 @@ public class CvController {
         }
     }
 
-    @PutMapping("/{UsersId}/cv/{cvId}/content")
-    public String updateContent(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
-        boolean check = cvService.updateCvContent(UsersId, cvId, Dto);
-        if (check) {
-            return "Changes saved";
-        } else {
-            return "Changes fail";
-        }
-    }
+//    @PutMapping("/{UsersId}/cv/{cvId}/content")
+//    public String updateContent(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
+//        boolean check = cvService.updateCvContent(UsersId, cvId, Dto);
+//        if (check) {
+//            return "Changes saved";
+//        } else {
+//            return "Changes fail";
+//        }
+//    }
 
     @PutMapping("/{UsersId}/contact")
     public UsersViewDto updateContact(@PathVariable("UsersId") int UsersId, @RequestBody UsersViewDto dto) {

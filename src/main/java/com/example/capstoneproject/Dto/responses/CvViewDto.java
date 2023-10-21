@@ -10,7 +10,9 @@ import lombok.Setter;
 @Setter
 public class CvViewDto {
     private Integer id;
-    private String content;
+    private String resumeName;
+    private String fieldOrDomain;
+    private String experience;
     private String summary;
     private CvBodyDto cvBody;
 }

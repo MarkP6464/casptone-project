@@ -13,7 +13,9 @@ import lombok.Setter;
 @Setter
 public class CvDto {
     private Integer id;
-    private String content;
+    private String resumeName;
+    private String fieldOrDomain;
+    private String experience;
     private String summary;
     private BasicStatus status;
     private CvBodyDto cvBody;

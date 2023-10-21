@@ -31,8 +31,6 @@ public class Cv {
 
     private String experience;
 
-    private String Content;
-
     @Column(columnDefinition = "TEXT")
     private String Summary;
 

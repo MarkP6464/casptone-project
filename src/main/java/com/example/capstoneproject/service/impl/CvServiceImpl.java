@@ -93,13 +93,16 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
     @Override
     public List<CvViewDto> GetCvsById(Integer UsersId, String content) {
-        return cvRepository.findAllByUsersIdAndStatus(UsersId, BasicStatus.ACTIVE)
+        List<Cv> cvs = cvRepository.findAllByUsersIdAndStatus(UsersId, BasicStatus.ACTIVE);
+        return cvs
                 .stream()
-                .filter(cv -> cv.getContent().contains(content))
+                .filter(cv -> content == null || cv.getResumeName().contains(content))
                 .map(cv -> {
                     CvViewDto cvDto = new CvViewDto();
                     cvDto.setId(cv.getId());
-                    cvDto.setContent(cv.getContent());
+                    cvDto.setResumeName(cv.getResumeName());
+                    cvDto.setExperience(cv.getExperience());
+                    cvDto.setFieldOrDomain(cv.getFieldOrDomain());
                     cvDto.setSummary(cv.getSummary());
                     try {
                         cvDto.setCvBody(cv.deserialize());
@@ -250,53 +253,62 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public CvDto duplicateCv(Integer cvId) throws JsonProcessingException {
+    public CvDto duplicateCv(Integer userId, Integer cvId) throws JsonProcessingException {
+        Cv cvOfUser = cvRepository.findCvByIdAndStatus(userId,cvId,BasicStatus.ACTIVE);
         Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId,BasicStatus.ACTIVE);
         JobDescription newJobDescription = new JobDescription();
         CvDto cvDto = new CvDto();
-        if(cvOptional.isPresent()){
-            Cv cv = cvOptional.get();
-            CvDupDto cvDupDto = new CvDupDto();
-            cvDupDto.setContent(cv.getContent());
-            cvDupDto.setStatus(BasicStatus.ACTIVE);
-            cvDupDto.setSummary(cv.getSummary());
-            cvDupDto.setCvBody(cv.getCvBody());
-            cvDupDto.setEvaluation(cv.getEvaluation());
-            if(cv.getJobDescription()!=null){
-                Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
-                if(jobDescriptionOptional.isPresent()){
-                    JobDescriptionDto jobDescriptionDto = new JobDescriptionDto();
-                    JobDescription jobDescription = jobDescriptionOptional.get();
-                    jobDescriptionDto.setTitle(jobDescription.getTitle());
-                    jobDescriptionDto.setDescription(jobDescription.getDescription());
-                    newJobDescription = jobDescriptionRepository.save(modelMapper.map(jobDescriptionDto, JobDescription.class));
-                }
-                if(jobDescriptionOptional.isPresent()){
-                    Ats atsAdd = new Ats();
-                    List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionOptional.get().getId());
-                    for (Ats ats1 : ats){
-                        atsAdd.setAts(ats1.getAts());
-                        atsAdd.setJobDescription(newJobDescription);
-                        atsRepository.save(atsAdd);
+        if(cvOfUser!=null){
+            if(cvOptional.isPresent()){
+                Cv cv = cvOptional.get();
+                CvDupDto cvDupDto = new CvDupDto();
+                cvDupDto.setResumeName("Copy of " + cv.getResumeName());
+                cvDupDto.setExperience(cv.getExperience());
+                cvDupDto.setFieldOrDomain(cv.getFieldOrDomain());
+                cvDupDto.setStatus(BasicStatus.ACTIVE);
+                cvDupDto.setSummary(cv.getSummary());
+                cvDupDto.setCvBody(cv.getCvBody());
+                cvDupDto.setEvaluation(cv.getEvaluation());
+                if(cv.getJobDescription()!=null){
+                    Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
+                    if(jobDescriptionOptional.isPresent()){
+                        JobDescriptionDto jobDescriptionDto = new JobDescriptionDto();
+                        JobDescription jobDescription = jobDescriptionOptional.get();
+                        jobDescriptionDto.setTitle(jobDescription.getTitle());
+                        jobDescriptionDto.setDescription(jobDescription.getDescription());
+                        newJobDescription = jobDescriptionRepository.save(modelMapper.map(jobDescriptionDto, JobDescription.class));
+                        cvDupDto.setJobDescription(newJobDescription);
+                    }
+                    if(jobDescriptionOptional.isPresent()){
+                        Ats atsAdd = new Ats();
+                        List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionOptional.get().getId());
+                        for (Ats ats1 : ats){
+                            atsAdd.setAts(ats1.getAts());
+                            atsAdd.setJobDescription(newJobDescription);
+                            atsRepository.save(atsAdd);
+                        }
+
                     }
 
                 }
-
+                cvDupDto.setTemplate(cv.getTemplate());
+                cvDupDto.setUser(cv.getUser());
+                Cv cvReturn = cvRepository.save(modelMapper.map(cvDupDto, Cv.class));
+                cvDto.setId(cvReturn.getId());
+                cvDto.setResumeName(cvReturn.getResumeName());
+                cvDto.setExperience(cvReturn.getExperience());
+                cvDto.setFieldOrDomain(cvReturn.getFieldOrDomain());
+                cvDto.setStatus(cvReturn.getStatus());
+                cvDto.setSummary(cvReturn.getSummary());
+                cvDto.setCvBody(cvReturn.deserialize());
+                cvDto.setEvaluate(cvReturn.getEvaluation() != null ? cvReturn.deserializeScore() : null);
+                cvDto.setJobDescription(cvReturn.getJobDescription());
+                cvDto.setUsersDto(modelMapper.map(cvReturn.getUser(), UsersDto.class));
+            }else {
+                throw new RuntimeException("CV ID not found.");
             }
-            cvDupDto.setJobDescription(newJobDescription);
-            cvDupDto.setTemplate(cv.getTemplate());
-            cvDupDto.setUser(cv.getUser());
-            Cv cvReturn = cvRepository.save(modelMapper.map(cvDupDto, Cv.class));
-            cvDto.setId(cvReturn.getId());
-            cvDto.setContent(cvReturn.getContent());
-            cvDto.setStatus(cvReturn.getStatus());
-            cvDto.setSummary(cvReturn.getSummary());
-            cvDto.setCvBody(cvReturn.deserialize());
-            cvDto.setEvaluate(cvReturn.deserializeScore());
-            cvDto.setJobDescription(cvReturn.getJobDescription());
-            cvDto.setUsersDto(modelMapper.map(cvReturn.getUser(), UsersDto.class));
-        }else {
-            throw new RuntimeException("CV ID not found.");
+        }else{
+            throw new RuntimeException("User ID not exist this Cv ID.");
         }
         return cvDto;
     }
@@ -346,27 +358,27 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         }
     }
 
-    @Override
-    public boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto) {
-        Optional<Users> UsersOptional = usersRepository.findById(UsersId);
-
-        if (UsersOptional.isPresent()) {
-            Optional<Cv> cvOptional = cvRepository.findById(cvId);
-
-            if (cvOptional.isPresent()) {
-                Cv cv = cvOptional.get();
-                cv.setContent(dto.getContent());
-
-                cvRepository.save(cv);
-
-                return true;
-            } else {
-                throw new IllegalArgumentException("CvId not found: " + cvId);
-            }
-        } else {
-            throw new IllegalArgumentException("UsersId not found: " + UsersId);
-        }
-    }
+//    @Override
+//    public boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto) {
+//        Optional<Users> UsersOptional = usersRepository.findById(UsersId);
+//
+//        if (UsersOptional.isPresent()) {
+//            Optional<Cv> cvOptional = cvRepository.findById(cvId);
+//
+//            if (cvOptional.isPresent()) {
+//                Cv cv = cvOptional.get();
+//                cv.setContent(dto.getContent());
+//
+//                cvRepository.save(cv);
+//
+//                return true;
+//            } else {
+//                throw new IllegalArgumentException("CvId not found: " + cvId);
+//            }
+//        } else {
+//            throw new IllegalArgumentException("UsersId not found: " + UsersId);
+//        }
+//    }
 
     @Override
     public UsersViewDto updateCvContact(int UsersId, UsersViewDto dto) {

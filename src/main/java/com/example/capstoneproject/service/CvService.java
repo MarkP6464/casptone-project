@@ -13,7 +13,7 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     CvAddNewDto createCv(Integer id, CvBodyDto dto) throws JsonProcessingException;
 
-    CvDto duplicateCv(Integer cvId) throws JsonProcessingException;
+    CvDto duplicateCv(Integer userId, Integer cvId) throws JsonProcessingException;
 
     List<CvViewDto> GetCvsById(Integer UsersId, String content);
 
@@ -29,7 +29,7 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
-    boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto);
+//    boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto);
 
     UsersViewDto updateCvContact(int UsersId, UsersViewDto dto);
 

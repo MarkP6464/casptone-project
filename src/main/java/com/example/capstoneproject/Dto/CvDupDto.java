@@ -19,7 +19,11 @@ import javax.persistence.*;
 public class CvDupDto {
     private Integer id;
 
-    private String Content;
+    private String resumeName;
+
+    private String fieldOrDomain;
+
+    private String experience;
 
     private String Summary;
 
