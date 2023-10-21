@@ -21,13 +21,14 @@ public class CvBodyReviewDto {
 
     private String phone;
 
+    private String personalWebsite;
     private String permissionWebsite;
 
     private String email;
 
     private String linkin;
 
-    private  String summary;
+    private String summary;
 
     private List<SkillDto> skills;
 
@@ -35,11 +36,11 @@ public class CvBodyReviewDto {
 
     private List<EducationDto> educations;
 
-    private List<ExperienceDto> experiences ;
+    private List<ExperienceDto> experiences;
 
     private List<InvolvementDto> involvements;
 
-    private List<ProjectDto> projects ;
+    private List<ProjectDto> projects;
 
     private List<SourceWorkDto> sourceWorks;
 }

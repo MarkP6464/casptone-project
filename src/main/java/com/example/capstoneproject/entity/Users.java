@@ -20,7 +20,7 @@ public class Users {
 
     @Column(name = "name")
     @NotNull
-    private String name;
+    private String Name;
 
     private String address;
 

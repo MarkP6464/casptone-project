@@ -9,7 +9,6 @@ import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
 import com.example.capstoneproject.repository.*;
-import com.example.capstoneproject.repository.EvaluateRepository;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
@@ -62,7 +61,6 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Autowired
     CvRepository cvRepository;
-
 
     public ExperienceServiceImpl(ExperienceRepository experienceRepository, ExperienceMapper experienceMapper) {
         super(experienceRepository, experienceMapper, experienceRepository::findById);

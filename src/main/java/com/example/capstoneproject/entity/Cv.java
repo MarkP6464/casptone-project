@@ -25,6 +25,12 @@ public class Cv {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String resumeName;
+
+    private String fieldOrDomain;
+
+    private String experience;
+
     private String Content;
 
     @Column(columnDefinition = "TEXT")

@@ -1,6 +1,9 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.ChatResponse;
+import com.example.capstoneproject.Dto.CoverLetterAddDto;
+import com.example.capstoneproject.Dto.CoverLetterDto;
+import com.example.capstoneproject.Dto.CoverLetterUpdateDto;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,12 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/chat-gpt")
@@ -86,28 +84,28 @@ public class CoverLetterController {
     }
 
     @PutMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public String updateCoverLetter(@PathVariable("UsersId") int UsersId,@PathVariable("coverLetterId") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
-        boolean check = coverLetterService.updateCoverLetter(UsersId,coverLetterId, Dto);
-        if(check){
+    public String updateCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
+        boolean check = coverLetterService.updateCoverLetter(UsersId, coverLetterId, Dto);
+        if (check) {
             return "Changes saved";
-        }else {
+        } else {
             return "Changes fail";
         }
     }
 
     @DeleteMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public String deleteCoverLetter(@PathVariable("UsersId") int UsersId,@PathVariable("coverLetterId") int coverLetterId) {
-        boolean check = coverLetterService.deleteCoverLetterById(UsersId,coverLetterId);
-        if(check){
+    public String deleteCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId) {
+        boolean check = coverLetterService.deleteCoverLetterById(UsersId, coverLetterId);
+        if (check) {
             return "Delete success";
-        }else {
+        } else {
             return "Delete fail";
         }
     }
 
     @GetMapping("/{UsersId}/cover-letter/{coverLetterId}")
     public CoverLetterDto getCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId) {
-        return coverLetterService.getCoverLetter(UsersId,coverLetterId);
+        return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
 
 }
