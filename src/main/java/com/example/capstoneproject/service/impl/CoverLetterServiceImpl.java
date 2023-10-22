@@ -55,12 +55,13 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public ChatResponse generateCoverLetter(float temperature,String title, int cvId, String dear, String name, String company, String description) throws JsonProcessingException {
+    public ChatResponse generateCoverLetter(float temperature,String job_title, int cvId, String company, String job_description) throws JsonProcessingException {
         String completeCoverLetter = "You are a cover letter generator.\n" +
                 "You will be given a job description along with the job applicant's resume.\n" +
                 "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
                 "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
-                "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
+                "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.\n" +
+                "Please generate a cover letter without 'Dear' and 'Sincerely'.";
 //        String coverLetterWithAWittyRemark = "You are a cover letter generator.\n" +
 //                "You will be given a job description along with the job applicant's resume.\n" +
 //                "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
@@ -83,11 +84,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             content = cv.getCvBody();
 
         }
-        if(dear!=null){
-            userMessage = "My Resume: " + content + ". Dear: " + dear +". Job title: " + title + "Company: " + company +  " Job Description: " + description + "." + " My name: " + name + ".";
-        }else{
-            userMessage = "My Resume: " + content + ". Job title: " + title + "Company: " + company +  " Job Description: " + description + "." + " My name: " + name + ".";
-        }
+        userMessage = "My Resume: " + content + ". Job title: " + job_title + "Company: " + company +  " Job Description: " + job_description + ".";
         List<Map<String, Object>> messagesList = new ArrayList<>();
         Map<String, Object> systemMessage = new HashMap<>();
         systemMessage.put("role", "system");

@@ -29,11 +29,9 @@ public class CoverLetterController {
     public ResponseEntity<?> generateCoverLetter(
             @RequestParam float temperature,
             @RequestParam String company,
-            @RequestParam String title,
+            @RequestParam String job_title,
             @RequestParam int cvId,
-            @RequestParam(required = false) String dear,
-            @RequestParam String name,
-            @RequestParam String description
+            @RequestParam String job_description
     ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
@@ -41,12 +39,10 @@ public class CoverLetterController {
 
         ChatResponse result = coverLetterService.generateCoverLetter(
                 temperature,
-                title,
+                job_title,
                 cvId,
-                dear,
-                name,
                 company,
-                description
+                job_description
         );
         return ResponseEntity.ok(result);
     }
