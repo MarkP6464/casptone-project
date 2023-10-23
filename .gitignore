@@ -1,5 +1,7 @@
 HELP.md
-
+/target/
+*/target/*
+*/target/**
 
 ### STS ###
 .apt_generated
@@ -12,9 +14,10 @@ HELP.md
 
 ### IntelliJ IDEA ###
 .idea
-*.iws
+*.iwsf
 *.iml
 *.ipr
+*/target/**
 
 ### NetBeans ###
 /nbproject/private/
