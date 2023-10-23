@@ -10,14 +10,13 @@ import java.util.Date;
 
 
 @NoArgsConstructor
-
 @Getter
 @Setter
 @Entity
 public class Involvement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String OrganizationRole;
 

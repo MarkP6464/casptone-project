@@ -9,11 +9,10 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
-
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +20,9 @@ public class Users {
 
     @Column(name = "name")
     @NotNull
-    private String name;
+    private String Name;
+
+    private String address;
 
     @Column(name = "avatar")
     private String avatar;
@@ -75,9 +76,6 @@ public class Users {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Project> projects;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<SourceWork> sourceWorks;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Cv> cvs;

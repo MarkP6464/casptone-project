@@ -15,6 +15,11 @@ import java.util.List;
 @Setter
 @ToString
 public class CvBodyDto {
+    private String resumeName;
+
+    private String fieldOrDomain;
+
+    private String experience;
     private String templateType = "classical";
     private CvStyleDto cvStyle = new CvStyleDto();
 

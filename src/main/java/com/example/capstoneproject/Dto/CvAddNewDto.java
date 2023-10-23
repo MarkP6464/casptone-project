@@ -17,6 +17,11 @@ public class CvAddNewDto {
     private String personalWebsite;
     private String phone;
     private String name;
+    private String resumeName;
+
+    private String fieldOrDomain;
+
+    private String experience;
     private Long id;
     private String content;
     private String summary;

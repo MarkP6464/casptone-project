@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
-import com.example.capstoneproject.Dto.InvolvementDto;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.InvolvementViewDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,15 @@ public interface InvolvementService extends BaseService<InvolvementDto, Integer>
 
     void deleteInvolvementById(Integer UsersId, Integer involvementId);
 
-    InvolvementDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
+    InvolvementViewDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException;
 
     InvolvementDto getByIdInCvBody(int cvId, int id) throws JsonProcessingException;
 
-    List<InvolvementDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
+    List<InvolvementViewDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException;
 
-    boolean updateInCvBody(int cvId, int id, InvolvementDto dto) throws JsonProcessingException;
+    InvolvementViewDto updateInCvBody(int cvId, int id, InvolvementDto dto) throws JsonProcessingException;
 
-    InvolvementDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException;
+    InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException;
 
     void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException;
 }

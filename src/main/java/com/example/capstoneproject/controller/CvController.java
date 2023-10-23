@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.service.CvService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,13 @@ public class CvController {
     }
 
     @GetMapping("/{UsersId}/cvs")
-    public List<CvDto> getCvsById(@PathVariable("UsersId") int UsersId) {
-        return cvService.GetCvsById(UsersId);
+    public List<CvViewDto> getCvsById(@PathVariable("UsersId") Integer UsersId, @RequestParam(required = false) String content) {
+        return cvService.GetCvsById(UsersId, content);
+    }
+
+    @PostMapping("/user/{userId}/cv/{cvId}/duplicate")
+    public CvDto duplicationCv(@PathVariable("userId") Integer userId, @PathVariable("cvId") Integer cvId) throws JsonProcessingException {
+        return  cvService.duplicateCv(userId, cvId);
     }
 
     @GetMapping("/{UsersId}/cv/{cvId}")
@@ -58,15 +64,15 @@ public class CvController {
         }
     }
 
-    @PutMapping("/{UsersId}/cv/{cvId}/content")
-    public String updateContent(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
-        boolean check = cvService.updateCvContent(UsersId, cvId, Dto);
-        if (check) {
-            return "Changes saved";
-        } else {
-            return "Changes fail";
-        }
-    }
+//    @PutMapping("/{UsersId}/cv/{cvId}/content")
+//    public String updateContent(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
+//        boolean check = cvService.updateCvContent(UsersId, cvId, Dto);
+//        if (check) {
+//            return "Changes saved";
+//        } else {
+//            return "Changes fail";
+//        }
+//    }
 
     @PutMapping("/{UsersId}/contact")
     public UsersViewDto updateContact(@PathVariable("UsersId") int UsersId, @RequestBody UsersViewDto dto) {
@@ -90,4 +96,8 @@ public class CvController {
     }
 
 
+    @GetMapping("{userId}/cvs/{cvId}")
+    public List<ScoreDto> getCvsById1(@PathVariable("userId") int userId, @PathVariable("cvId") int cvId) throws JsonProcessingException {
+        return cvService.getEvaluateCv(userId, cvId);
+    }
 }
