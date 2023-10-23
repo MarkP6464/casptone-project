@@ -47,17 +47,17 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping(value = "/checkBuzz", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> generatedCoverLetter(
-            @RequestParam float temperature,
-            @RequestParam String description
-    ) {
-        if (temperature < 0.2 || temperature > 1.0) {
-            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
-        }
+    @PostMapping("/cover-letter/buzz")
+    public ChatResponse generateCoverLetterRevi(
+            @RequestParam float temp,
+            @RequestParam String content
+    ) throws JsonProcessingException {
 
-        //return coverLetterService.generateEvaluate(temperature, description);
-        return null;
+        ChatResponse result = coverLetterService.generateEvaluate(
+                temp,
+                content
+        );
+        return result;
     }
 
 
