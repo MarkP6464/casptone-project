@@ -45,3 +45,4 @@ public class CapstoneProjectApplication {
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
     }
+}
