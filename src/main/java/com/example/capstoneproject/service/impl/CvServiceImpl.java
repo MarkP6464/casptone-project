@@ -242,6 +242,8 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cv.setFieldOrDomain(dto.getFieldOrDomain());
             cv.setResumeName(dto.getResumeName());
             cv.setExperience(dto.getExperience());
+            cv.setSearchable(dto.getSearchable());
+            cv.setSharable(dto.getSharable());
             Cv savedCv = cvRepository.save(cv);
             CvAddNewDto response = cvMapper.cvAddNewDto(savedCv);
 
