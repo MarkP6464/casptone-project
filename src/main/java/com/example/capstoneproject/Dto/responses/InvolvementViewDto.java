@@ -1,9 +1,10 @@
 package com.example.capstoneproject.Dto.responses;
 
 import com.example.capstoneproject.Dto.BulletPointDto;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Date;
 import java.util.List;
 
 
@@ -20,9 +21,7 @@ public class InvolvementViewDto {
 
     private String OrganizationName;
 
-    private Date StartDate;
-
-    private Date EndDate;
+    private String duration;
 
     private String College;
 
