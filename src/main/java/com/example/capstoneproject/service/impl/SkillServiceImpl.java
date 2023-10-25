@@ -206,7 +206,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                 throw new RuntimeException(e);
             }
         });
-        return educationViewDto;
+        return skillMapper.mapEntityToDto(saved);
     }
 
     @Override

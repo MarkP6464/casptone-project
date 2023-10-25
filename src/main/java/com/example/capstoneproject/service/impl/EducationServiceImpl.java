@@ -239,7 +239,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 throw new RuntimeException(e);
             }
         });
-        return educationDto;
+        return educationMapper.mapEntityToDto(saved);
     }
 
     @Override

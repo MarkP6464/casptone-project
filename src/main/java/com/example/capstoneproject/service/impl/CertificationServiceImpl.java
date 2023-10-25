@@ -220,7 +220,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 throw new RuntimeException(e);
             }
         });
-        return certificationDto;
+        return certificationMapper.mapEntityToDto(saved);
     }
 
     @Override
