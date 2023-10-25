@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.CommentDto;
 import com.example.capstoneproject.Dto.ReviewResponseDto;
 import com.example.capstoneproject.Dto.ReviewResponseUpdateDto;
 import com.example.capstoneproject.enums.ReviewStatus;
+import com.example.capstoneproject.enums.SendControl;
 import com.example.capstoneproject.service.ReviewResponseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,16 +64,16 @@ public class ReviewResponseController {
     @GetMapping("/expert/{expertId}/review-responses")
     public ResponseEntity<List<ReviewResponseDto>> getDaftReviewResponses(
             @PathVariable("expertId") Integer expertId,
-            @RequestParam(name = "status", required = false) String status
+            @RequestParam(name = "status", required = false) SendControl status
     ) throws JsonProcessingException {
         List<ReviewResponseDto> daftReviewResponses;
 
         if (status != null) {
             switch (status) {
-                case "draft":
+                case DRAFT:
                     daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.DRAFT);
                     break;
-                case "send":
+                case SEND:
                     daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.SEND);
                     break;
                 default:

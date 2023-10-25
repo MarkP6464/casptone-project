@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
+import com.example.capstoneproject.enums.AcceptControl;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.service.ReviewRequestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,16 +23,16 @@ public class ReviewRequestController {
     }
 
     @GetMapping("/expert/{expertId}/request-reviews")
-    public ResponseEntity<?> getAllReviewRequest(@PathVariable("expertId") Integer expertId, @RequestParam("theRelation") String theRelation, @RequestParam("orderByDate") String orderByDate) {
+    public ResponseEntity<?> getAllReviewRequest(@PathVariable("expertId") Integer expertId, @RequestParam("theRelation") AcceptControl theRelation, @RequestParam("orderByDate") String orderByDate) {
         List<ReviewRequestDto> result;
         switch (theRelation) {
-            case "accept":
+            case ACCEPT:
                 result = reviewRequestService.getAllReviewRequest(expertId, ReviewStatus.ACCEPT, orderByDate);
                 break;
-            case "reject":
+            case REJECT:
                 result = reviewRequestService.getAllReviewRequest(expertId, ReviewStatus.REJECT, orderByDate);
                 break;
-            case "process":
+            case PROCESS:
                 result = reviewRequestService.getAllReviewRequest(expertId, ReviewStatus.PROCESSING, orderByDate);
                 break;
             default:
@@ -47,11 +48,11 @@ public class ReviewRequestController {
     }
 
     @PutMapping("/expert/{expertId}/review-request/{requestId}")
-    public ResponseEntity<?> updateEducation(@PathVariable("expertId") Integer expertId, @PathVariable("requestId") Integer requestId, String theRelation) throws JsonProcessingException {
+    public ResponseEntity<?> updateEducation(@PathVariable("expertId") Integer expertId, @PathVariable("requestId") Integer requestId, AcceptControl theRelation) throws JsonProcessingException {
         switch (theRelation) {
-            case "accept":
+            case ACCEPT:
                 return ResponseEntity.ok(reviewRequestService.acceptReviewRequest(expertId, requestId));
-            case "reject":
+            case REJECT:
                 return ResponseEntity.ok(reviewRequestService.rejectReviewRequest(expertId, requestId));
             default:
                 return ResponseEntity.badRequest().body("Invalid request!!");

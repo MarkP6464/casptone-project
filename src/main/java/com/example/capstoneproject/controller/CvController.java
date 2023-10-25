@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.service.CvService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,5 +100,10 @@ public class CvController {
     @GetMapping("{userId}/cvs/{cvId}")
     public List<ScoreDto> getCvsById1(@PathVariable("userId") int userId, @PathVariable("cvId") int cvId) throws JsonProcessingException {
         return cvService.getEvaluateCv(userId, cvId);
+    }
+
+    @GetMapping("/{userId}/cv/{cvId}/micro")
+    public Cv findByUserIdAndId(@PathVariable("userId") Integer userId, @PathVariable("cvId") Integer cvId) throws JsonProcessingException {
+        return cvService.findByUser_IdAndId(userId, cvId);
     }
 }

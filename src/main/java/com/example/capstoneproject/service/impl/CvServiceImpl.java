@@ -695,6 +695,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         return Collections.emptyList();
     }
 
+    @Override
+    public Cv findByUser_IdAndId(Integer UsersId, Integer cvId) {
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(UsersId, cvId);
+        return cvOptional.orElse(null);
+    }
+
     private List<ContentDto> evaluateContentSections(Cv cv, List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos) {
         List<ContentDto> contentList = new ArrayList<>();
         int evaluateId = 1;

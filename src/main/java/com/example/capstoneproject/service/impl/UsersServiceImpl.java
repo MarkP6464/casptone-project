@@ -3,9 +3,11 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.UsersViewDto;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.UsersService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
 
     @Autowired
     UsersMapper UsersMapper;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     public UsersServiceImpl(UsersRepository UsersRepository, UsersMapper UsersMapper) {
         super(UsersRepository, UsersMapper, UsersRepository::findById);
@@ -55,5 +60,15 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
             UsersViewDto.setCountry(users.getCountry());
         }
         return UsersViewDto;
+    }
+
+    @Override
+    public UsersDto findByIdAndRole_RoleName(Integer userId) {
+        Optional<Users> usersOptional = UsersRepository.findUsersById(userId);
+        if (usersOptional.isPresent()){
+            return modelMapper.map(usersOptional.get(), UsersDto.class);
+        }else {
+            return null;
+        }
     }
 }
