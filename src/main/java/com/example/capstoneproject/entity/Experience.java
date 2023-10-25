@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
 
 
 @NoArgsConstructor
@@ -23,9 +22,7 @@ public class Experience {
 
     private String CompanyName;
 
-    private Date StartDate;
-
-    private Date EndDate;
+    private String duration;
 
     private String Location;
 

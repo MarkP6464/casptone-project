@@ -239,6 +239,11 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             dto.setSkills(skillDtos);
 
             cv.setCvBody(cv.toCvBody(dto));
+            cv.setFieldOrDomain(dto.getFieldOrDomain());
+            cv.setResumeName(dto.getResumeName());
+            cv.setExperience(dto.getExperience());
+            cv.setSearchable(dto.getSearchable());
+            cv.setSharable(dto.getSharable());
             Cv savedCv = cvRepository.save(cv);
             CvAddNewDto response = cvMapper.cvAddNewDto(savedCv);
 
@@ -254,12 +259,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
     @Override
     public CvDto duplicateCv(Integer userId, Integer cvId) throws JsonProcessingException {
-        Cv cvOfUser = cvRepository.findCvByIdAndStatus(userId,cvId,BasicStatus.ACTIVE);
-        Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId,BasicStatus.ACTIVE);
+        Cv cvOfUser = cvRepository.findCvByIdAndStatus(userId, cvId, BasicStatus.ACTIVE);
+        Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId, BasicStatus.ACTIVE);
         JobDescription newJobDescription = new JobDescription();
         CvDto cvDto = new CvDto();
-        if(cvOfUser!=null){
-            if(cvOptional.isPresent()){
+        if (cvOfUser != null) {
+            if (cvOptional.isPresent()) {
                 Cv cv = cvOptional.get();
                 CvDupDto cvDupDto = new CvDupDto();
                 cvDupDto.setResumeName("Copy of " + cv.getResumeName());
@@ -269,9 +274,9 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 cvDupDto.setSummary(cv.getSummary());
                 cvDupDto.setCvBody(cv.getCvBody());
                 cvDupDto.setEvaluation(cv.getEvaluation());
-                if(cv.getJobDescription()!=null){
+                if (cv.getJobDescription() != null) {
                     Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
-                    if(jobDescriptionOptional.isPresent()){
+                    if (jobDescriptionOptional.isPresent()) {
                         JobDescriptionDto jobDescriptionDto = new JobDescriptionDto();
                         JobDescription jobDescription = jobDescriptionOptional.get();
                         jobDescriptionDto.setTitle(jobDescription.getTitle());
@@ -279,10 +284,10 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                         newJobDescription = jobDescriptionRepository.save(modelMapper.map(jobDescriptionDto, JobDescription.class));
                         cvDupDto.setJobDescription(newJobDescription);
                     }
-                    if(jobDescriptionOptional.isPresent()){
+                    if (jobDescriptionOptional.isPresent()) {
                         Ats atsAdd = new Ats();
                         List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionOptional.get().getId());
-                        for (Ats ats1 : ats){
+                        for (Ats ats1 : ats) {
                             atsAdd.setAts(ats1.getAts());
                             atsAdd.setJobDescription(newJobDescription);
                             atsRepository.save(atsAdd);
@@ -304,10 +309,10 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 cvDto.setEvaluate(cvReturn.getEvaluation() != null ? cvReturn.deserializeScore() : null);
                 cvDto.setJobDescription(cvReturn.getJobDescription());
                 cvDto.setUsersDto(modelMapper.map(cvReturn.getUser(), UsersDto.class));
-            }else {
+            } else {
                 throw new RuntimeException("CV ID not found.");
             }
-        }else{
+        } else {
             throw new RuntimeException("User ID not exist this Cv ID.");
         }
         return cvDto;
@@ -467,7 +472,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         Cv cv = cvRepository.getById(cvId);
         List<SectionCvDto> sectionCvDtos = new ArrayList<>();
         List<Evaluate> evaluates = evaluateRepository.findAll();
-        final int[] totalWords = { 0 };
+        final int[] totalWords = {0};
 
         if (Objects.nonNull(cv)) {
             CvBodyDto cvBodyDto = cv.deserialize();
@@ -500,14 +505,13 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 int experienceId = x.getId();
                 String title = x.getRole();
                 String location = x.getLocation();
-                Date startDate = x.getStartDate();
-                Date endDate = x.getEndDate();
+                String duration = x.getDuration();
                 String company = x.getCompanyName();
                 String description = x.getDescription();
                 String word = title + " " + location + " " + company + " " + description;
                 String[] words = word.split("\\s+");
                 totalWords[0] += words.length;
-                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, startDate, endDate));
+                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
                 Experience e = experienceRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
             });
@@ -515,22 +519,20 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             cvBodyDto.getProjects().forEach(x -> {
                 int projectId = x.getId();
                 String title = x.getTitle();
-                Date startDate = x.getStartDate();
-                Date endDate = x.getEndDate();
+                String duration = x.getDuration();
                 String organization = x.getOrganization();
                 String description = x.getDescription();
                 String word = title + " " + organization + " " + description;
                 String[] words = word.split("\\s+");
                 totalWords[0] += words.length;
-                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, startDate, endDate));
+                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
                 Project e = projectRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
             });
 
             cvBodyDto.getInvolvements().forEach(x -> {
                 int involvementId = x.getId();
-                Date startDate = x.getStartDate();
-                Date endDate = x.getEndDate();
+                String duration = x.getDuration();
                 String title = x.getOrganizationRole();
                 String name = x.getOrganizationName();
                 String college = x.getCollege();
@@ -538,7 +540,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 String word = title + " " + name + " " + college + " " + description;
                 String[] words = word.split("\\s+");
                 totalWords[0] += words.length;
-                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, startDate, endDate));
+                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
                 Involvement e = involvementRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
             });
@@ -574,7 +576,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 //                evaluateId++;
 //            }
 
-            contentList = evaluateContentSections(cv,evaluates,sectionCvDtos);
+            contentList = evaluateContentSections(cv, evaluates, sectionCvDtos);
 
             //Evaluate with Best Practices
 //            for (int i = 6; i <= 11; i++) {
@@ -685,7 +687,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 //            }
             optimizationList = evaluateOptimational(evaluates, cvId);
 
-            ScoreDto scoreDto = new ScoreDto(contentList, practiceList,optimizationList);
+            ScoreDto scoreDto = new ScoreDto(contentList, practiceList, optimizationList);
             List<ScoreDto> result = new ArrayList<>();
             result.add(scoreDto);
 
@@ -729,7 +731,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         for (SectionCvDto sectionCvDto : sectionCvDtos) {
             for (Section section : sections) {
                 if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
-                    && sectionCvDto.getTitle()!=null) {
+                        && sectionCvDto.getTitle() != null) {
                     sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
                 }
             }
@@ -768,8 +770,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     for (SectionCvDto sectionCvDto : sectionCvDtos) {
                         for (Section section : dateSections) {
                             if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
-                                    && (sectionCvDto.getStartDate() == null || sectionCvDto.getEndDate() == null
-                                    && sectionCvDto.getTitle() != null)) {
+                                    && (sectionCvDto.getDuration() == null && sectionCvDto.getTitle() != null)) {
                                 sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
                                 ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
                                 resultList.add(contentDto);

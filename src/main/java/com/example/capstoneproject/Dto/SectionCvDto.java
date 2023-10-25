@@ -5,7 +5,6 @@ import lombok.*;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import java.util.Date;
 
 @Data
 @Builder
@@ -19,7 +18,6 @@ public class SectionCvDto {
     private int typeId;
     private String title;
     private String location;
-    private Date startDate;
-    private Date endDate;
+    private String duration;
 
 }

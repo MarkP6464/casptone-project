@@ -15,6 +15,10 @@ import java.util.List;
 @Setter
 @ToString
 public class CvBodyDto {
+
+    private Boolean sharable = false;
+
+    private Boolean searchable = false;
     private String resumeName;
 
     private String fieldOrDomain;

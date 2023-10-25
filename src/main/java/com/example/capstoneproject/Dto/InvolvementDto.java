@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 
 @NoArgsConstructor
 
@@ -19,10 +17,7 @@ public class InvolvementDto {
     private Boolean isDisplay;
     private String OrganizationName;
 
-
-    private Date StartDate;
-
-    private Date EndDate;
+    private String duration;
 
     private String College;
 

@@ -31,6 +31,10 @@ public class Cv {
 
     private String experience;
 
+    private Boolean sharable;
+
+    private Boolean searchable;
+
     @Column(columnDefinition = "TEXT")
     private String Summary;
 

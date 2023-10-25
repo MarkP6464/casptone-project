@@ -13,6 +13,10 @@ import java.util.List;
 @Getter
 @Setter
 public class CvAddNewDto {
+
+    private Boolean sharable;
+
+    private Boolean searchable;
     private String email;
     private String personalWebsite;
     private String phone;
