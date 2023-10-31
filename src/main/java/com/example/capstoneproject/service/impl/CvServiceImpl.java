@@ -363,28 +363,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         }
     }
 
-//    @Override
-//    public boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto) {
-//        Optional<Users> UsersOptional = usersRepository.findById(UsersId);
-//
-//        if (UsersOptional.isPresent()) {
-//            Optional<Cv> cvOptional = cvRepository.findById(cvId);
-//
-//            if (cvOptional.isPresent()) {
-//                Cv cv = cvOptional.get();
-//                cv.setContent(dto.getContent());
-//
-//                cvRepository.save(cv);
-//
-//                return true;
-//            } else {
-//                throw new IllegalArgumentException("CvId not found: " + cvId);
-//            }
-//        } else {
-//            throw new IllegalArgumentException("UsersId not found: " + UsersId);
-//        }
-//    }
-
     @Override
     public UsersViewDto updateCvContact(int UsersId, UsersViewDto dto) {
         Optional<Users> usersOptional = usersRepository.findById(UsersId);

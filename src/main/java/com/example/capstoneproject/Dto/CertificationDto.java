@@ -13,6 +13,8 @@ public class CertificationDto {
     private Boolean isDisplay;
     private Integer id;
 
+    private Integer theOrder;
+
     private String Name;
     private String CertificateSource;
 

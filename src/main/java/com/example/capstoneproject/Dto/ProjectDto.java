@@ -12,6 +12,8 @@ import lombok.Setter;
 public class ProjectDto {
     private Integer id;
 
+    private Integer theOrder;
+
     private Boolean isDisplay;
     private String Title;
 

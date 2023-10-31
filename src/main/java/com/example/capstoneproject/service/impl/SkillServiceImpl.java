@@ -198,6 +198,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             } else {
                 educationViewDto.setIsDisplay(false);
             }
+            educationViewDto.setTheOrder(list.size() + 1);
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getSkills().add(educationViewDto);

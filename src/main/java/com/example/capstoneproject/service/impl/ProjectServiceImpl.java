@@ -279,6 +279,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             } else {
                 projectDto.setIsDisplay(false);
             }
+            projectDto.setTheOrder(list.size() + 1);
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getProjects().add(projectDto);

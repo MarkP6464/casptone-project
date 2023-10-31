@@ -231,6 +231,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             } else {
                 educationDto.setIsDisplay(false);
             }
+            educationDto.setTheOrder(list.size() + 1);
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getEducations().add(educationDto);

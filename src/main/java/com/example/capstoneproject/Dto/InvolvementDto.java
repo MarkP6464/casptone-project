@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class InvolvementDto {
     private Integer id;
+    private Integer theOrder;
 
     private String OrganizationRole;
 

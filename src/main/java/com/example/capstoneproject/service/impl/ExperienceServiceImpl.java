@@ -339,6 +339,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             } else {
                 educationViewDto.setIsDisplay(false);
             }
+            educationViewDto.setTheOrder(list.size() + 1);
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getExperiences().add(educationViewDto);

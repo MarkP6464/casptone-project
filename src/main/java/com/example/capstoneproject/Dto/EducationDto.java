@@ -14,6 +14,8 @@ public class EducationDto {
 
     private Boolean isDisplay;
 
+    private Integer theOrder;
+
     private String Degree;
 
     private String CollegeName;
