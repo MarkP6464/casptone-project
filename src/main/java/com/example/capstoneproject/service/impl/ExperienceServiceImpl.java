@@ -339,7 +339,11 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             } else {
                 educationViewDto.setIsDisplay(false);
             }
-            educationViewDto.setTheOrder(list.size() + 1);
+            try {
+                educationViewDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getExperiences().add(educationViewDto);

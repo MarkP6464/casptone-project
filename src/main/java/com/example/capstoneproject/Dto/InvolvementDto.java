@@ -15,7 +15,7 @@ public class InvolvementDto {
 
     private String OrganizationRole;
 
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
     private String OrganizationName;
 
     private String duration;

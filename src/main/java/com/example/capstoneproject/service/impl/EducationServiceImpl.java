@@ -231,7 +231,11 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             } else {
                 educationDto.setIsDisplay(false);
             }
-            educationDto.setTheOrder(list.size() + 1);
+            try {
+                educationDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getEducations().add(educationDto);

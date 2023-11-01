@@ -18,7 +18,7 @@ import java.util.Properties;
         }
 )
 @SpringBootApplication
-@EnableScheduling
+//@EnableScheduling
 public class CapstoneProjectApplication {
 
     public static void main(String[] args) {

@@ -12,7 +12,7 @@ public class ExperienceDto {
     private Integer id;
     private String Role;
     private Integer theOrder;
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
     private String CompanyName;
     private String duration;
     private String Location;

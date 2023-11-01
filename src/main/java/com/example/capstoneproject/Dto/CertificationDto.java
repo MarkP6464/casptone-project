@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CertificationDto {
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
     private Integer id;
 
     private Integer theOrder;

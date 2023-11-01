@@ -14,7 +14,7 @@ public class ProjectDto {
 
     private Integer theOrder;
 
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
     private String Title;
 
     private String Organization;

@@ -198,7 +198,11 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             } else {
                 educationViewDto.setIsDisplay(false);
             }
-            educationViewDto.setTheOrder(list.size() + 1);
+            try {
+                educationViewDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getSkills().add(educationViewDto);

@@ -278,8 +278,11 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 projectDto.setIsDisplay(true);
             } else {
                 projectDto.setIsDisplay(false);
+            }try {
+                projectDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
-            projectDto.setTheOrder(list.size() + 1);
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getProjects().add(projectDto);

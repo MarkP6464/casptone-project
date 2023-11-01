@@ -427,17 +427,21 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             for (SkillDto x : cvBodyDto.getSkills()) {
                 if (x.getIsDisplay()) {
                     String description = x.getDescription();
-                    String[] words = description.split("\\s+");
-                    totalWords[0] += words.length;
+                    if (description != null) {
+                        String[] words = description.split("\\s+");
+                        totalWords[0] += words.length;
+                    }
                 }
             }
 
             cvBodyDto.getCertifications().forEach(x -> {
-                if(x.getIsDisplay()){
+                if (x.getIsDisplay()) {
                     String skill = x.getCertificateRelevance();
-                    String word = skill;
-                    String[] words = word.split("\\s+");
-                    totalWords[0] += words.length;
+                    if (skill != null) {
+                        String word = skill;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                    }
                 }
             });
 
@@ -445,6 +449,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 if(x.getIsDisplay()){
                     String minor = x.getMinor();
                     String description = x.getDescription();
+                    if(minor==null){
+                        minor = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
                     String word = description + " " + minor;
                     String[] words = word.split("\\s+");
                     totalWords[0] += words.length;
@@ -459,6 +469,21 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     String duration = x.getDuration();
                     String company = x.getCompanyName();
                     String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(location==null){
+                        location = "";
+                    }
+                    if(duration==null){
+                        duration = "";
+                    }
+                    if(company==null){
+                        company = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
                     String word = title + " " + location + " " + company + " " + description;
                     String[] words = word.split("\\s+");
                     totalWords[0] += words.length;
@@ -475,6 +500,18 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     String duration = x.getDuration();
                     String organization = x.getOrganization();
                     String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(organization==null){
+                        organization = "";
+                    }
+                    if(duration==null){
+                        duration = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
                     String word = title + " " + organization + " " + description;
                     String[] words = word.split("\\s+");
                     totalWords[0] += words.length;
@@ -492,6 +529,21 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     String name = x.getOrganizationName();
                     String college = x.getCollege();
                     String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(name==null){
+                        name = "";
+                    }
+                    if(duration==null){
+                        duration = "";
+                    }
+                    if(college==null){
+                        college = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
                     String word = title + " " + name + " " + college + " " + description;
                     String[] words = word.split("\\s+");
                     totalWords[0] += words.length;
