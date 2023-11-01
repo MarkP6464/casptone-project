@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 
 @NoArgsConstructor
 
@@ -13,16 +11,14 @@ import java.util.Date;
 @Setter
 public class InvolvementDto {
     private Integer id;
+    private Integer theOrder;
 
     private String OrganizationRole;
 
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
     private String OrganizationName;
 
-
-    private Date StartDate;
-
-    private Date EndDate;
+    private String duration;
 
     private String College;
 

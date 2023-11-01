@@ -19,8 +19,8 @@ public class AtsController {
         this.atsService = atsService;
     }
 
-    @DeleteMapping("/{atsId}")
-    public ResponseEntity<?> deleteAts(@PathVariable("atsId") Integer atsId) {
+    @DeleteMapping("/{ats-id}")
+    public ResponseEntity<?> deleteAts(@PathVariable("ats-id") Integer atsId) {
         if (atsService.deleteAts(atsId)) {
             return ResponseEntity.ok("Delete success");
         } else {

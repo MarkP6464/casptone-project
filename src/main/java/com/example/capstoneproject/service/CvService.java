@@ -3,6 +3,8 @@ package com.example.capstoneproject.service;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.RoleType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
@@ -33,11 +35,23 @@ public interface CvService extends BaseService<CvDto, Integer> {
 
     UsersViewDto updateCvContact(int UsersId, UsersViewDto dto);
 
-    boolean updateCvTemplate(int UsersId, int cvId, int templateId);
+//    boolean updateCvTemplate(int UsersId, int cvId, int templateId);
 
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 
     CvDto synchUp(int cvId) throws JsonProcessingException;
 
     List<ScoreDto> getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
+
+    Cv findByUser_IdAndId(Integer UsersId, Integer cvId);
+
+    boolean searchable(Integer userId, Integer cvId);
+
+    List<CvAddNewDto> getListSearchable(String field);
+
+    List<CvResumeDto> getListResume(Integer userId);
+
+    List<ExperienceRoleDto> getListExperienceRole(Integer userId, Integer cvId) throws JsonProcessingException;
+
+
 }

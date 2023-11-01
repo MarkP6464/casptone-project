@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Date;
 
 
 @NoArgsConstructor
@@ -19,14 +18,16 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String Title;
 
+    @Column(columnDefinition = "NVARCHAR(40)")
     private String Organization;
 
-    private Date StartDate;
+    @Column(columnDefinition = "NVARCHAR(30)")
+    private String duration;
 
-    private Date EndDate;
-
+    @Column(columnDefinition = "TEXT")
     private String ProjectUrl;
 
     @Column(columnDefinition = "TEXT")

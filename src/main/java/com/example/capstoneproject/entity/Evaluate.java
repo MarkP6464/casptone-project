@@ -17,8 +17,10 @@ public class Evaluate {
     @Id
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(40)")
     private String title;
-    private String more;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
     private double score;
     private double maxScore;

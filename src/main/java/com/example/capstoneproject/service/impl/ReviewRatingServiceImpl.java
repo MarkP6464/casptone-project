@@ -44,7 +44,7 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
 
     @Override
     public boolean updateReviewRating(Integer userId, Integer ratingId, ReviewRatingDto dto) {
-        Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(userId, RoleType.USER);
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(userId, RoleType.USER);
         LocalDate currentDate = LocalDate.now();
         if(usersOptional.isPresent()){
             Users customer = usersOptional.get();
@@ -103,7 +103,7 @@ public class ReviewRatingServiceImpl implements ReviewRatingService {
 
     @Override
     public boolean deleteReviewRating(Integer userId, Integer ratingId) {
-        Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(userId, RoleType.USER);
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(userId, RoleType.USER);
         if(usersOptional.isPresent()){
             Users customer = usersOptional.get();
             Optional<ReviewRating> reviewRatingOptional = reviewRatingRepository.findByIdAndUserAndStatus(ratingId,customer,BasicStatus.ACTIVE);

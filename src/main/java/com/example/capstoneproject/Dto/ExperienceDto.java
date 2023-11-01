@@ -4,20 +4,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 
 @NoArgsConstructor
-
 @Getter
 @Setter
 public class ExperienceDto {
     private Integer id;
     private String Role;
-    private Boolean isDisplay;
+    private Integer theOrder;
+    private Boolean isDisplay = true;
     private String CompanyName;
-    private Date StartDate;
-    private Date EndDate;
+    private String duration;
     private String Location;
     private String Description;
 }

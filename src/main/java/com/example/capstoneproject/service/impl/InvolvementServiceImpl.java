@@ -2,7 +2,6 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.InvolvementViewDto;
-import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
@@ -97,15 +96,10 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             } else {
                 existingInvolvement.setOrganizationName(existingInvolvement.getOrganizationName());
             }
-            if (dto.getStartDate() != null && !existingInvolvement.getStartDate().equals(dto.getStartDate())) {
-                existingInvolvement.setStartDate(dto.getStartDate());
+            if (dto.getDuration() != null && !existingInvolvement.getDuration().equals(dto.getDuration())) {
+                existingInvolvement.setDuration(dto.getDuration());
             } else {
-                existingInvolvement.setStartDate(existingInvolvement.getStartDate());
-            }
-            if (dto.getEndDate() != null && !existingInvolvement.getEndDate().equals(dto.getEndDate())) {
-                existingInvolvement.setEndDate(dto.getEndDate());
-            } else {
-                existingInvolvement.setEndDate(existingInvolvement.getEndDate());
+                existingInvolvement.setDuration(existingInvolvement.getDuration());
             }
             if (dto.getCollege() != null && !existingInvolvement.getCollege().equals(dto.getCollege())) {
                 existingInvolvement.setCollege(dto.getCollege());
@@ -136,8 +130,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                     involvementDto.setId(involvement.getId());
                     involvementDto.setOrganizationRole(involvement.getOrganizationRole());
                     involvementDto.setOrganizationName(involvement.getOrganizationName());
-                    involvementDto.setStartDate(involvement.getStartDate());
-                    involvementDto.setEndDate(involvement.getEndDate());
+                    involvementDto.setDuration(involvement.getDuration());
                     involvementDto.setCollege(involvement.getCollege());
                     involvementDto.setDescription(involvement.getDescription());
                     return involvementDto;
@@ -177,8 +170,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 involvementViewDto.setIsDisplay(involvementDto.getIsDisplay());
                 involvementViewDto.setOrganizationRole(involvement.getOrganizationRole());
                 involvementViewDto.setOrganizationName(involvement.getOrganizationName());
-                involvementViewDto.setStartDate(involvement.getStartDate());
-                involvementViewDto.setEndDate(involvement.getEndDate());
+                involvementViewDto.setDuration(involvement.getDuration());
                 involvementViewDto.setCollege(involvement.getCollege());
                 involvementViewDto.setDescription(involvement.getDescription());
                 involvementViewDto.setBulletPointDtos(bulletPointDtos);
@@ -243,8 +235,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             involvementViewDto.setIsDisplay(dto.getIsDisplay());
             involvementViewDto.setOrganizationRole(saved.getOrganizationRole());
             involvementViewDto.setOrganizationName(saved.getOrganizationName());
-            involvementViewDto.setStartDate(saved.getStartDate());
-            involvementViewDto.setEndDate(saved.getEndDate());
+            involvementViewDto.setDuration(saved.getDuration());
             involvementViewDto.setCollege(saved.getCollege());
             involvementViewDto.setDescription(saved.getDescription());
             involvementViewDto.setBulletPointDtos(evaluateResult);
@@ -263,7 +254,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
-                if(evaluateId==7){
+                if (evaluateId == 7) {
                     break;
                 }
             }
@@ -274,8 +265,8 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     }
 
 
-@Override
-public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
+    @Override
+    public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
         Involvement education = involvementMapper.mapDtoToEntity(dto);
         Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
         education.setUser(user);
@@ -285,24 +276,28 @@ public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) thr
         involvementDto.setId(saved.getId());
         List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
-        if (x.getId().equals(cvId)) {
-        involvementDto.setIsDisplay(true);
-        } else {
-        involvementDto.setIsDisplay(false);
-        }
-        try {
-        CvBodyDto cvBodyDto = x.deserialize();
-        cvBodyDto.getInvolvements().add(involvementDto);
-        cvService.updateCvBody(x.getId(), cvBodyDto);
-        } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-        }
+            if (x.getId().equals(cvId)) {
+                involvementDto.setIsDisplay(true);
+            } else {
+                involvementDto.setIsDisplay(false);
+            }try {
+                involvementDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            try {
+                CvBodyDto cvBodyDto = x.deserialize();
+                cvBodyDto.getInvolvements().add(involvementDto);
+                cvService.updateCvBody(x.getId(), cvBodyDto);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         });
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
         List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(user.getId(), BasicStatus.ACTIVE);
         if (!projects.isEmpty()) {
-        sectionDto.setTypeId(projects.get(0).getId());
+            sectionDto.setTypeId(projects.get(0).getId());
         }
         sectionDto.setTitle(saved.getOrganizationRole());
         sectionDto.setTypeName(SectionEvaluate.involvement);
@@ -315,8 +310,7 @@ public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) thr
         involvementViewDto.setIsDisplay(true);
         involvementViewDto.setOrganizationRole(saved.getOrganizationRole());
         involvementViewDto.setOrganizationName(saved.getOrganizationName());
-        involvementViewDto.setStartDate(saved.getStartDate());
-        involvementViewDto.setEndDate(saved.getEndDate());
+        involvementViewDto.setDuration(saved.getDuration());
         involvementViewDto.setCollege(saved.getCollege());
         involvementViewDto.setDescription(saved.getDescription());
         involvementViewDto.setBulletPointDtos(evaluateResult);
@@ -325,21 +319,21 @@ public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) thr
         List<Evaluate> evaluates = evaluateRepository.findAll();
         int evaluateId = 1;
         for (int i = 0; i < evaluates.size(); i++) {
-        Evaluate evaluate = evaluates.get(i);
-        BulletPointDto bulletPointDto = evaluateResult.get(i);
-        SectionLogDto sectionLogDto1 = new SectionLogDto();
-        sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
-        sectionLogDto1.setEvaluate(evaluate);
-        sectionLogDto1.setBullet(bulletPointDto.getResult());
-        sectionLogDto1.setStatus(bulletPointDto.getStatus());
-        sectionLogService.create(sectionLogDto1);
-        evaluateId++;
-        if (evaluateId == 7) {
-        break;
-        }
+            Evaluate evaluate = evaluates.get(i);
+            BulletPointDto bulletPointDto = evaluateResult.get(i);
+            SectionLogDto sectionLogDto1 = new SectionLogDto();
+            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
+            sectionLogDto1.setEvaluate(evaluate);
+            sectionLogDto1.setBullet(bulletPointDto.getResult());
+            sectionLogDto1.setStatus(bulletPointDto.getStatus());
+            sectionLogService.create(sectionLogDto1);
+            evaluateId++;
+            if (evaluateId == 7) {
+                break;
+            }
         }
         return involvementViewDto;
-        }
+    }
 
     @Override
     public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {

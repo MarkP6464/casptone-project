@@ -26,6 +26,8 @@ public class JobPostingViewDto {
 
     private Integer salary;
 
+    private LocalDate deadline;
+
     private LocalDate createDate;
 
     private LocalDate updateDate;

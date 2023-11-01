@@ -232,6 +232,11 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 educationDto.setIsDisplay(false);
             }
             try {
+                educationDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getEducations().add(educationDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
@@ -239,7 +244,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 throw new RuntimeException(e);
             }
         });
-        return educationDto;
+        return educationMapper.mapEntityToDto(saved);
     }
 
     @Override

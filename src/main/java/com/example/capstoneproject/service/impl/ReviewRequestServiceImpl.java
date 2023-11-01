@@ -63,7 +63,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     public ReviewRequestDto createReviewRequest(Integer cvId, Integer expertId, ReviewRequestAddDto dto) {
         ReviewRequest reviewRequest = modelMapper.map(dto,ReviewRequest.class);
         Cv cv = cvService.getCvById(cvId);
-        Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(expertId, RoleType.EXPERT);
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId,RoleType.EXPERT);
         ReviewRequest saved;
         if(expertOptional.isPresent() && expertOptional.get().getPrice()!=null){
@@ -90,7 +90,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
 
     @Override
     public ReviewRequestDto rejectReviewRequest(Integer expertId, Integer requestId) {
-        Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(expertId, RoleType.EXPERT);
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findReviewRequestByExpertIdAndIdAndStatus(expertId,requestId,ReviewStatus.PROCESSING);
         ReviewRequest saved;
             if (usersOptional.isPresent()) {
@@ -110,7 +110,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
 
     @Override
     public ReviewRequestDto acceptReviewRequest(Integer expertId, Integer requestId) throws JsonProcessingException {
-        Optional<Users> usersOptional = usersRepository.findByUserIdAndRoleName(expertId, RoleType.EXPERT);
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findReviewRequestByExpertIdAndIdAndStatus(expertId,requestId,ReviewStatus.PROCESSING);
         ReviewRequest saved;
         if (usersOptional.isPresent()) {

@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 public class SkillDto {
     private Integer id;
-    private Boolean isDisplay;
+    private Integer theOrder;
+    private Boolean isDisplay = true;
 
     private String Description;
 }

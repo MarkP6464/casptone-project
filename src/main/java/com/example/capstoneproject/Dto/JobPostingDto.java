@@ -1,10 +1,9 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.Users;
-import com.example.capstoneproject.enums.BasicStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDate;
 
 @NoArgsConstructor
@@ -23,5 +22,7 @@ public class JobPostingDto {
     private String requirement;
 
     private Integer salary;
+
+    private LocalDate deadline;
 
 }

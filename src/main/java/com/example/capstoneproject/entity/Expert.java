@@ -14,8 +14,10 @@ public class Expert{
     @Id
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Double price;

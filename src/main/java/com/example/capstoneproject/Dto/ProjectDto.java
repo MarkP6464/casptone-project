@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 
 @NoArgsConstructor
 
@@ -14,14 +12,14 @@ import java.util.Date;
 public class ProjectDto {
     private Integer id;
 
-    private Boolean isDisplay;
+    private Integer theOrder;
+
+    private Boolean isDisplay = true;
     private String Title;
 
     private String Organization;
 
-    private Date StartDate;
-
-    private Date EndDate;
+    private String duration;
 
     private String ProjectUrl;
 

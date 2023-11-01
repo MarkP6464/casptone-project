@@ -12,7 +12,7 @@ import lombok.Setter;
 public class SourceWorkDto {
     private Integer id;
 
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
     private String Name;
 
     private String CourseLocation;

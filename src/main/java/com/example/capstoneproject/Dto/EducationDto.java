@@ -12,7 +12,9 @@ import lombok.Setter;
 public class EducationDto {
     private Integer id;
 
-    private Boolean isDisplay;
+    private Boolean isDisplay = true;
+
+    private Integer theOrder;
 
     private String Degree;
 

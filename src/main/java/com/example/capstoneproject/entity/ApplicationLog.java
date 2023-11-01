@@ -1,8 +1,11 @@
 package com.example.capstoneproject.entity;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -11,6 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class ApplicationLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +22,9 @@ public class ApplicationLog {
 
     private LocalDate timestamp;
 
-    @ManyToOne
-    @JoinColumn(name = "cv_id")
-    private Cv cv;
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private String cv;
 
     @ManyToOne
     @JoinColumn(name = "job_posting_id")

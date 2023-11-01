@@ -1,7 +1,6 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -97,15 +96,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             } else {
                 existingProject.setOrganization(existingProject.getOrganization());
             }
-            if (dto.getStartDate() != null && !existingProject.getStartDate().equals(dto.getStartDate())) {
-                existingProject.setStartDate(dto.getStartDate());
+            if (dto.getDuration() != null && !existingProject.getDuration().equals(dto.getDuration())) {
+                existingProject.setDuration(dto.getDuration());
             } else {
-                existingProject.setStartDate(existingProject.getStartDate());
-            }
-            if (dto.getEndDate() != null && !existingProject.getEndDate().equals(dto.getEndDate())) {
-                existingProject.setEndDate(dto.getEndDate());
-            } else {
-                existingProject.setEndDate(existingProject.getEndDate());
+                existingProject.setDuration(existingProject.getDuration());
             }
             if (dto.getProjectUrl() != null && !existingProject.getProjectUrl().equals(dto.getProjectUrl())) {
                 existingProject.setProjectUrl(dto.getProjectUrl());
@@ -136,8 +130,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                     projectViewDto.setId(project.getId());
                     projectViewDto.setTitle(project.getTitle());
                     projectViewDto.setOrganization(project.getOrganization());
-                    projectViewDto.setStartDate(project.getStartDate());
-                    projectViewDto.setEndDate(project.getEndDate());
+                    projectViewDto.setDuration(project.getDuration());
                     projectViewDto.setProjectUrl(project.getProjectUrl());
                     projectViewDto.setDescription(project.getDescription());
                     return projectViewDto;
@@ -176,8 +169,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 projectViewDto.setIsDisplay(projectDto.getIsDisplay());
                 projectViewDto.setTitle(project.getTitle());
                 projectViewDto.setOrganization(project.getOrganization());
-                projectViewDto.setStartDate(project.getStartDate());
-                projectViewDto.setEndDate(project.getEndDate());
+                projectViewDto.setDuration(project.getDuration());
                 projectViewDto.setProjectUrl(project.getProjectUrl());
                 projectViewDto.setDescription(project.getDescription());
                 projectViewDto.setBulletPointDtos(bulletPointDtos);
@@ -242,8 +234,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             projectViewDto.setIsDisplay(dto.getIsDisplay());
             projectViewDto.setTitle(saved.getTitle());
             projectViewDto.setOrganization(saved.getOrganization());
-            projectViewDto.setStartDate(saved.getStartDate());
-            projectViewDto.setEndDate(saved.getEndDate());
+            projectViewDto.setDuration(saved.getDuration());
             projectViewDto.setProjectUrl(saved.getProjectUrl());
             projectViewDto.setDescription(saved.getDescription());
             projectViewDto.setBulletPointDtos(evaluateResult);
@@ -261,7 +252,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
-                if(evaluateId==7){
+                if (evaluateId == 7) {
                     break;
                 }
             }
@@ -287,6 +278,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 projectDto.setIsDisplay(true);
             } else {
                 projectDto.setIsDisplay(false);
+            }try {
+                projectDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
             }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
@@ -314,8 +309,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         projectViewDto.setIsDisplay(true);
         projectViewDto.setTitle(saved.getTitle());
         projectViewDto.setOrganization(saved.getOrganization());
-        projectViewDto.setStartDate(saved.getStartDate());
-        projectViewDto.setEndDate(saved.getEndDate());
+        projectViewDto.setDuration(saved.getDuration());
         projectViewDto.setProjectUrl(saved.getProjectUrl());
         projectViewDto.setDescription(saved.getDescription());
         projectViewDto.setBulletPointDtos(evaluateResult);

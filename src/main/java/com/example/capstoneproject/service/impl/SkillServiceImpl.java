@@ -199,6 +199,11 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                 educationViewDto.setIsDisplay(false);
             }
             try {
+                educationViewDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getSkills().add(educationViewDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
@@ -206,7 +211,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                 throw new RuntimeException(e);
             }
         });
-        return educationViewDto;
+        return skillMapper.mapEntityToDto(saved);
     }
 
     @Override

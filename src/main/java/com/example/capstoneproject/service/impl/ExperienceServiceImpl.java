@@ -132,15 +132,10 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             } else {
                 existingExperience.setCompanyName(existingExperience.getCompanyName());
             }
-            if (dto.getStartDate() != null && !existingExperience.getStartDate().equals(dto.getStartDate())) {
-                existingExperience.setStartDate(dto.getStartDate());
+            if (dto.getDuration() != null && !existingExperience.getDuration().equals(dto.getDuration())) {
+                existingExperience.setDuration(dto.getDuration());
             } else {
-                existingExperience.setStartDate(existingExperience.getStartDate());
-            }
-            if (dto.getEndDate() != null && !existingExperience.getEndDate().equals(dto.getEndDate())) {
-                existingExperience.setEndDate(dto.getEndDate());
-            } else {
-                existingExperience.setEndDate(existingExperience.getEndDate());
+                existingExperience.setDuration(existingExperience.getDuration());
             }
             if (dto.getLocation() != null && !existingExperience.getLocation().equals(dto.getLocation())) {
                 existingExperience.setLocation(dto.getLocation());
@@ -171,8 +166,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                     ExperienceDto.setId(experience.getId());
                     ExperienceDto.setRole(experience.getRole());
                     ExperienceDto.setCompanyName(experience.getCompanyName());
-                    ExperienceDto.setStartDate(experience.getStartDate());
-                    ExperienceDto.setEndDate(experience.getEndDate());
+                    ExperienceDto.setDuration(experience.getDuration());
                     ExperienceDto.setLocation(experience.getLocation());
                     ExperienceDto.setDescription(experience.getDescription());
                     return ExperienceDto;
@@ -211,8 +205,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 experienceViewDto.setIsDisplay(experienceDto.getIsDisplay());
                 experienceViewDto.setRole(experience.getRole());
                 experienceViewDto.setCompanyName(experience.getCompanyName());
-                experienceViewDto.setStartDate(experience.getStartDate());
-                experienceViewDto.setEndDate(experience.getEndDate());
+                experienceViewDto.setDuration(experience.getDuration());
                 experienceViewDto.setLocation(experience.getLocation());
                 experienceViewDto.setDescription(experience.getDescription());
                 experienceViewDto.setBulletPointDtos(bulletPointDtos);
@@ -277,8 +270,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             experienceViewDto.setIsDisplay(dto.getIsDisplay());
             experienceViewDto.setRole(saved.getRole());
             experienceViewDto.setCompanyName(saved.getCompanyName());
-            experienceViewDto.setStartDate(saved.getStartDate());
-            experienceViewDto.setEndDate(saved.getEndDate());
+            experienceViewDto.setDuration(saved.getDuration());
             experienceViewDto.setLocation(saved.getLocation());
             experienceViewDto.setDescription(saved.getDescription());
             experienceViewDto.setBulletPointDtos(evaluateResult);
@@ -348,6 +340,11 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 educationViewDto.setIsDisplay(false);
             }
             try {
+                educationViewDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getExperiences().add(educationViewDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
@@ -372,8 +369,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         experienceViewDto.setIsDisplay(true);
         experienceViewDto.setRole(saved.getRole());
         experienceViewDto.setCompanyName(saved.getCompanyName());
-        experienceViewDto.setStartDate(saved.getStartDate());
-        experienceViewDto.setEndDate(saved.getEndDate());
+        experienceViewDto.setDuration(saved.getDuration());
         experienceViewDto.setLocation(saved.getLocation());
         experienceViewDto.setDescription(saved.getDescription());
         experienceViewDto.setBulletPointDtos(evaluateResult);

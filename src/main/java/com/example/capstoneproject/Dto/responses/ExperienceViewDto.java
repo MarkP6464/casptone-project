@@ -1,10 +1,10 @@
 package com.example.capstoneproject.Dto.responses;
 
 import com.example.capstoneproject.Dto.BulletPointDto;
-import com.example.capstoneproject.Dto.ResultDto;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Date;
 import java.util.List;
 
 
@@ -20,9 +20,7 @@ public class ExperienceViewDto {
 
     private String CompanyName;
 
-    private Date StartDate;
-
-    private Date EndDate;
+    private String duration;
 
     private String Location;
 

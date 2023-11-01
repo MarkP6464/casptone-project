@@ -47,17 +47,37 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/cover-letter/buzz")
-    public ChatResponse generateCoverLetterRevi(
-            @RequestParam float temp,
-            @RequestParam String content
+    @PostMapping("/summary")
+    public ResponseEntity<?> generateSummary(
+            @RequestParam float temperature,
+            @RequestParam Integer cvId,
+            @RequestParam String position_highlight,
+            @RequestParam String skill_highlight
     ) throws JsonProcessingException {
+        if (temperature < 0.2 || temperature > 1.0) {
+            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
+        }
 
-        ChatResponse result = coverLetterService.generateEvaluate(
-                temp,
-                content
+        ChatResponse result = coverLetterService.generateSummaryCV(
+                temperature,
+                cvId,
+                position_highlight,
+                skill_highlight
         );
-        return result;
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping(value = "/checkBuzz", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> generatedCoverLetter(
+            @RequestParam float temperature,
+            @RequestParam String description
+    ) {
+        if (temperature < 0.2 || temperature > 1.0) {
+            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
+        }
+
+        //return coverLetterService.generateEvaluate(temperature, description);
+        return null;
     }
 
 
@@ -74,13 +94,13 @@ public class CoverLetterController {
         return result;
     }
 
-    @PostMapping("/{UsersId}/cover-letter")
-    public CoverLetterViewDto createCoverLetter(@PathVariable("UsersId") int UsersId, @RequestBody CoverLetterAddDto Dto) {
+    @PostMapping("/{users-id}/cover-letter")
+    public CoverLetterViewDto createCoverLetter(@PathVariable("users-id") int UsersId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(UsersId, Dto);
     }
 
-    @PutMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public String updateCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
+    @PutMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    public String updateCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
         boolean check = coverLetterService.updateCoverLetter(UsersId, coverLetterId, Dto);
         if (check) {
             return "Changes saved";
@@ -89,8 +109,8 @@ public class CoverLetterController {
         }
     }
 
-    @DeleteMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public String deleteCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId) {
+    @DeleteMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    public String deleteCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         boolean check = coverLetterService.deleteCoverLetterById(UsersId, coverLetterId);
         if (check) {
             return "Delete success";
@@ -99,8 +119,8 @@ public class CoverLetterController {
         }
     }
 
-    @GetMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public CoverLetterDto getCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId) {
+    @GetMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    public CoverLetterDto getCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
 
