@@ -15,6 +15,8 @@ public class Ats {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String ats;
     @ManyToOne
     @JoinColumn(name = "job_description_id")

@@ -15,18 +15,21 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @TypeDef(name = "json", typeClass = JsonType.class)
-public class ApplicationLog {
+public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private LocalDate timestamp;
+    @Column(columnDefinition = "NVARCHAR(30)")
+    private String version;
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
-    private String cv;
+    private String cvBody;
 
-    @ManyToOne
-    @JoinColumn(name = "job_posting_id")
-    private JobPosting jobPosting;
+    private LocalDate timestamp;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cv_id")
+    private Cv cv;
 }

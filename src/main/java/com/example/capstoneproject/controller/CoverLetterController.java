@@ -29,11 +29,9 @@ public class CoverLetterController {
     public ResponseEntity<?> generateCoverLetter(
             @RequestParam float temperature,
             @RequestParam String company,
-            @RequestParam String title,
+            @RequestParam String job_title,
             @RequestParam int cvId,
-            @RequestParam(required = false) String dear,
-            @RequestParam String name,
-            @RequestParam String description
+            @RequestParam String job_description
     ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
@@ -41,12 +39,30 @@ public class CoverLetterController {
 
         ChatResponse result = coverLetterService.generateCoverLetter(
                 temperature,
-                title,
+                job_title,
                 cvId,
-                dear,
-                name,
                 company,
-                description
+                job_description
+        );
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/summary")
+    public ResponseEntity<?> generateSummary(
+            @RequestParam float temperature,
+            @RequestParam Integer cvId,
+            @RequestParam String position_highlight,
+            @RequestParam String skill_highlight
+    ) throws JsonProcessingException {
+        if (temperature < 0.2 || temperature > 1.0) {
+            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
+        }
+
+        ChatResponse result = coverLetterService.generateSummaryCV(
+                temperature,
+                cvId,
+                position_highlight,
+                skill_highlight
         );
         return ResponseEntity.ok(result);
     }
@@ -78,13 +94,13 @@ public class CoverLetterController {
         return result;
     }
 
-    @PostMapping("/{UsersId}/cover-letter")
-    public CoverLetterViewDto createCoverLetter(@PathVariable("UsersId") int UsersId, @RequestBody CoverLetterAddDto Dto) {
+    @PostMapping("/{users-id}/cover-letter")
+    public CoverLetterViewDto createCoverLetter(@PathVariable("users-id") int UsersId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(UsersId, Dto);
     }
 
-    @PutMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public String updateCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
+    @PutMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    public String updateCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
         boolean check = coverLetterService.updateCoverLetter(UsersId, coverLetterId, Dto);
         if (check) {
             return "Changes saved";
@@ -93,8 +109,8 @@ public class CoverLetterController {
         }
     }
 
-    @DeleteMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public String deleteCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId) {
+    @DeleteMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    public String deleteCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         boolean check = coverLetterService.deleteCoverLetterById(UsersId, coverLetterId);
         if (check) {
             return "Delete success";
@@ -103,8 +119,8 @@ public class CoverLetterController {
         }
     }
 
-    @GetMapping("/{UsersId}/cover-letter/{coverLetterId}")
-    public CoverLetterDto getCoverLetter(@PathVariable("UsersId") int UsersId, @PathVariable("coverLetterId") int coverLetterId) {
+    @GetMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    public CoverLetterDto getCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
 

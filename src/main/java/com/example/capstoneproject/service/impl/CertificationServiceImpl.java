@@ -212,7 +212,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             } else {
                 certificationDto.setIsDisplay(false);
             }
-            certificationDto.setTheOrder(list.size() + 1);
+//            certificationDto.setTheOrder(list.size() + 1);
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
                 cvBodyDto.getCertifications().add(certificationDto);
@@ -245,10 +245,12 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
 //                    });
                     cvBodyDto.getCertifications().removeIf(e -> e.getId() == CertificationId);
                     cvService.updateCvBody(x.getId(), cvBodyDto);
+
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
             });
         }
     }
+
 }

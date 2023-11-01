@@ -1,7 +1,6 @@
 package com.example.capstoneproject.Dto;
 
 import com.example.capstoneproject.entity.JobDescription;
-import com.example.capstoneproject.entity.Template;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.vladmihalcea.hibernate.type.json.JsonType;
@@ -37,8 +36,6 @@ public class CvDupDto {
     private String evaluation;
 
     private Users user;
-
-    private Template template;
 
     private JobDescription jobDescription;
 }

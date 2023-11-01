@@ -5,6 +5,7 @@ import com.example.capstoneproject.enums.BasicStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,6 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Integer>
     List<JobPosting> findByUser_IdAndStatus(Integer userId, BasicStatus status);
 
     List<JobPosting> findByShare(BasicStatus status);
+    Optional<JobPosting> findByIdAndStatusAndShare(Integer postingId, BasicStatus status, BasicStatus share);
+    List<JobPosting> findByDeadline(LocalDate deadline);
 }

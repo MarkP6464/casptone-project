@@ -17,8 +17,8 @@ public class ReviewRatingController {
         this.reviewRatingService = reviewRatingService;
     }
 
-    @PutMapping("/{userId}/rating/{ratingId}")
-    public ResponseEntity<?> updateRating(@PathVariable("userId") Integer userId, @PathVariable("ratingId") Integer ratingId, ReviewRatingDto dto) {
+    @PutMapping("/{user-id}/rating/{rating-id}")
+    public ResponseEntity<?> updateRating(@PathVariable("user-id") Integer userId, @PathVariable("rating-id") Integer ratingId, ReviewRatingDto dto) {
         if (reviewRatingService.updateReviewRating(userId, ratingId, dto)) {
             return ResponseEntity.ok("Update success");
         } else {
@@ -26,8 +26,8 @@ public class ReviewRatingController {
         }
     }
 
-    @DeleteMapping("/{userId}/rating/{ratingId}")
-    public ResponseEntity<?> deleteRating(@PathVariable("userId") Integer userId, @PathVariable("ratingId") Integer ratingId) {
+    @DeleteMapping("/{user-id}/rating/{rating-id}")
+    public ResponseEntity<?> deleteRating(@PathVariable("user-id") Integer userId, @PathVariable("rating-id") Integer ratingId) {
         if (reviewRatingService.deleteReviewRating(userId, ratingId)) {
             return ResponseEntity.ok("Delete success");
         } else {
@@ -35,8 +35,8 @@ public class ReviewRatingController {
         }
     }
 
-    @PostMapping("/{userId}/review-response/{responseId}")
-    public ResponseEntity<?> createRating(@PathVariable("userId") Integer userId, @PathVariable("responseId") Integer responseId, ReviewRatingDto dto) {
+    @PostMapping("/{user-id}/review-response/{review-response-id}")
+    public ResponseEntity<?> createRating(@PathVariable("user-id") Integer userId, @PathVariable("review-response-id") Integer responseId, ReviewRatingDto dto) {
         return ResponseEntity.ok(reviewRatingService.createReviewRating(userId, responseId, dto));
     }
 }

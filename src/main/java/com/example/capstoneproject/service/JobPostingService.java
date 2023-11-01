@@ -16,5 +16,6 @@ public interface JobPostingService {
     boolean share(Integer hrId, Integer jobPostingId);
     JobPostingViewDto getByHr(Integer hrId, Integer jobPostingId);
     List<JobPostingViewDto> getListByHr(Integer hrId, BasicStatus share);
-    List<JobPostingViewDto> getListPublic(Integer cvId, String title, String working, String location) throws JsonProcessingException;
+    List<JobPostingViewDto> getListPublic(Integer userId, Integer cvId, String title, String working, String location) throws JsonProcessingException;
+
 }

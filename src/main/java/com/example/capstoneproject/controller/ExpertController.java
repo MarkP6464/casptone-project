@@ -17,8 +17,8 @@ public class ExpertController {
         this.expertService = expertService;
     }
 
-    @PutMapping("/expert/{expertId}")
-    public ResponseEntity<?> updateExpert(@PathVariable("expertId") Integer expertId, ExpertUpdateDto dto) {
+    @PutMapping("/expert/{expert-id}")
+    public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, ExpertUpdateDto dto) {
         if (expertService.updateExpert(expertId, dto)) {
             return ResponseEntity.ok("Update success");
         } else {
@@ -26,8 +26,8 @@ public class ExpertController {
         }
     }
 
-    @GetMapping("/expert/{expertId}")
-    public ResponseEntity<?> getExpert(@PathVariable("expertId") Integer expertId){
+    @GetMapping("/expert/{expert-id}")
+    public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
         return ResponseEntity.ok(expertService.getProfileExpert(expertId));
     }
 

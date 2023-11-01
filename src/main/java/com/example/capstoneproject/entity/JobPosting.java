@@ -17,8 +17,10 @@ public class JobPosting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String title;
 
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String workingType;
 
     @Column(columnDefinition = "TEXT")
@@ -32,6 +34,8 @@ public class JobPosting {
 
     private Integer salary;
 
+    private LocalDate deadline;
+
     private LocalDate createDate;
 
     private LocalDate updateDate;
@@ -44,3 +48,4 @@ public class JobPosting {
     @JoinColumn(name = "user_id")
     private Users user;
 }
+

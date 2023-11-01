@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
 @Setter
-public class JobPostingViewDto {
-
+public class ApplicationLogViewDto {
     private Integer id;
 
     private String title;
@@ -35,4 +35,7 @@ public class JobPostingViewDto {
     private BasicStatus status;
 
     private BasicStatus share;
+
+    private List<CvViewDto> cvs;
+
 }

@@ -18,12 +18,16 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String Title;
 
+    @Column(columnDefinition = "NVARCHAR(40)")
     private String Organization;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String duration;
 
+    @Column(columnDefinition = "TEXT")
     private String ProjectUrl;
 
     @Column(columnDefinition = "TEXT")

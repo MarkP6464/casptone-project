@@ -18,9 +18,13 @@ public class JobDescription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "job_description_id")
     private Integer id;
+
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String title;
+
     @Column(columnDefinition = "TEXT")
     private String description;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ats")
     private List<Ats> ats;
 }

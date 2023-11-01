@@ -18,18 +18,23 @@ public class Education {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String Degree;
 
+    @Column(columnDefinition = "NVARCHAR(40)")
     private String CollegeName;
 
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String Location;
 
     private Integer EndYear;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String Minor;
 
     private double Gpa;
 
+    @Column(columnDefinition = "TEXT")
     private String Description;
 
     @Enumerated(EnumType.STRING)

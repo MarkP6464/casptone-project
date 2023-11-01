@@ -17,10 +17,9 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
 
     List<Users> findAllByRole_RoleName(RoleType roleName);
 
-    @Query("SELECT u FROM Users u WHERE u.id = :userId AND u.role.roleName = :roleName")
+    @Query("SELECT u FROM Users u WHERE u.id = :userId")
     Optional<Users> findByUserIdAndRoleName(
-            @Param("userId") Integer userId,
-            @Param("roleName") RoleType roleName
+            @Param("userId") Integer userId
     );
 
     Optional<Users> findByIdAndRole_RoleName(Integer userId, RoleType roleType);

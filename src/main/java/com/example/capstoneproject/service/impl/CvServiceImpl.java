@@ -75,9 +75,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     UsersRepository usersRepository;
 
     @Autowired
-    TemplateRepository templateRepository;
-
-    @Autowired
     JobDescriptionRepository jobDescriptionRepository;
 
     @Autowired
@@ -296,7 +293,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
 
                 }
-                cvDupDto.setTemplate(cv.getTemplate());
                 cvDupDto.setUser(cv.getUser());
                 Cv cvReturn = cvRepository.save(modelMapper.map(cvDupDto, Cv.class));
                 cvDto.setId(cvReturn.getId());
@@ -378,35 +374,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
     @Override
-    public boolean updateCvTemplate(int UsersId, int cvId, int templateId) {
-        Optional<Users> UsersOptional = usersRepository.findById(UsersId);
-
-        if (UsersOptional.isPresent()) {
-            Optional<Cv> cvOptional = cvRepository.findById(cvId);
-
-            if (cvOptional.isPresent()) {
-                Cv cv = cvOptional.get();
-                Optional<Template> templateOptional = templateRepository.findById(templateId);
-
-                if (templateOptional.isPresent()) {
-                    Template template = templateOptional.get();
-                    cv.setTemplate(template);
-
-                    cvRepository.save(cv);
-
-                    return true;
-                } else {
-                    throw new IllegalArgumentException("TemplateId not found: " + templateId);
-                }
-            } else {
-                throw new IllegalArgumentException("CvId not found: " + cvId);
-            }
-        } else {
-            throw new IllegalArgumentException("UsersId not found: " + UsersId);
-        }
-    }
-
-    @Override
     public CvBodyDto getCvBody(int cvId) throws JsonProcessingException {
         return getCvById(cvId).deserialize();
     }
@@ -457,70 +424,81 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
             List<ContentDto> contentList = new ArrayList<>();
             List<ContentDto> practiceList = new ArrayList<>();
             List<ContentDto> optimizationList = new ArrayList<>();
-            cvBodyDto.getSkills().forEach(x -> {
-                String description = x.getDescription();
-                String word = description;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
-            });
+            for (SkillDto x : cvBodyDto.getSkills()) {
+                if (x.getIsDisplay()) {
+                    String description = x.getDescription();
+                    String[] words = description.split("\\s+");
+                    totalWords[0] += words.length;
+                }
+            }
 
             cvBodyDto.getCertifications().forEach(x -> {
-                String skill = x.getCertificateRelevance();
-                String word = skill;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
+                if(x.getIsDisplay()){
+                    String skill = x.getCertificateRelevance();
+                    String word = skill;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                }
             });
 
             cvBodyDto.getEducations().forEach(x -> {
-                String minor = x.getMinor();
-                String description = x.getDescription();
-                String word = description + " " + minor;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
+                if(x.getIsDisplay()){
+                    String minor = x.getMinor();
+                    String description = x.getDescription();
+                    String word = description + " " + minor;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                }
             });
 
             cvBodyDto.getExperiences().forEach(x -> {
-                int experienceId = x.getId();
-                String title = x.getRole();
-                String location = x.getLocation();
-                String duration = x.getDuration();
-                String company = x.getCompanyName();
-                String description = x.getDescription();
-                String word = title + " " + location + " " + company + " " + description;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
-                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
-                Experience e = experienceRepository.findById(x.getId().intValue()).get();
-                modelMapper.map(e, x);
+                if(x.getIsDisplay()){
+                    int experienceId = x.getId();
+                    String title = x.getRole();
+                    String location = x.getLocation();
+                    String duration = x.getDuration();
+                    String company = x.getCompanyName();
+                    String description = x.getDescription();
+                    String word = title + " " + location + " " + company + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
+                    Experience e = experienceRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
             });
 
             cvBodyDto.getProjects().forEach(x -> {
-                int projectId = x.getId();
-                String title = x.getTitle();
-                String duration = x.getDuration();
-                String organization = x.getOrganization();
-                String description = x.getDescription();
-                String word = title + " " + organization + " " + description;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
-                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
-                Project e = projectRepository.findById(x.getId().intValue()).get();
-                modelMapper.map(e, x);
+                if(x.getIsDisplay()){
+                    int projectId = x.getId();
+                    String title = x.getTitle();
+                    String duration = x.getDuration();
+                    String organization = x.getOrganization();
+                    String description = x.getDescription();
+                    String word = title + " " + organization + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
+                    Project e = projectRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
             });
 
             cvBodyDto.getInvolvements().forEach(x -> {
-                int involvementId = x.getId();
-                String duration = x.getDuration();
-                String title = x.getOrganizationRole();
-                String name = x.getOrganizationName();
-                String college = x.getCollege();
-                String description = x.getDescription();
-                String word = title + " " + name + " " + college + " " + description;
-                String[] words = word.split("\\s+");
-                totalWords[0] += words.length;
-                sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
-                Involvement e = involvementRepository.findById(x.getId().intValue()).get();
-                modelMapper.map(e, x);
+                if(x.getIsDisplay()){
+                    int involvementId = x.getId();
+                    String duration = x.getDuration();
+                    String title = x.getOrganizationRole();
+                    String name = x.getOrganizationName();
+                    String college = x.getCollege();
+                    String description = x.getDescription();
+                    String word = title + " " + name + " " + college + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
+                    Involvement e = involvementRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
             });
 
             //Evaluate with Content
@@ -675,6 +653,67 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         return Collections.emptyList();
     }
 
+    @Override
+    public Cv findByUser_IdAndId(Integer UsersId, Integer cvId) {
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(UsersId, cvId);
+        return cvOptional.orElse(null);
+    }
+
+    @Override
+    public boolean searchable(Integer userId, Integer cvId) {
+        Optional<Cv> cvOptional = cvRepository.findByIdAndUserId(cvId,userId);
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            Optional<Cv> cvOptional1 = cvRepository.findByIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+            if(cvOptional1.isPresent()){
+                Cv cv1 = cvOptional1.get();
+                cv1.setSearchable(true);
+                cvRepository.save(cv1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public List<CvAddNewDto> getListSearchable(String field) {
+        List<Cv> cvs = cvRepository.findAllByStatusAndSearchable(BasicStatus.ACTIVE,true);
+        return cvs.stream()
+                .filter(cv -> field == null || cv.getFieldOrDomain().contains(field))
+                .map(cv -> modelMapper.map(cv, CvAddNewDto.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CvResumeDto> getListResume(Integer userId) {
+        List<Cv> cvs = cvRepository.findAllByUsersIdAndStatus(userId, BasicStatus.ACTIVE);
+        return cvs.stream()
+                .map(x -> modelMapper.map(x, CvResumeDto.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ExperienceRoleDto> getListExperienceRole(Integer userId, Integer cvId) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
+        List<ExperienceRoleDto> experienceRoles = new ArrayList<>();
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            CvBodyDto cvBodyDto = cv.deserialize();
+            experienceRoles = cvBodyDto.getExperiences().stream()
+                    .filter(x -> x.getIsDisplay())
+                    .map(x -> {
+                        ExperienceRoleDto experienceRoleDto = new ExperienceRoleDto();
+                        experienceRoleDto.setId(x.getId());
+                        experienceRoleDto.setRole(x.getRole());
+                        return experienceRoleDto;
+                    })
+                    .collect(Collectors.toList());
+        }else {
+            throw new RuntimeException("User ID dont have this Cv ID.");
+        }
+        return experienceRoles;
+    }
+
     private List<ContentDto> evaluateContentSections(Cv cv, List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos) {
         List<ContentDto> contentList = new ArrayList<>();
         int evaluateId = 1;
@@ -685,7 +724,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
             List<ContentDetailDto> sameSections = findSameSections(sectionCvDtos, sections);
 
-            ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
+            ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
 
             if (i <= 6) {
                 contentList.add(contentDto);
@@ -729,7 +768,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                                     && section.getTypeName() == SectionEvaluate.experience && sectionCvDto.getLocation() == null
                                     && sectionCvDto.getTitle() != null) {
                                 sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-                                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
+                                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
                                 resultList.add(contentDto);
                             }
                         }
@@ -744,7 +783,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                             if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
                                     && (sectionCvDto.getDuration() == null && sectionCvDto.getTitle() != null)) {
                                 sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-                                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
+                                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
                                 resultList.add(contentDto);
                             }
                         }
@@ -755,7 +794,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     // Check phone = null
                     Optional<Users> users = usersRepository.findUsersById(userId);
                     if (users.isPresent() && users.get().getPhone() != null) {
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), null);
+                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                         // Do something
                     }
@@ -766,7 +805,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     Optional<Users> users1 = usersRepository.findUsersById(userId);
                     if (users1.isPresent() && users1.get().getLinkin() != null) {
                         // Do something
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), null);
+                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                     }
                     break;
@@ -775,7 +814,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     // Check count word
                     if (totalWords[0] < 300) {
                         String totalWordsString = Arrays.toString(totalWords);
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription() + totalWordsString, null);
+                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription() + totalWordsString, null);
                         resultList.add(contentDto);
                     }
                     break;
@@ -784,7 +823,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     // Check summary
                     Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
                     if (cv1.getSummary() == null || cv1.getSummary().length() < 30) {
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), null);
+                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                     }
                     break;
@@ -795,7 +834,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         }
         return resultList;
     }
-
 
     private List<ContentDto> evaluateOptimational(List<Evaluate> evaluates, int cvId) {
         List<ContentDto> contentDtoList = new ArrayList<>();
@@ -822,11 +860,10 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     break;
             }
 
-            contentDtoList.add(new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections));
+            contentDtoList.add(new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections));
         }
 
         return contentDtoList;
     }
-
 
 }

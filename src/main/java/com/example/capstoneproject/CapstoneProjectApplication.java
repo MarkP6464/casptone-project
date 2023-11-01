@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Properties;
 
@@ -17,10 +18,11 @@ import java.util.Properties;
         }
 )
 @SpringBootApplication
+@EnableScheduling
 public class CapstoneProjectApplication {
 
     public static void main(String[] args) {
-//        initializeStanfordCoreNLP();
+        initializeStanfordCoreNLP();
 //		String fullString = "Participating in MoMo Talent Program 2022. Contributing to the gamification campaign, MoMo Barista, with a target of achieving 4,000,000 MAU. Defining data tracking in collaboration with developers. Collaborating with marketing, agencies, and developers to manage 800 recipes and 8000 categories.";
 //		String substring = "achieving 4,000,000 MAU. Defining";
 //
