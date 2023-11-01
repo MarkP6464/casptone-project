@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/user")
 public class UsersController {
 
     @Autowired
@@ -31,14 +31,14 @@ public class UsersController {
         return UsersService.getContactById(id);
     }
 
-    @GetMapping("/{userId}")
-    public UsersViewDto getAllInfo(@PathVariable("userId") Integer userId) {
+    @GetMapping("/{user-id}")
+    public UsersViewDto getAllInfo(@PathVariable("user-id") Integer userId) {
         Users user = UsersService.getUsersById(userId);
         return usersMapper.toView(user);
     }
 
-    @GetMapping("/{userId}/micro")
-    public UsersDto findByIdAndRoleName(@PathVariable("userId") Integer userId) {
+    @GetMapping("/{user-id}/micro")
+    public UsersDto findByIdAndRoleName(@PathVariable("user-id") Integer userId) {
         return UsersService.findByIdAndRole_RoleName(userId);
     }
 }

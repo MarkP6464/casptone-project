@@ -19,17 +19,17 @@ public class Certification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "NVARCHAR(50)")
     @NotNull
     private String Name;
 
-    @Column(name = "certificate_source")
+    @Column(name = "certificate_source", columnDefinition = "NVARCHAR(50)")
     private String CertificateSource;
 
     @Column(name = "end_year")
-    private int EndYear;
+    private Integer EndYear;
 
-    @Column(name = "certificate_relevance")
+    @Column(name = "certificate_relevance", columnDefinition = "NVARCHAR(100)")
     private String CertificateRelevance;
 
     @Enumerated(EnumType.STRING)

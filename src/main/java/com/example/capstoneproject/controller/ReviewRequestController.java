@@ -22,8 +22,8 @@ public class ReviewRequestController {
         this.reviewRequestService = reviewRequestService;
     }
 
-    @GetMapping("/expert/{expertId}/request-reviews")
-    public ResponseEntity<?> getAllReviewRequest(@PathVariable("expertId") Integer expertId, @RequestParam("theRelation") AcceptControl theRelation, @RequestParam("orderByDate") String orderByDate) {
+    @GetMapping("/expert/{expert-id}/request-reviews")
+    public ResponseEntity<?> getAllReviewRequest(@PathVariable("expert-id") Integer expertId, @RequestParam("theRelation") AcceptControl theRelation, @RequestParam("orderByDate") String orderByDate) {
         List<ReviewRequestDto> result;
         switch (theRelation) {
             case ACCEPT:
@@ -42,13 +42,13 @@ public class ReviewRequestController {
     }
 
 
-    @PostMapping("/{cvId}/expert/{expertId}/request-review")
-    public ReviewRequestDto postReviewRequest(@PathVariable("cvId") int cvId, @PathVariable("expertId") int expertId, @RequestBody ReviewRequestAddDto Dto) {
+    @PostMapping("/{cv-id}/expert/{expert-id}/request-review")
+    public ReviewRequestDto postReviewRequest(@PathVariable("cv-id") int cvId, @PathVariable("expert-id") int expertId, @RequestBody ReviewRequestAddDto Dto) {
         return reviewRequestService.createReviewRequest(cvId,expertId,Dto);
     }
 
-    @PutMapping("/expert/{expertId}/review-request/{requestId}")
-    public ResponseEntity<?> updateEducation(@PathVariable("expertId") Integer expertId, @PathVariable("requestId") Integer requestId, AcceptControl theRelation) throws JsonProcessingException {
+    @PutMapping("/expert/{expert-id}/review-request/{request-id}")
+    public ResponseEntity<?> updateEducation(@PathVariable("expert-id") Integer expertId, @PathVariable("request-id") Integer requestId, AcceptControl theRelation) throws JsonProcessingException {
         switch (theRelation) {
             case ACCEPT:
                 return ResponseEntity.ok(reviewRequestService.acceptReviewRequest(expertId, requestId));

@@ -8,24 +8,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/Users")
+@RequestMapping("/api/v1/users")
 public class JobDescriptionController {
 
     @Autowired
     JobDescriptionService jobDescriptionService;
 
-    @PostMapping("cv/{cvId}/job-description")
-    public JobDescriptionViewDto postJobDescription(@PathVariable("cvId") int cvId, @RequestBody JobDescriptionDto Dto) throws JsonProcessingException {
+    @PostMapping("cv/{cv-id}/job-description")
+    public JobDescriptionViewDto postJobDescription(@PathVariable("cv-id") int cvId, @RequestBody JobDescriptionDto Dto) throws JsonProcessingException {
         return jobDescriptionService.createJobDescription(cvId,Dto);
     }
 
-    @GetMapping("cv/{cvId}/job-description/{jobId}")
-    public JobDescriptionViewDto getJobDescription(@PathVariable("cvId") int cvId, @PathVariable("jobId") int jobId) throws JsonProcessingException {
+    @GetMapping("cv/{cv-id}/job-description/{job-description-id}")
+    public JobDescriptionViewDto getJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId) throws JsonProcessingException {
         return jobDescriptionService.getJobDescription(cvId,jobId);
     }
 
-    @PutMapping("cv/{cvId}/job-description/{jobId}")
-    public JobDescriptionViewDto putJobDescription(@PathVariable("cvId") int cvId, @PathVariable("jobId") int jobId, @RequestBody JobDescriptionDto Dto) throws Exception {
+    @PutMapping("cv/{cv-id}/job-description/{job-description-id}")
+    public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId, @RequestBody JobDescriptionDto Dto) throws Exception {
         return jobDescriptionService.updateJobDescription(cvId,jobId,Dto);
     }
 }

@@ -18,12 +18,16 @@ public class Experience {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String Role;
 
+    @Column(columnDefinition = "NVARCHAR(40)")
     private String CompanyName;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String duration;
 
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String Location;
 
     @Column(columnDefinition = "TEXT")

@@ -26,44 +26,44 @@ public class ReviewResponseController {
         this.reviewResponseService = reviewResponseService;
     }
 
-    @PostMapping("/expert/{expertId}/review-response/{responseId}/comment")
-    public ResponseEntity<?> postReviewResponse(@PathVariable("expertId") Integer expertId, @PathVariable("responseId") Integer responseId, CommentDto dto) throws JsonProcessingException {
+    @PostMapping("/expert/{expert-id}/review-response/{response-id}/comment")
+    public ResponseEntity<?> postReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, CommentDto dto) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.createComment(expertId, responseId,dto));
     }
 
-    @PutMapping("/expert/{expertId}/review-response/{responseId}/comment/{commentId}")
-    public ResponseEntity<?> putReviewResponse(@PathVariable("expertId") Integer expertId, @PathVariable("responseId") Integer responseId, @PathVariable("commentId") String commentId,String newContent) throws JsonProcessingException {
+    @PutMapping("/expert/{expert-id}/review-response/{response-id}/comment/{commentId}")
+    public ResponseEntity<?> putReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @PathVariable("commentId") String commentId,String newContent) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.updateComment(expertId, responseId,commentId,newContent));
     }
 
-    @DeleteMapping("/expert/{expertId}/review-response/{responseId}/comment/{commentId}")
-    public ResponseEntity<?> deleteReviewResponse(@PathVariable("expertId") Integer expertId, @PathVariable("responseId") Integer responseId, @PathVariable("commentId") String commentId) throws JsonProcessingException {
+    @DeleteMapping("/expert/{expert-id}/review-response/{response-id}/comment/{comment-id}")
+    public ResponseEntity<?> deleteReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @PathVariable("comment-id") String commentId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.deleteComment(expertId, responseId,commentId));
     }
 
-    @PutMapping("/expert/{expertId}/review-response/{responseId}/overall")
-    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expertId") Integer expertId, @PathVariable("responseId") Integer responseId, ReviewResponseUpdateDto dto)  {
+    @PutMapping("/expert/{expert-id}/review-response/{response-id}/overall")
+    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, ReviewResponseUpdateDto dto)  {
         return ResponseEntity.ok(reviewResponseService.updateReviewResponse(expertId, responseId,dto));
     }
 
-    @PutMapping("/expert/{expertId}/review-response/{responseId}/public")
-    public ResponseEntity<?> publicReviewResponseOverall(@PathVariable("expertId") Integer expertId, @PathVariable("responseId") Integer responseId)  {
+    @PutMapping("/expert/{expert-id}/review-response/{response-id}/public")
+    public ResponseEntity<?> publicReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId)  {
         return ResponseEntity.ok(reviewResponseService.publicReviewResponse(expertId, responseId));
     }
 
-    @GetMapping("/user/{userId}/review-request/{requestId}/review-response")
-    public ResponseEntity<?> getReviewResponse(@PathVariable("userId") Integer userId, @PathVariable("requestId") Integer requestId) throws JsonProcessingException {
+    @GetMapping("/user/{user-id}/review-request/{request-id}/review-response")
+    public ResponseEntity<?> getReviewResponse(@PathVariable("user-id") Integer userId, @PathVariable("request-id") Integer requestId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.receiveReviewResponse(userId, requestId));
     }
 
-    @GetMapping("/expert/{expertId}/review-response/{responseId}")
-    public ResponseEntity<?> getReviewResponseDetail(@PathVariable("expertId") Integer expertId, @PathVariable("responseId") Integer responseId) throws JsonProcessingException {
+    @GetMapping("/expert/{expert-id}/review-response/{response-id}")
+    public ResponseEntity<?> getReviewResponseDetail(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.getReviewResponse(expertId, responseId));
     }
 
-    @GetMapping("/expert/{expertId}/review-responses")
+    @GetMapping("/expert/{expert-id}/review-responses")
     public ResponseEntity<List<ReviewResponseDto>> getDaftReviewResponses(
-            @PathVariable("expertId") Integer expertId,
+            @PathVariable("expert-id") Integer expertId,
             @RequestParam(name = "status", required = false) SendControl status
     ) throws JsonProcessingException {
         List<ReviewResponseDto> daftReviewResponses;

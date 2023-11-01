@@ -22,6 +22,8 @@ public class Section {
     @Enumerated(EnumType.STRING)
     private SectionEvaluate TypeName;
     private int TypeId;
+
+    @Column(columnDefinition = "NVARCHAR(20)")
     private String Title;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "section")

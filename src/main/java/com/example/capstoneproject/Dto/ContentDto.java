@@ -12,7 +12,6 @@ import java.util.List;
 @Setter
 public class ContentDto {
     private String title;
-    private String more;
     private String description;
     private List<ContentDetailDto> detail;
 }

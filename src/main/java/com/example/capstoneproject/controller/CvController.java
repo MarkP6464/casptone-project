@@ -20,28 +20,28 @@ public class CvController {
         this.cvService = cvService;
     }
 
-    @GetMapping("/{UsersId}/cvs")
-    public List<CvViewDto> getCvsById(@PathVariable("UsersId") Integer UsersId, @RequestParam(required = false) String content) {
+    @GetMapping("/{user-id}/cvs")
+    public List<CvViewDto> getCvsById(@PathVariable("user-id") Integer UsersId, @RequestParam(required = false) String content) {
         return cvService.GetCvsById(UsersId, content);
     }
 
-    @PostMapping("/user/{userId}/cv/{cvId}/duplicate")
-    public CvDto duplicationCv(@PathVariable("userId") Integer userId, @PathVariable("cvId") Integer cvId) throws JsonProcessingException {
+    @PostMapping("/user/{user-id}/cv/{cv-id}/duplicate")
+    public CvDto duplicationCv(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
         return  cvService.duplicateCv(userId, cvId);
     }
 
-    @GetMapping("/{UsersId}/cv/{cvId}")
-    public CvAddNewDto getCvAndRelationsByCvId(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId) throws JsonProcessingException {
+    @GetMapping("/{user-id}/cv/{cv-id}")
+    public CvAddNewDto getCvAndRelationsByCvId(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.GetCvByCvId(UsersId, cvId);
     }
 
-    @PostMapping("/{UsersId}/cv")
-    public CvAddNewDto postCv(@PathVariable("UsersId") int UsersId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
+    @PostMapping("/{user-id}/cv")
+    public CvAddNewDto postCv(@PathVariable("user-id") int UsersId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
         return cvService.createCv(UsersId, Dto);
     }
 
-    @PutMapping("/{UsersId}/updateCvBody/{cvId}")
-    public String updateCvBody(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
+    @PutMapping("/{user-id}/cv/{cv-id}/cv-body")
+    public String updateCvBody(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
         boolean check = cvService.updateCvBody(cvId, Dto);
         if (check) {
             return "Changes saved";
@@ -50,13 +50,13 @@ public class CvController {
         }
     }
 
-    @GetMapping("/finishUp/{cvId}")
-    public CvAddNewDto getFinishUp(@PathVariable("cvId") int cvId) throws JsonProcessingException {
+    @GetMapping("/cv/{cv-id}/finish-up")
+    public CvAddNewDto getFinishUp(@PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.finishUp(cvId);
     }
 
-    @PutMapping("/{UsersId}/cv/{cvId}/summary")
-    public String updateSummary(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvUpdateSumDto Dto) {
+    @PutMapping("/{user-id}/cv/{cv-id}/summary")
+    public String updateSummary(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @RequestBody CvUpdateSumDto Dto) {
         boolean check = cvService.updateCvSummary(UsersId, cvId, Dto);
         if (check) {
             return "Changes saved";
@@ -65,9 +65,14 @@ public class CvController {
         }
     }
 
-//    @PutMapping("/{UsersId}/cv/{cvId}/content")
-//    public String updateContent(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @RequestBody CvAddNewDto Dto) {
-//        boolean check = cvService.updateCvContent(UsersId, cvId, Dto);
+    @PutMapping("/{user-id}/contact")
+    public UsersViewDto updateContact(@PathVariable("user-id") int UsersId, @RequestBody UsersViewDto dto) {
+        return cvService.updateCvContact(UsersId, dto);
+    }
+
+//    @PutMapping("/{user-id}/cv/{cv-id}/template/{template-id}")
+//    public String updateTemplate(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @PathVariable("template-id") int templateId) {
+//        boolean check = cvService.updateCvTemplate(UsersId, cvId, templateId);
 //        if (check) {
 //            return "Changes saved";
 //        } else {
@@ -75,32 +80,43 @@ public class CvController {
 //        }
 //    }
 
-    @PutMapping("/{UsersId}/contact")
-    public UsersViewDto updateContact(@PathVariable("UsersId") int UsersId, @RequestBody UsersViewDto dto) {
-        return cvService.updateCvContact(UsersId, dto);
-    }
-
-    @PutMapping("/{UsersId}/cv/{cvId}/template/{templateId}")
-    public String updateTemplate(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId, @PathVariable("templateId") int templateId) {
-        boolean check = cvService.updateCvTemplate(UsersId, cvId, templateId);
-        if (check) {
-            return "Changes saved";
-        } else {
-            return "Changes fail";
-        }
-    }
-
-    @DeleteMapping("/{UsersId}/cv/{cvId}")
-    public String deleteCv(@PathVariable("UsersId") int UsersId, @PathVariable("cvId") int cvId) {
+    @DeleteMapping("/{user-id}/cv/{cv-id}")
+    public String deleteCv(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId) {
         cvService.deleteCvById(UsersId, cvId);
         return "Delete successful";
     }
 
-
-    @GetMapping("{userId}/cvs/{cvId}")
-    public List<ScoreDto> getCvsById1(@PathVariable("userId") int userId, @PathVariable("cvId") int cvId) throws JsonProcessingException {
+    @GetMapping("{user-id}/cv/{cv-id}/evaluate")
+    public List<ScoreDto> getEvaluateCV(@PathVariable("user-id") int userId, @PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.getEvaluateCv(userId, cvId);
     }
+
+    @PutMapping("/{user-id}/cv/{cv-id}/public")
+    public String searchable(@PathVariable("user-id") int userId, @PathVariable("cv-id") int cvId) {
+        boolean check = cvService.searchable(userId, cvId);
+        if (check) {
+            return "Public saved";
+        } else {
+            return "Public fail";
+        }
+    }
+
+    @GetMapping("/cvs/public")
+    public List<CvAddNewDto> getSearchable(@RequestParam(required = false) String field) {
+        return cvService.getListSearchable(field);
+    }
+
+    @GetMapping("/{user-id}/cvs/resume")
+    public List<CvResumeDto> getListResume(@PathVariable("user-id") Integer userId) {
+        return cvService.getListResume(userId);
+    }
+
+    @GetMapping("/{user-id}/cv/{cv-id}/experiences/role-names")
+    public List<ExperienceRoleDto> getListExperienceRole(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
+        return cvService.getListExperienceRole(userId,cvId);
+    }
+
+
 
     @GetMapping("/{userId}/cv/{cvId}/micro")
     public Cv findByUserIdAndId(@PathVariable("userId") Integer userId, @PathVariable("cvId") Integer cvId) throws JsonProcessingException {

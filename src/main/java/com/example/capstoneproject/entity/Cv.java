@@ -14,6 +14,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,10 +26,13 @@ public class Cv {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String resumeName;
 
+    @Column(columnDefinition = "NVARCHAR(40)")
     private String fieldOrDomain;
 
+    @Column(columnDefinition = "NVARCHAR(30)")
     private String experience;
 
     private Boolean sharable;
@@ -39,7 +43,7 @@ public class Cv {
     private String Summary;
 
     @Enumerated(EnumType.STRING)
-    private BasicStatus Status;
+    private BasicStatus status;
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
@@ -53,13 +57,12 @@ public class Cv {
     @JoinColumn(name = "user_id")
     private Users user;
 
-    @ManyToOne
-    @JoinColumn(name = "template_id")
-    private Template template;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "job_description_id")
     private JobDescription jobDescription;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<History> histories;
 
     public String toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
