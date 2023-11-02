@@ -1,5 +1,9 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.Dto.CvBodyReviewDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,4 +36,16 @@ public class History {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cv_id")
     private Cv cv;
+
+    public String toHistoryCvBody(CvBodyReviewDto dto) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String map = objectMapper.writeValueAsString(dto);
+        this.setCvBody(map);
+        return map;
+    }
+
+    public CvBodyReviewDto deserialize() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(this.cvBody, CvBodyReviewDto.class);
+    }
 }

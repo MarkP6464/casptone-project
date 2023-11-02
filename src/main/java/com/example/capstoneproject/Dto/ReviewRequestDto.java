@@ -27,5 +27,7 @@ public class ReviewRequestDto {
 
     private Integer expertId;
 
+    private Integer historyId;
+
     private Cv cv;
 }

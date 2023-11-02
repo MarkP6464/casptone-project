@@ -2,14 +2,13 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Expert;
-import com.example.capstoneproject.entity.ReviewRequest;
-import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.ReviewRequestMapper;
 import com.example.capstoneproject.repository.ExpertRepository;
+import com.example.capstoneproject.repository.HistoryRepository;
 import com.example.capstoneproject.repository.ReviewRequestRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CvService;
@@ -53,6 +52,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     @Autowired
     ReviewResponseService reviewResponseService;
 
+    @Autowired
+    HistoryRepository historyRepository;
+
     public ReviewRequestServiceImpl(ReviewRequestRepository reviewRequestRepository, ReviewRequestMapper reviewRequestMapper) {
         super(reviewRequestRepository, reviewRequestMapper, reviewRequestRepository::findById);
         this.reviewRequestRepository = reviewRequestRepository;
@@ -68,18 +70,23 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         ReviewRequest saved;
         if(expertOptional.isPresent() && expertOptional.get().getPrice()!=null){
             if (cv != null) {
-                if (usersOptional.isPresent()) {
-                    Users users = usersOptional.get();
-                    reviewRequest.setReceivedDate(dto.getReceivedDate());
-                    reviewRequest.setNote(dto.getNote());
-                    reviewRequest.setStatus(ReviewStatus.PROCESSING);
-                    reviewRequest.setExpertId(users.getId());
-                    reviewRequest.setCv(cv);
-                    saved = reviewRequestRepository.save(reviewRequest);
-                    sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                    return reviewRequestMapper.mapEntityToDto(saved);
-                } else {
-                    throw new RuntimeException("Expert ID not found");
+                List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
+                if(histories!=null){
+                    History history = histories.get(0);
+                    if (usersOptional.isPresent()) {
+                        Users users = usersOptional.get();
+                        reviewRequest.setReceivedDate(dto.getReceivedDate());
+                        reviewRequest.setNote(dto.getNote());
+                        reviewRequest.setStatus(ReviewStatus.PROCESSING);
+                        reviewRequest.setExpertId(users.getId());
+                        reviewRequest.setHistoryId(history.getId());
+                        reviewRequest.setCv(cv);
+                        saved = reviewRequestRepository.save(reviewRequest);
+                        sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                        return reviewRequestMapper.mapEntityToDto(saved);
+                    } else {
+                        throw new RuntimeException("Expert ID not found");
+                    }
                 }
             } else {
                 throw new RuntimeException("CV ID not found");
@@ -118,7 +125,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 ReviewRequest reviewRequest = reviewRequestOptional.get();
                 reviewRequest.setStatus(ReviewStatus.ACCEPT);
                 saved = reviewRequestRepository.save(reviewRequest);
-                reviewResponseService.createReviewResponse(reviewRequest.getCv().getId(), reviewRequest.getId());
+                reviewResponseService.createReviewResponse(reviewRequest.getHistoryId(), reviewRequest.getId());
                 sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
             } else {
                 throw new RuntimeException("Expert ID incorrect or Request ID incorrect");
