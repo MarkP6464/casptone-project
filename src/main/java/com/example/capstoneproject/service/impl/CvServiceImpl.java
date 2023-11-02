@@ -45,6 +45,9 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     ProjectService projectService;
 
     @Autowired
+    HistoryService historyService;
+
+    @Autowired
     EducationRepository educationRepository;
     @Autowired
     SkillRepository skillRepository;
@@ -408,6 +411,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 modelMapper.map(e, x);
             });
             updateCvBody(cvId, cvBodyDto);
+            historyService.create(cv.getUser().getId(),cvId);
         }
         return cvMapper.mapEntityToDto(cv);
     }

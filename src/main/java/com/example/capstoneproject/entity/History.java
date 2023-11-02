@@ -12,6 +12,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @NoArgsConstructor
@@ -24,14 +25,11 @@ public class History {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
-    private String version;
-
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private String cvBody;
 
-    private LocalDate timestamp;
+    private Timestamp timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cv_id")

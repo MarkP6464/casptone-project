@@ -13,4 +13,6 @@ public interface HistoryRepository extends JpaRepository<History, Integer> {
     List<History> findAllByCv_IdAndCv_StatusOrderByTimestampDesc(Integer cvId, BasicStatus status);
 
     Optional<History> findById(Integer historyId);
+
+    Optional<History> findByCv_IdAndCv_StatusAndId(Integer cvId, BasicStatus status, Integer historyId);
 }

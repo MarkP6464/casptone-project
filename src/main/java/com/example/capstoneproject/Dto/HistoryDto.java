@@ -4,6 +4,8 @@ import com.example.capstoneproject.entity.Cv;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @NoArgsConstructor
@@ -12,11 +14,7 @@ import java.time.LocalDate;
 public class HistoryDto {
     private Integer id;
 
-    private String version;
+    private CvBodyReviewDto cvBody;
 
-    private String cvBody;
-
-    private LocalDate timestamp;
-
-    private Cv cv;
+    private Timestamp timestamp;
 }
