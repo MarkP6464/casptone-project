@@ -32,6 +32,8 @@ public class JobPosting {
     @Column(columnDefinition = "TEXT")
     private String requirement;
 
+    private Integer applyAgain;
+
     private Integer salary;
 
     private LocalDate deadline;

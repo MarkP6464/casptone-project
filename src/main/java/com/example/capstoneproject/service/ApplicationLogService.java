@@ -5,6 +5,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface ApplicationLogService {
-    boolean applyCvToPost(Integer userId, Integer cvId, Integer postingId) throws JsonProcessingException;
+    boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId) throws JsonProcessingException;
 
 }

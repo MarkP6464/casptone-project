@@ -22,7 +22,7 @@ import java.util.Properties;
 public class CapstoneProjectApplication {
 
     public static void main(String[] args) {
-        initializeStanfordCoreNLP();
+//        initializeStanfordCoreNLP();
         SpringApplication.run(CapstoneProjectApplication.class, args);
     }
 

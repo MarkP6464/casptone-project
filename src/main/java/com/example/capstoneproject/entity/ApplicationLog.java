@@ -26,7 +26,16 @@ public class ApplicationLog {
     @Column(columnDefinition = "json")
     private String cv;
 
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private String coverLetter;
+
     @ManyToOne
     @JoinColumn(name = "job_posting_id")
     private JobPosting jobPosting;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private Users user;
+
 }
