@@ -199,12 +199,8 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                 educationViewDto.setIsDisplay(false);
             }
             try {
-                educationViewDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try {
                 CvBodyDto cvBodyDto = x.deserialize();
+                educationViewDto.setTheOrder(cvBodyDto.getSkills().size() + 1);
                 cvBodyDto.getSkills().add(educationViewDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {
@@ -225,7 +221,13 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
                 try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
+                    SkillDto dto = cvBodyDto.getSkills().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                    cvBodyDto.getCertifications().forEach(c -> {
+                        if (c.getTheOrder() > dto.getTheOrder()){
+                            c.setTheOrder(c.getTheOrder() - 1);
+                        }
+                    });
                     cvBodyDto.getSkills().removeIf(e -> e.getId() == id);
                     cvService.updateCvBody(x.getId(), cvBodyDto);
 

@@ -1,5 +1,6 @@
 package com.example.capstoneproject.service.impl;
 
+import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.entity.Cv;
@@ -232,12 +233,8 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                 educationDto.setIsDisplay(false);
             }
             try {
-                educationDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try {
                 CvBodyDto cvBodyDto = x.deserialize();
+                educationDto.setTheOrder(cvBodyDto.getEducations().size() + 1);
                 cvBodyDto.getEducations().add(educationDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {
@@ -258,7 +255,13 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
                 try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
+                    EducationDto dto = cvBodyDto.getEducations().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                    cvBodyDto.getEducations().forEach(c -> {
+                        if (c.getTheOrder() > dto.getTheOrder()){
+                            c.setTheOrder(c.getTheOrder() - 1);
+                        }
+                    });
                     cvBodyDto.getEducations().removeIf(e -> e.getId() == educationId);
                     cvService.updateCvBody(x.getId(), cvBodyDto);
 
