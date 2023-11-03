@@ -9,7 +9,6 @@ import javax.persistence.*;
 
 
 @NoArgsConstructor
-
 @Getter
 @Setter
 @Entity

@@ -1,14 +1,12 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.CvDto;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -35,5 +33,10 @@ public class HistoryController {
     @GetMapping("/user/{user-id}/cv/{cv-id}/histories")
     public ResponseEntity<?> getListHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) {
         return ResponseEntity.ok(historyService.getListHistoryDate(userId,cvId));
+    }
+
+    @PostMapping("/user/{user-id}/cv/{cv-id}/history")
+    public ResponseEntity<?> createHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
+        return ResponseEntity.ok(historyService.create(userId, cvId));
     }
 }

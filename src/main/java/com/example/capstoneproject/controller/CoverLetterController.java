@@ -47,10 +47,10 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/summary")
+    @PostMapping("cv/{cv-id}/summary")
     public ResponseEntity<?> generateSummary(
             @RequestParam float temperature,
-            @RequestParam Integer cvId,
+            @PathVariable("cv-id") Integer cvId,
             @RequestParam String position_highlight,
             @RequestParam String skill_highlight
     ) throws JsonProcessingException {
@@ -67,18 +67,34 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping(value = "/checkBuzz", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> generatedCoverLetter(
+    @PostMapping("/cv/{cv-id}/review")
+    public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
-            @RequestParam String description
-    ) {
+            @PathVariable("cv-id") Integer cvId
+    ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
-            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
+            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
         }
 
-        //return coverLetterService.generateEvaluate(temperature, description);
-        return null;
+        ChatResponse result = coverLetterService.reviewCV(
+                temperature,
+                cvId
+        );
+        return ResponseEntity.ok(result);
     }
+
+//    @PostMapping(value = "/checkBuzz", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//    public Flux<String> generatedCoverLetter(
+//            @RequestParam float temperature,
+//            @RequestParam String description
+//    ) {
+//        if (temperature < 0.2 || temperature > 1.0) {
+//            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
+//        }
+//
+//        //return coverLetterService.generateEvaluate(temperature, description);
+//        return null;
+//    }
 
 
     @PostMapping("/cover-letter/revise")
@@ -94,12 +110,12 @@ public class CoverLetterController {
         return result;
     }
 
-    @PostMapping("/{users-id}/cover-letter")
+    @PostMapping("/user/{users-id}/cover-letter")
     public CoverLetterViewDto createCoverLetter(@PathVariable("users-id") int UsersId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(UsersId, Dto);
     }
 
-    @PutMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    @PutMapping("/user/{users-id}/cover-letter/{cover-letter-id}")
     public String updateCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
         boolean check = coverLetterService.updateCoverLetter(UsersId, coverLetterId, Dto);
         if (check) {
@@ -109,7 +125,7 @@ public class CoverLetterController {
         }
     }
 
-    @DeleteMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    @DeleteMapping("/user/{users-id}/cover-letter/{cover-letter-id}")
     public String deleteCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         boolean check = coverLetterService.deleteCoverLetterById(UsersId, coverLetterId);
         if (check) {
@@ -119,7 +135,7 @@ public class CoverLetterController {
         }
     }
 
-    @GetMapping("/{users-id}/cover-letter/{cover-letter-id}")
+    @GetMapping("/user/{users-id}/cover-letter/{cover-letter-id}")
     public CoverLetterDto getCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
