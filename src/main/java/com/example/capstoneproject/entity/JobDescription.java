@@ -19,7 +19,7 @@ public class JobDescription {
     @Column(name = "job_description_id")
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String title;
 
     @Column(columnDefinition = "TEXT")

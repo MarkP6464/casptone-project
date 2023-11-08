@@ -8,10 +8,8 @@ import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/v1/chat-gpt")
@@ -110,14 +108,14 @@ public class CoverLetterController {
         return result;
     }
 
-    @PostMapping("/user/{users-id}/cover-letter")
-    public CoverLetterViewDto createCoverLetter(@PathVariable("users-id") int UsersId, @RequestBody CoverLetterAddDto Dto) {
-        return coverLetterService.createCoverLetter(UsersId, Dto);
+    @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
+    public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId,@PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
+        return coverLetterService.createCoverLetter(userId, cvId, Dto);
     }
 
-    @PutMapping("/user/{users-id}/cover-letter/{cover-letter-id}")
-    public String updateCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
-        boolean check = coverLetterService.updateCoverLetter(UsersId, coverLetterId, Dto);
+    @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}")
+    public String updateCoverLetter(@PathVariable("cv-id") int cvId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
+        boolean check = coverLetterService.updateCoverLetter(cvId, coverLetterId, Dto);
         if (check) {
             return "Changes saved";
         } else {
@@ -125,8 +123,8 @@ public class CoverLetterController {
         }
     }
 
-    @DeleteMapping("/user/{users-id}/cover-letter/{cover-letter-id}")
-    public String deleteCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
+    @DeleteMapping("/user/{user-id}/cover-letter/{cover-letter-id}")
+    public String deleteCoverLetter(@PathVariable("user-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         boolean check = coverLetterService.deleteCoverLetterById(UsersId, coverLetterId);
         if (check) {
             return "Delete success";
@@ -135,8 +133,8 @@ public class CoverLetterController {
         }
     }
 
-    @GetMapping("/user/{users-id}/cover-letter/{cover-letter-id}")
-    public CoverLetterDto getCoverLetter(@PathVariable("users-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
+    @GetMapping("/user/{user-id}/cover-letter/{cover-letter-id}")
+    public CoverLetterDto getCoverLetter(@PathVariable("user-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
 

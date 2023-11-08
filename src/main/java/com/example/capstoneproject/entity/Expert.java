@@ -14,7 +14,7 @@ public class Expert{
     @Id
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String title;
 
     @Column(columnDefinition = "TEXT")

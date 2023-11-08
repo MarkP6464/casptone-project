@@ -26,13 +26,13 @@ public class Cv {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String resumeName;
 
-    @Column(columnDefinition = "NVARCHAR(40)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String fieldOrDomain;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String experience;
 
     private Boolean sharable;
@@ -52,6 +52,7 @@ public class Cv {
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private String evaluation;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "user_id")
@@ -61,8 +62,8 @@ public class Cv {
     @JoinColumn(name = "job_description_id")
     private JobDescription jobDescription;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<History> histories;
+    @OneToOne(mappedBy = "cv")
+    private Score score;
 
     public String toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

@@ -4,9 +4,7 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Experience;
 import com.example.capstoneproject.entity.Users;
-import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.mapper.CoverLetterMapper;
 import com.example.capstoneproject.repository.CoverLetterRepository;
 import com.example.capstoneproject.repository.CvRepository;
@@ -17,9 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -408,11 +404,12 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public CoverLetterViewDto createCoverLetter(Integer userId, CoverLetterAddDto dto) {
+    public CoverLetterViewDto createCoverLetter(Integer userId, Integer cvId, CoverLetterAddDto dto) {
         CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
-        Users Users = usersService.getUsersById(userId);
+//        Users Users = usersService.getUsersById(userId);
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
         coverLetter.setTitle(dto.getTitle());
-        coverLetter.setUser(Users);
+        coverLetter.setCv(cvOptional.get());
         CoverLetter saved = coverLetterRepository.save(coverLetter);
         CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
         coverLetterViewDto.setId(saved.getId());
@@ -421,12 +418,12 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public boolean updateCoverLetter(int UsersId, int coverLetterId, CoverLetterUpdateDto dto) {
+    public boolean updateCoverLetter(Integer cvId, Integer coverLetterId, CoverLetterUpdateDto dto) {
         Optional<CoverLetter> existingCoverLetterOptional = coverLetterRepository.findById(coverLetterId);
         if (existingCoverLetterOptional.isPresent()) {
             CoverLetter existingCoverLetter = existingCoverLetterOptional.get();
-            if (existingCoverLetter.getUser().getId() != UsersId) {
-                throw new IllegalArgumentException("Cover Letter does not belong to Users with id " + UsersId);
+            if (!Objects.equals(existingCoverLetter.getCv().getId(), cvId)) {
+                throw new IllegalArgumentException("Cover Letter does not belong to CV with id " + cvId);
             }
             if (dto.getTitle() != null && !dto.getTitle().equals(existingCoverLetter.getTitle())) {
                 existingCoverLetter.setTitle(dto.getTitle());
@@ -462,7 +459,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Override
     public boolean deleteCoverLetterById(Integer UsersId, Integer coverLetterId) {
-        boolean isCoverLetter = coverLetterRepository.existsByUser_IdAndId(UsersId, coverLetterId);
+        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndId(UsersId, coverLetterId);
 
         if (isCoverLetter) {
             Optional<CoverLetter> Optional = coverLetterRepository.findById(coverLetterId);
@@ -480,7 +477,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Override
     public CoverLetterDto getCoverLetter(Integer userId, Integer coverLetterId) {
-        boolean isCoverLetter = coverLetterRepository.existsByUser_IdAndId(userId, coverLetterId);
+        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndId(userId, coverLetterId);
         CoverLetterDto coverLetterDto = new CoverLetterDto();
         if (isCoverLetter){
             Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverLetterId);

@@ -11,6 +11,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -33,11 +34,18 @@ public class ReviewResponse {
     @Column(columnDefinition = "json")
     private String feedbackDetail;
 
+    private double score;
+
+    private LocalDate dateComment;
+
+    @Column(columnDefinition = "TEXT")
+    private String comment;
+
     @Enumerated(EnumType.STRING)
     private ReviewStatus status;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_review_request_id")
+    @JoinColumn(name = "review_request_id")
     private ReviewRequest reviewRequest;
 
     public String toCvBodyReview(CvBodyReviewDto dto) throws JsonProcessingException {

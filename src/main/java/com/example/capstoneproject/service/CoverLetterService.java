@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface CoverLetterService extends BaseService<CoverLetterDto, Integer>{
-    CoverLetterViewDto createCoverLetter(Integer id, CoverLetterAddDto dto);
-    boolean updateCoverLetter(int UsersId, int coverLetterId, CoverLetterUpdateDto dto);
+    CoverLetterViewDto createCoverLetter(Integer userId, Integer cvId, CoverLetterAddDto dto);
+    boolean updateCoverLetter(Integer cvId, Integer coverLetterId, CoverLetterUpdateDto dto);
     boolean deleteCoverLetterById(Integer UsersId,Integer coverLetterId);
     CoverLetterDto getCoverLetter(Integer userId, Integer coverLetterId);
     ChatResponse reviseCoverLetter(String content, String improve) throws JsonProcessingException;

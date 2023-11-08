@@ -45,7 +45,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         LocalDate currentDate = LocalDate.now();
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
-            Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByUser_IdAndId(userId,coverLetterId);
+            Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndId(userId,coverLetterId);
             if(coverLetterOptional.isPresent()){
                 CoverLetter coverLetter = coverLetterOptional.get();
                 CoverLetterApplyDto coverLetterApplyDto = new CoverLetterApplyDto();

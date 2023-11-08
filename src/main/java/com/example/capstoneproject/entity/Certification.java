@@ -19,11 +19,11 @@ public class Certification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name", columnDefinition = "NVARCHAR(50)")
+    @Column(name = "name", columnDefinition = "NVARCHAR(100)")
     @NotNull
     private String Name;
 
-    @Column(name = "certificate_source", columnDefinition = "NVARCHAR(50)")
+    @Column(name = "certificate_source", columnDefinition = "NVARCHAR(100)")
     private String CertificateSource;
 
     @Column(name = "end_year")

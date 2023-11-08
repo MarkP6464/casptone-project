@@ -23,7 +23,7 @@ public class Section {
     private SectionEvaluate TypeName;
     private int TypeId;
 
-    @Column(columnDefinition = "NVARCHAR(20)")
+    @Column(columnDefinition = "NVARCHAR(50)")
     private String Title;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "section")

@@ -1,6 +1,5 @@
 package com.example.capstoneproject.entity;
 
-import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.Dto.CvBodyReviewDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +12,6 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter

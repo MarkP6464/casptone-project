@@ -6,7 +6,6 @@ import com.example.capstoneproject.Dto.ReviewRatingViewDto;
 import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewDto;
 import com.example.capstoneproject.entity.Expert;
-import com.example.capstoneproject.entity.ReviewRating;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
@@ -36,9 +35,6 @@ public class ExpertServiceImpl implements ExpertService {
     @Autowired
     UsersRepository usersRepository;
 
-    @Autowired
-    ReviewRatingRepository reviewRatingRepository;
-
     @Override
     public ExpertViewDto getProfileExpert(Integer expertId) {
         Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
@@ -67,19 +63,19 @@ public class ExpertServiceImpl implements ExpertService {
             if (expert.getPrice() != null) {
                 expertDto.setPrice(expert.getPrice());
             }
-            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(), BasicStatus.ACTIVE);
+//            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(), BasicStatus.ACTIVE);
 
             // Chuyển đổi từ ReviewRating sang ReviewRatingViewDto và thêm vào danh sách ratings của expertDto
             List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();
-            for (ReviewRating reviewRating : reviewRatings) {
-                ReviewRatingViewDto reviewRatingViewDto = new ReviewRatingViewDto();
-                reviewRatingViewDto.setId(reviewRating.getId());
-                reviewRatingViewDto.setScore(reviewRating.getScore());
-                reviewRatingViewDto.setDateComment(reviewRating.getDateComment());
-                reviewRatingViewDto.setComment(reviewRating.getComment());
-                reviewRatingViewDto.setUser(modelMapper.map(reviewRating.getUser(), UsersDto.class));
-                reviewRatingViewDtoList.add(reviewRatingViewDto);
-            }
+//            for (ReviewRating reviewRating : reviewRatings) {
+//                ReviewRatingViewDto reviewRatingViewDto = new ReviewRatingViewDto();
+//                reviewRatingViewDto.setId(reviewRating.getId());
+//                reviewRatingViewDto.setScore(reviewRating.getScore());
+//                reviewRatingViewDto.setDateComment(reviewRating.getDateComment());
+//                reviewRatingViewDto.setComment(reviewRating.getComment());
+//                reviewRatingViewDto.setUser(modelMapper.map(reviewRating.getUser(), UsersDto.class));
+//                reviewRatingViewDtoList.add(reviewRatingViewDto);
+//            }
 
             expertDto.setRatings(reviewRatingViewDtoList);
             expertViewDto.setExpert(expertDto);
@@ -144,18 +140,18 @@ public class ExpertServiceImpl implements ExpertService {
                 expertDTO.setPrice(expert.getPrice());
             }
 
-            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(),BasicStatus.ACTIVE);
+//            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(),BasicStatus.ACTIVE);
             List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();
 
-            for (ReviewRating reviewRating : reviewRatings) {
-                ReviewRatingViewDto reviewRatingViewDto = new ReviewRatingViewDto();
-                reviewRatingViewDto.setId(reviewRating.getId());
-                reviewRatingViewDto.setScore(reviewRating.getScore());
-                reviewRatingViewDto.setDateComment(reviewRating.getDateComment());
-                reviewRatingViewDto.setComment(reviewRating.getComment());
-                reviewRatingViewDto.setUser(modelMapper.map(reviewRating.getUser(), UsersDto.class));
-                reviewRatingViewDtoList.add(reviewRatingViewDto);
-            }
+//            for (ReviewRating reviewRating : reviewRatings) {
+//                ReviewRatingViewDto reviewRatingViewDto = new ReviewRatingViewDto();
+//                reviewRatingViewDto.setId(reviewRating.getId());
+//                reviewRatingViewDto.setScore(reviewRating.getScore());
+//                reviewRatingViewDto.setDateComment(reviewRating.getDateComment());
+//                reviewRatingViewDto.setComment(reviewRating.getComment());
+//                reviewRatingViewDto.setUser(modelMapper.map(reviewRating.getUser(), UsersDto.class));
+//                reviewRatingViewDtoList.add(reviewRatingViewDto);
+//            }
 
             expertDTO.setRatings(reviewRatingViewDtoList);
             expertViewDto.setExpert(expertDTO);
