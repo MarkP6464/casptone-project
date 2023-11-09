@@ -1,15 +1,12 @@
 package com.example.capstoneproject.entity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.util.Date;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -18,18 +15,24 @@ public class CoverLetter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String title;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String dear;
 
-    private LocalDate date;
-    @Column(columnDefinition = "NVARCHAR(40)")
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String date;
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String company;
     @Column(columnDefinition = "TEXT")
     private String description;
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @JoinColumn(name = "cv_id")
+    private Cv cv;
+
+    public String toJson() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(this);
+    }
 }

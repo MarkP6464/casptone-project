@@ -3,6 +3,7 @@ package com.example.capstoneproject.Dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -21,8 +22,11 @@ public class JobPostingDto {
 
     private String requirement;
 
+    private Integer applyAgain;
+
     private Integer salary;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate deadline;
 
 }

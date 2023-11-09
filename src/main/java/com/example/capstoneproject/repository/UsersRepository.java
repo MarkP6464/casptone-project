@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface UsersRepository extends JpaRepository<Users, Integer> {
     //Optional<Users> findById(String email);
 
+    Optional<Users> findByEmail(String email);
+
     Optional<Users> findUsersById(Integer Id);
 
     List<Users> findAllByRole_RoleName(RoleType roleName);

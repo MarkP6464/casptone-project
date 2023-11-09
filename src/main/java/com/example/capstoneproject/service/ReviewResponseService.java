@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public interface ReviewResponseService {
-    void createReviewResponse(Integer cvId, Integer requestId) throws JsonProcessingException;
+    void createReviewResponse(Integer historyId, Integer requestId) throws JsonProcessingException;
 
     boolean createComment(Integer expertId, Integer responseId, CommentDto dto) throws JsonProcessingException;
 

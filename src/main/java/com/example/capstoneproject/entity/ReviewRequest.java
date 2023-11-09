@@ -30,6 +30,8 @@ public class ReviewRequest {
 
     private Integer expertId;
 
+    private Integer historyId;
+
     @ManyToOne
     @JoinColumn(name = "cv_id")
     private Cv cv;

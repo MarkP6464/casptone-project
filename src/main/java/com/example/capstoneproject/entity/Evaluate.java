@@ -17,7 +17,7 @@ public class Evaluate {
     @Id
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(40)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String title;
 
     @Column(columnDefinition = "TEXT")

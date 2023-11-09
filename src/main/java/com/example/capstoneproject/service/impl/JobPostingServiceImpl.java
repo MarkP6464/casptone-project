@@ -42,7 +42,6 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Autowired
     JobPostingRepository jobPostingRepository;
 
-
     @Override
     public boolean create(Integer hrId, JobPostingDto dto) {
         Optional<UsersDto> usersOptional = Optional.ofNullable(modelMapper.map(usersRepository.findUsersById(hrId), UsersDto.class));
@@ -55,6 +54,10 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setLocation(dto.getLocation());
             jobPosting.setDescription(dto.getDescription());
             jobPosting.setRequirement(dto.getRequirement());
+            if(dto.getApplyAgain()==null){
+                jobPosting.setApplyAgain(0);
+            }
+            jobPosting.setApplyAgain(dto.getApplyAgain());
             jobPosting.setSalary(dto.getSalary());
             jobPosting.setDeadline(dto.getDeadline());
             jobPosting.setCreateDate(currentDate);
@@ -92,6 +95,9 @@ public class JobPostingServiceImpl implements JobPostingService {
                     }
                     if (dto.getRequirement() != null && !dto.getRequirement().equals(jobPosting.getDescription())) {
                         jobPosting.setRequirement(dto.getRequirement());
+                    }
+                    if (dto.getApplyAgain() != null && !dto.getApplyAgain().equals(jobPosting.getApplyAgain())) {
+                        jobPosting.setApplyAgain(dto.getApplyAgain());
                     }
                     if (dto.getSalary() != null && !dto.getSalary().equals(jobPosting.getSalary())) {
                         jobPosting.setSalary(dto.getSalary());

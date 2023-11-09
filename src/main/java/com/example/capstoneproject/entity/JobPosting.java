@@ -17,10 +17,10 @@ public class JobPosting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(50)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String title;
 
-    @Column(columnDefinition = "NVARCHAR(50)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String workingType;
 
     @Column(columnDefinition = "TEXT")
@@ -31,6 +31,8 @@ public class JobPosting {
 
     @Column(columnDefinition = "TEXT")
     private String requirement;
+
+    private Integer applyAgain;
 
     private Integer salary;
 

@@ -1,17 +1,11 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Expert;
-import com.example.capstoneproject.entity.ReviewRequest;
-import com.example.capstoneproject.entity.ReviewResponse;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.ReviewResponseMapper;
-import com.example.capstoneproject.repository.CvRepository;
-import com.example.capstoneproject.repository.ExpertRepository;
-import com.example.capstoneproject.repository.ReviewRequestRepository;
-import com.example.capstoneproject.repository.ReviewResponseRepository;
+import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ReviewResponseService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,6 +41,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     @Autowired
     ReviewRequestRepository reviewRequestRepository;
 
+    @Autowired
+    HistoryRepository historyRepository;
+
     public static boolean isSubstringInString(String fullString, String substring) {
         int fullLength = fullString.length();
         int subLength = substring.length();
@@ -67,49 +64,56 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public void createReviewResponse(Integer cvId, Integer requestId) throws JsonProcessingException {
-        Cv cv = cvRepository.getById(cvId);
-        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
-        if (Objects.nonNull(cv) && reviewRequestOptional.isPresent()) {
-            // Lấy CvBody từ CV
-            ReviewRequest reviewRequest = reviewRequestOptional.get();
-            CvBodyDto cvBodyDto = cv.deserialize();
+    public void createReviewResponse(Integer historyId, Integer requestId) throws JsonProcessingException {
+//        Cv cv = cvRepository.getById(cvId);
+        Optional<History> historyOptional = historyRepository.findById(historyId);
+        if(historyOptional.isPresent()){
+            History history = historyOptional.get();
+            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
+            if (reviewRequestOptional.isPresent()) {
+                // Lấy CvBody từ CV
+                ReviewRequest reviewRequest = reviewRequestOptional.get();
+                CvBodyReviewDto cvBodyDto = history.deserialize();
 
-            // Tạo CvBodyReviewDto và thiết lập trường skills
-            CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
-            cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
-            cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
-            cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
-            cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
-            cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
-            cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
-            cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
-            cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
-            cvBodyReviewDto.setSummary(cv.getSummary());
-            cvBodyReviewDto.setName(cv.getUser().getName());
-            cvBodyReviewDto.setAddress(cv.getUser().getAddress());
-            cvBodyReviewDto.setPhone(cv.getUser().getPhone());
-            cvBodyReviewDto.setPersonalWebsite(cv.getUser().getPersonalWebsite());
-            cvBodyReviewDto.setEmail(cv.getUser().getEmail());
-            cvBodyReviewDto.setLinkin(cv.getUser().getLinkin());
+                // Tạo CvBodyReviewDto và thiết lập trường skills
+                CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
+                cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
+                cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
+                cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
+                cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
+                cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
+                cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
+                cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
+                cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
+                cvBodyReviewDto.setSummary(cvBodyDto.getSummary());
+                cvBodyReviewDto.setName(cvBodyDto.getName());
+                cvBodyReviewDto.setAddress(cvBodyDto.getAddress());
+                cvBodyReviewDto.setPhone(cvBodyDto.getPhone());
+                cvBodyReviewDto.setPersonalWebsite(cvBodyDto.getPersonalWebsite());
+                cvBodyReviewDto.setEmail(cvBodyDto.getEmail());
+                cvBodyReviewDto.setLinkin(cvBodyDto.getLinkin());
 
-            // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
+                // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
+                ObjectMapper objectMapper = new ObjectMapper();
+                String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
 
-            // Tạo một ReviewResponse mới và thiết lập các giá trị
-            ReviewResponse reviewResponse = new ReviewResponse();
-            reviewResponse.setStatus(ReviewStatus.DRAFT);
-            reviewResponse.setFeedbackDetail(cvBodyReviewJson);
-            reviewResponse.setReviewRequest(reviewRequest);
+                // Tạo một ReviewResponse mới và thiết lập các giá trị
+                ReviewResponse reviewResponse = new ReviewResponse();
+                reviewResponse.setStatus(ReviewStatus.DRAFT);
+                reviewResponse.setFeedbackDetail(cvBodyReviewJson);
+                reviewResponse.setReviewRequest(reviewRequest);
 
-            // Lưu ReviewResponse để có ID
-            reviewResponse = reviewResponseRepository.save(reviewResponse);
+                // Lưu ReviewResponse để có ID
+                reviewResponse = reviewResponseRepository.save(reviewResponse);
 
-            // Thiết lập trường feedbackDetail của ReviewResponse
-            reviewResponse.toCvBodyReview(cvBodyReviewDto);
-            reviewResponseRepository.save(reviewResponse);
+                // Thiết lập trường feedbackDetail của ReviewResponse
+                reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                reviewResponseRepository.save(reviewResponse);
+            }
+        }else {
+            throw new RuntimeException("History ID not found in CV");
         }
+
     }
 
     @Override

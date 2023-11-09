@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 
 @NoArgsConstructor
 @Getter
@@ -13,11 +13,9 @@ import java.time.LocalDate;
 public class HistoryViewDto {
     private Integer id;
 
-    private String version;
-
     private String cvBody;
 
-    private LocalDate timestamp;
+    private Timestamp timestamp;
 
     private CvResumeDto cv;
 }

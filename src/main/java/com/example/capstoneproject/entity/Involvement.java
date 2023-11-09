@@ -17,16 +17,16 @@ public class Involvement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String OrganizationRole;
 
-    @Column(columnDefinition = "NVARCHAR(40)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String OrganizationName;
 
-    @Column(columnDefinition = "NVARCHAR(30)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String duration;
 
-    @Column(columnDefinition = "NVARCHAR(50)")
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String College;
 
     @Column(columnDefinition = "TEXT")
