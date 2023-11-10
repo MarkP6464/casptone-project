@@ -280,13 +280,10 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 involvementDto.setIsDisplay(true);
             } else {
                 involvementDto.setIsDisplay(false);
-            }try {
-                involvementDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
             }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
+                involvementDto.setTheOrder(cvBodyDto.getSkills().size() + 1);
                 cvBodyDto.getInvolvements().add(involvementDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {
@@ -346,7 +343,13 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
                 try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
+                    InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                    cvBodyDto.getInvolvements().forEach(c -> {
+                        if (c.getTheOrder() > dto.getTheOrder()){
+                            c.setTheOrder(c.getTheOrder() - 1);
+                        }
+                    });
                     cvBodyDto.getInvolvements().removeIf(e -> e.getId() == id);
                     cvService.updateCvBody(x.getId(), cvBodyDto);
 

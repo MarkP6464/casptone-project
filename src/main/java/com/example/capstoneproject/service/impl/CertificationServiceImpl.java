@@ -213,12 +213,8 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
                 certificationDto.setIsDisplay(false);
             }
             try {
-                certificationDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try {
                 CvBodyDto cvBodyDto = x.deserialize();
+                certificationDto.setTheOrder(cvBodyDto.getCertifications().size() + 1);
                 cvBodyDto.getCertifications().add(certificationDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {
@@ -240,7 +236,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(certification.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
                 try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     CertificationDto dto = cvBodyDto.getCertifications().stream().filter(e-> e.getId().equals(CertificationId)).findFirst().get();
                     cvBodyDto.getCertifications().forEach(c -> {
                         if (c.getTheOrder() > dto.getTheOrder()){

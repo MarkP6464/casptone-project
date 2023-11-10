@@ -311,7 +311,13 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
                 try {
-                    CvBodyDto cvBodyDto = x.deserialize();
+                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
+                    ExperienceDto dto = cvBodyDto.getExperiences().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                    cvBodyDto.getExperiences().forEach(c -> {
+                        if (c.getTheOrder() > dto.getTheOrder()){
+                            c.setTheOrder(c.getTheOrder() - 1);
+                        }
+                    });
                     cvBodyDto.getExperiences().removeIf(e -> e.getId() == educationId);
                     cvService.updateCvBody(x.getId(), cvBodyDto);
 
@@ -340,12 +346,8 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 educationViewDto.setIsDisplay(false);
             }
             try {
-                educationViewDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            try {
                 CvBodyDto cvBodyDto = x.deserialize();
+                educationViewDto.setTheOrder(cvBodyDto.getExperiences().size() + 1);
                 cvBodyDto.getExperiences().add(educationViewDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {

@@ -278,13 +278,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 projectDto.setIsDisplay(true);
             } else {
                 projectDto.setIsDisplay(false);
-            }try {
-                projectDto.setTheOrder(x.deserialize().getCertifications().size() + 1);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
             }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
+                projectDto.setTheOrder(cvBodyDto.getProjects().size() + 1);
                 cvBodyDto.getProjects().add(projectDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {
@@ -345,7 +342,13 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
             list.stream().forEach(x -> {
                 try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
+                    ProjectDto dto = cvBodyDto.getProjects().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                    cvBodyDto.getProjects().forEach(c -> {
+                        if (c.getTheOrder() > dto.getTheOrder()){
+                            c.setTheOrder(c.getTheOrder() - 1);
+                        }
+                    });
                     cvBodyDto.getProjects().removeIf(e -> e.getId() == id);
                     cvService.updateCvBody(x.getId(), cvBodyDto);
 
