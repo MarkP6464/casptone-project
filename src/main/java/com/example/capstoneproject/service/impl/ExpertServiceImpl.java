@@ -4,11 +4,13 @@ import com.example.capstoneproject.Dto.ExpertDto;
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
 import com.example.capstoneproject.Dto.ReviewRatingViewDto;
 import com.example.capstoneproject.Dto.UsersDto;
+import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewDto;
 import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ExpertService;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpertServiceImpl implements ExpertService {
@@ -81,7 +84,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertViewDto.setExpert(expertDto);
 
         }else {
-            throw new RuntimeException("Expert ID not found");
+            throw new BadRequestException("Expert ID not found");
         }
         return expertViewDto;
     }
@@ -111,54 +114,88 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
-    public List<ExpertViewDto> getExpertList() {
-        List<Users> users = usersRepository.findAllByRole_RoleName(RoleType.EXPERT);
-        List<ExpertViewDto> expertDTOList = new ArrayList<>();
-        for (Users users1 : users) {
-            Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(users1.getId() ,RoleType.EXPERT);
-            if(!expertOptional.isPresent()){
-                Expert expertSave = new Expert();
-                expertSave.setId(users1.getId());
-                expertSave.setUsers(users1);
-                expertRepository.save(expertSave);
-            }
-            Expert expert = expertOptional.get();
-            ExpertViewDto expertViewDto = new ExpertViewDto();
-            expertViewDto.setId(users1.getId());
-            expertViewDto.setName(users1.getName());
-            expertViewDto.setAvatar(users1.getAvatar());
-            expertViewDto.setPhone(users1.getPhone());
-            expertViewDto.setPermissionWebsite(users1.getPersonalWebsite());
-            expertViewDto.setEmail(users1.getEmail());
-            expertViewDto.setLinkin(users1.getLinkin());
-
-            ExpertDto expertDTO = new ExpertDto();
-            expertDTO.setId(expert.getId());
-            expertDTO.setTitle(expert.getTitle());
-            expertDTO.setDescription(expert.getDescription());
-            if (expert.getPrice() != null) {
-                expertDTO.setPrice(expert.getPrice());
-            }
-
-//            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(),BasicStatus.ACTIVE);
-            List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();
-
-//            for (ReviewRating reviewRating : reviewRatings) {
-//                ReviewRatingViewDto reviewRatingViewDto = new ReviewRatingViewDto();
-//                reviewRatingViewDto.setId(reviewRating.getId());
-//                reviewRatingViewDto.setScore(reviewRating.getScore());
-//                reviewRatingViewDto.setDateComment(reviewRating.getDateComment());
-//                reviewRatingViewDto.setComment(reviewRating.getComment());
-//                reviewRatingViewDto.setUser(modelMapper.map(reviewRating.getUser(), UsersDto.class));
-//                reviewRatingViewDtoList.add(reviewRatingViewDto);
+    public List<ExpertViewChooseDto> getExpertList(String search) {
+//        List<Expert> experts = expertRepository.findAllByUsers_Role_RoleName(RoleType.EXPERT);
+//        List<ExpertViewDto> expertDTOList = new ArrayList<>();
+//        for (Expert expert : experts) {
+//            Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expert.getId() ,RoleType.EXPERT);
+//            if(!expertOptional.isPresent()){
+//                Expert expertSave = new Expert();
+//                expertSave.setId(expert.getId());
+//                expertSave.setUsers(expert);
+//                expertRepository.save(expertSave);
 //            }
+//            Expert expert = expertOptional.get();
+//            ExpertViewDto expertViewDto = new ExpertViewDto();
+//            expertViewDto.setId(users1.getId());
+//            expertViewDto.setName(users1.getName());
+//            expertViewDto.setAvatar(users1.getAvatar());
+//            expertViewDto.setPhone(users1.getPhone());
+//            expertViewDto.setPermissionWebsite(users1.getPersonalWebsite());
+//            expertViewDto.setEmail(users1.getEmail());
+//            expertViewDto.setLinkin(users1.getLinkin());
+//
+//            ExpertDto expertDTO = new ExpertDto();
+//            expertDTO.setId(expert.getId());
+//            expertDTO.setTitle(expert.getTitle());
+//            expertDTO.setDescription(expert.getDescription());
+//            if (expert.getPrice() != null) {
+//                expertDTO.setPrice(expert.getPrice());
+//            }
+//
+////            List<ReviewRating> reviewRatings = reviewRatingRepository.findByReviewResponse_ReviewRequest_ExpertIdAndStatus(expert.getId(),BasicStatus.ACTIVE);
+//            List<ReviewRatingViewDto> reviewRatingViewDtoList = new ArrayList<>();
+//
+////            for (ReviewRating reviewRating : reviewRatings) {
+////                ReviewRatingViewDto reviewRatingViewDto = new ReviewRatingViewDto();
+////                reviewRatingViewDto.setId(reviewRating.getId());
+////                reviewRatingViewDto.setScore(reviewRating.getScore());
+////                reviewRatingViewDto.setDateComment(reviewRating.getDateComment());
+////                reviewRatingViewDto.setComment(reviewRating.getComment());
+////                reviewRatingViewDto.setUser(modelMapper.map(reviewRating.getUser(), UsersDto.class));
+////                reviewRatingViewDtoList.add(reviewRatingViewDto);
+////            }
+//
+//            expertDTO.setRatings(reviewRatingViewDtoList);
+//            expertViewDto.setExpert(expertDTO);
+//            expertDTOList.add(expertViewDto);
+//        }
+//
+//        return expertDTOList;
+        List<Expert> experts = expertRepository.findAllByUsers_Role_RoleName(RoleType.EXPERT);
 
-            expertDTO.setRatings(reviewRatingViewDtoList);
-            expertViewDto.setExpert(expertDTO);
-            expertDTOList.add(expertViewDto);
-        }
+        List<ExpertViewChooseDto> result = experts.stream()
+                .filter(expert -> isMatched(expert, search))
+                .map(this::convertToExpertViewChooseDto)
+                .collect(Collectors.toList());
 
-        return expertDTOList;
+        return result.isEmpty()
+                ? throwBadRequestException()
+                : result;
+    }
+
+    private boolean isMatched(Expert expert, String search) {
+        return search == null || search.isEmpty() ||
+                expert.getTitle().contains(search) ||
+                expert.getUsers().getName().contains(search) ||
+                expert.getCompany().contains(search);
+    }
+
+    private ExpertViewChooseDto convertToExpertViewChooseDto(Expert expert) {
+        ExpertViewChooseDto viewChooseDto = new ExpertViewChooseDto();
+        viewChooseDto.setId(expert.getId());
+        viewChooseDto.setTitle(expert.getTitle());
+        viewChooseDto.setName(expert.getUsers().getName());
+        viewChooseDto.setAvatar(expert.getUsers().getAvatar());
+        viewChooseDto.setCompany(expert.getCompany());
+        viewChooseDto.setPrice(expert.getPrice());
+        viewChooseDto.setExperience(expert.getExperience());
+        viewChooseDto.setNumberReview(expert.getNumberReview());
+        return viewChooseDto;
+    }
+
+    private List<ExpertViewChooseDto> throwBadRequestException() {
+        throw new BadRequestException("Please come back later. Currently, the system cannot find any experts.");
     }
 
 }

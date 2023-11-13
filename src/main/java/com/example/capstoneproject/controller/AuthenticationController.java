@@ -11,8 +11,10 @@ import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.impl.AuthenticationService;
 import com.example.capstoneproject.Config.FirebaseConfig;
 import com.example.capstoneproject.service.impl.FirebaseServiceImpl;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,7 @@ public class AuthenticationController {
     @PostMapping("/firebase")
     public ResponseEntity<AuthenticationResponse> authorizeToken(@RequestBody String token) {
         try {
-            Role role = roleRepository.findByRoleName(RoleType.USER);
+            Role role = roleRepository.findByRoleName(RoleType.CANDIDATE);
 
             // Xác thực token
             FirebaseToken decodedToken = firebaseService.verifyToken(token);
@@ -99,13 +101,14 @@ public class AuthenticationController {
     }
 
     @GetMapping("/hihi")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public String getByBranch() {
         return "hello user";
     }
 
     @ApiOperation(value = "Upload a file", response = ResponseEntity.class)
     @PostMapping(value = "/upload/image", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<String> uploadFile(
             @RequestPart("file") MultipartFile file) {
         try {
@@ -115,6 +118,24 @@ public class AuthenticationController {
             //  throw internal error;
         }
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/firebase/register")
+    public String registerUser(@RequestBody AuthenticationRequest request) throws FirebaseAuthException {
+        try {
+            UserRecord userRecord = FirebaseAuth.getInstance().getUserByEmail(request.getEmail());
+            return "Email already registered. Please use another email.";
+        } catch (FirebaseAuthException e) {
+            UserRecord.CreateRequest createRequest = new UserRecord.CreateRequest()
+                    .setEmail(request.getEmail())
+                    .setPassword(request.getPassword());
+            UserRecord userRecord = FirebaseAuth.getInstance().createUser(createRequest);
+            String emailVerificationLink = FirebaseAuth.getInstance().generateEmailVerificationLink(userRecord.getEmail());
+            String content = "Please click into email to verification account: \n" + emailVerificationLink;
+            authenticationService.sendEmail(userRecord.getEmail(),"Verification account", content);
+            return "User registered successfully. Email verification link sent.";
+        }
+
     }
 
 }

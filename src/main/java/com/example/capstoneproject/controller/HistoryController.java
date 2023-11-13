@@ -6,6 +6,7 @@ import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -22,6 +23,7 @@ public class HistoryController {
     }
 
     @GetMapping("/user/{user-id}/cv/{cv-id}/history/{history-id}")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> getHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @PathVariable("history-id") Integer historyId) throws JsonProcessingException {
         if(Objects.nonNull(historyService.getHistory(userId,cvId,historyId))){
             return ResponseEntity.ok(historyService.getHistory(userId,cvId,historyId));
@@ -31,11 +33,13 @@ public class HistoryController {
     }
 
     @GetMapping("/user/{user-id}/cv/{cv-id}/histories")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> getListHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) {
         return ResponseEntity.ok(historyService.getListHistoryDate(userId,cvId));
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/history")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> createHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
         return ResponseEntity.ok(historyService.create(userId, cvId));
     }

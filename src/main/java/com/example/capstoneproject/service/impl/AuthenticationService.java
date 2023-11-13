@@ -7,6 +7,7 @@ import com.example.capstoneproject.Dto.responses.AuthenticationResponse;
 import com.example.capstoneproject.entity.Role;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.filter.JwtService;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.RoleRepository;
@@ -61,7 +62,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request, String uid) {
         UserViewLoginDto userViewLoginDto = new UserViewLoginDto();
-        Role role = roleRepository.findByRoleName(RoleType.USER);
+        Role role = roleRepository.findByRoleName(RoleType.CANDIDATE);
         var customer = Users.builder()
                 .Name(request.getName())
                 .address(request.getAddress())
@@ -133,7 +134,7 @@ public class AuthenticationService {
         Optional<Users> user = usersRepository.findByEmail(email);
         return user.get();
     }
-    private void sendEmail(String toEmail, String subject, String message) {
+    public void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";
         String username = "cvbuilder.ai@gmail.com";
@@ -170,7 +171,7 @@ public class AuthenticationService {
             System.out.println("Email sent successfully.");
         } catch (MessagingException e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to send email.");
+            throw new BadRequestException("Failed to send email.");
         }
     }
 

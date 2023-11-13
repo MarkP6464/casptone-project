@@ -9,6 +9,7 @@ import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.JobPosting;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.JobPostingRepository;
 import com.example.capstoneproject.repository.UsersRepository;
@@ -110,10 +111,10 @@ public class JobPostingServiceImpl implements JobPostingService {
                     return true;
                 }
             } else {
-                throw new RuntimeException("Job Posting Id not found.");
+                throw new BadRequestException("Job Posting Id not found.");
             }
         } else {
-            throw new RuntimeException("HR ID not found.");
+            throw new BadRequestException("HR ID not found.");
         }
         return false;
     }
@@ -132,10 +133,10 @@ public class JobPostingServiceImpl implements JobPostingService {
                     return true;
                 }
             } else {
-                throw new RuntimeException("Job Posting Id not found.");
+                throw new BadRequestException("Job Posting Id not found.");
             }
         } else {
-            throw new RuntimeException("HR ID not found.");
+            throw new BadRequestException("HR ID not found.");
         }
         return false;
     }
@@ -154,10 +155,10 @@ public class JobPostingServiceImpl implements JobPostingService {
                     return true;
                 }
             } else {
-                throw new RuntimeException("Job Posting Id not found.");
+                throw new BadRequestException("Job Posting Id not found.");
             }
         } else {
-            throw new RuntimeException("HR ID not found.");
+            throw new BadRequestException("HR ID not found.");
         }
         return false;
     }
@@ -184,14 +185,14 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingViewDto.setShare(jobPosting.getShare());
                     return jobPostingViewDto;
                 }else {
-                    throw new RuntimeException("User ID Capstone and User ID Posting mismatched.");
+                    throw new BadRequestException("User ID Capstone and User ID Posting mismatched.");
                 }
             }else{
-                throw new RuntimeException("Job Posting Id not found.");
+                throw new BadRequestException("Job Posting Id not found.");
             }
 
         }else{
-            throw new RuntimeException("HR ID not found.");
+            throw new BadRequestException("HR ID not found.");
         }
     }
 
@@ -207,7 +208,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     .map(jobPosting -> modelMapper.map(jobPosting, JobPostingViewDto.class))
                     .collect(Collectors.toList());
         }else{
-            throw new RuntimeException("HR ID not found.");
+            throw new BadRequestException("HR ID not found.");
         }
     }
 

@@ -6,6 +6,7 @@ import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ReviewRequestMapper;
 import com.example.capstoneproject.repository.ExpertRepository;
 import com.example.capstoneproject.repository.HistoryRepository;
@@ -85,14 +86,16 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                         sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
                         return reviewRequestMapper.mapEntityToDto(saved);
                     } else {
-                        throw new RuntimeException("Expert ID not found");
+                        throw new BadRequestException("Expert ID not found");
                     }
+                }else{
+                    throw new BadRequestException("Please syn previous when send request");
                 }
             } else {
-                throw new RuntimeException("CV ID not found");
+                throw new BadRequestException("CV ID not found");
             }
         }
-        throw new RuntimeException("Please choose someone else, this expert does not have a specific price yet.");
+        throw new BadRequestException("Please choose someone else, this expert does not have a specific price yet.");
     }
 
     @Override

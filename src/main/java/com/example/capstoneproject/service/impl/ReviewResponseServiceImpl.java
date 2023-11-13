@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ReviewResponseMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ReviewResponseService;
@@ -111,7 +112,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 reviewResponseRepository.save(reviewResponse);
             }
         }else {
-            throw new RuntimeException("History ID not found in CV");
+            throw new BadRequestException("History ID not found in CV");
         }
 
     }
@@ -129,7 +130,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new BadRequestException(e);
                     }
                     reviewResponseRepository.save(reviewResponse);
                 }
@@ -143,7 +144,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new BadRequestException(e);
                     }
                     reviewResponseRepository.save(reviewResponse);
                 }
@@ -157,7 +158,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new BadRequestException(e);
                     }
                     reviewResponseRepository.save(reviewResponse);
                 }
@@ -171,7 +172,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         x.setDescription(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new BadRequestException(e);
                     }
                     reviewResponseRepository.save(reviewResponse);
                 }
@@ -185,7 +186,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         cvBodyReviewDto.setSummary(dto.getText());
                         reviewResponse.toCvBodyReview(cvBodyReviewDto);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new BadRequestException(e);
                     }
                     reviewResponseRepository.save(reviewResponse);
                 }
@@ -196,7 +197,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             reviewResponseRepository.save(reviewResponse);
             return true;
         } else {
-            throw new RuntimeException("ReviewResponse not found or not in DRAFT status.");
+            throw new BadRequestException("ReviewResponse not found or not in DRAFT status.");
         }
     }
 
@@ -290,7 +291,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             reviewResponseRepository.save(reviewResponse);
             return true;
         } else {
-            throw new RuntimeException("ReviewResponse not found or not in DRAFT status.");
+            throw new BadRequestException("ReviewResponse not found or not in DRAFT status.");
         }
     }
 
@@ -394,7 +395,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             reviewResponseRepository.save(reviewResponse);
             return true;
         } else {
-            throw new RuntimeException("ReviewResponse not found or not in DRAFT status.");
+            throw new BadRequestException("ReviewResponse not found or not in DRAFT status.");
         }
     }
 
@@ -441,10 +442,10 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     return reviewResponseDto;
                 }
             } else {
-                throw new RuntimeException("UserId incorrect with requestId");
+                throw new BadRequestException("UserId incorrect with requestId");
             }
         } else {
-            throw new RuntimeException("RequestId incorrect");
+            throw new BadRequestException("RequestId incorrect");
         }
         return reviewResponseDto;
     }
@@ -471,7 +472,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
             return daftReviewResponses;
         } else {
-            throw new RuntimeException("Expert ID not found.");
+            throw new BadRequestException("Expert ID not found.");
         }
     }
 
@@ -490,7 +491,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             }
             return reviewResponseDto;
         } else {
-            throw new RuntimeException("Expert ID not found.");
+            throw new BadRequestException("Expert ID not found.");
         }
     }
 
@@ -563,7 +564,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             System.out.println("Email sent successfully.");
         } catch (MessagingException e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to send email.");
+            throw new BadRequestException("Failed to send email.");
         }
     }
 

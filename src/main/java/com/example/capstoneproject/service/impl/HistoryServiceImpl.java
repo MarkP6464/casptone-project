@@ -8,6 +8,7 @@ import com.example.capstoneproject.Dto.responses.HistoryViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.History;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.HistoryRepository;
@@ -75,7 +76,7 @@ public class HistoryServiceImpl implements HistoryService {
             history.setCv(cv);
             historyRepository.save(history);
         }else {
-            throw new RuntimeException("UserID not exist this CvID");
+            throw new BadRequestException("UserID not exist this CvID");
         }
 
         return null;

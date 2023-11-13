@@ -8,6 +8,7 @@ import com.example.capstoneproject.service.JobPostingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/hr/{hr-id}/job-postings")
+    @PreAuthorize("hasRole('ROLE_HR')")
     public List<JobPostingViewDto> getListJobPostingsByHr(
             @PathVariable("hr-id") int hrId,
             @RequestParam(name = "share", required = false) PublicControl share
@@ -36,11 +38,13 @@ public class JobPostingController {
     }
 
     @GetMapping("/hr/{hr-id}/job-posting/{posting-id}")
+    @PreAuthorize("hasRole('ROLE_HR')")
     public JobPostingViewDto getAllProject(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         return jobPostingService.getByHr(hrId,postingId);
     }
 
     @PutMapping("/hr/{hr-id}/job-posting/{posting-id}/share")
+    @PreAuthorize("hasRole('ROLE_HR')")
     public ResponseEntity<?> sharePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         if (jobPostingService.share(hrId, postingId)) {
             return ResponseEntity.ok("Share success");
@@ -50,6 +54,7 @@ public class JobPostingController {
     }
 
     @DeleteMapping("/hr/{hr-id}/job-posting/{posting-id}")
+    @PreAuthorize("hasRole('ROLE_HR')")
     public ResponseEntity<?> deletePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         if (jobPostingService.delete(hrId, postingId)) {
             return ResponseEntity.ok("Delete success");
@@ -59,6 +64,7 @@ public class JobPostingController {
     }
 
     @PutMapping("/hr/{hr-id}/job-posting/{posting-id}")
+    @PreAuthorize("hasRole('ROLE_HR')")
     public ResponseEntity<?> updatePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId, JobPostingDto dto) {
         if (jobPostingService.update(hrId, postingId, dto)) {
             return ResponseEntity.ok("Update success");
@@ -68,6 +74,7 @@ public class JobPostingController {
     }
 
     @PostMapping("/hr/{hr-id}/job-posting")
+    @PreAuthorize("hasRole('ROLE_HR')")
     public ResponseEntity<?> createPosting(@PathVariable("hr-id") Integer hrId, JobPostingDto dto) {
         if (jobPostingService.create(hrId, dto)) {
             return ResponseEntity.ok("Create success");
@@ -77,6 +84,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/user/cv/job-postings")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> searchPostingByCustomer(
             @RequestParam(name = "userId", required = false) Integer userId,
             @RequestParam(name = "cvId", required = false) Integer cvId,
