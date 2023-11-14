@@ -19,4 +19,8 @@ public class ReviewResponseDto {
 
     private CvBodyReviewDto feedbackDetail;
 
+    private Double score;
+
+    private String comment;
+
 }

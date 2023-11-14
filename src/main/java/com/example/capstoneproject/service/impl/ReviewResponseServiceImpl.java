@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ReviewResponseMapper;
 import com.example.capstoneproject.repository.*;
@@ -70,7 +71,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         Optional<History> historyOptional = historyRepository.findById(historyId);
         if(historyOptional.isPresent()){
             History history = historyOptional.get();
-            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
+            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Waiting);
             if (reviewRequestOptional.isPresent()) {
                 // Lấy CvBody từ CV
                 ReviewRequest reviewRequest = reviewRequestOptional.get();
@@ -100,7 +101,6 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
                 // Tạo một ReviewResponse mới và thiết lập các giá trị
                 ReviewResponse reviewResponse = new ReviewResponse();
-                reviewResponse.setStatus(ReviewStatus.DRAFT);
                 reviewResponse.setFeedbackDetail(cvBodyReviewJson);
                 reviewResponse.setReviewRequest(reviewRequest);
 
@@ -119,83 +119,88 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public boolean createComment(Integer expertId, Integer responseId, CommentDto dto) throws JsonProcessingException {
-        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
-            CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
-            String sp = removeCommentTagsWithoutIdAndContent(dto.getText());
-            cvBodyReviewDto.getExperiences().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
-                    try {
-                        x.setDescription(dto.getText());
-                        reviewResponse.toCvBodyReview(cvBodyReviewDto);
-                    } catch (JsonProcessingException e) {
-                        throw new BadRequestException(e);
+            if(reviewResponse.getStatus()!= StatusReview.Done){
+                CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
+                String sp = removeCommentTagsWithoutIdAndContent(dto.getText());
+                cvBodyReviewDto.getExperiences().forEach(x -> {
+                    if (isSubstringInString(x.getDescription(), sp)) {
+                        try {
+                            x.setDescription(dto.getText());
+                            reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                        } catch (JsonProcessingException e) {
+                            throw new BadRequestException(e);
+                        }
+                        reviewResponseRepository.save(reviewResponse);
                     }
-                    reviewResponseRepository.save(reviewResponse);
-                }
-                String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
+                    String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
 
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getInvolvements().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
-                    try {
-                        x.setDescription(dto.getText());
-                        reviewResponse.toCvBodyReview(cvBodyReviewDto);
-                    } catch (JsonProcessingException e) {
-                        throw new BadRequestException(e);
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getInvolvements().forEach(x -> {
+                    if (isSubstringInString(x.getDescription(), sp)) {
+                        try {
+                            x.setDescription(dto.getText());
+                            reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                        } catch (JsonProcessingException e) {
+                            throw new BadRequestException(e);
+                        }
+                        reviewResponseRepository.save(reviewResponse);
                     }
-                    reviewResponseRepository.save(reviewResponse);
-                }
-                String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
+                    String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
 
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getProjects().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
-                    try {
-                        x.setDescription(dto.getText());
-                        reviewResponse.toCvBodyReview(cvBodyReviewDto);
-                    } catch (JsonProcessingException e) {
-                        throw new BadRequestException(e);
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getProjects().forEach(x -> {
+                    if (isSubstringInString(x.getDescription(), sp)) {
+                        try {
+                            x.setDescription(dto.getText());
+                            reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                        } catch (JsonProcessingException e) {
+                            throw new BadRequestException(e);
+                        }
+                        reviewResponseRepository.save(reviewResponse);
                     }
-                    reviewResponseRepository.save(reviewResponse);
-                }
-                String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
+                    String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
 
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getSkills().forEach(x -> {
-                if (isSubstringInString(x.getDescription(), sp)) {
-                    try {
-                        x.setDescription(dto.getText());
-                        reviewResponse.toCvBodyReview(cvBodyReviewDto);
-                    } catch (JsonProcessingException e) {
-                        throw new BadRequestException(e);
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getSkills().forEach(x -> {
+                    if (isSubstringInString(x.getDescription(), sp)) {
+                        try {
+                            x.setDescription(dto.getText());
+                            reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                        } catch (JsonProcessingException e) {
+                            throw new BadRequestException(e);
+                        }
+                        reviewResponseRepository.save(reviewResponse);
                     }
-                    reviewResponseRepository.save(reviewResponse);
-                }
-                String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
+                    String description = x.getDescription().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
 
-                x.setDescription(description);
-            });
-            if (cvBodyReviewDto.getSummary() != null) {
-                if (isSubstringInString(cvBodyReviewDto.getSummary(), sp)) {
-                    try {
-                        cvBodyReviewDto.setSummary(dto.getText());
-                        reviewResponse.toCvBodyReview(cvBodyReviewDto);
-                    } catch (JsonProcessingException e) {
-                        throw new BadRequestException(e);
+                    x.setDescription(description);
+                });
+                if (cvBodyReviewDto.getSummary() != null) {
+                    if (isSubstringInString(cvBodyReviewDto.getSummary(), sp)) {
+                        try {
+                            cvBodyReviewDto.setSummary(dto.getText());
+                            reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                        } catch (JsonProcessingException e) {
+                            throw new BadRequestException(e);
+                        }
+                        reviewResponseRepository.save(reviewResponse);
                     }
-                    reviewResponseRepository.save(reviewResponse);
+                    String description = cvBodyReviewDto.getSummary().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
+                    cvBodyReviewDto.setSummary(description);
                 }
-                String description = cvBodyReviewDto.getSummary().replace("<comment>", "<comment id='" + UUID.randomUUID() + "' content='" + dto.getComment() + "'>");
-                cvBodyReviewDto.setSummary(description);
+                reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                reviewResponse.setStatus(StatusReview.Draft);
+                reviewResponseRepository.save(reviewResponse);
+                return true;
+            }else{
+                throw new BadRequestException("You dont cant edit this cv.");
             }
-            reviewResponse.toCvBodyReview(cvBodyReviewDto);
-            reviewResponseRepository.save(reviewResponse);
-            return true;
         } else {
             throw new BadRequestException("ReviewResponse not found or not in DRAFT status.");
         }
@@ -203,93 +208,97 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public boolean deleteComment(Integer expertId, Integer responseId, String commentId) throws JsonProcessingException {
-        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
-            CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
-            cvBodyReviewDto.getExperiences().forEach(x -> {
-                String description = x.getDescription();
+            if(reviewResponse.getStatus()!=StatusReview.Done){
+                CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
+                cvBodyReviewDto.getExperiences().forEach(x -> {
+                    String description = x.getDescription();
 
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
 
-                // Nếu tìm thấy match, thì xóa comment đó
-                if (matcher.find()) {
-                    description = description.replace(matcher.group(0), matcher.group(1));
+                    // Nếu tìm thấy match, thì xóa comment đó
+                    if (matcher.find()) {
+                        description = description.replace(matcher.group(0), matcher.group(1));
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getProjects().forEach(x -> {
+                    String description = x.getDescription();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì xóa comment đó
+                    if (matcher.find()) {
+                        description = description.replace(matcher.group(0), matcher.group(1));
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getInvolvements().forEach(x -> {
+                    String description = x.getDescription();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì xóa comment đó
+                    if (matcher.find()) {
+                        description = description.replace(matcher.group(0), matcher.group(1));
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getSkills().forEach(x -> {
+                    String description = x.getDescription();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì xóa comment đó
+                    if (matcher.find()) {
+                        description = description.replace(matcher.group(0), matcher.group(1));
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                if (cvBodyReviewDto.getSummary() != null) {
+                    String description = cvBodyReviewDto.getSummary();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì xóa comment đó
+                    if (matcher.find()) {
+                        description = description.replace(matcher.group(0), matcher.group(1));
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    cvBodyReviewDto.setSummary(description);
                 }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getProjects().forEach(x -> {
-                String description = x.getDescription();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì xóa comment đó
-                if (matcher.find()) {
-                    description = description.replace(matcher.group(0), matcher.group(1));
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getInvolvements().forEach(x -> {
-                String description = x.getDescription();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì xóa comment đó
-                if (matcher.find()) {
-                    description = description.replace(matcher.group(0), matcher.group(1));
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getSkills().forEach(x -> {
-                String description = x.getDescription();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì xóa comment đó
-                if (matcher.find()) {
-                    description = description.replace(matcher.group(0), matcher.group(1));
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            if (cvBodyReviewDto.getSummary() != null) {
-                String description = cvBodyReviewDto.getSummary();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "'[^>]*>(.*?)</comment>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì xóa comment đó
-                if (matcher.find()) {
-                    description = description.replace(matcher.group(0), matcher.group(1));
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                cvBodyReviewDto.setSummary(description);
+                reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                reviewResponseRepository.save(reviewResponse);
+                return true;
+            }else{
+                throw new BadRequestException("You dont cant edit this cv.");
             }
-            reviewResponse.toCvBodyReview(cvBodyReviewDto);
-            reviewResponseRepository.save(reviewResponse);
-            return true;
         } else {
             throw new BadRequestException("ReviewResponse not found or not in DRAFT status.");
         }
@@ -297,103 +306,107 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public boolean updateComment(Integer expertId, Integer responseId, String commentId, String newContent) throws JsonProcessingException {
-        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
-            CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
-            cvBodyReviewDto.getExperiences().forEach(x -> {
-                String description = x.getDescription();
+            if(reviewResponse.getStatus()!=StatusReview.Done){
+                CvBodyReviewDto cvBodyReviewDto = reviewResponse.deserialize();
+                cvBodyReviewDto.getExperiences().forEach(x -> {
+                    String description = x.getDescription();
 
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "' content='.*?'>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "' content='.*?'>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
 
-                // Nếu tìm thấy match, thì thay đổi nội dung của comment
-                if (matcher.find()) {
-                    String oldComment = matcher.group(0);
-                    String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
-                    description = description.replace(oldComment, newComment);
+                    // Nếu tìm thấy match, thì thay đổi nội dung của comment
+                    if (matcher.find()) {
+                        String oldComment = matcher.group(0);
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        description = description.replace(oldComment, newComment);
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getInvolvements().forEach(x -> {
+                    String description = x.getDescription();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "' content='.*?'>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì thay đổi nội dung của comment
+                    if (matcher.find()) {
+                        String oldComment = matcher.group(0);
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        description = description.replace(oldComment, newComment);
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getProjects().forEach(x -> {
+                    String description = x.getDescription();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "' content='.*?'>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì thay đổi nội dung của comment
+                    if (matcher.find()) {
+                        String oldComment = matcher.group(0);
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        description = description.replace(oldComment, newComment);
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                cvBodyReviewDto.getSkills().forEach(x -> {
+                    String description = x.getDescription();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "' content='.*?'>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì thay đổi nội dung của comment
+                    if (matcher.find()) {
+                        String oldComment = matcher.group(0);
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        description = description.replace(oldComment, newComment);
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    x.setDescription(description);
+                });
+                if (cvBodyReviewDto.getSummary() != null) {
+                    String description = cvBodyReviewDto.getSummary();
+
+                    // Tạo regex pattern để tìm comment có id tương ứng
+                    String regex = "<comment id='" + commentId + "' content='.*?'>";
+                    Pattern pattern = Pattern.compile(regex);
+                    Matcher matcher = pattern.matcher(description);
+
+                    // Nếu tìm thấy match, thì thay đổi nội dung của comment
+                    if (matcher.find()) {
+                        String oldComment = matcher.group(0);
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        description = description.replace(oldComment, newComment);
+                    }
+
+                    // Cập nhật trường description với chuỗi mới
+                    cvBodyReviewDto.setSummary(description);
                 }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getInvolvements().forEach(x -> {
-                String description = x.getDescription();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "' content='.*?'>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì thay đổi nội dung của comment
-                if (matcher.find()) {
-                    String oldComment = matcher.group(0);
-                    String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
-                    description = description.replace(oldComment, newComment);
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getProjects().forEach(x -> {
-                String description = x.getDescription();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "' content='.*?'>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì thay đổi nội dung của comment
-                if (matcher.find()) {
-                    String oldComment = matcher.group(0);
-                    String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
-                    description = description.replace(oldComment, newComment);
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            cvBodyReviewDto.getSkills().forEach(x -> {
-                String description = x.getDescription();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "' content='.*?'>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì thay đổi nội dung của comment
-                if (matcher.find()) {
-                    String oldComment = matcher.group(0);
-                    String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
-                    description = description.replace(oldComment, newComment);
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                x.setDescription(description);
-            });
-            if (cvBodyReviewDto.getSummary() != null) {
-                String description = cvBodyReviewDto.getSummary();
-
-                // Tạo regex pattern để tìm comment có id tương ứng
-                String regex = "<comment id='" + commentId + "' content='.*?'>";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(description);
-
-                // Nếu tìm thấy match, thì thay đổi nội dung của comment
-                if (matcher.find()) {
-                    String oldComment = matcher.group(0);
-                    String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
-                    description = description.replace(oldComment, newComment);
-                }
-
-                // Cập nhật trường description với chuỗi mới
-                cvBodyReviewDto.setSummary(description);
+                reviewResponse.toCvBodyReview(cvBodyReviewDto);
+                reviewResponseRepository.save(reviewResponse);
+                return true;
+            }else{
+                throw new BadRequestException("You dont cant edit this cv.");
             }
-            reviewResponse.toCvBodyReview(cvBodyReviewDto);
-            reviewResponseRepository.save(reviewResponse);
-            return true;
         } else {
             throw new BadRequestException("ReviewResponse not found or not in DRAFT status.");
         }
@@ -401,44 +414,63 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) {
-        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
-            if (dto.getOverall() != null && !dto.getOverall().equals(reviewResponse.getOverall())) {
-                reviewResponse.setOverall(dto.getOverall());
-                reviewResponseRepository.save(reviewResponse);
+            if(reviewResponse.getStatus()!= StatusReview.Done){
+                if (dto.getOverall() != null && !dto.getOverall().equals(reviewResponse.getOverall())) {
+                    reviewResponse.setOverall(dto.getOverall());
+                    reviewResponse.setStatus(StatusReview.Draft);
+                    reviewResponseRepository.save(reviewResponse);
+                }
+                return true;
+            }else{
+                throw new BadRequestException("You dont cant edit this cv.");
             }
-            return true;
         }
         return false;
     }
 
     @Override
     public boolean publicReviewResponse(Integer expertId, Integer responseId) {
-        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndIdAndStatus(expertId, responseId, ReviewStatus.DRAFT);
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
-            reviewResponse.setStatus(ReviewStatus.SEND);
-            reviewResponseRepository.save(reviewResponse);
-            sendEmail(reviewResponse.getReviewRequest().getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-            return true;
+            if(reviewResponse.getStatus()!=StatusReview.Done){
+                reviewResponse.setStatus(StatusReview.Done);
+                reviewResponseRepository.save(reviewResponse);
+                Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findById(reviewResponse.getReviewRequest().getId());
+                if(reviewRequestOptional.isPresent()){
+                    ReviewRequest reviewRequest = reviewRequestOptional.get();
+                    reviewRequest.setStatus(StatusReview.Done);
+                    reviewRequestRepository.save(reviewRequest);
+                }else{
+                    throw new BadRequestException("Update fail status review request.");
+                }
+                sendEmail(reviewResponse.getReviewRequest().getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                return true;
+            }else{
+                throw new BadRequestException("This review response had done");
+            }
         }
         return false;
     }
 
     @Override
     public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
-        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, ReviewStatus.ACCEPT);
+        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Waiting);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             if (Objects.equals(userId, reviewRequest.getCv().getUser().getId())) {
-                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_IdAndStatus(reviewRequest.getId(), ReviewStatus.SEND);
+                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_IdAndStatus(reviewRequest.getId(), StatusReview.Done);
                 if (reviewResponseOptional.isPresent()) {
                     ReviewResponse reviewResponse = reviewResponseOptional.get();
                     reviewResponseDto.setId(reviewResponse.getId());
                     reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
                     reviewResponseDto.setOverall(reviewResponse.getOverall());
+                    reviewResponseDto.setScore(reviewResponse.getScore());
+                    reviewResponseDto.setComment(reviewResponse.getComment());
                     return reviewResponseDto;
                 }
             } else {
@@ -452,28 +484,29 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public List<ReviewResponseDto> daftReviewResponse(Integer expertId, ReviewStatus status) throws JsonProcessingException {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
-
-        if (expertOptional.isPresent()) {
-            Expert expert = expertOptional.get();
-            List<ReviewResponse> reviewResponses = reviewResponseRepository.findByReviewRequest_ExpertId(expert.getId());
-
-            List<ReviewResponseDto> daftReviewResponses = new ArrayList<>();
-
-            for (ReviewResponse response : reviewResponses) {
-                if (status == null || response.getStatus() == status) {
-                    ReviewResponseDto responseDto = new ReviewResponseDto();
-                    responseDto.setId(response.getId());
-                    responseDto.setOverall(response.getOverall());
-                    responseDto.setFeedbackDetail(response.deserialize());
-                    daftReviewResponses.add(responseDto);
-                }
-            }
-
-            return daftReviewResponses;
-        } else {
-            throw new BadRequestException("Expert ID not found.");
-        }
+//        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
+//
+//        if (expertOptional.isPresent()) {
+//            Expert expert = expertOptional.get();
+//            List<ReviewResponse> reviewResponses = reviewResponseRepository.findByReviewRequest_ExpertId(expert.getId());
+//
+//            List<ReviewResponseDto> daftReviewResponses = new ArrayList<>();
+//
+//            for (ReviewResponse response : reviewResponses) {
+//                if (status == null || response.getStatus() == status) {
+//                    ReviewResponseDto responseDto = new ReviewResponseDto();
+//                    responseDto.setId(response.getId());
+//                    responseDto.setOverall(response.getOverall());
+//                    responseDto.setFeedbackDetail(response.deserialize());
+//                    daftReviewResponses.add(responseDto);
+//                }
+//            }
+//
+//            return daftReviewResponses;
+//        } else {
+//            throw new BadRequestException("Expert ID not found.");
+//        }
+        return null;
     }
 
     @Override
@@ -493,6 +526,24 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         } else {
             throw new BadRequestException("Expert ID not found.");
         }
+    }
+
+    @Override
+    public boolean sendReviewRating(Integer responseId, ReviewRatingAddDto dto) {
+        Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByIdAndStatus(responseId, StatusReview.Done);
+        if(reviewResponseOptional.isPresent()){
+            ReviewResponse reviewResponse = reviewResponseOptional.get();
+            if(reviewResponse.getScore()!=null && reviewResponse.getComment()!=null){
+                reviewResponse.setScore(dto.getScore());
+                reviewResponse.setComment(dto.getComment());
+                reviewResponseRepository.save(reviewResponse);
+            }else{
+                throw new BadRequestException("You have already commented, it cannot be edited anymore.");
+            }
+        }else{
+            throw new BadRequestException("Response ID not found.");
+        }
+        return false;
     }
 
     public String removeCommentTagsWithoutIdAndContent(String input) {

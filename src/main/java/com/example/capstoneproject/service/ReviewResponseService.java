@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.CommentDto;
+import com.example.capstoneproject.Dto.ReviewRatingAddDto;
 import com.example.capstoneproject.Dto.ReviewResponseDto;
 import com.example.capstoneproject.Dto.ReviewResponseUpdateDto;
 import com.example.capstoneproject.enums.ReviewStatus;
@@ -28,5 +29,7 @@ public interface ReviewResponseService {
     List<ReviewResponseDto> daftReviewResponse(Integer expertId, ReviewStatus status) throws JsonProcessingException;
 
     ReviewResponseDto getReviewResponse(Integer expertId, Integer response) throws JsonProcessingException;
+
+    boolean sendReviewRating(Integer responseId, ReviewRatingAddDto dto);
 
 }

@@ -4,10 +4,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @NoArgsConstructor
 @Getter
 @Setter
-public class ExpertViewChooseDto {
+public class ExpertReviewViewDto {
     private Integer id;
 
     private String name;
@@ -18,6 +20,8 @@ public class ExpertViewChooseDto {
 
     private Double star;
 
+    private String description;
+
     private String company;
 
     private Double price;
@@ -25,4 +29,6 @@ public class ExpertViewChooseDto {
     private Integer experience;
 
     private Integer numberReview;
+
+    private List<ExpertReviewRatingViewDto> comments;
 }

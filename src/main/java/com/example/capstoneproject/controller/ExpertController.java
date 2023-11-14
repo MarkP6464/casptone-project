@@ -32,7 +32,7 @@ public class ExpertController {
 
     @GetMapping("/expert/{expert-id}")
     public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
-        return ResponseEntity.ok(expertService.getProfileExpert(expertId));
+        return ResponseEntity.ok(expertService.getDetailExpert(expertId));
     }
 
     @GetMapping("/experts")

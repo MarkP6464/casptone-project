@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.JobPostingDto;
+import com.example.capstoneproject.Dto.responses.JobPostingViewDetailDto;
 import com.example.capstoneproject.Dto.responses.JobPostingViewDto;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.PublicControl;
@@ -28,13 +29,14 @@ public class JobPostingController {
     }
 
     @GetMapping("/hr/{hr-id}/job-postings")
-    @PreAuthorize("hasRole('ROLE_HR')")
-    public List<JobPostingViewDto> getListJobPostingsByHr(
+    public List<JobPostingViewDetailDto> getListJobPostingsByHr(
             @PathVariable("hr-id") int hrId,
-            @RequestParam(name = "share", required = false) PublicControl share
+            @RequestParam(name = "sortBy", required = false, defaultValue = "createdate") String sortBy,
+            @RequestParam(name = "sortOrder", required = false, defaultValue = "asc") String sortOrder,
+            @RequestParam(name = "searchTerm", required = false) String searchTerm
     ) {
-        BasicStatus basicStatus = mapShareToBasicStatus(share);
-        return jobPostingService.getListByHr(hrId, basicStatus);
+
+        return jobPostingService.getListByHr(hrId, sortBy, sortOrder, searchTerm);
     }
 
     @GetMapping("/hr/{hr-id}/job-posting/{posting-id}")
@@ -77,9 +79,9 @@ public class JobPostingController {
     @PreAuthorize("hasRole('ROLE_HR')")
     public ResponseEntity<?> createPosting(@PathVariable("hr-id") Integer hrId, JobPostingDto dto) {
         if (jobPostingService.create(hrId, dto)) {
-            return ResponseEntity.ok("Create success");
+            return ResponseEntity.ok("Successfully sent job posting.");
         } else {
-            return ResponseEntity.badRequest().body("Create failed");
+            return ResponseEntity.badRequest().body("Fail sent job posting.");
         }
     }
 

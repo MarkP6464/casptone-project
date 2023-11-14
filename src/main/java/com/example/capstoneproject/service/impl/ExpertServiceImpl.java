@@ -4,12 +4,16 @@ import com.example.capstoneproject.Dto.ExpertDto;
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
 import com.example.capstoneproject.Dto.ReviewRatingViewDto;
 import com.example.capstoneproject.Dto.UsersDto;
+import com.example.capstoneproject.Dto.responses.ExpertReviewRatingViewDto;
+import com.example.capstoneproject.Dto.responses.ExpertReviewViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewDto;
 import com.example.capstoneproject.entity.Expert;
+import com.example.capstoneproject.entity.ReviewResponse;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.*;
@@ -28,6 +32,9 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Autowired
     ExpertRepository expertRepository;
+
+    @Autowired
+    ReviewResponseRepository reviewResponseRepository;
 
     @Autowired
     ExperienceMapper experienceMapper;
@@ -174,6 +181,49 @@ public class ExpertServiceImpl implements ExpertService {
                 : result;
     }
 
+    @Override
+    public ExpertReviewViewDto getDetailExpert(Integer expertId) {
+        Optional<Expert> expertOptional = expertRepository.findById(expertId);
+        ExpertReviewViewDto expertReviewViewDto = new ExpertReviewViewDto();
+        if(expertOptional.isPresent()){
+            Expert expert = expertOptional.get();
+            expertReviewViewDto.setId(expert.getId());
+            expertReviewViewDto.setName(expert.getUsers().getName());
+            expertReviewViewDto.setAvatar(expert.getUsers().getAvatar());
+            expertReviewViewDto.setTitle(expert.getTitle());
+            expertReviewViewDto.setStar(calculatorStar(expert.getId()));
+            expertReviewViewDto.setDescription(expert.getDescription());
+            expertReviewViewDto.setCompany(expert.getCompany());
+            expertReviewViewDto.setPrice(expert.getPrice());
+            expertReviewViewDto.setExperience(expert.getExperience());
+            expertReviewViewDto.setNumberReview(calculatorReview(expert.getId()));
+
+            List<ReviewResponse> reviewResponses = reviewResponseRepository.findAllByReviewRequest_ExpertId(expertId);
+            if(reviewResponses==null){
+                throw new BadRequestException("The system currently cannot find any reviews. Please come back later.");
+            }else{
+                List<ExpertReviewRatingViewDto> comments = new ArrayList<>();
+
+                for (ReviewResponse reviewResponse : reviewResponses){
+                    if (reviewResponse.getComment() != null){
+                        ExpertReviewRatingViewDto commentDto = new ExpertReviewRatingViewDto();
+                        commentDto.setId(reviewResponse.getReviewRequest().getCv().getUser().getId());
+                        commentDto.setName(reviewResponse.getReviewRequest().getCv().getUser().getName());
+                        commentDto.setAvatar(reviewResponse.getReviewRequest().getCv().getUser().getAvatar());
+                        commentDto.setComment(reviewResponse.getComment());
+                        commentDto.setScore(reviewResponse.getScore());
+                        commentDto.setDateComment(reviewResponse.getDateComment());
+                        comments.add(commentDto);
+                    }
+                }
+                expertReviewViewDto.setComments(comments);
+            }
+            return expertReviewViewDto;
+        }else {
+            throw new BadRequestException("Expert ID not found");
+        }
+    }
+
     private boolean isMatched(Expert expert, String search) {
         return search == null || search.isEmpty() ||
                 expert.getTitle().contains(search) ||
@@ -186,12 +236,58 @@ public class ExpertServiceImpl implements ExpertService {
         viewChooseDto.setId(expert.getId());
         viewChooseDto.setTitle(expert.getTitle());
         viewChooseDto.setName(expert.getUsers().getName());
+        viewChooseDto.setStar(calculatorStar(expert.getId()));
         viewChooseDto.setAvatar(expert.getUsers().getAvatar());
         viewChooseDto.setCompany(expert.getCompany());
         viewChooseDto.setPrice(expert.getPrice());
         viewChooseDto.setExperience(expert.getExperience());
-        viewChooseDto.setNumberReview(expert.getNumberReview());
+        viewChooseDto.setNumberReview(calculatorReview(expert.getId()));
         return viewChooseDto;
+    }
+
+    private Double calculatorStar(Integer expertId) {
+        List<ReviewResponse> reviewResponses = reviewResponseRepository.findAllByReviewRequest_ExpertId(expertId);
+
+        if (reviewResponses == null || reviewResponses.isEmpty()) {
+            return 0.0;
+        } else {
+            double totalScore = 0.0;
+            int validScoreCount = 0;
+
+            for (ReviewResponse response : reviewResponses) {
+                Double score = response.getScore();
+                if (score != null) {
+                    totalScore += score;
+                    validScoreCount++;
+                }
+            }
+
+            if (validScoreCount == 0) {
+                return 0.0;
+            } else {
+                double averageScore = totalScore / validScoreCount;
+                return Math.round(averageScore * 100.0) / 100.0;
+            }
+        }
+    }
+
+    private Integer calculatorReview(Integer expertId){
+        List<ReviewResponse> reviewResponses = reviewResponseRepository.findAllByReviewRequest_ExpertId(expertId);
+
+        if (reviewResponses == null || reviewResponses.isEmpty()) {
+            return 0;
+        } else{
+            int doneReviewCount = 0;
+
+            for (ReviewResponse response : reviewResponses) {
+                StatusReview status = response.getStatus();
+                if (status != null && status == StatusReview.Done) {
+                    doneReviewCount++;
+                }
+            }
+
+            return doneReviewCount;
+        }
     }
 
     private List<ExpertViewChooseDto> throwBadRequestException() {
