@@ -3,15 +3,10 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.CvService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import sun.security.provider.certpath.OCSPResponse;
 
 import java.util.List;
 

@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.JobDescriptionViewDto;
 import com.example.capstoneproject.service.JobDescriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,16 +16,19 @@ public class JobDescriptionController {
     JobDescriptionService jobDescriptionService;
 
     @PostMapping("cv/{cv-id}/job-description")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public JobDescriptionViewDto postJobDescription(@PathVariable("cv-id") int cvId, @RequestBody JobDescriptionDto Dto) throws JsonProcessingException {
         return jobDescriptionService.createJobDescription(cvId,Dto);
     }
 
     @GetMapping("cv/{cv-id}/job-description/{job-description-id}")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public JobDescriptionViewDto getJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId) throws JsonProcessingException {
         return jobDescriptionService.getJobDescription(cvId,jobId);
     }
 
     @PutMapping("cv/{cv-id}/job-description/{job-description-id}")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId, @RequestBody JobDescriptionDto Dto) throws Exception {
         return jobDescriptionService.updateJobDescription(cvId,jobId,Dto);
     }

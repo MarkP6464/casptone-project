@@ -3,6 +3,7 @@ package com.example.capstoneproject.Dto;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -12,6 +13,7 @@ import java.util.Date;
 @Getter
 @Setter
 public class ReviewRequestAddDto {
-    private LocalDate receivedDate;
+    private LocalDateTime deadline;
+    private Double price;
     private String note;
 }

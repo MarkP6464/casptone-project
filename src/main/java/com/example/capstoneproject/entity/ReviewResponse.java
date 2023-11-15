@@ -1,8 +1,7 @@
 package com.example.capstoneproject.entity;
 
-import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.Dto.CvBodyReviewDto;
-import com.example.capstoneproject.enums.ReviewStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vladmihalcea.hibernate.type.json.JsonType;
@@ -11,6 +10,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import javax.validation.constraints.Null;
 import java.time.LocalDate;
 
 @Data
@@ -34,7 +34,7 @@ public class ReviewResponse {
     @Column(columnDefinition = "json")
     private String feedbackDetail;
 
-    private double score;
+    private Double score;
 
     private LocalDate dateComment;
 
@@ -42,7 +42,7 @@ public class ReviewResponse {
     private String comment;
 
     @Enumerated(EnumType.STRING)
-    private ReviewStatus status;
+    private StatusReview status;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "review_request_id")

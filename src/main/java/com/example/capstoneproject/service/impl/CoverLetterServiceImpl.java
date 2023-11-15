@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.CoverLetterMapper;
 import com.example.capstoneproject.repository.CoverLetterRepository;
 import com.example.capstoneproject.repository.CvRepository;
@@ -50,35 +51,45 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public ChatResponse generateCoverLetter(float temperature,String job_title, int cvId, String company, String job_description) throws JsonProcessingException {
-        String completeCoverLetter = "You are a cover letter generator.\n" +
-                "You will be given a job description along with the job applicant's resume.\n" +
-                "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
-                "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
-                "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
-        String content = "";
-        String userMessage = "";
-        Optional<Cv> cvsOptional = cvRepository.findById(cvId);
-        if(cvsOptional.isPresent()){
-            Cv cv = cvsOptional.get();
-            content = cv.getCvBody();
+    public ChatResponse generateCoverLetter(Integer coverId, float temperature,String job_title, int cvId, String company, String job_description) throws JsonProcessingException {
+        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverId);
+        if(coverLetterOptional.isPresent()){
+            CoverLetter coverLetter = coverLetterOptional.get();
+            String completeCoverLetter = "You are a cover letter generator.\n" +
+                    "You will be given a job description along with the job applicant's resume.\n" +
+                    "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
+                    "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
+                    "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
+            String content = "";
+            String userMessage = "";
+            Optional<Cv> cvsOptional = cvRepository.findById(cvId);
+            if(cvsOptional.isPresent()){
+                Cv cv = cvsOptional.get();
+                content = cv.getCvBody();
 
+            }
+            userMessage = "My Resume: " + content + ". Job title: " + job_title + " Company: " + company +  " Job Description: " + job_description + ".";
+            List<Map<String, Object>> messagesList = new ArrayList<>();
+            Map<String, Object> systemMessage = new HashMap<>();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", completeCoverLetter);
+            messagesList.add(systemMessage);
+            Map<String, Object> userMessageMap = new HashMap<>();
+            userMessageMap.put("role", "user");
+            userMessageMap.put("content", userMessage);
+            messagesList.add(userMessageMap);
+            String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+            String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
+            coverLetter.setId(coverLetter.getId());
+            coverLetter.setDescription(processString(response));
+            coverLetterRepository.save(coverLetter);
+            ChatResponse chatResponse = new ChatResponse();
+            chatResponse.setReply(processString(response));
+            return chatResponse;
+        }else{
+            throw new BadRequestException("Cover Letter ID not found.");
         }
-        userMessage = "My Resume: " + content + ". Job title: " + job_title + " Company: " + company +  " Job Description: " + job_description + ".";
-        List<Map<String, Object>> messagesList = new ArrayList<>();
-        Map<String, Object> systemMessage = new HashMap<>();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", completeCoverLetter);
-        messagesList.add(systemMessage);
-        Map<String, Object> userMessageMap = new HashMap<>();
-        userMessageMap.put("role", "user");
-        userMessageMap.put("content", userMessage);
-        messagesList.add(userMessageMap);
-        String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-        String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
-        ChatResponse chatResponse = new ChatResponse();
-        chatResponse.setReply(processString(response));
-        return chatResponse;
+
     }
 
     public ChatResponse generateSummaryCV(float temperature, Integer cvId, String position_highlight, String skill_highlight) throws JsonProcessingException {
@@ -141,7 +152,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             chatResponse.setReply(response);
             return chatResponse;
         }else{
-            throw new RuntimeException("Please add experience into CV");
+            throw new BadRequestException("Please add experience into CV");
         }
     }
 
@@ -399,7 +410,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             chatResponse.setReply(response);
             return chatResponse;
         }else{
-            throw new RuntimeException("Please add experience into CV");
+            throw new BadRequestException("Please add experience into CV");
         }
     }
 

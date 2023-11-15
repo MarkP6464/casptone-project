@@ -9,6 +9,7 @@ import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +24,10 @@ public class CoverLetterController {
         this.coverLetterService = coverLetterService;
     }
 
-    @PostMapping("/cover-letter")
+    @PostMapping("/cover-letter/{cover-letter-id}/generation")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> generateCoverLetter(
+            @PathVariable("cover-letter-id") Integer coverId,
             @RequestParam float temperature,
             @RequestParam String company,
             @RequestParam String job_title,
@@ -36,16 +39,19 @@ public class CoverLetterController {
         }
 
         ChatResponse result = coverLetterService.generateCoverLetter(
+                coverId,
                 temperature,
                 job_title,
                 cvId,
                 company,
                 job_description
+
         );
         return ResponseEntity.ok(result);
     }
 
     @PostMapping("cv/{cv-id}/summary")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> generateSummary(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId,
@@ -66,6 +72,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("/cv/{cv-id}/review")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId
@@ -96,6 +103,7 @@ public class CoverLetterController {
 
 
     @PostMapping("/cover-letter/revise")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ChatResponse generateCoverLetterRevise(
             @RequestParam String content,
             @RequestParam String improvement
@@ -109,6 +117,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
+    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId,@PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(userId, cvId, Dto);
     }

@@ -2,6 +2,7 @@ package com.example.capstoneproject.Dto;
 
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.enums.ReviewStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -19,9 +20,11 @@ import java.util.Date;
 public class ReviewRequestDto {
     private Integer id;
 
-    private LocalDate receivedDate;
+    private LocalDate deadline;
 
-    private ReviewStatus status;
+    private Double price;
+
+    private StatusReview status;
 
     private String note;
 

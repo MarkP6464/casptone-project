@@ -1,10 +1,14 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
+import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.ExpertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -28,11 +32,16 @@ public class ExpertController {
 
     @GetMapping("/expert/{expert-id}")
     public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
-        return ResponseEntity.ok(expertService.getProfileExpert(expertId));
+        return ResponseEntity.ok(expertService.getDetailExpert(expertId));
     }
 
     @GetMapping("/experts")
-    public ResponseEntity<?> getAllExpert(){
-        return ResponseEntity.ok(expertService.getExpertList());
+    public ResponseEntity<?> getAllExpert(@RequestParam(required = false) String search) {
+        try {
+            List<ExpertViewChooseDto> expertList = expertService.getExpertList(search);
+            return ResponseEntity.ok(expertList);
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

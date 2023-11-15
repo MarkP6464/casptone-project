@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.CommentDto;
+import com.example.capstoneproject.Dto.ReviewRatingAddDto;
 import com.example.capstoneproject.Dto.ReviewResponseDto;
 import com.example.capstoneproject.Dto.ReviewResponseUpdateDto;
 import com.example.capstoneproject.enums.ReviewStatus;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +33,13 @@ public class ReviewResponseController {
         return ResponseEntity.ok(reviewResponseService.createComment(expertId, responseId,dto));
     }
 
+    @PostMapping("/user/review-response/{response-id}/comment/rating")
+    public ResponseEntity<?> postReviewResponseRating(@PathVariable("response-id") Integer responseId, ReviewRatingAddDto dto) {
+        return ResponseEntity.ok(reviewResponseService.sendReviewRating(responseId,dto));
+    }
+
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/comment/{commentId}")
+    @PreAuthorize("hasRole('ROLE_EXPERT')")
     public ResponseEntity<?> putReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @PathVariable("commentId") String commentId,String newContent) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.updateComment(expertId, responseId,commentId,newContent));
     }
@@ -61,33 +69,34 @@ public class ReviewResponseController {
         return ResponseEntity.ok(reviewResponseService.getReviewResponse(expertId, responseId));
     }
 
-    @GetMapping("/expert/{expert-id}/review-responses")
-    public ResponseEntity<List<ReviewResponseDto>> getDaftReviewResponses(
-            @PathVariable("expert-id") Integer expertId,
-            @RequestParam(name = "status", required = false) SendControl status
-    ) throws JsonProcessingException {
-        List<ReviewResponseDto> daftReviewResponses;
-
-        if (status != null) {
-            switch (status) {
-                case DRAFT:
-                    daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.DRAFT);
-                    break;
-                case SEND:
-                    daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.SEND);
-                    break;
-                default:
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-            }
-        } else {
-            daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, null);
-        }
-
-        if (daftReviewResponses != null && !daftReviewResponses.isEmpty()) {
-            return ResponseEntity.ok(daftReviewResponses);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-    }
+//    @GetMapping("/expert/{expert-id}/review-responses")
+//    @PreAuthorize("hasRole('ROLE_EXPERT')")
+//    public ResponseEntity<List<ReviewResponseDto>> getDaftReviewResponses(
+//            @PathVariable("expert-id") Integer expertId,
+//            @RequestParam(name = "status", required = false) SendControl status
+//    ) throws JsonProcessingException {
+//        List<ReviewResponseDto> daftReviewResponses;
+//
+//        if (status != null) {
+//            switch (status) {
+//                case DRAFT:
+//                    daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.DRAFT);
+//                    break;
+//                case SEND:
+//                    daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.SEND);
+//                    break;
+//                default:
+//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+//            }
+//        } else {
+//            daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, null);
+//        }
+//
+//        if (daftReviewResponses != null && !daftReviewResponses.isEmpty()) {
+//            return ResponseEntity.ok(daftReviewResponses);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//    }
 
 }

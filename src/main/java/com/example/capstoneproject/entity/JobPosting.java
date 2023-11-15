@@ -1,12 +1,14 @@
 package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
@@ -23,8 +25,20 @@ public class JobPosting {
     @Column(columnDefinition = "NVARCHAR(100)")
     private String workingType;
 
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String companyName;
+
+    @Column(columnDefinition = "TEXT")
+    private String avatar;
+
     @Column(columnDefinition = "TEXT")
     private String location;
+
+    @Column(columnDefinition = "TEXT")
+    private String about;
+
+    @Column(columnDefinition = "TEXT")
+    private String benefit;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -32,19 +46,26 @@ public class JobPosting {
     @Column(columnDefinition = "TEXT")
     private String requirement;
 
+    @Column(columnDefinition = "TEXT")
+    private String skill;
+
+    private Integer view;
+
     private Integer applyAgain;
 
-    private Integer salary;
+    private String salary;
 
     private LocalDate deadline;
 
-    private LocalDate createDate;
+    private LocalDateTime createDate;
 
     private LocalDate updateDate;
 
+    @Enumerated(EnumType.STRING)
     private BasicStatus status;
 
-    private BasicStatus share;
+    @Enumerated(EnumType.STRING)
+    private StatusReview share;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

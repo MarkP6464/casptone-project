@@ -21,6 +21,4 @@ public class UserViewLoginDto {
     private String email;
 
     private String linkin;
-
-    private String uid;
 }

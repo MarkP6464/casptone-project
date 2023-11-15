@@ -3,6 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -93,7 +94,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                             sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
                             return true;
                         }else{
-                            throw new RuntimeException("Please apply after date " + resultDate);
+                            throw new BadRequestException("Please apply after date " + resultDate);
                         }
                     }else{
                         applicationLog.setTimestamp(currentDate);
@@ -130,7 +131,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         return true;
                     }
                 }else{
-                    throw new RuntimeException("Posting ID not exist");
+                    throw new BadRequestException("Posting ID not exist");
                 }
             }else{
                 Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(postingId, BasicStatus.ACTIVE, BasicStatus.PUBLIC);
@@ -175,7 +176,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                             sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
                             return true;
                         }else{
-                            throw new RuntimeException("Please apply after date " + resultDate);
+                            throw new BadRequestException("Please apply after date " + resultDate);
                         }
                     }else{
                         applicationLog.setTimestamp(currentDate);
@@ -211,11 +212,11 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         return true;
                     }
                 }else{
-                    throw new RuntimeException("Posting ID not exist");
+                    throw new BadRequestException("Posting ID not exist");
                 }
             }
         }else{
-            throw new RuntimeException("CV ID not exist in User ID.");
+            throw new BadRequestException("CV ID not exist in User ID.");
         }
     }
     private void sendEmail(String toEmail, String subject, String message) {

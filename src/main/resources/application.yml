@@ -1,7 +1,29 @@
+---
+
 application:
+  client-origin-url: http://localhost:4040
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+  port: 8080
+
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   security:
-    jwt:
-      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-      expiration: 86400000 # a day
-      refresh-token:
-        expiration: 604800000 # 7 days
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev-gzgdh7hw4udvv70u.us.auth0.com/.well-known/jwks.json
+
+okta:
+  oauth2:
+    issuer: https://dev-gzgdh7hw4udvv70u.us.auth0.com/
+    audience: https://cvbuilder.monoinfinity.net/
+
+...

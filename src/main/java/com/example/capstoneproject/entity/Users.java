@@ -87,6 +87,9 @@ public class Users implements UserDetails {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Cv> cvs;
 
+//    @OneToOne(mappedBy = "expert")
+//    private Expert expert;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
