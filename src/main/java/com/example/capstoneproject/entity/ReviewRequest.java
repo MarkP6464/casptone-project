@@ -32,6 +32,10 @@ public class ReviewRequest {
 
     private Integer historyId;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "transaction_id")
+    private Transaction transaction;
+
     @ManyToOne
     @JoinColumn(name = "cv_id")
     private Cv cv;

@@ -54,10 +54,13 @@ public class Users implements UserDetails {
     private String country;
 
     @Column(name = "account_Balance")
-    private String accountBalance;
+    private Long accountBalance = 0L;
+
+    @Column(name = "quota")
+    private Long quota = 0L;
 
     @Column(name = "vip")
-    private Integer vip;
+    private Boolean vip;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -119,5 +122,9 @@ public class Users implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    private void minusQuota(){
+        this.setQuota(this.getQuota() - 1);
     }
 }

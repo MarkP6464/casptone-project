@@ -28,6 +28,10 @@ public class RegisterRequest {
 
     private String phone;
 
+    private Long accountBalance = 0L;
+
+    private Long quota = 0L;
+
     private String personalWebsite;
 
     private String email;
@@ -35,5 +39,6 @@ public class RegisterRequest {
     private String linkin;
 
     private String country;
+
     private Role role;
 }

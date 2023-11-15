@@ -45,7 +45,7 @@ public class AuthenticationController {
     @PostMapping("/firebase")
     public ResponseEntity<AuthenticationResponse> authorizeToken(@RequestBody String token) {
         try {
-            Role role = roleRepository.findByRoleName(RoleType.USER);
+            Role role = roleRepository.findByRoleName(RoleType.CANDIDATE);
 
             // Xác thực token
             FirebaseToken decodedToken = firebaseService.verifyToken(token);
@@ -71,7 +71,6 @@ public class AuthenticationController {
                 request.setEmail(email);
                 request.setPassword(" ");
                 request.setRole(role);
-
                 return ResponseEntity.ok(authenticationService.register(request, uid));
             }
         } catch (FirebaseAuthException e) {

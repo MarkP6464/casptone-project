@@ -7,6 +7,7 @@ import com.example.capstoneproject.Dto.responses.AuthenticationResponse;
 import com.example.capstoneproject.entity.Role;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.filter.JwtService;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.RoleRepository;
@@ -61,16 +62,15 @@ public class AuthenticationService {
 
     public AuthenticationResponse register(RegisterRequest request, String uid) {
         UserViewLoginDto userViewLoginDto = new UserViewLoginDto();
-        Role role = roleRepository.findByRoleName(RoleType.USER);
-        var customer = Users.builder()
+        Role role = roleRepository.findByRoleName(RoleType.CANDIDATE);
+        Users customer = Users.builder()
                 .Name(request.getName())
                 .address(request.getAddress())
                 .phone((request.getPhone()))
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)//request.getRole()
                 .build();
-        var savedUser = repository.save(customer);
+        Users savedUser = repository.save(customer);
         userViewLoginDto.setUid(uid);
         userViewLoginDto.setId(savedUser.getId());
         userViewLoginDto.setName(savedUser.getName());
@@ -79,7 +79,7 @@ public class AuthenticationService {
         userViewLoginDto.setPermissionWebsite(savedUser.getPersonalWebsite());
         userViewLoginDto.setEmail(savedUser.getEmail());
         userViewLoginDto.setLinkin(savedUser.getLinkin());
-        var jwtToken = jwtService.generateToken(customer);
+        String jwtToken = jwtService.generateToken(customer);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .user(userViewLoginDto)
@@ -93,8 +93,8 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var customer = repository.findByEmail(request.getEmail())
-                .orElseThrow();
+         Users customer = repository.findByEmail(request.getEmail())
+                .orElseThrow(ResourceNotFoundException::new);
         UserViewLoginDto userViewLoginDto = new UserViewLoginDto();
         userViewLoginDto.setUid(uid);
         userViewLoginDto.setId(customer.getId());
@@ -104,7 +104,7 @@ public class AuthenticationService {
         userViewLoginDto.setPermissionWebsite(customer.getPersonalWebsite());
         userViewLoginDto.setEmail(customer.getEmail());
         userViewLoginDto.setLinkin(customer.getLinkin());
-        var jwtToken = jwtService.generateToken(customer);
+        String jwtToken = jwtService.generateToken(customer);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .user(userViewLoginDto)

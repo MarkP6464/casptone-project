@@ -19,7 +19,7 @@ public class FirebaseConfig {
 public void initialize() throws IOException {
 
     FileInputStream serviceAccount =
-            new FileInputStream("casptone-project/src/main/resources/serviceAccountKey.json");
+            new FileInputStream("src/main/resources/serviceAccountKey.json");
 
     FirebaseOptions options = new FirebaseOptions.Builder()
             .setCredentials(GoogleCredentials.fromStream(serviceAccount))
