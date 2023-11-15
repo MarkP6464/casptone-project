@@ -13,7 +13,6 @@ import java.util.Optional;
 public interface JobPostingRepository extends JpaRepository<JobPosting, Integer> {
     Optional<JobPosting> findByUser_IdAndIdAndStatus(Integer userId, Integer postingId, BasicStatus status);
     List<JobPosting> findByUser_IdAndStatus(Integer userId, BasicStatus status);
-
     List<JobPosting> findByShare(BasicStatus status);
     Optional<JobPosting> findByIdAndStatusAndShare(Integer postingId, BasicStatus status, BasicStatus share);
     List<JobPosting> findAllByDeadline(LocalDate deadline);

@@ -1,21 +1,19 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-
 @NoArgsConstructor
 @Getter
 @Setter
-public class JobPostingDto {
+public class JobPostingViewUserDetailDto {
+    private Integer id;
 
     private String title;
-
-    private StatusReview status;
 
     private String workingType;
 
@@ -23,23 +21,31 @@ public class JobPostingDto {
 
     private String avatar;
 
+    private String location;
+
     private String about;
 
     private String benefit;
-
-    private String skill;
-
-    private String location;
 
     private String description;
 
     private String requirement;
 
-    private Integer applyAgain;
-
     private String salary;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private String skill;
+
+    private Integer view;
+
+    private boolean liked;
+
     private LocalDate deadline;
 
+    private LocalDate createDate;
+
+    private LocalDate updateDate;
+
+    private BasicStatus status;
+
+    private StatusReview share;
 }

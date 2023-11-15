@@ -52,8 +52,8 @@ public class ReviewRequestController {
     @GetMapping("/candidate/{candidate-id}/review-requests")
     public List<ReviewRequestSecondViewDto> getListCandidateReviewRequest(
             @PathVariable("candidate-id") Integer candidateId,
-            @RequestParam(required = false) SortBy sortBy,
-            @RequestParam(required = false) SortOrder sortOrder,
+            @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
+            @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
             @RequestParam(required = false) String searchTerm
     ) {
         return reviewRequestService.getListReviewRequestCandidate(candidateId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);
@@ -62,8 +62,8 @@ public class ReviewRequestController {
     @GetMapping("/expert/{expert-id}/review-requests")
     public List<ReviewRequestSecondViewDto> getListReviewRequest(
             @PathVariable("expert-id") Integer expertId,
-            @RequestParam(required = false) SortBy sortBy,
-            @RequestParam(required = false) SortOrder sortOrder,
+            @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
+            @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
             @RequestParam(required = false) String searchTerm
     ) {
         return reviewRequestService.getListReviewRequest(expertId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);

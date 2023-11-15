@@ -1,15 +1,14 @@
-package com.example.capstoneproject.Dto.responses;
+package com.example.capstoneproject.Dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
 @NoArgsConstructor
 @Getter
 @Setter
-public class JobPostingViewOverCandidateDto {
+public class JobPostingViewOverCandidateLikeDto {
     private Integer id;
 
     private String title;
@@ -26,4 +25,5 @@ public class JobPostingViewOverCandidateDto {
 
     private String createDate;
 
+    private boolean liked;
 }

@@ -1,20 +1,17 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.CvBodyDto;
-import com.example.capstoneproject.Dto.JobPostingDto;
-import com.example.capstoneproject.Dto.SkillDto;
-import com.example.capstoneproject.Dto.UsersDto;
+import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.JobPosting;
+import com.example.capstoneproject.entity.Like;
 import com.example.capstoneproject.entity.Users;
+//import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
-import com.example.capstoneproject.repository.ApplicationLogRepository;
-import com.example.capstoneproject.repository.CvRepository;
-import com.example.capstoneproject.repository.JobPostingRepository;
-import com.example.capstoneproject.repository.UsersRepository;
+import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.JobPostingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
@@ -37,6 +34,9 @@ public class JobPostingServiceImpl implements JobPostingService {
     UsersRepository usersRepository;
 
     @Autowired
+    LikeRepository likeRepository;
+
+    @Autowired
     CvRepository cvRepository;
 
     @Autowired
@@ -52,7 +52,7 @@ public class JobPostingServiceImpl implements JobPostingService {
     JobPostingRepository jobPostingRepository;
 
     @Override
-    public boolean create(Integer hrId, JobPostingDto dto) {
+    public boolean createDraft(Integer hrId, JobPostingAddDto dto) {
         Optional<UsersDto> usersOptional = Optional.ofNullable(modelMapper.map(usersRepository.findUsersById(hrId), UsersDto.class));
         JobPosting jobPosting = new JobPosting();
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -77,17 +77,50 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setDeadline(dto.getDeadline());
             jobPosting.setCreateDate(currentDateTime);
             jobPosting.setStatus(ACTIVE);
-            jobPosting.setShare(BasicStatus.PRIVATE);
+            jobPosting.setShare(StatusReview.Draft);
             jobPosting.setUser(modelMapper.map(users, Users.class));
             jobPostingRepository.save(jobPosting);
             return true;
-
         }
         return false;
     }
 
     @Override
-    public boolean update(Integer hrId, Integer jobPostingId, JobPostingDto dto) {
+    public boolean createPublic(Integer hrId, JobPostingAddDto dto){
+        Optional<UsersDto> usersOptional = Optional.ofNullable(modelMapper.map(usersRepository.findUsersById(hrId), UsersDto.class));
+        JobPosting jobPosting = new JobPosting();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        if(usersOptional.isPresent()){
+            UsersDto users = usersOptional.get();
+            jobPosting.setTitle(dto.getTitle());
+            jobPosting.setWorkingType(dto.getWorkingType());
+            jobPosting.setLocation(dto.getLocation());
+            jobPosting.setDescription(dto.getDescription());
+            jobPosting.setRequirement(dto.getRequirement());
+            jobPosting.setCompanyName(dto.getCompanyName());
+            jobPosting.setAvatar(dto.getAvatar());
+            jobPosting.setAbout(dto.getAbout());
+            jobPosting.setBenefit(dto.getBenefit());
+            jobPosting.setSkill(dto.getSkill());
+            jobPosting.setView(0);
+            if(dto.getApplyAgain()==null){
+                jobPosting.setApplyAgain(0);
+            }
+            jobPosting.setApplyAgain(dto.getApplyAgain());
+            jobPosting.setSalary(dto.getSalary());
+            jobPosting.setDeadline(dto.getDeadline());
+            jobPosting.setCreateDate(currentDateTime);
+            jobPosting.setStatus(ACTIVE);
+            jobPosting.setShare(StatusReview.Published);
+            jobPosting.setUser(modelMapper.map(users, Users.class));
+            jobPostingRepository.save(jobPosting);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean update(Integer hrId, Integer jobPostingId, JobPostingAddDto dto) {
         Optional<UsersDto> usersOptional = Optional.ofNullable(modelMapper.map(usersRepository.findUsersById(hrId), UsersDto.class));
         Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByUser_IdAndIdAndStatus(hrId, jobPostingId, ACTIVE);
         LocalDate currentDate = LocalDate.now();
@@ -181,7 +214,29 @@ public class JobPostingServiceImpl implements JobPostingService {
             if (jobPostingOptional.isPresent()) {
                 JobPosting jobPosting = jobPostingOptional.get();
                 if(Objects.equals(users.getId(), jobPosting.getUser().getId())){
-                    jobPosting.setShare(PUBLIC);
+                    jobPosting.setShare(StatusReview.Published);
+                    jobPostingRepository.save(jobPosting);
+                    return true;
+                }
+            } else {
+                throw new BadRequestException("Job Posting Id not found.");
+            }
+        } else {
+            throw new BadRequestException("HR ID not found.");
+        }
+        return false;
+    }
+
+    @Override
+    public boolean unShare(Integer hrId, Integer jobPostingId){
+        Optional<UsersDto> usersOptional = Optional.ofNullable(modelMapper.map(usersRepository.findUsersById(hrId), UsersDto.class));
+        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByUser_IdAndIdAndStatus(hrId, jobPostingId, ACTIVE);
+        if (usersOptional.isPresent()) {
+            UsersDto users = usersOptional.get();
+            if (jobPostingOptional.isPresent()) {
+                JobPosting jobPosting = jobPostingOptional.get();
+                if(Objects.equals(users.getId(), jobPosting.getUser().getId())){
+                    jobPosting.setShare(StatusReview.Unpublish);
                     jobPostingRepository.save(jobPosting);
                     return true;
                 }
@@ -206,13 +261,21 @@ public class JobPostingServiceImpl implements JobPostingService {
                 if(Objects.equals(users.getId(), jobPosting.getUser().getId())){
                     jobPostingViewDto.setId(jobPosting.getId());
                     jobPostingViewDto.setTitle(jobPosting.getTitle());
+                    jobPostingViewDto.setCompanyName(jobPosting.getCompanyName());
+                    jobPostingViewDto.setAvatar(jobPosting.getAvatar());
+                    jobPostingViewDto.setAbout(jobPosting.getAbout());
+                    jobPostingViewDto.setBenefit(jobPosting.getBenefit());
+                    jobPostingViewDto.setSkill(jobPosting.getSkill());
+                    jobPostingViewDto.setView(jobPosting.getView());
                     jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
                     jobPostingViewDto.setLocation(jobPosting.getLocation());
                     jobPostingViewDto.setDescription(jobPosting.getDescription());
                     jobPostingViewDto.setRequirement(jobPosting.getRequirement());
                     jobPostingViewDto.setSalary(jobPosting.getSalary());
-//                    jobPostingViewDto.setCreateDate(jobPosting.getCreateDate());
+                    jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
                     jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
+                    jobPostingViewDto.setDeadline(jobPosting.getDeadline());
+                    jobPostingViewDto.setStatus(jobPosting.getStatus());
                     jobPostingViewDto.setShare(jobPosting.getShare());
                     return jobPostingViewDto;
                 }else {
@@ -224,6 +287,47 @@ public class JobPostingServiceImpl implements JobPostingService {
 
         }else{
             throw new BadRequestException("HR ID not found.");
+        }
+    }
+
+    @Override
+    public JobPostingViewUserDetailDto getByUser(Integer userId, Integer jobPostingId) {
+        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(jobPostingId);
+        JobPostingViewUserDetailDto jobPostingViewDto = new JobPostingViewUserDetailDto();
+        if(jobPostingOptional.isPresent()){
+            JobPosting jobPosting = jobPostingOptional.get();
+            if(jobPosting.getStatus()==BasicStatus.ACTIVE && jobPosting.getShare()==StatusReview.Published){
+                jobPostingViewDto.setId(jobPosting.getId());
+                jobPostingViewDto.setTitle(jobPosting.getTitle());
+                jobPostingViewDto.setCompanyName(jobPosting.getCompanyName());
+                jobPostingViewDto.setAvatar(jobPosting.getAvatar());
+                jobPostingViewDto.setAbout(jobPosting.getAbout());
+                jobPostingViewDto.setBenefit(jobPosting.getBenefit());
+                jobPostingViewDto.setSkill(jobPosting.getSkill());
+                jobPostingViewDto.setView(jobPosting.getView());
+                jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
+                jobPostingViewDto.setLocation(jobPosting.getLocation());
+                jobPostingViewDto.setDescription(jobPosting.getDescription());
+                jobPostingViewDto.setRequirement(jobPosting.getRequirement());
+                jobPostingViewDto.setSalary(jobPosting.getSalary());
+                jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
+                jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
+                jobPostingViewDto.setStatus(jobPosting.getStatus());
+                jobPostingViewDto.setDeadline(jobPosting.getDeadline());
+                jobPostingViewDto.setShare(jobPosting.getShare());
+                Optional<Like> likeOptional = likeRepository.findByUser_IdAndJobPosting_Id(userId, jobPosting.getId());
+                if(likeOptional.isPresent()){
+                    jobPostingViewDto.setLiked(true);
+                }else{
+                    jobPostingViewDto.setLiked(false);
+                }
+
+                return jobPostingViewDto;
+            }else{
+                throw new BadRequestException("You cant access this posting.");
+            }
+        }else{
+            throw new BadRequestException("Job Posting Id not found.");
         }
     }
 
@@ -241,14 +345,10 @@ public class JobPostingServiceImpl implements JobPostingService {
                 jobPostingViewDto.setId(jobPosting.getId());
                 jobPostingViewDto.setTitle(jobPosting.getTitle());
                 jobPostingViewDto.setView(jobPosting.getView());
-                if(jobPosting.getStatus() == BasicStatus.PUBLIC && jobPosting.getDeadline().isBefore(current)){
+                if(jobPosting.getDeadline().isBefore(current)){
                     jobPostingViewDto.setStatus(StatusReview.Overdue);
-                }else if(jobPosting.getStatus() == BasicStatus.PUBLIC){
-                    jobPostingViewDto.setStatus(StatusReview.Published);
-                }else if(jobPosting.getStatus() == BasicStatus.DRAFT){
-                    jobPostingViewDto.setStatus(StatusReview.Draft);
                 }else {
-                    jobPostingViewDto.setStatus(StatusReview.Unpublish);
+                    jobPostingViewDto.setStatus(jobPosting.getShare());
                 }
                 jobPostingViewDto.setTimestamp(jobPosting.getCreateDate());
                 jobPostingViewDto.setApplication(applicationLogRepository.countByJobPostingId(jobPosting.getId()));
@@ -285,8 +385,50 @@ public class JobPostingServiceImpl implements JobPostingService {
     }
 
     @Override
-    public List<JobPostingViewOverCandidateDto> getJobPostingsByCandidate(String title, String location) {
-        return null;
+    public List<JobPostingViewOverCandidateLikeDto> getJobPostingsByCandidate(Integer userId, String title, String location) {
+        List<JobPostingViewOverCandidateLikeDto> jobPostingLike = new ArrayList<>();
+        List<JobPosting> jobPostings = jobPostingRepository.findAll();
+        if(jobPostings!=null){
+            for(JobPosting jobPosting: jobPostings){
+                JobPostingViewOverCandidateLikeDto jobPostingLikeAdd = new JobPostingViewOverCandidateLikeDto();
+                if(jobPosting.getShare()== StatusReview.Published && jobPosting.getStatus()== BasicStatus.ACTIVE){
+                    jobPostingLikeAdd.setId(jobPosting.getId());
+                    jobPostingLikeAdd.setTitle(jobPosting.getTitle());
+                    jobPostingLikeAdd.setCompanyName(jobPosting.getCompanyName());
+                    jobPostingLikeAdd.setAvatar(jobPosting.getAvatar());
+                    jobPostingLikeAdd.setLocation(jobPosting.getLocation());
+                    jobPostingLikeAdd.setSkill(jobPosting.getSkill());
+                    jobPostingLikeAdd.setSalary(jobPosting.getSalary());
+                    jobPostingLikeAdd.setCreateDate(prettyTime.format(jobPosting.getCreateDate()));
+                    Optional<Like> likeOptional = likeRepository.findByUser_IdAndJobPosting_Id(userId, jobPosting.getId());
+                    if(likeOptional.isPresent()){
+                        jobPostingLikeAdd.setLiked(true);
+                    }else{
+                        jobPostingLikeAdd.setLiked(false);
+                    }
+                    jobPostingLike.add(jobPostingLikeAdd);
+                }
+            }
+            jobPostingLike = filterBySearchJobPostingsByCandidate(jobPostingLike, title, location);
+            return jobPostingLike;
+        }else{
+            throw new BadRequestException("Currently, the system cannot find the job postings.");
+        }
+    }
+
+    private List<JobPostingViewOverCandidateLikeDto> filterBySearchJobPostingsByCandidate(
+            List<JobPostingViewOverCandidateLikeDto> jobPostings, String title, String location) {
+        if ((title != null && !title.trim().isEmpty()) || (location != null && !location.trim().isEmpty())) {
+            String titleSearchTermLowerCase = (title != null) ? title.toLowerCase() : "";
+            String locationSearchTermLowerCase = (location != null) ? location.toLowerCase() : "";
+
+            jobPostings = jobPostings.stream()
+                    .filter(dto ->
+                            (titleSearchTermLowerCase.isEmpty() || dto.getTitle().toLowerCase().contains(titleSearchTermLowerCase)) &&
+                                    (locationSearchTermLowerCase.isEmpty() || dto.getLocation().toLowerCase().contains(locationSearchTermLowerCase)))
+                    .collect(Collectors.toList());
+        }
+        return jobPostings;
     }
 
     @Override
@@ -330,9 +472,6 @@ public class JobPostingServiceImpl implements JobPostingService {
             case "createdate":
                 comparator = Comparator.comparing(JobPostingViewOverDto::getTimestamp);
                 break;
-            case "title":
-                comparator = Comparator.comparing(JobPostingViewOverDto::getTitle);
-                break;
             default:
                 throw new IllegalArgumentException("Invalid sortBy parameter");
         }
@@ -370,7 +509,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         LocalDate currentDate = LocalDate.now();
         List<JobPosting> jobPostings = jobPostingRepository.findAllByDeadline(currentDate);
         for (JobPosting jobPosting : jobPostings) {
-            jobPosting.setShare(BasicStatus.PRIVATE);
+            jobPosting.setShare(StatusReview.Overdue);
         }
         jobPostingRepository.saveAll(jobPostings);
     }

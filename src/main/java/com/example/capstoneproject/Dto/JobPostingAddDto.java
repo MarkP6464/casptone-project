@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,11 +12,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
-public class JobPostingDto {
+public class JobPostingAddDto {
 
     private String title;
-
-    private StatusReview status;
 
     private String workingType;
 
@@ -23,23 +22,25 @@ public class JobPostingDto {
 
     private String avatar;
 
+    private String location;
+
     private String about;
 
     private String benefit;
-
-    private String skill;
-
-    private String location;
 
     private String description;
 
     private String requirement;
 
-    private Integer applyAgain;
-
     private String salary;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private Integer applyAgain;
+
+    private String skill;
+
+    private Integer view;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate deadline;
 
 }

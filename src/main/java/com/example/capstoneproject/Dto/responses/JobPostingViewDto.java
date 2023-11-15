@@ -1,6 +1,8 @@
 package com.example.capstoneproject.Dto.responses;
 
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.ReviewStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,13 +20,25 @@ public class JobPostingViewDto {
 
     private String workingType;
 
+    private String companyName;
+
+    private String avatar;
+
     private String location;
+
+    private String about;
+
+    private String benefit;
 
     private String description;
 
     private String requirement;
 
-    private Integer salary;
+    private String salary;
+
+    private String skill;
+
+    private Integer view;
 
     private LocalDate deadline;
 
@@ -34,5 +48,5 @@ public class JobPostingViewDto {
 
     private BasicStatus status;
 
-    private BasicStatus share;
+    private StatusReview share;
 }

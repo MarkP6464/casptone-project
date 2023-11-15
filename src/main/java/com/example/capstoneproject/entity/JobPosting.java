@@ -1,6 +1,7 @@
 package com.example.capstoneproject.entity;
 
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -52,7 +53,7 @@ public class JobPosting {
 
     private Integer applyAgain;
 
-    private Integer salary;
+    private String salary;
 
     private LocalDate deadline;
 
@@ -60,9 +61,11 @@ public class JobPosting {
 
     private LocalDate updateDate;
 
+    @Enumerated(EnumType.STRING)
     private BasicStatus status;
 
-    private BasicStatus share;
+    @Enumerated(EnumType.STRING)
+    private StatusReview share;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
