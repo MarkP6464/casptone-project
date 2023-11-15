@@ -39,7 +39,7 @@ public class CapstoneProjectApplication {
 
 
     public static void main(String[] args) {
-//        initializeStanfordCoreNLP();
+        initializeStanfordCoreNLP();
         dotEnvSafeCheck();
         SpringApplication.run(CapstoneProjectApplication.class, args);
     }
@@ -53,8 +53,9 @@ public class CapstoneProjectApplication {
     private static void dotEnvSafeCheck() {
         final var dotenv = Dotenv.configure()
                 .ignoreIfMissing()
-                .filename("casptone-project/src/.env")
+                .filename("src/.env")
                 .load();
+        dotenv.entries().forEach(entry -> System.out.println(entry.getKey() + ": " + entry.getValue()));
 
         stream(DotEnv.values())
                 .map(DotEnv::name)

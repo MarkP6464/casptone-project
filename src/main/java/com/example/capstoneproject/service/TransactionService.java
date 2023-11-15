@@ -20,4 +20,10 @@ public interface TransactionService {
     TransactionDto approveWithdrawRequest(String id);
 
     List<TransactionDto> viewWithdrawList();
+
+    TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount);
+
+    TransactionDto requestToReviewFail(String requestId);
+
+    TransactionDto requestToReviewSuccessFul(String requestId);
 }

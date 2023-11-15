@@ -163,14 +163,16 @@ public class TransactionServiceImpl implements TransactionService {
         return dtos;
     }
 
-    public TransactionDto requestToReview(Integer sentId, Integer receiveId, Long amount){
+    @Override
+    public TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount){
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, null,
-                TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0L, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
+                TransactionType.TRANSFER, MoneyType.CREDIT, Double.valueOf(amount).longValue(), 0L, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(transaction);
     }
 
+    @Override
     public TransactionDto requestToReviewFail(String requestId){
         Transaction transaction = transactionRepository.findByRequestId(requestId);
         transaction.setStatus(TransactionStatus.FAIL);
@@ -178,6 +180,7 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toDto(transaction);
     }
 
+    @Override
     public TransactionDto requestToReviewSuccessFul(String requestId){
         Transaction transaction = transactionRepository.findByRequestId(requestId);
         transaction.setStatus(TransactionStatus.FAIL);

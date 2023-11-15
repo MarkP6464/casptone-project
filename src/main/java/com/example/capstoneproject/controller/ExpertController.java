@@ -6,6 +6,7 @@ import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.ExpertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class ExpertController {
     }
 
     @GetMapping("/experts")
+    @PreAuthorize("hasAuthority('read:admin-messages')")
     public ResponseEntity<?> getAllExpert(@RequestParam(required = false) String search) {
         try {
             List<ExpertViewChooseDto> expertList = expertService.getExpertList(search);

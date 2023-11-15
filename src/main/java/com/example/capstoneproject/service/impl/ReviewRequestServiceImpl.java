@@ -15,6 +15,7 @@ import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.ReviewRequestService;
 import com.example.capstoneproject.service.ReviewResponseService;
+import com.example.capstoneproject.service.TransactionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -64,6 +65,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     @Autowired
     HistoryRepository historyRepository;
 
+    @Autowired
+    TransactionService transactionService;
+
     public ReviewRequestServiceImpl(ReviewRequestRepository reviewRequestRepository, ReviewRequestMapper reviewRequestMapper) {
         super(reviewRequestRepository, reviewRequestMapper, reviewRequestRepository::findById);
         this.reviewRequestRepository = reviewRequestRepository;
@@ -94,6 +98,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                         saved = reviewRequestRepository.save(reviewRequest);
                         acceptReviewRequest(expertId, saved.getId());
                         sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                        transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), reviewRequest.getPrice());
                         return reviewRequestMapper.mapEntityToDto(saved);
                     } else {
                         throw new BadRequestException("Expert ID not found");
@@ -322,9 +327,11 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByDeadline(currentDateTime);
         for (ReviewRequest reviewRequest : reviewRequests) {
             reviewRequest.setStatus(StatusReview.Overdue);
+            transactionService.requestToReviewFail(reviewRequest.getTransaction().getRequestId());
         }
         reviewRequestRepository.saveAll(reviewRequests);
     }
+
     private void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";

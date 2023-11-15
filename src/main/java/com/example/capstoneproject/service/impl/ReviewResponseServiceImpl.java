@@ -9,6 +9,7 @@ import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ReviewResponseMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ReviewResponseService;
+import com.example.capstoneproject.service.TransactionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
@@ -45,6 +46,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Autowired
     HistoryRepository historyRepository;
+    @Autowired
+    TransactionService transactionService;
 
     public static boolean isSubstringInString(String fullString, String substring) {
         int fullLength = fullString.length();
@@ -444,6 +447,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     ReviewRequest reviewRequest = reviewRequestOptional.get();
                     reviewRequest.setStatus(StatusReview.Done);
                     reviewRequestRepository.save(reviewRequest);
+                    transactionService.requestToReviewSuccessFul(reviewRequest.getTransaction().getRequestId());
                 }else{
                     throw new BadRequestException("Update fail status review request.");
                 }
