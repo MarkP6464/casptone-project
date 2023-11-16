@@ -44,11 +44,12 @@ public class CapstoneProjectApplication {
         SpringApplication.run(CapstoneProjectApplication.class, args);
     }
 
-    private static void initializeStanfordCoreNLP() {
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-    }
+//    private static void initializeStanfordCoreNLP() {
+//        Properties props = new Properties();
+//        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+////        props.setProperty("annotators", "tokenize");
+//        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+//    }
 
     private static void dotEnvSafeCheck() {
         final var dotenv = Dotenv.configure()

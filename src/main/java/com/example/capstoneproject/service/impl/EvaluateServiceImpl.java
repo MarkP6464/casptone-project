@@ -16,6 +16,7 @@ import edu.stanford.nlp.pipeline.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +26,15 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     @Autowired
     ChatGPTServiceImpl chatGPTService;
+
+    private StanfordCoreNLP pipeline;
+
+    @PostConstruct
+    public void init() {
+        Properties props = new Properties();
+        props.setProperty("annotators", "tokenize, ssplit, pos");
+        this.pipeline = new StanfordCoreNLP(props);
+    }
 
     @Autowired
     EvaluateRepository evaluateRepository;
@@ -359,9 +369,9 @@ public class EvaluateServiceImpl implements EvaluateService {
     private String checkPersonalPronouns(List<String> sentences1) {
         StringBuilder result = new StringBuilder();
         boolean firstMatch = true;
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+//        Properties props = new Properties();
+//        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+//        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         for (int i = 0; i < sentences1.size(); i++) {
             String sentenceText = sentences1.get(i);
             Annotation document = new Annotation(sentenceText);
@@ -393,9 +403,9 @@ public class EvaluateServiceImpl implements EvaluateService {
     private String checkFiller(List<String> sentences1) {
         StringBuilder result = new StringBuilder();
         boolean firstMatch = true;
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+//        Properties props = new Properties();
+//        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+//        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         for (int i = 0; i < sentences1.size(); i++) {
             String sentenceText = sentences1.get(i);
             Annotation document = new Annotation(sentenceText);

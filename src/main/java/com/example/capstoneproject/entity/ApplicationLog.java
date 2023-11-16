@@ -22,6 +22,9 @@ public class ApplicationLog {
 
     private LocalDate timestamp;
 
+    @Column(columnDefinition = "TEXT")
+    private String Note;
+
     @Type(type = "json")
     @Column(columnDefinition = "json")
     private String cv;

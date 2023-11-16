@@ -40,7 +40,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     @Autowired
     ModelMapper modelMapper;
     @Override
-    public boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId) throws JsonProcessingException {
+    public boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId, NoteDto dto) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
         ApplicationLog applicationLog = new ApplicationLog();
         LocalDate currentDate = LocalDate.now();
@@ -61,6 +61,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         LocalDate countDate = applicationLogCheck.getTimestamp();
                         LocalDate resultDate = countDate.plusDays(condition);
                         if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
+                            CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
+                            cvBodyApplyDto.setResumeName(cv.getResumeName());
                             applicationLog.setTimestamp(currentDate);
                             CvBodyDto cvBodyDto = cv.deserialize();
                             CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
@@ -82,9 +84,14 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                             // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
                             ObjectMapper objectMapper = new ObjectMapper();
                             String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                            applicationLog.setCv(cvBodyReviewJson);
+                            cvBodyApplyDto.setCv(cvBodyReviewJson);
+
+                            String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
+
+                            applicationLog.setCv(cvBodyReviewResumeJson);
                             applicationLog.setCoverLetter(coverLetterApplyDto.getCoverLetterApply());
                             applicationLog.setJobPosting(jobPosting);
+                            applicationLog.setNote(dto.getNote());
                             Optional<Users> usersOptional = usersRepository.findUsersById(userId);
                             if (usersOptional.isPresent()){
                                 Users user = usersOptional.get();
@@ -98,6 +105,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         }
                     }else{
                         applicationLog.setTimestamp(currentDate);
+                        CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
+                        cvBodyApplyDto.setResumeName(cv.getResumeName());
                         CvBodyDto cvBodyDto = cv.deserialize();
                         CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
                         cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
@@ -118,9 +127,14 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
                         ObjectMapper objectMapper = new ObjectMapper();
                         String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                        applicationLog.setCv(cvBodyReviewJson);
+                        cvBodyApplyDto.setCv(cvBodyReviewJson);
+
+                        String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
+
+                        applicationLog.setCv(cvBodyReviewResumeJson);
                         applicationLog.setCoverLetter(coverLetterApplyDto.getCoverLetterApply());
                         applicationLog.setJobPosting(jobPosting);
+                        applicationLog.setNote(dto.getNote());
                         Optional<Users> usersOptional = usersRepository.findUsersById(userId);
                         if (usersOptional.isPresent()){
                             Users user = usersOptional.get();
@@ -145,6 +159,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         LocalDate resultDate = countDate.plusDays(condition);
                         if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
                             applicationLog.setTimestamp(currentDate);
+                            CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
+                            cvBodyApplyDto.setResumeName(cv.getResumeName());
                             CvBodyDto cvBodyDto = cv.deserialize();
                             CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
                             cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
@@ -165,8 +181,13 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                             // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
                             ObjectMapper objectMapper = new ObjectMapper();
                             String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                            applicationLog.setCv(cvBodyReviewJson);
+                            cvBodyApplyDto.setCv(cvBodyReviewJson);
+
+                            String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
+
+                            applicationLog.setCv(cvBodyReviewResumeJson);
                             applicationLog.setJobPosting(jobPosting);
+                            applicationLog.setNote(dto.getNote());
                             Optional<Users> usersOptional = usersRepository.findUsersById(userId);
                             if (usersOptional.isPresent()){
                                 Users user = usersOptional.get();
@@ -180,6 +201,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         }
                     }else{
                         applicationLog.setTimestamp(currentDate);
+                        CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
+                        cvBodyApplyDto.setResumeName(cv.getResumeName());
                         CvBodyDto cvBodyDto = cv.deserialize();
                         CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
                         cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
@@ -200,8 +223,13 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
                         ObjectMapper objectMapper = new ObjectMapper();
                         String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                        applicationLog.setCv(cvBodyReviewJson);
+                        cvBodyApplyDto.setCv(cvBodyReviewJson);
+
+                        String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
+
+                        applicationLog.setCv(cvBodyReviewResumeJson);
                         applicationLog.setJobPosting(jobPosting);
+                        applicationLog.setNote(dto.getNote());
                         Optional<Users> usersOptional = usersRepository.findUsersById(userId);
                         if (usersOptional.isPresent()){
                             Users user = usersOptional.get();
