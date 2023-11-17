@@ -68,9 +68,6 @@
             <version>5.2.2</version>
         </dependency>
 
-
-
-
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
