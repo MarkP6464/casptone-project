@@ -1,5 +1,6 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.ExpertTurnOnDto;
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -44,6 +45,26 @@ public class ExpertController {
             return ResponseEntity.ok(expertList);
         } catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/expert/{expert-id}/availability/turn-off")
+    public ResponseEntity<String> turnOffAvailability(@PathVariable("expert-id") Integer expertId) {
+        boolean success = expertService.turnOffAvailability(expertId);
+        if (success) {
+            return ResponseEntity.ok("Availability turned off for expert with ID: " + expertId);
+        } else {
+            return ResponseEntity.badRequest().body("Failed to turn off availability for expert with ID: " + expertId);
+        }
+    }
+
+    @PostMapping("/expert/{expert-id}/availability/turn-on")
+    public ResponseEntity<String> turnOnAvailability(@PathVariable("expert-id") Integer expertId, ExpertTurnOnDto dto) {
+        boolean success = expertService.turnOnAvailability(expertId, dto);
+        if (success) {
+            return ResponseEntity.ok("Availability turned on for expert with ID: " + expertId);
+        } else {
+            return ResponseEntity.badRequest().body("Failed to turn on availability for expert with ID: " + expertId);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.capstoneproject.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
@@ -22,6 +23,14 @@ public class Expert{
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    private boolean availability;
+
+    private Integer receive;
+
+    private boolean punish;
+
+    private LocalDate punishDate;
 
     private Double price;
 

@@ -29,4 +29,6 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequest, In
     List<ReviewRequest> findAllByDeadline(LocalDateTime deadline);
 
     Optional<ReviewRequest> findByIdAndStatus(Integer requestId, StatusReview reviewStatus);
+
+    int countByExpertIdAndStatus(Integer expertId, StatusReview status);
 }
