@@ -7,6 +7,7 @@ import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.ExpertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ExpertController {
     }
 
     @PutMapping("/expert/{expert-id}")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, ExpertUpdateDto dto) {
         if (expertService.updateExpert(expertId, dto)) {
             return ResponseEntity.ok("Update success");
@@ -32,11 +34,13 @@ public class ExpertController {
     }
 
     @GetMapping("/expert/{expert-id}")
+    @PreAuthorize("hasAuthority('read:expert')")
     public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
         return ResponseEntity.ok(expertService.getDetailExpert(expertId));
     }
 
     @GetMapping("/experts")
+    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getAllExpert(@RequestParam(required = false) String search) {
         try {
             List<ExpertViewChooseDto> expertList = expertService.getExpertList(search);
@@ -47,6 +51,7 @@ public class ExpertController {
     }
 
     @PostMapping("/expert/{expert-id}/availability/turn-off")
+    @PreAuthorize("hasAuthority('create:expert')")
     public ResponseEntity<String> turnOffAvailability(@PathVariable("expert-id") Integer expertId) {
         boolean success = expertService.turnOffAvailability(expertId);
         if (success) {
@@ -57,6 +62,7 @@ public class ExpertController {
     }
 
     @PostMapping("/expert/{expert-id}/availability/turn-on")
+    @PreAuthorize("hasAuthority('create:expert')")
     public ResponseEntity<String> turnOnAvailability(@PathVariable("expert-id") Integer expertId, ExpertTurnOnDto dto) {
         boolean success = expertService.turnOnAvailability(expertId, dto);
         if (success) {

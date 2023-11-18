@@ -23,7 +23,7 @@ public class HistoryController {
     }
 
     @GetMapping("/user/{user-id}/cv/{cv-id}/history/{history-id}")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
     public ResponseEntity<?> getHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @PathVariable("history-id") Integer historyId) throws JsonProcessingException {
         if(Objects.nonNull(historyService.getHistory(userId,cvId,historyId))){
             return ResponseEntity.ok(historyService.getHistory(userId,cvId,historyId));
@@ -33,13 +33,13 @@ public class HistoryController {
     }
 
     @GetMapping("/user/{user-id}/cv/{cv-id}/histories")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public ResponseEntity<?> getListHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) {
         return ResponseEntity.ok(historyService.getListHistoryDate(userId,cvId));
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/history")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> createHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
         return ResponseEntity.ok(historyService.create(userId, cvId));
     }

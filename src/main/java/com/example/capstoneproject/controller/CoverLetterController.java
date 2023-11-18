@@ -25,7 +25,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("/cover-letter/{cover-letter-id}/generation")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
             @PathVariable("cover-letter-id") Integer coverId,
             @RequestParam float temperature,
@@ -51,7 +51,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("cv/{cv-id}/summary")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> generateSummary(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId,
@@ -72,7 +72,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("/cv/{cv-id}/review")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId
@@ -103,7 +103,7 @@ public class CoverLetterController {
 
 
     @PostMapping("/cover-letter/revise")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public ChatResponse generateCoverLetterRevise(
             @RequestParam String content,
             @RequestParam String improvement
@@ -117,12 +117,13 @@ public class CoverLetterController {
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId,@PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(userId, cvId, Dto);
     }
 
     @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}")
+    @PreAuthorize("hasAuthority('update:candidate')")
     public String updateCoverLetter(@PathVariable("cv-id") int cvId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
         boolean check = coverLetterService.updateCoverLetter(cvId, coverLetterId, Dto);
         if (check) {
@@ -133,6 +134,7 @@ public class CoverLetterController {
     }
 
     @DeleteMapping("/user/{user-id}/cover-letter/{cover-letter-id}")
+    @PreAuthorize("hasAuthority('delete:candidate')")
     public String deleteCoverLetter(@PathVariable("user-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         boolean check = coverLetterService.deleteCoverLetterById(UsersId, coverLetterId);
         if (check) {
@@ -143,6 +145,7 @@ public class CoverLetterController {
     }
 
     @GetMapping("/user/{user-id}/cover-letter/{cover-letter-id}")
+    @PreAuthorize("hasAuthority('read:candidate')")
     public CoverLetterDto getCoverLetter(@PathVariable("user-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }

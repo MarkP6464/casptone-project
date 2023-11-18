@@ -16,19 +16,19 @@ public class JobDescriptionController {
     JobDescriptionService jobDescriptionService;
 
     @PostMapping("cv/{cv-id}/job-description")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public JobDescriptionViewDto postJobDescription(@PathVariable("cv-id") int cvId, @RequestBody JobDescriptionDto Dto) throws JsonProcessingException {
         return jobDescriptionService.createJobDescription(cvId,Dto);
     }
 
     @GetMapping("cv/{cv-id}/job-description/{job-description-id}")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public JobDescriptionViewDto getJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId) throws JsonProcessingException {
         return jobDescriptionService.getJobDescription(cvId,jobId);
     }
 
     @PutMapping("cv/{cv-id}/job-description/{job-description-id}")
-    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
+    @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
     public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId, @RequestBody JobDescriptionDto Dto) throws Exception {
         return jobDescriptionService.updateJobDescription(cvId,jobId,Dto);
     }

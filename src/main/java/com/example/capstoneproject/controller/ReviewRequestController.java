@@ -23,33 +23,15 @@ public class ReviewRequestController {
         this.reviewRequestService = reviewRequestService;
     }
 
-//    @GetMapping("/expert/{expert-id}/request-reviews")
-//    @PreAuthorize("hasRole('ROLE_EXPERT')")
-//    public ResponseEntity<?> getAllReviewRequest(@PathVariable("expert-id") Integer expertId, @RequestParam("theRelation") AcceptControl theRelation, @RequestParam("orderByDate") String orderByDate) {
-//        List<ReviewRequestDto> result;
-//        switch (theRelation) {
-//            case ACCEPT:
-//                result = reviewRequestService.getAllReviewRequest(expertId, ReviewStatus.ACCEPT, orderByDate);
-//                break;
-//            case REJECT:
-//                result = reviewRequestService.getAllReviewRequest(expertId, ReviewStatus.REJECT, orderByDate);
-//                break;
-//            case PROCESS:
-//                result = reviewRequestService.getAllReviewRequest(expertId, ReviewStatus.PROCESSING, orderByDate);
-//                break;
-//            default:
-//                return ResponseEntity.badRequest().body("Invalid request!!");
-//        }
-//        return ResponseEntity.ok(result);
-//    }
-
 
     @PostMapping("/{cv-id}/expert/{expert-id}/request-review")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ReviewRequestDto postReviewRequest(@PathVariable("cv-id") int cvId, @PathVariable("expert-id") int expertId, @RequestBody ReviewRequestAddDto Dto) throws JsonProcessingException {
         return reviewRequestService.createReviewRequest(cvId,expertId,Dto);
     }
 
     @GetMapping("/candidate/{candidate-id}/review-requests")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public List<ReviewRequestSecondViewDto> getListCandidateReviewRequest(
             @PathVariable("candidate-id") Integer candidateId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
@@ -60,6 +42,7 @@ public class ReviewRequestController {
     }
 
     @GetMapping("/expert/{expert-id}/review-requests")
+    @PreAuthorize("hasAuthority('read:expert')")
     public List<ReviewRequestSecondViewDto> getListReviewRequest(
             @PathVariable("expert-id") Integer expertId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
@@ -68,18 +51,5 @@ public class ReviewRequestController {
     ) {
         return reviewRequestService.getListReviewRequest(expertId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);
     }
-
-//    @PutMapping("/expert/{expert-id}/review-request/{request-id}")
-//    @PreAuthorize("hasRole('ROLE_EXPERT')")
-//    public ResponseEntity<?> updateEducation(@PathVariable("expert-id") Integer expertId, @PathVariable("request-id") Integer requestId, AcceptControl theRelation) throws JsonProcessingException {
-//        switch (theRelation) {
-//            case ACCEPT:
-//                return ResponseEntity.ok(reviewRequestService.acceptReviewRequest(expertId, requestId));
-//            case REJECT:
-//                return ResponseEntity.ok(reviewRequestService.rejectReviewRequest(expertId, requestId));
-//            default:
-//                return ResponseEntity.badRequest().body("Invalid request!!");
-//        }
-//    }
 
 }
