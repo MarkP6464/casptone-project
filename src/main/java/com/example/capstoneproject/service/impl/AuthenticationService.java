@@ -10,7 +10,9 @@ package com.example.capstoneproject.service.impl;
 //import com.example.capstoneproject.exception.BadRequestException;
 //import com.example.capstoneproject.filter.JwtService;
 import com.example.capstoneproject.Dto.UserViewLoginDto;
+import com.example.capstoneproject.entity.Role;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.RoleRepository;
 import com.example.capstoneproject.repository.UsersRepository;
@@ -191,30 +193,37 @@ public class AuthenticationService {
 
     public UserViewLoginDto getInforUser(String email, String name, String image){
         Optional<Users> usersOptional = usersRepository.findByEmail(email);
-        UserViewLoginDto userViewLoginDto = new UserViewLoginDto();
-        if(usersOptional.isPresent()){
-            Users users = usersOptional.get();
-            userViewLoginDto.setId(users.getId());
-            userViewLoginDto.setName(users.getName());
-            userViewLoginDto.setAvatar(users.getAvatar());
-            userViewLoginDto.setPhone(users.getPhone());
-            userViewLoginDto.setPermissionWebsite(users.getPersonalWebsite());
-            userViewLoginDto.setEmail(users.getEmail());
-            userViewLoginDto.setLinkin(users.getLinkin());
-            return  userViewLoginDto;
-        }else{
-            Users newUser = new Users();
-            newUser.setEmail(email);
-            newUser.setName(name);
-            newUser.setAvatar(image);
-            usersRepository.save(newUser);
-            userViewLoginDto.setId(newUser.getId());
-            userViewLoginDto.setName(newUser.getName());
-            userViewLoginDto.setAvatar(newUser.getAvatar());
-            userViewLoginDto.setPhone(newUser.getPhone());
-            userViewLoginDto.setPermissionWebsite(newUser.getPersonalWebsite());
-            userViewLoginDto.setEmail(newUser.getEmail());
-            userViewLoginDto.setLinkin(newUser.getLinkin());
+        Role roleOptional = roleRepository.findByRoleName(RoleType.CANDIDATE);
+
+        UserViewLoginDto userViewLoginDto = null;
+        if (Objects.nonNull(roleOptional)){
+            userViewLoginDto = new UserViewLoginDto();
+            if(usersOptional.isPresent()){
+                Users users = usersOptional.get();
+                userViewLoginDto.setId(users.getId());
+                userViewLoginDto.setName(users.getName());
+                userViewLoginDto.setAvatar(users.getAvatar());
+                userViewLoginDto.setPhone(users.getPhone());
+                userViewLoginDto.setPermissionWebsite(users.getPersonalWebsite());
+                userViewLoginDto.setEmail(users.getEmail());
+                userViewLoginDto.setLinkin(users.getLinkin());
+                userViewLoginDto.setRole(roleOptional);
+                return  userViewLoginDto;
+            }else{
+                Users newUser = new Users();
+                newUser.setEmail(email);
+                newUser.setName(name);
+                newUser.setAvatar(image);
+                usersRepository.save(newUser);
+                userViewLoginDto.setId(newUser.getId());
+                userViewLoginDto.setName(newUser.getName());
+                userViewLoginDto.setAvatar(newUser.getAvatar());
+                userViewLoginDto.setPhone(newUser.getPhone());
+                userViewLoginDto.setPermissionWebsite(newUser.getPersonalWebsite());
+                userViewLoginDto.setEmail(newUser.getEmail());
+                userViewLoginDto.setLinkin(newUser.getLinkin());
+                userViewLoginDto.setRole(roleOptional);
+            }
         }
         return userViewLoginDto;
     }

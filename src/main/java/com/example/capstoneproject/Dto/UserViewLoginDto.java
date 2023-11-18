@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.entity.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,4 +22,6 @@ public class UserViewLoginDto {
     private String email;
 
     private String linkin;
+
+    private Role role;
 }

@@ -13,6 +13,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
@@ -27,7 +30,14 @@ public class SecurityConfig {
                 .authorizeRequests(authz -> authz
                         .antMatchers("/api/messages/protected", "/api/messages/admin").authenticated()
                         .anyRequest().permitAll())
-                .cors(Customizer.withDefaults())
+                .cors().configurationSource(request -> {
+                        CorsConfiguration cors = new CorsConfiguration();
+                        cors.setAllowedOrigins(Arrays.asList("https://api-cvbuilder.monoinfinity.net","https://cvbuilder.monoinfinity.net","http://localhost:3000"));
+                        cors.setAllowedMethods(Arrays.asList("*"));
+                        cors.setAllowedHeaders(Arrays.asList("*"));
+                        cors.setAllowCredentials(true);
+                        return cors;
+                    }).and()
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(makePermissionsConverter()))
                         .authenticationEntryPoint(authenticationErrorHandler))

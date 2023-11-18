@@ -6,10 +6,12 @@ import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.MoneyType;
 import com.example.capstoneproject.enums.TransactionStatus;
 import com.example.capstoneproject.enums.TransactionType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ForbiddenException;
 import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.mapper.TransactionMapper;
 import com.example.capstoneproject.repository.TransactionRepository;
+import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.service.UsersService;
 import com.google.gson.Gson;
@@ -46,6 +48,8 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionRepository transactionRepository;
     @Autowired
     TransactionMapper transactionMapper;
+    @Autowired
+    UsersRepository usersRepository;
 
     @Override
     public List<TransactionDto> getAll(String id){
@@ -63,7 +67,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public String create(TransactionDto transactionDto) throws Exception {
-        if (!Objects.nonNull(usersService.getUsersById(transactionDto.getUserId()))){
+
+        Users user = usersService.getUsersById(transactionDto.getUserId());
+        if (!Objects.nonNull(user)){
             throw new ForbiddenException("User not found");
         }
         String requestId = String.valueOf(System.currentTimeMillis());
@@ -142,9 +148,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionDto requestToWithdraw(TransactionDto dto){
+        Users user = usersService.getUsersById(dto.getUserId());
+        if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0){
+            throw new BadRequestException("Account balance is not enough!");
+        }
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
-            TransactionType.WITHDRAW, MoneyType.QUOTA, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
+            TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
         transaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(transaction);
     }
@@ -169,6 +179,11 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, null,
                 TransactionType.TRANSFER, MoneyType.CREDIT, Double.valueOf(amount).longValue(), 0L, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
+
+        //giam tien user
+        Users user = usersService.getUsersById(sentId);
+        user.setAccountBalance((long) (user.getAccountBalance() - amount));
+        usersRepository.save(user);
         return transactionMapper.toDto(transaction);
     }
 
@@ -177,14 +192,24 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findByRequestId(requestId);
         transaction.setStatus(TransactionStatus.FAIL);
         transaction = transactionRepository.save(transaction);
+
+        //tra tien cho candidate
+        Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
+        user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
+        usersRepository.save(user);
         return transactionMapper.toDto(transaction);
     }
 
     @Override
     public TransactionDto requestToReviewSuccessFul(String requestId){
         Transaction transaction = transactionRepository.findByRequestId(requestId);
-        transaction.setStatus(TransactionStatus.FAIL);
+        transaction.setStatus(TransactionStatus.SUCCESSFULLY);
         transaction = transactionRepository.save(transaction);
+
+        //cong tien cho expert
+        Users user = usersService.getUsersById(transaction.getUser().getId());
+        user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
+        usersRepository.save(user);
         return transactionMapper.toDto(transaction);
     }
 

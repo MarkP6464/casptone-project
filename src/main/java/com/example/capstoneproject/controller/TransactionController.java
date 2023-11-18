@@ -70,7 +70,13 @@ public class TransactionController {
     }
 
     @PostMapping(value = "/approve-withdraw-request")
-    public ResponseEntity withdraw(@RequestBody String id) throws Exception {
+    public ResponseEntity approve(@RequestBody String id) throws Exception {
+        TransactionDto transaction = transactionService.approveWithdrawRequest(id);
+        return ResponseEntity.status(HttpStatus.OK).body(transaction);
+    }
+
+    @PostMapping(value = "/reject-withdraw-request")
+    public ResponseEntity reject(@RequestBody String id) throws Exception {
         TransactionDto transaction = transactionService.approveWithdrawRequest(id);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
