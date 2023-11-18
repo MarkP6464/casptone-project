@@ -29,74 +29,51 @@ public class ReviewResponseController {
     }
 
     @PostMapping("/expert/{expert-id}/review-response/{response-id}/comment")
+    @PreAuthorize("hasAuthority('create:expert')")
     public ResponseEntity<?> postReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, CommentDto dto) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.createComment(expertId, responseId,dto));
     }
 
     @PostMapping("/user/review-response/{response-id}/comment/rating")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> postReviewResponseRating(@PathVariable("response-id") Integer responseId, ReviewRatingAddDto dto) {
         return ResponseEntity.ok(reviewResponseService.sendReviewRating(responseId,dto));
     }
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/comment/{commentId}")
-    @PreAuthorize("hasRole('ROLE_EXPERT')")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> putReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @PathVariable("commentId") String commentId,String newContent) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.updateComment(expertId, responseId,commentId,newContent));
     }
 
     @DeleteMapping("/expert/{expert-id}/review-response/{response-id}/comment/{comment-id}")
+    @PreAuthorize("hasAuthority('delete:expert')")
     public ResponseEntity<?> deleteReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @PathVariable("comment-id") String commentId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.deleteComment(expertId, responseId,commentId));
     }
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/overall")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, ReviewResponseUpdateDto dto)  {
         return ResponseEntity.ok(reviewResponseService.updateReviewResponse(expertId, responseId,dto));
     }
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/public")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> publicReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId)  {
         return ResponseEntity.ok(reviewResponseService.publicReviewResponse(expertId, responseId));
     }
 
     @GetMapping("/user/{user-id}/review-request/{request-id}/review-response")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public ResponseEntity<?> getReviewResponse(@PathVariable("user-id") Integer userId, @PathVariable("request-id") Integer requestId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.receiveReviewResponse(userId, requestId));
     }
 
     @GetMapping("/expert/{expert-id}/review-response/{response-id}")
+    @PreAuthorize("hasAuthority('read:expert')")
     public ResponseEntity<?> getReviewResponseDetail(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.getReviewResponse(expertId, responseId));
     }
-
-//    @GetMapping("/expert/{expert-id}/review-responses")
-//    @PreAuthorize("hasRole('ROLE_EXPERT')")
-//    public ResponseEntity<List<ReviewResponseDto>> getDaftReviewResponses(
-//            @PathVariable("expert-id") Integer expertId,
-//            @RequestParam(name = "status", required = false) SendControl status
-//    ) throws JsonProcessingException {
-//        List<ReviewResponseDto> daftReviewResponses;
-//
-//        if (status != null) {
-//            switch (status) {
-//                case DRAFT:
-//                    daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.DRAFT);
-//                    break;
-//                case SEND:
-//                    daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, ReviewStatus.SEND);
-//                    break;
-//                default:
-//                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-//            }
-//        } else {
-//            daftReviewResponses = reviewResponseService.daftReviewResponse(expertId, null);
-//        }
-//
-//        if (daftReviewResponses != null && !daftReviewResponses.isEmpty()) {
-//            return ResponseEntity.ok(daftReviewResponses);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-//        }
-//    }
 
 }

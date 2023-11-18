@@ -34,6 +34,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/hr/{hr-id}/job-postings")
+    @PreAuthorize("hasAuthority('read:hr')")
     public List<JobPostingViewDetailDto> getListJobPostingsByHr(
             @PathVariable("hr-id") int hrId,
             @RequestParam(name = "sortBy", required = false, defaultValue = "view") SortByJob sortBy,
@@ -45,6 +46,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/user/{user-id}/job-posting")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
     public ResponseEntity<List<JobPostingViewOverCandidateLikeDto>> getJobPostingsByCandidate(
             @PathVariable("user-id") Integer userId,
             @RequestParam(name = "title", required = false) String title,
@@ -56,17 +58,19 @@ public class JobPostingController {
     }
 
     @GetMapping("/hr/{hr-id}/job-posting/{posting-id}")
+    @PreAuthorize("hasAuthority('read:hr')")
     public JobPostingViewDto getJobDetailHr(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         return jobPostingService.getByHr(hrId,postingId);
     }
 
     @GetMapping("/user/{user-id}/job-posting/{posting-id}")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
     public JobPostingViewUserDetailDto getJobDetailUser(@PathVariable("user-id") Integer userId, @PathVariable("posting-id") Integer postingId) {
         return jobPostingService.getByUser(userId,postingId);
     }
 
     @PutMapping("/hr/{hr-id}/job-posting/{posting-id}/share")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('update:hr')")
     public ResponseEntity<?> sharePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         if (jobPostingService.share(hrId, postingId)) {
             return ResponseEntity.ok("Share success");
@@ -76,7 +80,7 @@ public class JobPostingController {
     }
 
     @PutMapping("/hr/{hr-id}/job-posting/{posting-id}/un-share")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('update:hr')")
     public ResponseEntity<?> unSharePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         if (jobPostingService.unShare(hrId, postingId)) {
             return ResponseEntity.ok("Un Share success");
@@ -86,7 +90,7 @@ public class JobPostingController {
     }
 
     @DeleteMapping("/hr/{hr-id}/job-posting/{posting-id}")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('delete:hr')")
     public ResponseEntity<?> deletePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId) {
         if (jobPostingService.delete(hrId, postingId)) {
             return ResponseEntity.ok("Delete success");
@@ -96,7 +100,7 @@ public class JobPostingController {
     }
 
     @PutMapping("/hr/{hr-id}/job-posting/{posting-id}")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('update:hr')")
     public ResponseEntity<?> updatePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId, JobPostingAddDto dto) {
         if (jobPostingService.update(hrId, postingId, dto)) {
             return ResponseEntity.ok("Update success");
@@ -106,7 +110,7 @@ public class JobPostingController {
     }
 
     @PostMapping("/hr/{hr-id}/job-posting/draft")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('create:hr')")
     public ResponseEntity<?> createDaftPosting(@PathVariable("hr-id") Integer hrId, JobPostingAddDto dto) {
         if (jobPostingService.createDraft(hrId, dto)) {
             return ResponseEntity.ok("Successfully sent job posting.");
@@ -115,7 +119,7 @@ public class JobPostingController {
         }
     }
     @PostMapping("/hr/{hr-id}/job-posting/public")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('create:hr')")
     public ResponseEntity<?> createPublicPosting(@PathVariable("hr-id") Integer hrId, JobPostingAddDto dto) {
         if (jobPostingService.createPublic(hrId, dto)) {
             return ResponseEntity.ok("Successfully sent job posting.");

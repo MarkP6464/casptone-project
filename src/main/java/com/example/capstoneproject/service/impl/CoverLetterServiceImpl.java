@@ -11,6 +11,7 @@ import com.example.capstoneproject.repository.CoverLetterRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CoverLetterService;
+import com.example.capstoneproject.service.HistorySummaryService;
 import com.example.capstoneproject.service.UsersService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,9 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Autowired
     ChatGPTServiceImpl chatGPTService;
+
+    @Autowired
+    HistorySummaryService historySummaryService;
 
     @Autowired
     CoverLetterRepository coverLetterRepository;
@@ -150,6 +154,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
+            historySummaryService.createHistorySummary(cv.getId(), response);
             return chatResponse;
         }else{
             throw new BadRequestException("Please add experience into CV");
