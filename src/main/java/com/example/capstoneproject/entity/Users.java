@@ -12,11 +12,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
+@Getter @Setter
 public class Users implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -23,5 +23,5 @@ public class UserViewLoginDto {
 
     private String linkin;
 
-    private Role role;
+    private RoleDto role;
 }

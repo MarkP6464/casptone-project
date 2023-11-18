@@ -9,6 +9,7 @@ package com.example.capstoneproject.service.impl;
 //import com.example.capstoneproject.enums.RoleType;
 //import com.example.capstoneproject.exception.BadRequestException;
 //import com.example.capstoneproject.filter.JwtService;
+import com.example.capstoneproject.Dto.RoleDto;
 import com.example.capstoneproject.Dto.UserViewLoginDto;
 import com.example.capstoneproject.entity.Role;
 import com.example.capstoneproject.entity.Users;
@@ -194,7 +195,7 @@ public class AuthenticationService {
     public UserViewLoginDto getInforUser(String email, String name, String image){
         Optional<Users> usersOptional = usersRepository.findByEmail(email);
         Role roleOptional = roleRepository.findByRoleName(RoleType.CANDIDATE);
-
+        RoleDto roleDto = modelMapper.map(roleOptional, RoleDto.class);
         UserViewLoginDto userViewLoginDto = null;
         if (Objects.nonNull(roleOptional)){
             userViewLoginDto = new UserViewLoginDto();
@@ -207,7 +208,7 @@ public class AuthenticationService {
                 userViewLoginDto.setPermissionWebsite(users.getPersonalWebsite());
                 userViewLoginDto.setEmail(users.getEmail());
                 userViewLoginDto.setLinkin(users.getLinkin());
-                userViewLoginDto.setRole(roleOptional);
+                userViewLoginDto.setRole(roleDto);
                 return  userViewLoginDto;
             }else{
                 Users newUser = new Users();
@@ -222,7 +223,7 @@ public class AuthenticationService {
                 userViewLoginDto.setPermissionWebsite(newUser.getPersonalWebsite());
                 userViewLoginDto.setEmail(newUser.getEmail());
                 userViewLoginDto.setLinkin(newUser.getLinkin());
-                userViewLoginDto.setRole(roleOptional);
+                userViewLoginDto.setRole(roleDto);
             }
         }
         return userViewLoginDto;
