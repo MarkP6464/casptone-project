@@ -19,10 +19,6 @@ public class ExpertUpdateDto {
 
     private Double price;
 
-    private boolean availability;
-
-    private Integer receive;
-
     private boolean punish;
 
     private LocalDate punishDate;

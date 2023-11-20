@@ -52,4 +52,22 @@ public class ReviewRequestController {
         return reviewRequestService.getListReviewRequest(expertId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);
     }
 
+    @PutMapping("/expert/{expert-id}/review-request/{review-request-id}/accept")
+    @PreAuthorize("hasAuthority('update:expert')")
+    public String acceptReviewRequest(
+            @PathVariable("expert-id") Integer expertId,
+            @PathVariable("review-request-id") Integer requestId
+    ) throws JsonProcessingException {
+        return reviewRequestService.acceptReviewRequest(expertId, requestId);
+    }
+
+    @PutMapping("/expert/{expert-id}/review-request/{review-request-id}/reject")
+    @PreAuthorize("hasAuthority('update:expert')")
+    public String rejectReviewRequest(
+            @PathVariable("expert-id") Integer expertId,
+            @PathVariable("review-request-id") Integer requestId
+    ) {
+        return reviewRequestService.rejectReviewRequest(expertId, requestId);
+    }
+
 }

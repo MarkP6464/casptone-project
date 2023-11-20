@@ -16,7 +16,6 @@ import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.ExpertService;
 import com.example.capstoneproject.service.ReviewRequestService;
 import com.example.capstoneproject.service.ReviewResponseService;
-import com.example.capstoneproject.service.TransactionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -90,75 +89,52 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             if(expert.isPunish()){
                 throw new BadRequestException("This expert is currently being punished, please submit a review request later.");
             }else{
-                if(expert.isAvailability()){
-                    int amount = reviewRequestRepository.countByExpertIdAndStatus(expertId, StatusReview.Waiting);
-                    if(amount<expert.getReceive()){
-                        if (cv != null) {
-                            List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
-                            if(histories!=null){
-                                History history = histories.get(0);
-                                if (usersOptional.isPresent()) {
-                                    Users users = usersOptional.get();
-                                    reviewRequest.setReceivedDate(dto.getDeadline());
-                                    reviewRequest.setNote(dto.getNote());
-                                    reviewRequest.setPrice(dto.getPrice());
-                                    reviewRequest.setStatus(StatusReview.Waiting);
-                                    reviewRequest.setExpertId(users.getId());
-                                    reviewRequest.setHistoryId(history.getId());
-                                    reviewRequest.setCv(cv);
-                                    saved = reviewRequestRepository.save(reviewRequest);
-                                    acceptReviewRequest(expertId, saved.getId());
-                                    sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                                    transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), reviewRequest.getPrice());
-                                    return reviewRequestMapper.mapEntityToDto(saved);
-                                } else {
-                                    throw new BadRequestException("Expert ID not found");
-                                }
-                            }else{
-                                throw new BadRequestException("Please syn previous when send request");
-                            }
+                if (cv != null) {
+                    List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
+                    if(histories!=null){
+                        History history = histories.get(0);
+                        if (usersOptional.isPresent()) {
+                            Users users = usersOptional.get();
+                            reviewRequest.setReceivedDate(dto.getDeadline());
+                            reviewRequest.setNote(dto.getNote());
+                            reviewRequest.setPrice(dto.getPrice());
+                            reviewRequest.setStatus(StatusReview.Waiting);
+                            reviewRequest.setExpertId(users.getId());
+                            reviewRequest.setHistoryId(history.getId());
+                            reviewRequest.setCv(cv);
+                            saved = reviewRequestRepository.save(reviewRequest);
+//                            acceptReviewRequest(expertId, saved.getId());
+                            sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                            transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), reviewRequest.getPrice());
+                            return reviewRequestMapper.mapEntityToDto(saved);
                         } else {
-                            throw new BadRequestException("CV ID not found");
+                            throw new BadRequestException("Expert ID not found");
                         }
                     }else{
-                        throw new BadRequestException("Currently this expert is receiving enough review requests. Please come back later.");
+                        throw new BadRequestException("Please syn previous when send request");
                     }
-                }else{
-                    throw new BadRequestException("Currently this expert is not accepting any requests. Please come back later.");
+                } else {
+                    throw new BadRequestException("CV ID not found");
                 }
             }
         }
         throw new BadRequestException("Please choose someone else, this expert does not have a specific price yet.");
     }
 
-    public void acceptReviewRequest(Integer expertId, Integer requestId) throws JsonProcessingException {
+    @Override
+    public String acceptReviewRequest(Integer expertId, Integer requestId) throws JsonProcessingException {
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByExpertIdAndId(expertId,requestId);
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
+            reviewRequest.setStatus(StatusReview.Processing);
+            reviewRequestRepository.save(reviewRequest);
             reviewResponseService.createReviewResponse(reviewRequest.getCv().getId(), reviewRequest.getId());
             sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+            return "Accept successful";
         } else {
             throw new RuntimeException("Expert ID incorrect or Request ID incorrect");
         }
     }
-//    @Override
-//    public List<ReviewRequestDto> getAllReviewRequest(Integer expertId, ReviewStatus reviewStatus, String orderByDate) {
-//        List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByExpertIdAndStatus(expertId, reviewStatus);
-//
-//        return reviewRequests.stream()
-//                .map(project -> {
-//                    ReviewRequestDto reviewRequestDto = new ReviewRequestDto();
-//                    reviewRequestDto.setId(project.getId());
-//                    reviewRequestDto.setReceivedDate(project.getReceivedDate());
-//                    reviewRequestDto.setStatus(project.getStatus());
-//                    reviewRequestDto.setNote(project.getNote());
-//                    reviewRequestDto.setExpertId(project.getExpertId());
-//                    reviewRequestDto.setCv(project.getCv());
-//                    return reviewRequestDto;
-//                })
-//                .sorted(orderByDate.equalsIgnoreCase("desc") ? Comparator.comparing(ReviewRequestDto::getReceivedDate).reversed() : Comparator.comparing(ReviewRequestDto::getReceivedDate))
-//                .collect(Collectors.toList());
-//    }
 
     @Override
     public List<ReviewRequestSecondViewDto> getListReviewRequest(Integer expertId, String sortBy, String sortOrder, String searchTerm) {
@@ -302,6 +278,20 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         }
     }
 
+    @Override
+    public String rejectReviewRequest(Integer expertId, Integer requestId) {
+        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByExpertIdAndId(expertId,requestId);
+        if (reviewRequestOptional.isPresent()) {
+            ReviewRequest reviewRequest = reviewRequestOptional.get();
+            reviewRequest.setStatus(StatusReview.Reject);
+            reviewRequestRepository.save(reviewRequest);
+            sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+            return "Reject successful";
+        } else {
+            throw new RuntimeException("Expert ID incorrect or Request ID incorrect");
+        }
+    }
+
     private List<ReviewRequestViewDto> filterBySearchTerm(List<ReviewRequestViewDto> reviewRequestDtos, String searchTerm) {
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
             // Case-insensitive search by ResumeName
@@ -348,11 +338,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             if(reviewRequestRepository.countByExpertIdAndStatus(reviewRequest.getExpertId(), StatusReview.Overdue)>=3){
                 expertService.punishExpert(reviewRequest.getExpertId());
             }
-            transactionService.requestToReviewFail(reviewRequest.getTransaction().getRequestId());
         }
         expertService.unPunishExpert();
     }
-
     private void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";

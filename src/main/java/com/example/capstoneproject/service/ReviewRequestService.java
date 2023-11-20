@@ -14,9 +14,9 @@ import java.util.List;
 @Service
 public interface ReviewRequestService extends BaseService<ReviewRequestDto, Integer>{
     ReviewRequestDto createReviewRequest(Integer cvId, Integer expertId, ReviewRequestAddDto dto) throws JsonProcessingException;
-//    List<ReviewRequestDto> getAllReviewRequest(Integer expertId, ReviewStatus reviewStatus, String orderByDate);
     List<ReviewRequestSecondViewDto> getListReviewRequest(Integer expertId, String sortBy, String sortOrder, String searchTerm);
-
     List<ReviewRequestSecondViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm);
+    String rejectReviewRequest(Integer expertId, Integer requestId);
+    String acceptReviewRequest(Integer expertId, Integer requestId) throws JsonProcessingException;
 
 }

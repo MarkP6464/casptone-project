@@ -129,54 +129,6 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     @Override
-    public boolean turnOnAvailability(Integer expertId, ExpertTurnOnDto dto) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
-        if(expertOptional.isPresent()){
-            Expert expert = expertOptional.get();
-            if(expert.isPunish()){
-                throw new BadRequestException("Currently your account is being punished, please perform this function again after the punishment has been completed.");
-            }else{
-                int amount = reviewRequestRepository.countByExpertIdAndStatus(expertId, StatusReview.Waiting);
-                expert.setAvailability(true);
-                if(dto.getReceive()==null){
-                    if(amount<3){
-                        throw new BadRequestException("Please enter a value or check the request again to have a reasonable choice.");
-                    }else{
-                        expert.setReceive(3);
-                    }
-                }else{
-                    if(amount<dto.getReceive()){
-                        throw new BadRequestException("Please check the requests you have not yet processed so that you can give an accurate number of new requests.");
-                    }else{
-                        if(dto.getReceive()>0){
-                            expert.setReceive(dto.getReceive());
-                        }else{
-                            throw new BadRequestException("Please enter a value greater than 0.");
-                        }
-                    }
-                }
-                expertRepository.save(expert);
-                return true;
-            }
-        }else{
-            throw new BadRequestException("Expert ID not found.");
-        }
-    }
-
-    @Override
-    public boolean turnOffAvailability(Integer expertId) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
-        if(expertOptional.isPresent()){
-            Expert expert = expertOptional.get();
-            expert.setAvailability(false);
-            expertRepository.save(expert);
-            return true;
-        }else{
-            throw new BadRequestException("Expert ID not found");
-        }
-    }
-
-    @Override
     public void punishExpert(Integer expertId) {
         Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
         if(expertOptional.isPresent()){
@@ -225,7 +177,7 @@ public class ExpertServiceImpl implements ExpertService {
 
     private boolean isMatched(Expert expert, String search) {
         return (search == null || search.isEmpty()) &&
-                !expert.isPunish() && expert.isAvailability() &&
+                !expert.isPunish() &&
                 (expert.getTitle().contains(search) ||
                         expert.getUsers().getName().contains(search) ||
                         expert.getCompany().contains(search));

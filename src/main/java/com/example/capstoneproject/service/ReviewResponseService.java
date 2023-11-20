@@ -25,9 +25,6 @@ public interface ReviewResponseService {
     boolean publicReviewResponse(Integer expertId, Integer responseId);
 
     ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException;
-
-    List<ReviewResponseDto> daftReviewResponse(Integer expertId, ReviewStatus status) throws JsonProcessingException;
-
     ReviewResponseDto getReviewResponse(Integer expertId, Integer response) throws JsonProcessingException;
 
     boolean sendReviewRating(Integer responseId, ReviewRatingAddDto dto);

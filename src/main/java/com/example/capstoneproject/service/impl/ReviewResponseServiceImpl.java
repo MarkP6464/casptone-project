@@ -462,7 +462,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
-        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Waiting);
+        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Done);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
@@ -473,7 +473,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     reviewResponseDto.setId(reviewResponse.getId());
                     reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
                     reviewResponseDto.setOverall(reviewResponse.getOverall());
-                    reviewResponseDto.setScore(reviewResponse.getScore());
+                    if(reviewResponse.getScore()!=null){
+                        reviewResponseDto.setScore(reviewResponse.getScore());
+                    }
                     reviewResponseDto.setComment(reviewResponse.getComment());
                     return reviewResponseDto;
                 }
@@ -481,36 +483,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 throw new BadRequestException("UserId incorrect with requestId");
             }
         } else {
-            throw new BadRequestException("RequestId incorrect");
+            throw new BadRequestException("Currently, this review request is still being processed, please come back later.");
         }
         return reviewResponseDto;
-    }
-
-    @Override
-    public List<ReviewResponseDto> daftReviewResponse(Integer expertId, ReviewStatus status) throws JsonProcessingException {
-//        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
-//
-//        if (expertOptional.isPresent()) {
-//            Expert expert = expertOptional.get();
-//            List<ReviewResponse> reviewResponses = reviewResponseRepository.findByReviewRequest_ExpertId(expert.getId());
-//
-//            List<ReviewResponseDto> daftReviewResponses = new ArrayList<>();
-//
-//            for (ReviewResponse response : reviewResponses) {
-//                if (status == null || response.getStatus() == status) {
-//                    ReviewResponseDto responseDto = new ReviewResponseDto();
-//                    responseDto.setId(response.getId());
-//                    responseDto.setOverall(response.getOverall());
-//                    responseDto.setFeedbackDetail(response.deserialize());
-//                    daftReviewResponses.add(responseDto);
-//                }
-//            }
-//
-//            return daftReviewResponses;
-//        } else {
-//            throw new BadRequestException("Expert ID not found.");
-//        }
-        return null;
     }
 
     @Override
@@ -524,6 +499,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 ReviewResponse reviewResponse = reviewResponseOptional.get();
                 reviewResponseDto.setId(reviewResponse.getId());
                 reviewResponseDto.setOverall(reviewResponse.getOverall());
+                if(reviewResponse.getScore()!=null){
+                    reviewResponseDto.setScore(reviewResponse.getScore());
+                }
                 reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
             }
             return reviewResponseDto;
