@@ -24,10 +24,6 @@ public class Expert{
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private boolean availability;
-
-    private Integer receive;
-
     private boolean punish;
 
     private LocalDate punishDate;
