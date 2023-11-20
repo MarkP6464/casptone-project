@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.ChatResponse;
-import com.example.capstoneproject.Dto.CoverLetterAddDto;
-import com.example.capstoneproject.Dto.CoverLetterDto;
-import com.example.capstoneproject.Dto.CoverLetterUpdateDto;
+import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,10 +26,8 @@ public class CoverLetterController {
     public ResponseEntity<?> generateCoverLetter(
             @PathVariable("cover-letter-id") Integer coverId,
             @RequestParam float temperature,
-            @RequestParam String company,
-            @RequestParam String job_title,
             @RequestParam int cvId,
-            @RequestParam String job_description
+            CoverLetterGenerationDto dto
     ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
@@ -41,10 +36,8 @@ public class CoverLetterController {
         ChatResponse result = coverLetterService.generateCoverLetter(
                 coverId,
                 temperature,
-                job_title,
                 cvId,
-                company,
-                job_description
+                dto
 
         );
         return ResponseEntity.ok(result);
@@ -53,20 +46,12 @@ public class CoverLetterController {
     @PostMapping("cv/{cv-id}/summary")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> generateSummary(
-            @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId,
-            @RequestParam String position_highlight,
-            @RequestParam String skill_highlight
+            SummaryGenerationDto dto
     ) throws JsonProcessingException {
-        if (temperature < 0.2 || temperature > 1.0) {
-            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
-        }
-
         ChatResponse result = coverLetterService.generateSummaryCV(
-                temperature,
                 cvId,
-                position_highlight,
-                skill_highlight
+                dto
         );
         return ResponseEntity.ok(result);
     }

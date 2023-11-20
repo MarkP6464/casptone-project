@@ -55,7 +55,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public ChatResponse generateCoverLetter(Integer coverId, float temperature,String job_title, int cvId, String company, String job_description) throws JsonProcessingException {
+    public ChatResponse generateCoverLetter(Integer coverId, float temperature, int cvId, CoverLetterGenerationDto dto) throws JsonProcessingException {
         Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverId);
         if(coverLetterOptional.isPresent()){
             CoverLetter coverLetter = coverLetterOptional.get();
@@ -72,7 +72,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 content = cv.getCvBody();
 
             }
-            userMessage = "My Resume: " + content + ". Job title: " + job_title + " Company: " + company +  " Job Description: " + job_description + ".";
+            userMessage = "My Resume: " + content + ". Job title: " + dto.getJob_title() + " Company: " + dto.getCompany() +  " Job Description: " + dto.getJob_description() + ".";
             List<Map<String, Object>> messagesList = new ArrayList<>();
             Map<String, Object> systemMessage = new HashMap<>();
             systemMessage.put("role", "system");
@@ -96,7 +96,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     }
 
-    public ChatResponse generateSummaryCV(float temperature, Integer cvId, String position_highlight, String skill_highlight) throws JsonProcessingException {
+    public ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
             Cv cv = cvsOptional.get();
@@ -111,31 +111,31 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             });
             String completeSystem = "";
             String experience = "";
-            if(position_highlight!=null && skill_highlight!=null){
+            if(dto.getPosition_highlight()!=null && dto.getSkill_highlight()!=null){
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
-                        "It should begin with an attention-grabbing opening hook and clearly state the desired position as a " + position_highlight + ". \n" +
-                        "Soft skills and hard skills, " + skill_highlight + ", should be highlighted. \n" +
+                        "It should begin with an attention-grabbing opening hook and clearly state the desired position as a " + dto.getPosition_highlight() + ". \n" +
+                        "Soft skills and hard skills, " + dto.getSkill_highlight() + ", should be highlighted. \n" +
                         "Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
-            }else if(position_highlight==null && skill_highlight==null){
+            }else if(dto.getPosition_highlight()==null && dto.getSkill_highlight()==null){
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
                         "It should begin with an attention-grabbing opening hook and clearly state the desired position base on the past experience. \n" +
                         "Soft skills and hard skills should be highlighted. Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
-            }else if(position_highlight == null){
+            }else if(dto.getPosition_highlight() == null){
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
                         "It should begin with an attention-grabbing opening hook and clearly state the desired position base on the past experience. \n" +
-                        "Soft skills and hard skills, " + skill_highlight + ", should be highlighted. \n" +
+                        "Soft skills and hard skills, " + dto.getSkill_highlight() + ", should be highlighted. \n" +
                         "Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
             }else {
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
-                        "It should begin with an attention-grabbing opening hook and clearly state the desired position as a " + position_highlight + ". \n" +
+                        "It should begin with an attention-grabbing opening hook and clearly state the desired position as a " + dto.getPosition_highlight() + ". \n" +
                         "Soft skills and hard skills should be highlighted. \n" +
                         "Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
             }
@@ -151,7 +151,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-            String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
+            String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,1);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
             historySummaryService.createHistorySummary(cv.getId(), response);
