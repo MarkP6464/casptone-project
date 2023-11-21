@@ -43,12 +43,12 @@ public class TransactionController {
         return list;
     }
 
-    @PostMapping("/input-quota")
-    public RedirectView createTransaction(@RequestBody TransactionDto transactionDto) throws Exception {
-            transactionDto.setMoneyType(MoneyType.QUOTA);
-            String returnUrl = transactionService.create(transactionDto);
-            return new RedirectView(returnUrl);
-    }
+//    @PostMapping("/input-quota")
+//    public RedirectView createTransaction(@RequestBody TransactionDto transactionDto) throws Exception {
+//            transactionDto.setMoneyType(MoneyType.QUOTA);
+//            String returnUrl = transactionService.create(transactionDto);
+//            return new RedirectView(returnUrl);
+//    }
 
     @PostMapping("/input-credit")
     public RedirectView addCredit(@RequestBody TransactionDto transactionDto) throws Exception {

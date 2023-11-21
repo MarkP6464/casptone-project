@@ -4,6 +4,7 @@ import com.example.capstoneproject.enums.BasicStatus;
 import com.sun.istack.NotNull;
 import lombok.*;
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,9 @@ import java.util.List;
                 "ELSE 'Users' end"
 )
 public class Users implements UserDetails {
+
+    @Value("${quota.ratio}")
+    private Long quotaRatio;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -141,7 +145,7 @@ public class Users implements UserDetails {
         return true;
     }
 
-    private void minusQuota(){
-        this.setQuota(this.getQuota() - 1);
+    private void callGPTapi(){
+        this.setAccountBalance(this.getAccountBalance() - quotaRatio);
     }
 }

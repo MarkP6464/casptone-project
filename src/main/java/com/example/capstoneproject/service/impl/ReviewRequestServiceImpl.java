@@ -12,10 +12,7 @@ import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ReviewRequestMapper;
 import com.example.capstoneproject.repository.*;
-import com.example.capstoneproject.service.CvService;
-import com.example.capstoneproject.service.ExpertService;
-import com.example.capstoneproject.service.ReviewRequestService;
-import com.example.capstoneproject.service.ReviewResponseService;
+import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -286,6 +283,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             reviewRequest.setStatus(StatusReview.Reject);
             reviewRequestRepository.save(reviewRequest);
             sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+            transactionService.requestToReviewFail(requestId.toString());
             return "Reject successful";
         } else {
             throw new RuntimeException("Expert ID incorrect or Request ID incorrect");
