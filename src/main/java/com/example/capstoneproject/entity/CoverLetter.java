@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter
@@ -21,8 +22,7 @@ public class CoverLetter {
     @Column(columnDefinition = "NVARCHAR(100)")
     private String dear;
 
-    @Column(columnDefinition = "NVARCHAR(100)")
-    private String date;
+    private LocalDate date;
     @Column(columnDefinition = "NVARCHAR(100)")
     private String company;
     @Column(columnDefinition = "TEXT")

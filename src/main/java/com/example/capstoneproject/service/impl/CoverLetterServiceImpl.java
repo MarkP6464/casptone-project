@@ -56,42 +56,52 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     public ChatResponse generateCoverLetter(Integer coverId, float temperature, int cvId, CoverLetterGenerationDto dto) throws JsonProcessingException {
-        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverId);
-        if(coverLetterOptional.isPresent()){
-            CoverLetter coverLetter = coverLetterOptional.get();
-            String completeCoverLetter = "You are a cover letter generator.\n" +
-                    "You will be given a job description along with the job applicant's resume.\n" +
-                    "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
-                    "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
-                    "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
-            String content = "";
-            String userMessage = "";
-            Optional<Cv> cvsOptional = cvRepository.findById(cvId);
-            if(cvsOptional.isPresent()){
-                Cv cv = cvsOptional.get();
-                content = cv.getCvBody();
-
+        Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverId);
+            if(coverLetterOptional.isPresent()){
+                CoverLetter coverLetter = coverLetterOptional.get();
+                String completeCoverLetter = "You are a cover letter generator.\n" +
+                        "You will be given a job description along with the job applicant's resume.\n" +
+                        "You will write a cover letter for the applicant that matches their past experiences from the resume with the job description. Write the cover letter in the same language as the job description provided!\n" +
+                        "Rather than simply outlining the applicant's past experiences, you will give more detail and explain how those experiences will help the applicant succeed in the new job.\n" +
+                        "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
+                String content = cv.getCvBody();
+                String userMessage = "";
+//                Optional<Cv> cvsOptional = cvRepository.findById(cvId);
+//                if(cvsOptional.isPresent()){
+//                    Cv cv = cvsOptional.get();
+//                    content = cv.getCvBody();
+//
+//                }
+                userMessage = "My Resume: " + content + ". Job title: " + dto.getJob_title() + " Company: " + dto.getCompany() +  " Job Description: " + dto.getJob_description() + ".";
+                List<Map<String, Object>> messagesList = new ArrayList<>();
+                Map<String, Object> systemMessage = new HashMap<>();
+                systemMessage.put("role", "system");
+                systemMessage.put("content", completeCoverLetter);
+                messagesList.add(systemMessage);
+                Map<String, Object> userMessageMap = new HashMap<>();
+                userMessageMap.put("role", "user");
+                userMessageMap.put("content", userMessage);
+                messagesList.add(userMessageMap);
+                String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+                String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
+                coverLetter.setId(coverLetter.getId());
+                coverLetter.setDescription(processString(response));
+                coverLetter.setDate(dto.getDate());
+                coverLetter.setCompany(dto.getCompany());
+                coverLetter.setDear(dto.getDear());
+                coverLetter.setCv(cv);
+                coverLetterRepository.save(coverLetter);
+                ChatResponse chatResponse = new ChatResponse();
+                chatResponse.setReply(processString(response));
+                return chatResponse;
+            }else{
+                throw new BadRequestException("Cover Letter ID not found.");
             }
-            userMessage = "My Resume: " + content + ". Job title: " + dto.getJob_title() + " Company: " + dto.getCompany() +  " Job Description: " + dto.getJob_description() + ".";
-            List<Map<String, Object>> messagesList = new ArrayList<>();
-            Map<String, Object> systemMessage = new HashMap<>();
-            systemMessage.put("role", "system");
-            systemMessage.put("content", completeCoverLetter);
-            messagesList.add(systemMessage);
-            Map<String, Object> userMessageMap = new HashMap<>();
-            userMessageMap.put("role", "user");
-            userMessageMap.put("content", userMessage);
-            messagesList.add(userMessageMap);
-            String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-            String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
-            coverLetter.setId(coverLetter.getId());
-            coverLetter.setDescription(processString(response));
-            coverLetterRepository.save(coverLetter);
-            ChatResponse chatResponse = new ChatResponse();
-            chatResponse.setReply(processString(response));
-            return chatResponse;
         }else{
-            throw new BadRequestException("Cover Letter ID not found.");
+            throw new BadRequestException("CV ID not found");
         }
 
     }
@@ -420,17 +430,31 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public CoverLetterViewDto createCoverLetter(Integer userId, Integer cvId, CoverLetterAddDto dto) {
+    public CoverLetterViewDto createCoverLetter(Integer userId, CoverLetterAddDto dto) {
         CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
-//        Users Users = usersService.getUsersById(userId);
-        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
         coverLetter.setTitle(dto.getTitle());
-        coverLetter.setCv(cvOptional.get());
         CoverLetter saved = coverLetterRepository.save(coverLetter);
         CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
         coverLetterViewDto.setId(saved.getId());
         coverLetterViewDto.setTitle(saved.getTitle());
         return modelMapper.map(saved, CoverLetterViewDto.class);
+    }
+
+    @Override
+    public List<CoverLetterViewDto> getAllCoverLetter(Integer userId) {
+        List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(userId);
+        List<CoverLetterViewDto> coverLetterViewDtos = new ArrayList<>();
+        if (coverLetters != null && !coverLetters.isEmpty()) {
+            for (CoverLetter coverLetter : coverLetters) {
+                CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
+                coverLetterViewDto.setId(coverLetter.getId());
+                coverLetterViewDto.setTitle(coverLetter.getTitle());
+                coverLetterViewDtos.add(coverLetterViewDto);
+            }
+        } else {
+            throw new BadRequestException("Currently, the system does not find any Cover Letter that exists in User.");
+        }
+        return coverLetterViewDtos;
     }
 
     @Override
@@ -516,9 +540,9 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public ChatResponse reviseCoverLetter(String content, String improvement) throws JsonProcessingException {
+    public ChatResponse reviseCoverLetter(CoverLetterReviseDto dto) throws JsonProcessingException {
         String revise = "You are a cover letter editor. You will be given a piece of isolated text from within a cover letter and told how you can improve it. Only respond with the revision. Make sure the revision is in the same language as the given isolated text.";
-        String userMessage = "Isolated text from within cover letter: " + content + ". It should be improved by making it more: " + improvement;
+        String userMessage = "Isolated text from within cover letter: " + dto.getContent() + ". It should be improved by making it more: " + dto.getImprovement();
         ChatResponse chatResponse = new ChatResponse();
         List<Map<String, Object>> messagesList = new ArrayList<>();
         Map<String, Object> systemMessage = new HashMap<>();

@@ -82,11 +82,11 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         ReviewRequest reviewRequest = modelMapper.map(dto,ReviewRequest.class);
         Cv cv = cvService.getCvById(cvId);
         Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId,RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId,RoleType.EXPERT);
         ReviewRequest saved;
         if(expertOptional.isPresent() && expertOptional.get().getPrice()!=null){
             Expert expert = expertOptional.get();
-            if(expert.isPunish()){
+            if(expert.getPunish()){
                 throw new BadRequestException("This expert is currently being punished, please submit a review request later.");
             }else{
                 if (cv != null) {

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -13,5 +15,9 @@ public class CoverLetterGenerationDto {
     private String company;
 
     private String job_description;
+
+    private String dear;
+
+    private LocalDate date;
 
 }

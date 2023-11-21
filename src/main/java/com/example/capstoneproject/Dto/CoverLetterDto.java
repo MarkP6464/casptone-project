@@ -1,6 +1,8 @@
 package com.example.capstoneproject.Dto;
 import lombok.*;
 
+import java.time.LocalDate;
+
 
 @Data
 @Builder
@@ -12,7 +14,7 @@ public class CoverLetterDto {
     private int id;
     private String title;
     private String dear;
-    private String date;
+    private LocalDate date;
     private String company;
     private String description;
     private UserCoverLetterDto user;

@@ -1,5 +1,6 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.EvaluateDescriptionDto;
 import com.example.capstoneproject.service.EvaluateService;
 import com.example.capstoneproject.service.impl.ChatGPTServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class EvaluateController {
         this.evaluateService = evaluateService;
     }
     @GetMapping()
-    public ResponseEntity<?> checkSentences(@RequestParam String sentences) {
-        return ResponseEntity.ok(evaluateService.checkSentences(sentences));
+    public ResponseEntity<?> checkSentences(EvaluateDescriptionDto dto) {
+        return ResponseEntity.ok(evaluateService.checkSentencesSecond(dto));
     }
 
 //    @PostMapping("{cvId}/extractKeywords")
