@@ -3,6 +3,7 @@ package com.example.capstoneproject.entity;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.sun.istack.NotNull;
 import lombok.*;
+import org.hibernate.annotations.DiscriminatorFormula;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,40 +18,55 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@DiscriminatorFormula(
+        "CASE WHEN price IS NOT NULL THEN 'Expert' " +
+                " WHEN publish IS NOT NULL THEN 'Candidate' " +
+                "ELSE 'Users' end"
+)
 public class Users implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "NVARCHAR(50)")
     @NotNull
     private String Name;
 
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String address;
 
-    @Column(name = "avatar")
+    @Column(name = "avatar", columnDefinition = "TEXT")
     private String avatar;
+
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String jobTitle;
+
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String company;
+
+    @Column(columnDefinition = "TEXT")
+    private String about;
 
     @Column(name = "password")
     private String password;
 
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "NVARCHAR(30)")
     @Enumerated(EnumType.STRING)
     private BasicStatus status;
 
-    @Column(name = "phone")
+    @Column(name = "phone", columnDefinition = "NVARCHAR(10)")
     private String phone;
 
-    @Column(name = "personal_Website")
+    @Column(name = "personal_Website", columnDefinition = "TEXT")
     private String personalWebsite;
 
-    @Column(name = "email")
+    @Column(name = "email", columnDefinition = "NVARCHAR(50)")
     private String email;
 
-    @Column(name = "linkin")
+    @Column(name = "linkin", columnDefinition = "TEXT")
     private String linkin;
 
-    @Column(name = "country")
+    @Column(name = "country", columnDefinition = "NVARCHAR(50)")
     private String country;
 
     @Column(name = "account_Balance")

@@ -21,15 +21,15 @@ public class JobDescriptionController {
         return jobDescriptionService.createJobDescription(cvId,Dto);
     }
 
-    @GetMapping("cv/{cv-id}/job-description/{job-description-id}")
+    @GetMapping("cv/{cv-id}/job-description/ats")
     @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
-    public JobDescriptionViewDto getJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId) throws JsonProcessingException {
-        return jobDescriptionService.getJobDescription(cvId,jobId);
+    public JobDescriptionViewDto getJobDescription(@PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
+        return jobDescriptionService.getJobDescription(cvId);
     }
 
-    @PutMapping("cv/{cv-id}/job-description/{job-description-id}")
+    @PutMapping("cv/{cv-id}/job-description/ats")
     @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
-    public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") int cvId, @PathVariable("job-description-id") int jobId, @RequestBody JobDescriptionDto Dto) throws Exception {
-        return jobDescriptionService.updateJobDescription(cvId,jobId,Dto);
+    public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") Integer cvId, @RequestBody JobDescriptionDto Dto) throws Exception {
+        return jobDescriptionService.updateJobDescription(cvId,Dto);
     }
 }

@@ -90,21 +90,19 @@ public class CoverLetterController {
     @PostMapping("/cover-letter/revise")
     @PreAuthorize("hasAuthority('create:candidate')")
     public ChatResponse generateCoverLetterRevise(
-            @RequestParam String content,
-            @RequestParam String improvement
+            CoverLetterReviseDto dto
     ) throws JsonProcessingException {
 
         ChatResponse result = coverLetterService.reviseCoverLetter(
-                content,
-                improvement
+                dto
         );
         return result;
     }
 
-    @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
+    @PostMapping("/user/{user-id}/cv/cover-letter")
     @PreAuthorize("hasAuthority('create:candidate')")
-    public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId,@PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
-        return coverLetterService.createCoverLetter(userId, cvId, Dto);
+    public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId, @RequestBody CoverLetterAddDto Dto) {
+        return coverLetterService.createCoverLetter(userId, Dto);
     }
 
     @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}")

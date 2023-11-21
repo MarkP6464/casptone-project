@@ -9,6 +9,7 @@ import java.util.List;
 @Service
 public interface EvaluateService {
     List<BulletPointDto> checkSentences(String sentences);
+    List<BulletPointDto> checkSentencesSecond(EvaluateDescriptionDto dto);
     List<AtsDto> ListAts(int cvId, int jobId, JobDescriptionDto dto) throws JsonProcessingException;
 
     List<AtsDto> getAts(int cvId, int jobId) throws JsonProcessingException;

@@ -10,32 +10,20 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-public class Expert{
+@DiscriminatorValue("Expert")
+public class Expert extends Users{
 
-    @Id
-    private Integer id;
-
-    @Column(columnDefinition = "NVARCHAR(50)")
-    private String title;
-
-    @Column(columnDefinition = "NVARCHAR(50)")
-    private String company;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    private boolean punish;
+    private Boolean punish = false;
 
     private LocalDate punishDate;
 
-    private Double price;
+    @NonNull
+    private Double price = 0.0;
 
     private Integer numberReview;
 
     private Integer experience;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private Users users;
+    private Integer historyId;
 
 }

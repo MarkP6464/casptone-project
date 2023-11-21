@@ -1,19 +1,17 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.ExpertReviewRatingViewDto;
-import com.example.capstoneproject.Dto.responses.ExpertReviewViewDto;
-import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
-import com.example.capstoneproject.Dto.responses.ExpertViewDto;
-import com.example.capstoneproject.entity.Expert;
-import com.example.capstoneproject.entity.ReviewResponse;
-import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.Dto.responses.*;
+import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ExpertService;
+import com.example.capstoneproject.service.HistoryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,11 +22,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.example.capstoneproject.enums.RoleType.EXPERT;
+
 @Service
 public class ExpertServiceImpl implements ExpertService {
 
     @Autowired
     ExpertRepository expertRepository;
+
+    @Autowired
+    HistoryRepository historyRepository;
+
+    @Autowired
+    HistoryService historyService;
+
+    @Autowired
+    CvRepository cvRepository;
 
     @Autowired
     ReviewRequestRepository reviewRequestRepository;
@@ -46,34 +55,92 @@ public class ExpertServiceImpl implements ExpertService {
     UsersRepository usersRepository;
 
     @Override
-    public boolean updateExpert(Integer expertId, ExpertUpdateDto dto) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
-        if (expertOptional.isPresent()) {
-            Expert expert = expertOptional.get();
+    public boolean updateExpert(Integer expertId, Integer cvId, ExpertUpdateDto dto) throws JsonProcessingException {
+        Users expertOptional = expertRepository.findExpertByIdAndRole_RoleName(expertId, EXPERT);
+        if (Objects.nonNull(expertOptional)) {
+            if (expertOptional instanceof Expert) {
+                Expert expert = (Expert) expertOptional;
+
             if (dto != null) {
-                if (dto.getTitle() != null && !dto.getTitle().equals(expert.getTitle())) {
-                    expert.setTitle(dto.getTitle());
+                if (dto.getAvatar() != null && !dto.getAvatar().equals(expert.getAvatar())) {
+                    expert.setAvatar(dto.getAvatar());
                 }
-                if (dto.getDescription() != null && !dto.getDescription().equals(expert.getDescription())) {
-                    expert.setDescription(dto.getDescription());
+                if (dto.getName() != null && !dto.getName().equals(expert.getName())) {
+                    expert.setName(dto.getName());
                 }
-                if (dto.getPrice() != null && !dto.getPrice().equals(expert.getPrice())) {
-                    expert.setPrice(dto.getPrice());
+                if (dto.getJobTitle() != null && !dto.getJobTitle().equals(expert.getJobTitle())) {
+                    expert.setJobTitle(dto.getJobTitle());
                 }
                 if (dto.getCompany() != null && !dto.getCompany().equals(expert.getCompany())) {
                     expert.setCompany(dto.getCompany());
                 }
-                expertRepository.save(expert);
+                if (dto.getAbout() != null && !dto.getAbout().equals(expert.getAbout())) {
+                    expert.setAbout(dto.getAbout());
+                }
+                if (dto.getExperiences() != null && !dto.getExperiences().equals(expert.getExperiences())) {
+                    expert.setExperience(dto.getExperiences());
+                }
+                if (dto.getPrice() != null && !dto.getPrice().equals(expert.getPrice())) {
+                    expert.setPrice(dto.getPrice());
+                }
+                if(cvId!=null){
+                    Optional<Cv> cvOptional = cvRepository.findById(cvId);
+                    if(cvOptional.isPresent()){
+                        Cv cv = cvOptional.get();
+                        historyService.create(expertId,cv.getId());
+                        List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
+                        if(histories!=null){
+                            History history = histories.get(0);
+                            expert.setHistoryId(history.getId());
+                        }
+                    }else{
+                        throw new BadRequestException("Cv ID not found.");
+                    }
+                }
             }
 
+            // Lưu lại cả Users và Expert
+            expertRepository.save(expert);
             return true;
+        }
         }
         return false;
     }
 
     @Override
+    public ExpertConfigViewDto getExpertConfig(Integer expertId) {
+        Users expertOptional = expertRepository.findExpertByIdAndRole_RoleName(expertId, EXPERT);
+        if (Objects.nonNull(expertOptional)){
+            if (expertOptional instanceof Expert){
+                Expert expert = (Expert) expertOptional;
+                ExpertConfigViewDto expertConfigViewDto = new ExpertConfigViewDto();
+                expertConfigViewDto.setAvatar(expert.getAvatar());
+                expertConfigViewDto.setName(expert.getName());
+                expertConfigViewDto.setJobTitle(expert.getJobTitle());
+                expertConfigViewDto.setCompany(expert.getCompany());
+                expertConfigViewDto.setAbout(expert.getAbout());
+                expertConfigViewDto.setExperiences(expert.getExperience());
+                expertConfigViewDto.setPrice(expert.getPrice());
+                if(expert.getHistoryId()!=null){
+                    Optional<History> historyOptional = historyRepository.findById(expert.getHistoryId());
+                    if(historyOptional.isPresent()){
+                        History history = historyOptional.get();
+                        expertConfigViewDto.setCv(history.getCv().getResumeName());
+                    }
+                }
+                return expertConfigViewDto;
+
+            }else{
+                throw new BadRequestException("Cast from User to Expert fail.");
+            }
+        }else {
+            throw new BadRequestException("Expert Id not found.");
+        }
+    }
+
+    @Override
     public List<ExpertViewChooseDto> getExpertList(String search) {
-        List<Expert> experts = expertRepository.findAllByUsers_Role_RoleName(RoleType.EXPERT);
+        List<Expert> experts = expertRepository.findAllByRole_RoleName(EXPERT);
 
         List<ExpertViewChooseDto> result = experts.stream()
                 .filter(expert -> isMatched(expert, search))
@@ -92,11 +159,11 @@ public class ExpertServiceImpl implements ExpertService {
         if(expertOptional.isPresent()){
             Expert expert = expertOptional.get();
             expertReviewViewDto.setId(expert.getId());
-            expertReviewViewDto.setName(expert.getUsers().getName());
-            expertReviewViewDto.setAvatar(expert.getUsers().getAvatar());
-            expertReviewViewDto.setTitle(expert.getTitle());
+            expertReviewViewDto.setName(expert.getName());
+            expertReviewViewDto.setAvatar(expert.getAvatar());
+            expertReviewViewDto.setTitle(expert.getJobTitle());
             expertReviewViewDto.setStar(calculatorStar(expert.getId()));
-            expertReviewViewDto.setDescription(expert.getDescription());
+            expertReviewViewDto.setDescription(expert.getAbout());
             expertReviewViewDto.setCompany(expert.getCompany());
             expertReviewViewDto.setPrice(expert.getPrice());
             expertReviewViewDto.setExperience(expert.getExperience());
@@ -130,7 +197,7 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public void punishExpert(Integer expertId) {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, EXPERT);
         if(expertOptional.isPresent()){
             LocalDate current = LocalDate.now();
             Expert expert = expertOptional.get();
@@ -177,19 +244,19 @@ public class ExpertServiceImpl implements ExpertService {
 
     private boolean isMatched(Expert expert, String search) {
         return (search == null || search.isEmpty()) &&
-                !expert.isPunish() &&
-                (expert.getTitle().contains(search) ||
-                        expert.getUsers().getName().contains(search) ||
+                !expert.getPunish() &&
+                (expert.getName().contains(search) ||
                         expert.getCompany().contains(search));
     }
 
     private ExpertViewChooseDto convertToExpertViewChooseDto(Expert expert) {
         ExpertViewChooseDto viewChooseDto = new ExpertViewChooseDto();
         viewChooseDto.setId(expert.getId());
-        viewChooseDto.setTitle(expert.getTitle());
-        viewChooseDto.setName(expert.getUsers().getName());
+        viewChooseDto.setName(expert.getName());
+        viewChooseDto.setJobTitle(expert.getJobTitle());
+        viewChooseDto.setCompany(expert.getCompany());
         viewChooseDto.setStar(calculatorStar(expert.getId()));
-        viewChooseDto.setAvatar(expert.getUsers().getAvatar());
+        viewChooseDto.setAvatar(expert.getAvatar());
         viewChooseDto.setCompany(expert.getCompany());
         viewChooseDto.setPrice(expert.getPrice());
         viewChooseDto.setExperience(expert.getExperience());

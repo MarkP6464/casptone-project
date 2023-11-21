@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class CoverLetterUpdateDto {
     private String title;
     private String dear;
-    private String date;
+    private LocalDate date;
     private String company;
     private String description;
 }

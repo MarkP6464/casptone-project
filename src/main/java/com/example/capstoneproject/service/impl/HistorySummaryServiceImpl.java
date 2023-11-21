@@ -30,8 +30,8 @@ public class HistorySummaryServiceImpl implements HistorySummaryService {
         if(cv!=null){
             int amount = historySummaryRepository.countAllByCv_Id(cv.getId()) + 1;
             HistorySummary historySummary = new HistorySummary();
-            historySummary.setVersion("");
-            historySummary.setSummary("#" + amount + " SUMMARY");
+            historySummary.setVersion("#" + amount + " SUMMARY");
+            historySummary.setSummary(summary);
             historySummary.setCv(cv);
             historySummaryRepository.save(historySummary);
         }else{
@@ -44,10 +44,14 @@ public class HistorySummaryServiceImpl implements HistorySummaryService {
         List<HistorySummary> historySummaries = historySummaryRepository.findAllByCv_Id(cvId);
         if(historySummaries!=null){
             List<HistorySummaryDto> historySummaryDtos = new ArrayList<>();
-            HistorySummaryDto historySummaryDto = new HistorySummaryDto();
             for (HistorySummary historySummary1: historySummaries){
+                HistorySummaryDto historySummaryDto = new HistorySummaryDto();
                 historySummaryDto.setId(historySummary1.getId());
                 historySummaryDto.setVersion(historySummary1.getVersion());
+                HistorySummary historySummary = historySummaryRepository.getById(historySummary1.getId());
+                if(historySummary!=null){
+                    historySummaryDto.setSummary(historySummary.getSummary());
+                }
                 historySummaryDtos.add(historySummaryDto);
             }
             return historySummaryDtos;

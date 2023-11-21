@@ -1,10 +1,13 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
+import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.ExpertService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +25,10 @@ public class ExpertController {
         this.expertService = expertService;
     }
 
-    @PutMapping("/expert/{expert-id}")
-    @PreAuthorize("hasAuthority('update:expert')")
-    public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, ExpertUpdateDto dto) {
-        if (expertService.updateExpert(expertId, dto)) {
+    @PutMapping("/expert/{expert-id}/cv/{cv-id}/config")
+//    @PreAuthorize("hasAuthority('update:expert')")
+    public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, @PathVariable("cv-id") Integer cvId, ExpertUpdateDto dto) throws JsonProcessingException {
+        if (expertService.updateExpert(expertId, cvId, dto)) {
             return ResponseEntity.ok("Update success");
         } else {
             return ResponseEntity.badRequest().body("Update failed");
@@ -33,13 +36,13 @@ public class ExpertController {
     }
 
     @GetMapping("/expert/{expert-id}")
-    @PreAuthorize("hasAuthority('read:expert')")
+//    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
         return ResponseEntity.ok(expertService.getDetailExpert(expertId));
     }
 
     @GetMapping("/experts")
-    @PreAuthorize("hasAuthority('read:candidate')")
+//    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getAllExpert(@RequestParam(required = false) String search) {
         try {
             List<ExpertViewChooseDto> expertList = expertService.getExpertList(search);
@@ -47,6 +50,12 @@ public class ExpertController {
         } catch (BadRequestException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/expert/{expert-id}/config")
+//    @PreAuthorize("hasAuthority('read:expert')")
+    public ResponseEntity<ExpertConfigViewDto> getExpertConfig(@PathVariable("expert-id") Integer expertId) {
+        return new ResponseEntity<>(expertService.getExpertConfig(expertId), HttpStatus.OK);
     }
 
 

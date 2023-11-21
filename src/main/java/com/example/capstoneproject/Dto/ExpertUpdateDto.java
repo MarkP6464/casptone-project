@@ -4,22 +4,22 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class ExpertUpdateDto {
-    private String title;
+
+    private String avatar;
+
+    private String name;
+
+    private String jobTitle;
 
     private String company;
 
-    private String description;
+    private String about;
+
+    private Integer experiences;
 
     private Double price;
-
-    private boolean punish;
-
-    private LocalDate punishDate;
 }

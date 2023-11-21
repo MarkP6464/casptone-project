@@ -486,7 +486,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public ReviewResponseDto getReviewResponse(Integer expertId, Integer responseId) throws JsonProcessingException {
-        Optional<Expert> expertOptional = expertRepository.findByIdAndUsers_Role_RoleName(expertId, RoleType.EXPERT);
+        Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
