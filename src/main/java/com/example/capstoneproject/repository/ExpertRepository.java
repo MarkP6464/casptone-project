@@ -21,7 +21,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Integer> {
     Users findExpertByIdAndRole_RoleName(@Param("expertId") Integer expertId, @Param("roleName") RoleType roleName);
 
 
-    List<Expert> findAllByRole_RoleName(RoleType roleName);
+    List<Expert> findAllByRole_RoleNameAndPunishFalse(RoleType roleName);
 
     List<Expert> findByPunishIsTrue();
 
