@@ -30,13 +30,13 @@ public class ReviewResponseController {
 
     @PostMapping("/expert/{expert-id}/review-response/{response-id}/comment")
     @PreAuthorize("hasAuthority('create:expert')")
-    public ResponseEntity<?> postReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, CommentDto dto) throws JsonProcessingException {
+    public ResponseEntity<?> postReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @RequestBody CommentDto dto) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.createComment(expertId, responseId,dto));
     }
 
     @PostMapping("/user/review-response/{response-id}/comment/rating")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
-    public ResponseEntity<?> postReviewResponseRating(@PathVariable("response-id") Integer responseId, ReviewRatingAddDto dto) {
+    public ResponseEntity<?> postReviewResponseRating(@PathVariable("response-id") Integer responseId, @RequestBody ReviewRatingAddDto dto) {
         return ResponseEntity.ok(reviewResponseService.sendReviewRating(responseId,dto));
     }
 
@@ -54,7 +54,7 @@ public class ReviewResponseController {
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/overall")
     @PreAuthorize("hasAuthority('update:expert')")
-    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, ReviewResponseUpdateDto dto)  {
+    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @RequestBody ReviewResponseUpdateDto dto)  {
         return ResponseEntity.ok(reviewResponseService.updateReviewResponse(expertId, responseId,dto));
     }
 

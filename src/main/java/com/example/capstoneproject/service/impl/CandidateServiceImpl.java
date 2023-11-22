@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CandidateDto;
+import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
 import com.example.capstoneproject.entity.Candidate;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -10,7 +11,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class CandidateServiceImpl implements CandidateService {
 
@@ -62,4 +67,51 @@ public class CandidateServiceImpl implements CandidateService {
             throw new BadRequestException("Candidate ID not found");
         }
     }
+
+    public List<CandidateOverViewDto> getAllCandidatePublish(String search) {
+        List<Candidate> candidates = candidateRepository.findAllByPublishTrueAndRole_RoleName(RoleType.CANDIDATE);
+        List<CandidateOverViewDto> candidateOverViewDtos = new ArrayList<>();
+
+        if(search==null){
+            if (candidates != null) {
+                candidateOverViewDtos = candidates.stream()
+                        .map(candidate -> {
+                            CandidateOverViewDto candidateOverViewDto = new CandidateOverViewDto();
+                            candidateOverViewDto.setName(candidate.getName());
+                            candidateOverViewDto.setAvatar(candidate.getAvatar());
+                            candidateOverViewDto.setJobTitle(candidate.getJobTitle());
+                            candidateOverViewDto.setCompany(candidate.getCompany());
+                            candidateOverViewDto.setAbout(candidate.getAbout());
+                            return candidateOverViewDto;
+                        })
+                        .collect(Collectors.toList());
+            } else {
+                throw new BadRequestException("Currently, the system cannot find any published Candidates, please come back later.");
+            }
+        }else {
+            if (candidates != null) {
+                candidateOverViewDtos = candidates.stream()
+                        .filter(candidate ->
+                                candidate.getName().contains(search) ||
+                                        candidate.getJobTitle().contains(search) ||
+                                        candidate.getCompany().contains(search))
+                        .map(candidate -> {
+                            CandidateOverViewDto candidateOverViewDto = new CandidateOverViewDto();
+                            candidateOverViewDto.setName(candidate.getName());
+                            candidateOverViewDto.setAvatar(candidate.getAvatar());
+                            candidateOverViewDto.setJobTitle(candidate.getJobTitle());
+                            candidateOverViewDto.setCompany(candidate.getCompany());
+                            candidateOverViewDto.setAbout(candidate.getAbout());
+                            return candidateOverViewDto;
+                        })
+                        .collect(Collectors.toList());
+            } else {
+                throw new BadRequestException("Currently, the system cannot find any published Candidates, please come back later.");
+            }
+        }
+
+        return candidateOverViewDtos;
+    }
+
+
 }

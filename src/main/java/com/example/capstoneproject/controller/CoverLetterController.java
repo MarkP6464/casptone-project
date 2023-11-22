@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/chat-gpt")
 public class CoverLetterController {
@@ -21,18 +23,17 @@ public class CoverLetterController {
         this.coverLetterService = coverLetterService;
     }
 
-    @PostMapping("/cover-letter/{cover-letter-id}/generation")
+    @PostMapping("cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
     @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
+            @PathVariable("cv-id") Integer cvId,
             @PathVariable("cover-letter-id") Integer coverId,
             @RequestParam float temperature,
-            @RequestParam int cvId,
-            CoverLetterGenerationDto dto
+            @RequestBody CoverLetterGenerationDto dto
     ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
         }
-
         ChatResponse result = coverLetterService.generateCoverLetter(
                 coverId,
                 temperature,
@@ -43,11 +44,11 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("cv/{cv-id}/summary")
+    @PostMapping("/cv/{cv-id}/summary")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> generateSummary(
             @PathVariable("cv-id") Integer cvId,
-            SummaryGenerationDto dto
+            @RequestBody SummaryGenerationDto dto
     ) throws JsonProcessingException {
         ChatResponse result = coverLetterService.generateSummaryCV(
                 cvId,
@@ -73,24 +74,11 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-//    @PostMapping(value = "/checkBuzz", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-//    public Flux<String> generatedCoverLetter(
-//            @RequestParam float temperature,
-//            @RequestParam String description
-//    ) {
-//        if (temperature < 0.2 || temperature > 1.0) {
-//            return Flux.just("Temperature value is invalid. Must be between 0.2 and 1.0.");
-//        }
-//
-//        //return coverLetterService.generateEvaluate(temperature, description);
-//        return null;
-//    }
-
 
     @PostMapping("/cover-letter/revise")
     @PreAuthorize("hasAuthority('create:candidate')")
     public ChatResponse generateCoverLetterRevise(
-            CoverLetterReviseDto dto
+            @RequestBody CoverLetterReviseDto dto
     ) throws JsonProcessingException {
 
         ChatResponse result = coverLetterService.reviseCoverLetter(
@@ -103,6 +91,12 @@ public class CoverLetterController {
     @PreAuthorize("hasAuthority('create:candidate')")
     public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(userId, Dto);
+    }
+
+    @GetMapping("/user/{user-id}/cv/cover-letters")
+    @PreAuthorize("hasAuthority('read:candidate')")
+    public List<CoverLetterViewDto> getCoverLetters(@PathVariable("user-id") Integer userId) {
+        return coverLetterService.getAllCoverLetter(userId);
     }
 
     @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}")

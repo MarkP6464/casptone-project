@@ -127,9 +127,7 @@ public class TransactionServiceImpl implements TransactionService {
             }
             Users user = usersService.getUsersById(Integer.parseInt(uid));
             if (Objects.nonNull(user)){
-                if (transactionType.equals("QUOTA")) {
-                    user.setQuota( (user.getQuota() + expenditure/ ratio));
-                }else {
+                if (transactionType.equals("CREDIT"))  {
                     user.setAccountBalance((user.getAccountBalance() + expenditure));
                 }
             }

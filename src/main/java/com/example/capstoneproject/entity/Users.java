@@ -1,5 +1,6 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.constant.PaymentConstant;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.sun.istack.NotNull;
 import lombok.*;
@@ -23,9 +24,6 @@ import java.util.List;
                 "ELSE 'Users' end"
 )
 public class Users implements UserDetails {
-
-    @Value("${quota.ratio}")
-    private Long quotaRatio;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -73,9 +71,6 @@ public class Users implements UserDetails {
 
     @Column(name = "account_Balance")
     private Long accountBalance = 0L;
-
-    @Column(name = "quota")
-    private Long quota = 0L;
 
     @Column(name = "vip")
     private Boolean vip;
@@ -146,6 +141,6 @@ public class Users implements UserDetails {
     }
 
     private void callGPTapi(){
-        this.setAccountBalance(this.getAccountBalance() - quotaRatio);
+        this.setAccountBalance(this.getAccountBalance() - PaymentConstant.quotaRatio);
     }
 }
