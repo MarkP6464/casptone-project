@@ -55,7 +55,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public ChatResponse generateCoverLetter(Integer coverId, float temperature, int cvId, CoverLetterGenerationDto dto) throws JsonProcessingException {
+    public ChatResponse generateCoverLetter(Integer coverId,  Integer cvId, CoverLetterGenerationDto dto) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
@@ -86,7 +86,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 userMessageMap.put("content", userMessage);
                 messagesList.add(userMessageMap);
                 String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-                String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
+                String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,dto.getTemperature());
                 coverLetter.setId(coverLetter.getId());
                 coverLetter.setDescription(processString(response));
                 coverLetter.setDate(dto.getDate());
