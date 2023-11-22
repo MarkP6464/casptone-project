@@ -16,5 +16,5 @@ import javax.persistence.Entity;
 public class Candidate extends Users {
 
     @NotNull
-    private boolean publish;
+    private boolean publish = false;
 }

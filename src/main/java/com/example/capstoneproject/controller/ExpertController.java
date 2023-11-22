@@ -25,8 +25,8 @@ public class ExpertController {
         this.expertService = expertService;
     }
 
-    @PutMapping("/expert/{expert-id}/cv/{cv-id}/config")
-//    @PreAuthorize("hasAuthority('update:expert')")
+    @PutMapping("/expert/{expert-id}/cv/{cv-id}/information/config")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, @PathVariable("cv-id") Integer cvId, ExpertUpdateDto dto) throws JsonProcessingException {
         if (expertService.updateExpert(expertId, cvId, dto)) {
             return ResponseEntity.ok("Update success");
@@ -36,13 +36,13 @@ public class ExpertController {
     }
 
     @GetMapping("/expert/{expert-id}")
-//    @PreAuthorize("hasAuthority('read:candidate')")
+    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
         return ResponseEntity.ok(expertService.getDetailExpert(expertId));
     }
 
     @GetMapping("/experts")
-//    @PreAuthorize("hasAuthority('read:candidate')")
+    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getAllExpert(@RequestParam(required = false) String search) {
         try {
             List<ExpertViewChooseDto> expertList = expertService.getExpertList(search);
@@ -52,8 +52,8 @@ public class ExpertController {
         }
     }
 
-    @GetMapping("/expert/{expert-id}/config")
-//    @PreAuthorize("hasAuthority('read:expert')")
+    @GetMapping("/expert/{expert-id}/information/config")
+    @PreAuthorize("hasAuthority('read:expert')")
     public ResponseEntity<ExpertConfigViewDto> getExpertConfig(@PathVariable("expert-id") Integer expertId) {
         return new ResponseEntity<>(expertService.getExpertConfig(expertId), HttpStatus.OK);
     }
