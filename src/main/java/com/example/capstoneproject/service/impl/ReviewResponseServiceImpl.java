@@ -71,7 +71,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         Optional<History> historyOptional = historyRepository.findById(historyId);
         if(historyOptional.isPresent()){
             History history = historyOptional.get();
-            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Waiting);
+            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Processing);
             if (reviewRequestOptional.isPresent()) {
                 // Lấy CvBody từ CV
                 ReviewRequest reviewRequest = reviewRequestOptional.get();

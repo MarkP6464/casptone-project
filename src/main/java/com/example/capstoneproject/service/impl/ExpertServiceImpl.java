@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -140,10 +141,18 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public List<ExpertViewChooseDto> getExpertList(String search) {
-        List<Expert> experts = expertRepository.findAllByRole_RoleName(EXPERT);
+//        List<Expert> experts = expertRepository.findAllByRole_RoleNameAndPunishFalse(EXPERT);
+        List<Expert> experts;
+        if (search == null) {
+            experts = expertRepository.findAllByRole_RoleNameAndPunishFalse(EXPERT);
+        } else {
+            experts = expertRepository.findAllByRole_RoleNameAndPunishFalse(EXPERT)
+                    .stream()
+                    .filter(expert -> isMatched(expert, search))
+                    .collect(Collectors.toList());
+        }
 
         List<ExpertViewChooseDto> result = experts.stream()
-                .filter(expert -> isMatched(expert, search))
                 .map(this::convertToExpertViewChooseDto)
                 .collect(Collectors.toList());
 
@@ -243,9 +252,7 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     private boolean isMatched(Expert expert, String search) {
-        return (search == null || search.isEmpty()) &&
-                !expert.getPunish() &&
-                (expert.getName().contains(search) ||
+        return (expert.getName().contains(search) ||
                         expert.getCompany().contains(search));
     }
 
