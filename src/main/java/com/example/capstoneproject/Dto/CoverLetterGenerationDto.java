@@ -10,6 +10,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class CoverLetterGenerationDto {
+    private Float temperature;
+
     private String job_title;
 
     private String company;
