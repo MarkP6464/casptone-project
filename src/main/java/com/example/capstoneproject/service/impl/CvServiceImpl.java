@@ -91,6 +91,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     }
 
 
+
     @Override
     public List<CvViewDto> GetCvsById(Integer UsersId, String content) {
         List<Cv> cvs = cvRepository.findAllByUsersIdAndStatus(UsersId, BasicStatus.ACTIVE);
