@@ -161,8 +161,6 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                         } else {
                             reviewRequestViewDto.setStatus(StatusReview.Waiting);
                         }
-                    } else {
-                        throw new BadRequestException("Request ID not found in review response");
                     }
                 }else{
                     reviewRequestViewDto.setStatus(reviewRequest.getStatus());
