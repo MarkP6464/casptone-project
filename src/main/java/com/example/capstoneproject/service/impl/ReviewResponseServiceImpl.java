@@ -309,7 +309,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public boolean updateComment(Integer expertId, Integer responseId, String commentId, String newContent) throws JsonProcessingException {
+    public boolean updateComment(Integer expertId, Integer responseId, String commentId, CommentNewDto newContent) throws JsonProcessingException {
         Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
@@ -326,7 +326,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -344,7 +344,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -362,7 +362,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -380,7 +380,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -398,7 +398,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
