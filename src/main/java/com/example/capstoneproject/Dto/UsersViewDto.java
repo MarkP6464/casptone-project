@@ -19,7 +19,7 @@ public class UsersViewDto {
 
     private String phone;
 
-    private String permissionWebsite;
+    private String personalWebsite;
 
     private String email;
 

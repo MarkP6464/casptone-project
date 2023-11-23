@@ -205,7 +205,7 @@ public class AuthenticationService {
                 userViewLoginDto.setName(users.getName());
                 userViewLoginDto.setAvatar(users.getAvatar());
                 userViewLoginDto.setPhone(users.getPhone());
-                userViewLoginDto.setPermissionWebsite(users.getPersonalWebsite());
+                userViewLoginDto.setPersonalWebsite(users.getPersonalWebsite());
                 userViewLoginDto.setEmail(users.getEmail());
                 userViewLoginDto.setLinkin(users.getLinkin());
                 userViewLoginDto.setRole(roleDto);
@@ -220,7 +220,7 @@ public class AuthenticationService {
                 userViewLoginDto.setName(newUser.getName());
                 userViewLoginDto.setAvatar(newUser.getAvatar());
                 userViewLoginDto.setPhone(newUser.getPhone());
-                userViewLoginDto.setPermissionWebsite(newUser.getPersonalWebsite());
+                userViewLoginDto.setPersonalWebsite(newUser.getPersonalWebsite());
                 userViewLoginDto.setEmail(newUser.getEmail());
                 userViewLoginDto.setLinkin(newUser.getLinkin());
                 userViewLoginDto.setRole(roleDto);
