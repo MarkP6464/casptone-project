@@ -156,9 +156,7 @@ public class ExpertServiceImpl implements ExpertService {
                 .map(this::convertToExpertViewChooseDto)
                 .collect(Collectors.toList());
 
-        return result.isEmpty()
-                ? throwBadRequestException()
-                : result;
+        return result;
     }
 
     @Override
@@ -252,8 +250,8 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     private boolean isMatched(Expert expert, String search) {
-        return (expert.getName().contains(search) ||
-                        expert.getCompany().contains(search));
+        return (expert.getName().toLowerCase().contains(search.toLowerCase()) ||
+                        expert.getCompany().toLowerCase().contains(search.toLowerCase()));
     }
 
     private ExpertViewChooseDto convertToExpertViewChooseDto(Expert expert) {
@@ -316,8 +314,5 @@ public class ExpertServiceImpl implements ExpertService {
         }
     }
 
-    private List<ExpertViewChooseDto> throwBadRequestException() {
-        throw new BadRequestException("Please come back later. Currently, the system cannot find any experts.");
-    }
 
 }

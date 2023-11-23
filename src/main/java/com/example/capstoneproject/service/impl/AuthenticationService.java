@@ -208,7 +208,7 @@ public class AuthenticationService {
                 userViewLoginDto.setPersonalWebsite(users.getPersonalWebsite());
                 userViewLoginDto.setEmail(users.getEmail());
                 userViewLoginDto.setLinkin(users.getLinkin());
-                userViewLoginDto.setRole(roleDto);
+                userViewLoginDto.setRole(modelMapper.map(users.getRole(), RoleDto.class));
                 return  userViewLoginDto;
             }else{
                 Users newUser = new Users();

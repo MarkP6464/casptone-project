@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -511,21 +512,23 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public boolean sendReviewRating(Integer responseId, ReviewRatingAddDto dto) {
+    public String sendReviewRating(Integer responseId, ReviewRatingAddDto dto) {
         Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByIdAndStatus(responseId, StatusReview.Done);
+        LocalDate current = LocalDate.now();
         if(reviewResponseOptional.isPresent()){
             ReviewResponse reviewResponse = reviewResponseOptional.get();
-            if(reviewResponse.getScore()!=null && reviewResponse.getComment()!=null){
+            if(reviewResponse.getScore()==null && reviewResponse.getComment()==null){
                 reviewResponse.setScore(dto.getScore());
                 reviewResponse.setComment(dto.getComment());
+                reviewResponse.setDateComment(current);
                 reviewResponseRepository.save(reviewResponse);
+                return "Send feedback successful.";
             }else{
                 throw new BadRequestException("You have already commented, it cannot be edited anymore.");
             }
         }else{
             throw new BadRequestException("Response ID not found.");
         }
-        return false;
     }
 
     public String removeCommentTagsWithoutIdAndContent(String input) {

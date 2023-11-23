@@ -27,6 +27,6 @@ public interface ReviewResponseService {
     ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException;
     ReviewResponseDto getReviewResponse(Integer expertId, Integer response) throws JsonProcessingException;
 
-    boolean sendReviewRating(Integer responseId, ReviewRatingAddDto dto);
+    String sendReviewRating(Integer responseId, ReviewRatingAddDto dto);
 
 }
