@@ -490,12 +490,12 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public ReviewResponseDto getReviewResponse(Integer expertId, Integer responseId) throws JsonProcessingException {
+    public ReviewResponseDto getReviewResponse(Integer expertId, Integer requestId) throws JsonProcessingException {
         Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
-            Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expert.getId(), responseId);
+            Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndReviewRequest_Id(expert.getId(), requestId);
             if (reviewResponseOptional.isPresent()) {
                 ReviewResponse reviewResponse = reviewResponseOptional.get();
                 reviewResponseDto.setId(reviewResponse.getId());
@@ -504,6 +504,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     reviewResponseDto.setScore(reviewResponse.getScore());
                 }
                 reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
+                reviewResponseDto.setComment(reviewResponse.getComment());
             }
             return reviewResponseDto;
         } else {

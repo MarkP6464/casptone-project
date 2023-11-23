@@ -70,10 +70,10 @@ public class ReviewResponseController {
         return ResponseEntity.ok(reviewResponseService.receiveReviewResponse(userId, requestId));
     }
 
-    @GetMapping("/expert/{expert-id}/review-response/{response-id}")
+    @GetMapping("/expert/{expert-id}/review-request/{request-id}/review-response")
     @PreAuthorize("hasAuthority('read:expert')")
-    public ResponseEntity<?> getReviewResponseDetail(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId) throws JsonProcessingException {
-        return ResponseEntity.ok(reviewResponseService.getReviewResponse(expertId, responseId));
+    public ResponseEntity<?> getReviewResponseDetail(@PathVariable("expert-id") Integer expertId, @PathVariable("request-id") Integer requestId) throws JsonProcessingException {
+        return ResponseEntity.ok(reviewResponseService.getReviewResponse(expertId, requestId));
     }
 
 }
