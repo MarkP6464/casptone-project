@@ -68,6 +68,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     @Autowired
     TransactionService transactionService;
 
+    @Autowired
+    HistoryService historyService;
+
     public ReviewRequestServiceImpl(ReviewRequestRepository reviewRequestRepository, ReviewRequestMapper reviewRequestMapper) {
         super(reviewRequestRepository, reviewRequestMapper, reviewRequestRepository::findById);
         this.reviewRequestRepository = reviewRequestRepository;
@@ -87,6 +90,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 throw new BadRequestException("This expert is currently being punished, please submit a review request later.");
             }else{
                 if (cv != null) {
+                    historyService.create(cv.getUser().getId(), cv.getId());
                     List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
                     if(histories!=null){
                         History history = histories.get(0);
