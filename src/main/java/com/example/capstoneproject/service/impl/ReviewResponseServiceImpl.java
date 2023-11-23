@@ -424,9 +424,12 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             if(reviewResponse.getStatus()!= StatusReview.Done){
                 if (dto.getOverall() != null && !dto.getOverall().equals(reviewResponse.getOverall())) {
                     reviewResponse.setOverall(dto.getOverall());
-                    reviewResponse.setStatus(StatusReview.Draft);
-                    reviewResponseRepository.save(reviewResponse);
                 }
+                if (dto.getBody() != null) {
+                    reviewResponse.setFeedbackDetail(dto.getBody());
+                }
+                reviewResponse.setStatus(StatusReview.Draft);
+                reviewResponseRepository.save(reviewResponse);
                 return true;
             }else{
                 throw new BadRequestException("You dont cant edit this cv.");

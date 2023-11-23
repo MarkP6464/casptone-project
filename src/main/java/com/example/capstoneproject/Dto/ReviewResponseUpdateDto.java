@@ -9,5 +9,6 @@ import lombok.*;
 @Getter
 @Setter
 public class ReviewResponseUpdateDto {
+    private String body;
     private String overall;
 }
