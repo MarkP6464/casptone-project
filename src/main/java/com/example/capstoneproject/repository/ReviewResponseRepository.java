@@ -18,6 +18,7 @@ public interface ReviewResponseRepository extends JpaRepository<ReviewResponse, 
     Optional<ReviewResponse> findByReviewRequest_Id(Integer requestId);
 
     Optional<ReviewResponse> findByReviewRequest_ExpertIdAndId(Integer expertId, Integer responseId);
+    Optional<ReviewResponse> findByReviewRequest_ExpertIdAndReviewRequest_Id(Integer expertId, Integer requestId);
 
     List<ReviewResponse> findAllByReviewRequest_ExpertId(Integer expertId);
 
