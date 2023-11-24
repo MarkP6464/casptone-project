@@ -425,7 +425,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 if (dto.getOverall() != null && !dto.getOverall().equals(reviewResponse.getOverall())) {
                     reviewResponse.setOverall(dto.getOverall());
                 }
-                reviewResponse.toCvBodyReview(dto.getCv());
+                if(dto.getCv()!=null){
+                    reviewResponse.toCvBodyReview(dto.getCv());
+                }
                 reviewResponse.setStatus(StatusReview.Draft);
                 reviewResponseRepository.save(reviewResponse);
                 return true;
