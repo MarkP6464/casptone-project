@@ -56,7 +56,7 @@ public class ReviewResponseController {
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/overall")
     @PreAuthorize("hasAuthority('update:expert')")
-    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @RequestBody ReviewResponseUpdateDto dto)  {
+    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @RequestBody ReviewResponseUpdateDto dto) throws JsonProcessingException {
         if(reviewResponseService.updateReviewResponse(expertId, responseId,dto)){
             return ResponseEntity.ok("Save successful.");
         }

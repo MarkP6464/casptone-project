@@ -417,7 +417,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) {
+    public boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) throws JsonProcessingException {
         Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
@@ -425,9 +425,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 if (dto.getOverall() != null && !dto.getOverall().equals(reviewResponse.getOverall())) {
                     reviewResponse.setOverall(dto.getOverall());
                 }
-                if (dto.getBody() != null) {
-                    reviewResponse.setFeedbackDetail(dto.getBody());
-                }
+                reviewResponse.toCvBodyReview(dto.getCv());
                 reviewResponse.setStatus(StatusReview.Draft);
                 reviewResponseRepository.save(reviewResponse);
                 return true;

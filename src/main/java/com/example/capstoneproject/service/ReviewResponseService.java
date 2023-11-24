@@ -17,7 +17,7 @@ public interface ReviewResponseService {
 
     boolean updateComment(Integer expertId, Integer responseId, String commentId, CommentNewDto dto) throws JsonProcessingException;
 
-    boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto);
+    boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) throws JsonProcessingException;
 
     boolean publicReviewResponse(Integer expertId, Integer responseId);
 
