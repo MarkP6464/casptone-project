@@ -24,8 +24,6 @@ services:
       - MYSQL_DATABASE=capstone
     expose:
       - 3306
-    volumes:
-      - db:/var/lib/mysql
 networks:
   mono:
     external: true
