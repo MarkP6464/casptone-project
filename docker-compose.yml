@@ -2,7 +2,7 @@ version: "3"
 services:
   minh-fe:
     image: heaty566/capstone-minh-fe:latest
-    port:
+    ports:
       - "3000:3000"
     networks:
       - mono
@@ -12,7 +12,7 @@ services:
       - minh-db
     env_file:
       - .env
-    port:
+    ports:
       - "8080:8080"
     networks:
       - mono
@@ -22,7 +22,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=capstone
-    port:
+    ports:
       - "3306:3306"
     networks:
       - mono
