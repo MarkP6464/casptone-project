@@ -25,7 +25,7 @@ jobs:
         uses: fifsky/ssh-action@master
         with:
           command: |
-            cd app/minh/capstone-project
+            cd /home/ubuntu/app/minh/casptone-project/
             sudo docker-compose pull
             sudo docker-compose up -d
           host: ${{ secrets.HOST }}
