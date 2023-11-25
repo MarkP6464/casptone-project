@@ -8,12 +8,24 @@ services:
       - mono
   minh-server:
     image: minhptq/capstone-minh-server:latest
+    depends_on:
+      - minh-db
     env_file:
       - .env
     expose:
       - 8080
     networks:
       - mono
+  minh-db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=capstone
+    expose:
+      - 3306
+    volumes:
+      - db:/var/lib/mysql
 networks:
   mono:
     external: true
