@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.MoneyType;
@@ -74,7 +75,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
-        String orderInfo = "Dang ky thanh vien VIP cua KitchenZ";
+        String orderInfo = "CvBuilder";
 //            String domain = "https://cvbuilder.monoinfinity.net";
         String domain = "http://localhost:8080";
 
@@ -127,6 +128,11 @@ public class TransactionServiceImpl implements TransactionService {
             }
             Users user = usersService.getUsersById(Integer.parseInt(uid));
             if (Objects.nonNull(user)){
+                if (user instanceof HR){
+                    HR hr = (HR) user;
+                    hr.setVip(true);
+                    usersRepository.save(hr);
+                } else
                 if (transactionType.equals("CREDIT"))  {
                     user.setAccountBalance((user.getAccountBalance() + expenditure));
                 }

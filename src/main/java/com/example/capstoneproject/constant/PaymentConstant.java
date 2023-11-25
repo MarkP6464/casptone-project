@@ -7,4 +7,7 @@ public class PaymentConstant {
 
     @Value("${quota.ratio}")
     public static Long quotaRatio;
+
+    @Value("${vip.ratio}")
+    public static Long vipRatio;
 }
