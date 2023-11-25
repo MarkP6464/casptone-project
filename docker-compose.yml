@@ -1,0 +1,19 @@
+version: "3"
+services:
+  minh-fe:
+    image: heaty566/capstone-minh-fe:latest
+    expose:
+      - 3000
+    networks:
+      - mono
+  minh-server:
+    image: minhptq/capstone-minh-server:latest
+    env_file:
+      - .env
+    expose:
+      - 8080
+    networks:
+      - mono
+networks:
+  mono:
+    external: true
