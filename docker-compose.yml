@@ -24,6 +24,8 @@ services:
       - MYSQL_DATABASE=capstone
     expose:
       - 3306
+    networks:
+      - mono
 networks:
   mono:
     external: true
