@@ -88,12 +88,7 @@ public class ExpertServiceImpl implements ExpertService {
                     Optional<Cv> cvOptional = cvRepository.findById(cvId);
                     if(cvOptional.isPresent()){
                         Cv cv = cvOptional.get();
-                        historyService.create(expertId,cv.getId());
-                        List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
-                        if(histories!=null){
-                            History history = histories.get(0);
-                            expert.setHistoryId(history.getId());
-                        }
+                        expert.setCvId(cv.getId());
                     }else{
                         throw new BadRequestException("Cv ID not found.");
                     }
@@ -122,11 +117,11 @@ public class ExpertServiceImpl implements ExpertService {
                 expertConfigViewDto.setAbout(expert.getAbout());
                 expertConfigViewDto.setExperiences(expert.getExperience());
                 expertConfigViewDto.setPrice(expert.getPrice());
-                if(expert.getHistoryId()!=null){
-                    Optional<History> historyOptional = historyRepository.findById(expert.getHistoryId());
-                    if(historyOptional.isPresent()){
-                        History history = historyOptional.get();
-                        expertConfigViewDto.setCv(history.getCv().getResumeName());
+                if(expert.getCvId()!=null){
+                    Optional<Cv> cvOptional = cvRepository.findById(expert.getCvId());
+                    if(cvOptional.isPresent()){
+                        Cv cv = cvOptional.get();
+                        expertConfigViewDto.setCv(cv.getResumeName());
                     }
                 }
                 return expertConfigViewDto;

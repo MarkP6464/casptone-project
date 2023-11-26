@@ -24,6 +24,6 @@ public class Expert extends Users{
 
     private Integer experience;
 
-    private Integer historyId;
+    private Integer cvId;
 
 }
