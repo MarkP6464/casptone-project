@@ -127,11 +127,15 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByExpertIdAndId(expertId,requestId);
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
-            reviewRequest.setStatus(StatusReview.Processing);
-            reviewRequestRepository.save(reviewRequest);
-            reviewResponseService.createReviewResponse(reviewRequest.getCv().getId(), reviewRequest.getId());
-            sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-            return "Accept successful";
+            if(reviewRequest.getStatus()==StatusReview.Waiting){
+                reviewRequest.setStatus(StatusReview.Processing);
+                reviewRequestRepository.save(reviewRequest);
+                reviewResponseService.createReviewResponse(reviewRequest.getCv().getId(), reviewRequest.getId());
+                sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                return "Accept successful";
+            }else{
+                return "You can only accept requests that have a status of Waiting.";
+            }
         } else {
             throw new RuntimeException("Expert ID incorrect or Request ID incorrect");
         }
