@@ -538,6 +538,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterDto.setDate(coverLetter.getDate());
                 coverLetterDto.setCompany(coverLetter.getCompany());
                 coverLetterDto.setDescription(coverLetter.getDescription());
+                coverLetterDto.setCvId(coverLetter.getCv().getId());
                 coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterDto.class));
             }
         }else {
