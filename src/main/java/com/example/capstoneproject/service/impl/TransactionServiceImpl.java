@@ -76,8 +76,8 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-//            String domain = "https://cvbuilder.monoinfinity.net";
-        String domain = "http://localhost:8080";
+        String domain = "http://42.119.236.249:30080";
+//        String domain = "http://localhost:8080";
 
         String returnURL = domain + "/transaction/query-transaction";
         String notifyURL = domain + "/transaction/query-transaction";
