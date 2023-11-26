@@ -33,7 +33,7 @@ public class JobPostingViewUserDetailDto {
 
     private String salary;
 
-    private String skill;
+    private String[] skill;
 
     private Integer view;
 
