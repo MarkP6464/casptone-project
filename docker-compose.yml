@@ -16,6 +16,8 @@ services:
       - "8080:8080"
     networks:
       - mono
+    links:
+      - minh-db:minh-db
   minh-db:
     image: mysql:8.0
     restart: unless-stopped
