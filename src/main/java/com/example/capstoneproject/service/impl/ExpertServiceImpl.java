@@ -56,7 +56,7 @@ public class ExpertServiceImpl implements ExpertService {
     UsersRepository usersRepository;
 
     @Override
-    public boolean updateExpert(Integer expertId, Integer cvId, ExpertUpdateDto dto) throws JsonProcessingException {
+    public boolean updateExpert(Integer expertId, ExpertUpdateDto dto) {
         Users expertOptional = expertRepository.findExpertByIdAndRole_RoleName(expertId, EXPERT);
         if (Objects.nonNull(expertOptional)) {
             if (expertOptional instanceof Expert) {
@@ -84,8 +84,8 @@ public class ExpertServiceImpl implements ExpertService {
                 if (dto.getPrice() != null && !dto.getPrice().equals(expert.getPrice())) {
                     expert.setPrice(dto.getPrice());
                 }
-                if(cvId!=null){
-                    Optional<Cv> cvOptional = cvRepository.findById(cvId);
+                if(dto.getCvId()!=null){
+                    Optional<Cv> cvOptional = cvRepository.findById(dto.getCvId());
                     if(cvOptional.isPresent()){
                         Cv cv = cvOptional.get();
                         expert.setCvId(cv.getId());

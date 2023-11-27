@@ -22,4 +22,6 @@ public class ExpertUpdateDto {
     private Integer experiences;
 
     private Double price;
+
+    private Integer cvId;
 }
