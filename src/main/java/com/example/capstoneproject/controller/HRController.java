@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.HRDto;
+import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.HRService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +34,7 @@ public class HRController {
 
     @GetMapping("/register-vip")
     @PreAuthorize("hasAnyAuthority('create:hr')")
-    public ResponseEntity<?> registerVip() throws Exception {
-        return ResponseEntity.ok(hrService.register());
+    public ResponseEntity<?> registerVip(TransactionDto transactionDto) throws Exception {
+        return ResponseEntity.ok(hrService.register(transactionDto.getExpenditure(), transactionDto.getConversionAmount()));
     }
 }

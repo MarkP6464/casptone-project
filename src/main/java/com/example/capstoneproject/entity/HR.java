@@ -30,4 +30,6 @@ public class HR extends Users{
     @Column(name = "company_description", columnDefinition = "NVARCHAR(200)")
     private String companyDescription;
 
+    private LocalDate expiredDay;
+
 }

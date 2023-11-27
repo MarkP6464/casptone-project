@@ -9,4 +9,5 @@ import java.util.List;
 
 @Repository
 public interface HRRepository extends JpaRepository<HR, Integer> {
+    List<HR> findAllByStatusAndSubscriptionTrue(String status);
 }

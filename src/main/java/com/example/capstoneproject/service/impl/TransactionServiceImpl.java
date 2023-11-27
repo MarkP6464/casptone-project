@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.constant.PaymentConstant;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
@@ -76,8 +77,7 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-        String domain = "http://42.119.236.249:30080";
-//        String domain = "http://localhost:8080";
+        String domain = "https://cvbuilder.monoinfinity.net";
 
         String returnURL = domain + "/transaction/query-transaction";
         String notifyURL = domain + "/transaction/query-transaction";
@@ -130,10 +130,15 @@ public class TransactionServiceImpl implements TransactionService {
             if (Objects.nonNull(user)){
                 if (user instanceof HR){
                     HR hr = (HR) user;
+                    if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
+                        hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
+                    } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
+                        hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
+                    }
                     hr.setVip(true);
                     usersRepository.save(hr);
                 } else
-                if (transactionType.equals("CREDIT"))  {
+                if (MoneyType.CREDIT.equals(transactionType))  {
                     user.setAccountBalance((user.getAccountBalance() + expenditure));
                 }
             }

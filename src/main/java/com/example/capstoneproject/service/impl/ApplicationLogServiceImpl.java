@@ -247,7 +247,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             throw new BadRequestException("CV ID not exist in User ID.");
         }
     }
-    private void sendEmail(String toEmail, String subject, String message) {
+    public static void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";
         String username = "cvbuilder.ai@gmail.com";

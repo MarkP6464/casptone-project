@@ -7,6 +7,8 @@ import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.ReviewRequest;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.MoneyType;
 import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.enums.TransactionType;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -20,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,30 +61,51 @@ public class HRServiceImpl implements HRService {
     }
 
     @Override
-    public HRDto register() throws Exception {
+    public HRDto register(Long expenditure, Long conversionAmount) throws Exception {
         Users users = (Users) SecurityUtil.getLoginUser();
         if (users instanceof HR){
             HR hr = (HR) users;
             TransactionDto transactionDto = new TransactionDto();
-            transactionDto.setExpenditure(PaymentConstant.vipRatio);
-            transactionDto.setTransactionType(TransactionType.ADD);
-            transactionService.create(transactionDto);
+            if (PaymentConstant.vipAMonthRatio.equals(expenditure) || PaymentConstant.vipAYearRatio.equals(expenditure)){
+                if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
+                    if (Long.valueOf(30).equals(conversionAmount)){
+                        transactionDto.setResponseMessage("extend 1 month subscription");
+                        transactionDto.setExpenditure(expenditure);
+                        transactionDto.setTransactionType(TransactionType.ADD);
+                        transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
+                    }else if (Long.valueOf(365).equals(conversionAmount)){
+                        transactionDto.setResponseMessage("extend 1 year subscription");
+                        transactionDto.setExpenditure(expenditure);
+                        transactionDto.setTransactionType(TransactionType.ADD);
+                        transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
+                    }else {
+                        throw new BadRequestException("Not a valid register subscription params");
+                    }
+                }
+                transactionService.create(transactionDto);
+            }else {
+                throw new BadRequestException("Not a valid register subscription params");
+            }
         } else {
             throw new ForbiddenException("You are not HR!");
         }
         return null;
     }
-//    @Scheduled(cron = "0 0 0 * * ?")
-//    public void checkSubscription(){
-//        LocalDateTime currentDateTime = LocalDateTime.now();
-//        List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByDeadline(currentDateTime);
-//        for (ReviewRequest reviewRequest : reviewRequests) {
-//            reviewRequest.setStatus(StatusReview.Overdue);
-//            reviewRequestRepository.save(reviewRequest);
-//            if(reviewRequestRepository.countByExpertIdAndStatus(reviewRequest.getExpertId(), StatusReview.Overdue)>=3){
-//                expertService.punishExpert(reviewRequest.getExpertId());
-//            }
-//        }
-//        expertService.unPunishExpert();
-//    }
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void checkSubscription(){
+        LocalDate currentDate = LocalDate.now();
+        List<HR> hrList = hrRepository.findAllByStatusAndSubscriptionTrue(BasicStatus.ACTIVE.toString());
+        for (HR hr : hrList) {
+            if (currentDate.isAfter(hr.getExpiredDay())){
+                if (Duration.between(currentDate, hr.getExpiredDay()).toDays() == 1L){
+                    ApplicationLogServiceImpl.sendEmail(hr.getEmail(), "CvBuilder subscription is going to expired!"
+                            , "Dear user " + hr.getName() + ", your subscription is going to expired on " + hr.getExpiredDay()
+                                    + ". CvBuilder apologise for this inconvenience.");
+                } else if (Duration.between(currentDate, hr.getExpiredDay()).toDays() == 0L){
+                    ApplicationLogServiceImpl.sendEmail(hr.getEmail(), "CvBuilder subscription is going to expired!"
+                            , "Dear user " + hr.getName() + ", your subscription is expired! Thanks for your using.");
+                }
+            }
+        }
+    }
 }
