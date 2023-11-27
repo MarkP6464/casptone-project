@@ -521,15 +521,19 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndReviewRequest_Id(expert.getId(), requestId);
             if (reviewResponseOptional.isPresent()) {
                 ReviewResponse reviewResponse = reviewResponseOptional.get();
-                reviewResponseDto.setId(reviewResponse.getId());
-                reviewResponseDto.setOverall(reviewResponse.getOverall());
-                if(reviewResponse.getScore()!=null){
-                    reviewResponseDto.setScore(reviewResponse.getScore());
+                if(reviewResponse.getStatus()==null){
+                    throw new BadRequestException("Please accept the request to view details.");
+                }else{
+                    reviewResponseDto.setId(reviewResponse.getId());
+                    reviewResponseDto.setOverall(reviewResponse.getOverall());
+                    if(reviewResponse.getScore()!=null){
+                        reviewResponseDto.setScore(reviewResponse.getScore());
+                    }
+                    reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
+                    reviewResponseDto.setComment(reviewResponse.getComment());
+                    ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
+                    reviewResponseDto.setRequest(reviewRequestViewDto);
                 }
-                reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
-                reviewResponseDto.setComment(reviewResponse.getComment());
-                ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
-                reviewResponseDto.setRequest(reviewRequestViewDto);
             }
             return reviewResponseDto;
         } else {
