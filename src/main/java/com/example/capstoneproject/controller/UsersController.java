@@ -6,7 +6,9 @@ import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.service.UsersService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,11 @@ public class UsersController {
     public UsersViewDto getAllInfo(@PathVariable("user-id") Integer userId) {
         Users user = UsersService.getUsersById(userId);
         return usersMapper.toView(user);
+    }
+
+    @GetMapping("/{user-id}/job-title/company/config")
+    public ResponseEntity<?> getJobTitleInfo(@PathVariable("user-id") Integer userId) throws JsonProcessingException {
+        return ResponseEntity.ok(UsersService.getJobTitleUser(userId));
     }
 
     @GetMapping("/{user-id}/micro")

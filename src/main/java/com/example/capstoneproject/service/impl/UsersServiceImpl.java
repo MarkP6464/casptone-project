@@ -1,26 +1,39 @@
 package com.example.capstoneproject.service.impl;
 
+import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.Dto.ExperienceRoleDto;
 import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.UsersViewDto;
+import com.example.capstoneproject.Dto.responses.UserJobTitleViewDto;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.mapper.UsersMapper;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.UsersService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integer> implements UsersService {
 
     @Autowired
     UsersRepository UsersRepository;
+
+    @Autowired
+    CvRepository cvRepository;
 
     @Autowired
     UsersMapper UsersMapper;
@@ -70,6 +83,27 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
         }else {
             return null;
         }
+    }
+
+    @Override
+    public List<UserJobTitleViewDto> getJobTitleUser(Integer userId) throws JsonProcessingException {
+        List<Cv> cvs = cvRepository.findAllByUsersIdAndStatus(userId, BasicStatus.ACTIVE);
+        List<UserJobTitleViewDto> jobTitles = new ArrayList<>();
+        if (!cvs.isEmpty()) {
+            for (Cv cv : cvs) {
+                CvBodyDto cvBodyDto = cv.deserialize();
+                cvBodyDto.getExperiences().stream()
+//                .filter(x -> x.getIsDisplay())
+                        .forEach(x -> {
+                            UserJobTitleViewDto experienceRoleDto = new UserJobTitleViewDto();
+                            experienceRoleDto.setJobTitle(x.getRole());
+                            experienceRoleDto.setCompany(x.getCompanyName());
+                            jobTitles.add(experienceRoleDto);
+                        });
+            }
+        }
+
+        return jobTitles;
     }
 
 }
