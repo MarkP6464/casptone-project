@@ -430,14 +430,21 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public CoverLetterViewDto createCoverLetter(Integer userId, CoverLetterAddDto dto) {
-        CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
-        coverLetter.setTitle(dto.getTitle());
-        CoverLetter saved = coverLetterRepository.save(coverLetter);
-        CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
-        coverLetterViewDto.setId(saved.getId());
-        coverLetterViewDto.setTitle(saved.getTitle());
-        return modelMapper.map(saved, CoverLetterViewDto.class);
+    public CoverLetterViewDto createCoverLetter(Integer userId, Integer cvId, CoverLetterAddDto dto) {
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
+            coverLetter.setTitle(dto.getTitle());
+            coverLetter.setCv(cv);
+            CoverLetter saved = coverLetterRepository.save(coverLetter);
+            CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
+            coverLetterViewDto.setId(saved.getId());
+            coverLetterViewDto.setTitle(saved.getTitle());
+            return modelMapper.map(saved, CoverLetterViewDto.class);
+        }else{
+            throw new BadRequestException("Cv ID not found.");
+        }
     }
 
     @Override
@@ -531,6 +538,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterDto.setDate(coverLetter.getDate());
                 coverLetterDto.setCompany(coverLetter.getCompany());
                 coverLetterDto.setDescription(coverLetter.getDescription());
+                coverLetterDto.setCvId(coverLetter.getCv().getId());
                 coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterDto.class));
             }
         }else {

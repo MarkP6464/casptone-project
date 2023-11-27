@@ -13,10 +13,14 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.CoreMap;
 import com.example.capstoneproject.service.EvaluateService;
 import edu.stanford.nlp.pipeline.*;
+import org.languagetool.JLanguageTool;
+import org.languagetool.language.BritishEnglish;
+import org.languagetool.rules.RuleMatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,17 +58,11 @@ public class EvaluateServiceImpl implements EvaluateService {
     @Autowired
     JobDescriptionRepository jobDescriptionRepository;
 
+    public static JLanguageTool langTool = new JLanguageTool(new BritishEnglish());
+
     @Override
     public List<BulletPointDto> checkSentences(String text) {
         List<String> sentences = splitText(text);
-//        ResultDto result = new ResultDto();
-//        List<BulletPointDto> shortBulletPoints = new ArrayList<>();
-//        List<BulletPointDto> punctuatedBulletPoints = new ArrayList<>();
-//        List<BulletPointDto> numberBulletPoints = new ArrayList<>();
-//        List<BulletPointDto> personalPronounsBulletPoints = new ArrayList<>();
-//        List<BulletPointDto> fillerBulletPoints = new ArrayList<>();
-//        List<BulletPointDto> quantifiedBulletPoints = new ArrayList<>();
-//        List<BulletPointDto> buzzwordBulletPoints = new ArrayList<>();
 
         List<BulletPointDto> allBulletPoints = new ArrayList<>();
 
@@ -124,7 +122,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
-            errorBulletCount.setResult("Only " + validShortBulletCount + " found in this section.");
+            errorBulletCount.setResult("Find " + validShortBulletCount + " found in this section.");
             errorBulletCount.setStatus(SectionLogStatus.Warning);
             allBulletPoints.add(errorBulletCount);
         } else {
@@ -193,34 +191,24 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletQuantified);
         }
 
-        // Check for Buzzwords in the sentences
-//        String buzzwords = checkBuzzword(sentences);
-//        if (!buzzwords.isEmpty()) {
-//            BulletPointDto errorBulletBuzzword = new BulletPointDto();
-//            Evaluate evaluate = evaluateRepository.findById(3);
-//            errorBulletBuzzword.setTitle(evaluate.getTitle());
-//            errorBulletBuzzword.setDescription(evaluate.getDescription());
-//            errorBulletBuzzword.setResult("Take a look at bullet " + quantified + ".");
-//            errorBulletBuzzword.setStatus("Warning");
-//            buzzwordBulletPoints.add(errorBulletBuzzword);
-//        }else {
-//            BulletPointDto errorBulletBuzzword = new BulletPointDto();
-//            Evaluate evaluate = evaluateRepository.findById(3);
-//            errorBulletBuzzword.setTitle(evaluate.getTitle());
-//            errorBulletBuzzword.setDescription(evaluate.getDescription());
-//            errorBulletBuzzword.setStatus("Pass");
-//            buzzwordBulletPoints.add(errorBulletBuzzword);
-//        }
-
-//        result.setEvaluate(shortBulletPoints);
-//        result.setEvaluate(punctuatedBulletPoints);
-//        result.setEvaluate(numberBulletPoints);
-//        result.setEvaluate(personalPronounsBulletPoints);
-//        result.setEvaluate(fillerBulletPoints);
-//        result.setEvaluate(quantifiedBulletPoints);
-//        result.setEvaluate(buzzwordBulletPoints);
-
-//        result.setEvaluate(allBulletPoints);
+        // Check for Grammar in the sentences
+        String buzzwords = checkGrammar(sentences);
+        if (!buzzwords.isEmpty()) {
+            BulletPointDto errorBulletGramar = new BulletPointDto();
+            Evaluate evaluate = evaluateRepository.findById(7);
+            errorBulletGramar.setTitle(evaluate.getTitle());
+            errorBulletGramar.setDescription(evaluate.getDescription());
+            errorBulletGramar.setResult(buzzwords);
+            errorBulletGramar.setStatus(SectionLogStatus.Error);
+            allBulletPoints.add(errorBulletGramar);
+        }else {
+            BulletPointDto errorBulletGramar = new BulletPointDto();
+            Evaluate evaluate = evaluateRepository.findById(7);
+            errorBulletGramar.setTitle(evaluate.getTitle());
+            errorBulletGramar.setDescription(evaluate.getDescription());
+            errorBulletGramar.setStatus(SectionLogStatus.Pass);
+            allBulletPoints.add(errorBulletGramar);
+        }
 
         return allBulletPoints;
     }
@@ -356,6 +344,25 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletQuantified);
         }
 
+        // Check for Grammar in the sentences
+        String buzzwords = checkGrammar(sentences);
+        if (!buzzwords.isEmpty()) {
+            BulletPointDto errorBulletGramar = new BulletPointDto();
+            Evaluate evaluate = evaluateRepository.findById(7);
+            errorBulletGramar.setTitle(evaluate.getTitle());
+            errorBulletGramar.setDescription(evaluate.getDescription());
+            errorBulletGramar.setResult(buzzwords);
+            errorBulletGramar.setStatus(SectionLogStatus.Error);
+            allBulletPoints.add(errorBulletGramar);
+        }else {
+            BulletPointDto errorBulletGramar = new BulletPointDto();
+            Evaluate evaluate = evaluateRepository.findById(7);
+            errorBulletGramar.setTitle(evaluate.getTitle());
+            errorBulletGramar.setDescription(evaluate.getDescription());
+            errorBulletGramar.setStatus(SectionLogStatus.Pass);
+            allBulletPoints.add(errorBulletGramar);
+        }
+
         return allBulletPoints;
     }
 
@@ -478,15 +485,6 @@ public class EvaluateServiceImpl implements EvaluateService {
         return atsList;
     }
 
-
-//    @Override
-//    public List<AtsDto> ListBuzzword() {
-//        String message1 = "Provide list of Buzzwords (no explanation needed)";
-//        String response = chatGPTService.chatWithGPT(message1);
-//        List<AtsDto> buzzwordList = extractBuzzwords(response);
-//        return buzzwordList;
-//    }
-
     public List<String> splitText(String text) {
         List<String> resultList = new ArrayList<>();
         String[] splitValues = text.split("• ");
@@ -500,12 +498,24 @@ public class EvaluateServiceImpl implements EvaluateService {
         return resultList;
     }
 
+    public String checkGrammar(List<String> sentences1) {
+        StringBuilder result = new StringBuilder();
+        try {
+            for (String sentenceText : sentences1) {
+                List<RuleMatch> matches = langTool.check(sentenceText);
+                for (RuleMatch match : matches) {
+                    result.append(match.getMessage().replaceAll("<[^>]*>", "").replaceAll("\\?$", "").trim()).append(". ");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+    }
+
     private String checkPersonalPronouns(List<String> sentences1) {
         StringBuilder result = new StringBuilder();
         boolean firstMatch = true;
-//        Properties props = new Properties();
-//        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-//        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         for (int i = 0; i < sentences1.size(); i++) {
             String sentenceText = sentences1.get(i);
             Annotation document = new Annotation(sentenceText);
@@ -537,9 +547,6 @@ public class EvaluateServiceImpl implements EvaluateService {
     private String checkFiller(List<String> sentences1) {
         StringBuilder result = new StringBuilder();
         boolean firstMatch = true;
-//        Properties props = new Properties();
-//        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-//        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         for (int i = 0; i < sentences1.size(); i++) {
             String sentenceText = sentences1.get(i);
             Annotation document = new Annotation(sentenceText);
@@ -567,29 +574,6 @@ public class EvaluateServiceImpl implements EvaluateService {
         return result.toString();
     }
 
-    private String checkBuzzword(List<String> sentences1) {
-        List<AtsDto> buzzwordList = new ArrayList<>();
-
-        while (buzzwordList.isEmpty()) {
-            String message1 = "Provide list of Buzzwords (no explanation needed)";
-            String response = chatGPTService.chatWithGPT(message1);
-            buzzwordList = extractBuzzwords(response);
-        }
-        StringBuilder resultBuilder = new StringBuilder();
-
-        for (String sentence : sentences1) {
-            for (AtsDto buzzword : buzzwordList) {
-                String buzzwordText = buzzword.getAts();
-                if (sentence.contains(buzzwordText)) {
-                    resultBuilder.append(sentence).append("\n");
-                    break;
-                }
-            }
-        }
-
-        return resultBuilder.toString();
-    }
-
     private String containsNumber(List<String> sentences1) {
         List<Integer> errorIndices = new ArrayList<>();
 
@@ -614,23 +598,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             return "";
         }
     }
-
-//    public static List<AtsDto> extractKeywords(String response) {
-//        List<AtsDto> keywordsList = new ArrayList<>();
-//        Pattern pattern = Pattern.compile(":\\s*(.*?)\\s*$", Pattern.DOTALL);
-//        Matcher matcher = pattern.matcher(response);
-//
-//        while (matcher.find()) {
-//            String[] keywords = matcher.group(1).split(",\\s*|\n\\d+\\.\\s*");
-//            for (String keyword : keywords) {
-//                AtsDto atsDto = new AtsDto();
-//                atsDto.setAst(keyword.trim());
-//                keywordsList.add(atsDto);
-//            }
-//        }
-//
-//        return keywordsList;
-//    }
     public static List<AtsDto> extractKeywords(String response) {
     List<AtsDto> keywordsList = new ArrayList<>();
     Pattern pattern = Pattern.compile("(\\d+\\.\\s*)(.*?)\\n|$");
@@ -650,22 +617,6 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     return keywordsList;
 }
-
-
-    private static List<AtsDto> extractBuzzwords(String input) {
-        List<AtsDto> buzzwordsList = new ArrayList<>();
-        Pattern pattern = Pattern.compile("([A-Za-z0-9\\s()]+)");
-
-        Matcher matcher = pattern.matcher(input);
-        while (matcher.find()) {
-            String buzzword = matcher.group(1).trim();
-            AtsDto atsDto = new AtsDto();
-            atsDto.setAts(buzzword);
-            buzzwordsList.add(atsDto);
-        }
-
-        return buzzwordsList;
-    }
 
 
 }

@@ -1,6 +1,8 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
+import com.example.capstoneproject.Dto.responses.ReviewResponseViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
@@ -12,6 +14,7 @@ import com.example.capstoneproject.service.ReviewResponseService;
 import com.example.capstoneproject.service.TransactionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -309,7 +312,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public boolean updateComment(Integer expertId, Integer responseId, String commentId, String newContent) throws JsonProcessingException {
+    public boolean updateComment(Integer expertId, Integer responseId, String commentId, CommentNewDto newContent) throws JsonProcessingException {
         Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
@@ -326,7 +329,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -344,7 +347,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -362,7 +365,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -380,7 +383,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -398,7 +401,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     // Nếu tìm thấy match, thì thay đổi nội dung của comment
                     if (matcher.find()) {
                         String oldComment = matcher.group(0);
-                        String newComment = "<comment id='" + commentId + "' content='" + newContent + "'>";
+                        String newComment = "<comment id='" + commentId + "' content='" + newContent.getComment() + "'>";
                         description = description.replace(oldComment, newComment);
                     }
 
@@ -417,16 +420,19 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) {
+    public boolean updateReviewResponse(Integer expertId, Integer responseId, ReviewResponseUpdateDto dto) throws JsonProcessingException {
         Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndId(expertId, responseId);
         if (reviewResponseOptional.isPresent()) {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
             if(reviewResponse.getStatus()!= StatusReview.Done){
                 if (dto.getOverall() != null && !dto.getOverall().equals(reviewResponse.getOverall())) {
                     reviewResponse.setOverall(dto.getOverall());
-                    reviewResponse.setStatus(StatusReview.Draft);
-                    reviewResponseRepository.save(reviewResponse);
                 }
+                if(dto.getCv()!=null){
+                    reviewResponse.toCvBodyReview(dto.getCv());
+                }
+                reviewResponse.setStatus(StatusReview.Draft);
+                reviewResponseRepository.save(reviewResponse);
                 return true;
             }else{
                 throw new BadRequestException("You dont cant edit this cv.");
@@ -462,9 +468,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
+    public ReviewResponseViewDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Done);
-        ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
+        ReviewResponseViewDto reviewResponseDto = new ReviewResponseViewDto();
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             if (Objects.equals(userId, reviewRequest.getCv().getUser().getId())) {
@@ -478,6 +484,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         reviewResponseDto.setScore(reviewResponse.getScore());
                     }
                     reviewResponseDto.setComment(reviewResponse.getComment());
+                    ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
+                    reviewResponseDto.setRequest(reviewRequestViewDto);
                     return reviewResponseDto;
                 }
             } else {
@@ -489,22 +497,43 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         return reviewResponseDto;
     }
 
+    @NotNull
+    private static ReviewRequestViewDto getReviewRequestViewDto(ReviewResponse reviewResponse) {
+        ReviewRequestViewDto reviewRequestViewDto = new ReviewRequestViewDto();
+        reviewRequestViewDto.setId(reviewResponse.getReviewRequest().getId());
+        reviewRequestViewDto.setResumeName(reviewResponse.getReviewRequest().getCv().getResumeName());
+        reviewRequestViewDto.setAvatar(reviewResponse.getReviewRequest().getCv().getUser().getAvatar());
+        reviewRequestViewDto.setName(reviewResponse.getReviewRequest().getCv().getUser().getName());
+        reviewRequestViewDto.setNote(reviewResponse.getReviewRequest().getNote());
+        reviewRequestViewDto.setPrice(reviewResponse.getReviewRequest().getPrice());
+        reviewRequestViewDto.setStatus(reviewResponse.getReviewRequest().getStatus());
+        reviewRequestViewDto.setReceivedDate(reviewResponse.getReviewRequest().getReceivedDate());
+        reviewRequestViewDto.setDeadline(reviewResponse.getReviewRequest().getDeadline());
+        return reviewRequestViewDto;
+    }
+
     @Override
-    public ReviewResponseDto getReviewResponse(Integer expertId, Integer requestId) throws JsonProcessingException {
+    public ReviewResponseViewDto getReviewResponse(Integer expertId, Integer requestId) throws JsonProcessingException {
         Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
-        ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
+        ReviewResponseViewDto reviewResponseDto = new ReviewResponseViewDto();
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
             Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndReviewRequest_Id(expert.getId(), requestId);
             if (reviewResponseOptional.isPresent()) {
                 ReviewResponse reviewResponse = reviewResponseOptional.get();
-                reviewResponseDto.setId(reviewResponse.getId());
-                reviewResponseDto.setOverall(reviewResponse.getOverall());
-                if(reviewResponse.getScore()!=null){
-                    reviewResponseDto.setScore(reviewResponse.getScore());
+                if(reviewResponse.getStatus()==null){
+                    throw new BadRequestException("Please accept the request to view details.");
+                }else{
+                    reviewResponseDto.setId(reviewResponse.getId());
+                    reviewResponseDto.setOverall(reviewResponse.getOverall());
+                    if(reviewResponse.getScore()!=null){
+                        reviewResponseDto.setScore(reviewResponse.getScore());
+                    }
+                    reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
+                    reviewResponseDto.setComment(reviewResponse.getComment());
+                    ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
+                    reviewResponseDto.setRequest(reviewRequestViewDto);
                 }
-                reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
-                reviewResponseDto.setComment(reviewResponse.getComment());
             }
             return reviewResponseDto;
         } else {

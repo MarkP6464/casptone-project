@@ -101,37 +101,41 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
-            Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
-            List<AtsDto> atsList;
-            JobDescriptionViewDto jobDescriptionViewDto = new JobDescriptionViewDto();
-            if (jobDescriptionOptional.isPresent()) {
-                JobDescription jobDescription = jobDescriptionOptional.get();
+            if(countWords(dto.getDescription())>30){
+                Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
+                List<AtsDto> atsList;
+                JobDescriptionViewDto jobDescriptionViewDto = new JobDescriptionViewDto();
+                if (jobDescriptionOptional.isPresent()) {
+                    JobDescription jobDescription = jobDescriptionOptional.get();
 
-                if(jobDescription.getTitle().equals(dto.getTitle())){
-                    jobDescription.setTitle(jobDescription.getTitle());
-                }else{
-                    jobDescription.setTitle(dto.getTitle());
-                }
-                if(dto.getDescription()!= null){
-                    if(isSubstringInString(jobDescription.getDescription(),dto.getDescription())){
-                        jobDescription.setDescription(jobDescription.getDescription());
-                        atsList = evaluateService.getAts(cvId,jobDescription.getId());
+                    if(jobDescription.getTitle().equals(dto.getTitle())){
+                        jobDescription.setTitle(jobDescription.getTitle());
                     }else{
-                        jobDescription.setDescription(dto.getDescription());
-                        atsRepository.deleteByJobDescriptionId(jobDescription.getId());
-                        atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto);
+                        jobDescription.setTitle(dto.getTitle());
                     }
-                }else{
-                    atsList = evaluateService.getAts(cvId,jobDescription.getId());
-                }
-                JobDescription updatedJobDescription = jobDescriptionRepository.save(jobDescription);
-                jobDescriptionViewDto.setTitle(updatedJobDescription.getTitle());
-                jobDescriptionViewDto.setDescription(updatedJobDescription.getDescription());
-                jobDescriptionViewDto.setAts(atsList);
+                    if(dto.getDescription()!= null){
+                        if(isSubstringInString(jobDescription.getDescription(),dto.getDescription())){
+                            jobDescription.setDescription(jobDescription.getDescription());
+                            atsList = evaluateService.getAts(cvId,jobDescription.getId());
+                        }else{
+                            jobDescription.setDescription(dto.getDescription());
+                            atsRepository.deleteByJobDescriptionId(jobDescription.getId());
+                            atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto);
+                        }
+                    }else{
+                        atsList = evaluateService.getAts(cvId,jobDescription.getId());
+                    }
+                    JobDescription updatedJobDescription = jobDescriptionRepository.save(jobDescription);
+                    jobDescriptionViewDto.setTitle(updatedJobDescription.getTitle());
+                    jobDescriptionViewDto.setDescription(updatedJobDescription.getDescription());
+                    jobDescriptionViewDto.setAts(atsList);
 
-                return jobDescriptionViewDto;
-            } else {
-                throw new Exception("Job description with ID " + cv.getJobDescription().getId() + " not found.");
+                    return jobDescriptionViewDto;
+                } else {
+                    throw new Exception("Job description with ID " + cv.getJobDescription().getId() + " not found.");
+                }
+            }else {
+                throw new BadRequestException("Description must be over 30 words.");
             }
         }else{
             throw new BadRequestException("Cv ID not found");
@@ -155,5 +159,17 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
         }
 
         return dp[fullLength][subLength] == subLength;
+    }
+
+    public static int countWords(String input) {
+        if (input == null || input.isEmpty()) {
+            return 0;
+        }
+
+        // Sử dụng biểu thức chính quy để tách các từ
+        String[] words = input.split("\\s+");
+
+        // Trả về số lượng từ
+        return words.length;
     }
 }

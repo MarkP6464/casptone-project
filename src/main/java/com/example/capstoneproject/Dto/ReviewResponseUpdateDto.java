@@ -10,4 +10,5 @@ import lombok.*;
 @Setter
 public class ReviewResponseUpdateDto {
     private String overall;
+    private CvBodyReviewDto cv;
 }

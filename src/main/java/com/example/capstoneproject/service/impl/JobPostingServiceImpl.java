@@ -67,7 +67,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setAvatar(dto.getAvatar());
             jobPosting.setAbout(dto.getAbout());
             jobPosting.setBenefit(dto.getBenefit());
-            jobPosting.setSkill(dto.getSkill());
+            jobPosting.setSkill(String.join(",", dto.getSkill()));
             jobPosting.setView(0);
             if(dto.getApplyAgain()==null){
                 jobPosting.setApplyAgain(0);
@@ -101,7 +101,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setAvatar(dto.getAvatar());
             jobPosting.setAbout(dto.getAbout());
             jobPosting.setBenefit(dto.getBenefit());
-            jobPosting.setSkill(dto.getSkill());
+            jobPosting.setSkill(String.join(",", dto.getSkill()));
             jobPosting.setView(0);
             if(dto.getApplyAgain()==null){
                 jobPosting.setApplyAgain(0);
@@ -161,7 +161,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                         jobPosting.setBenefit(dto.getBenefit());
                     }
                     if (dto.getSkill() != null && !dto.getSkill().equals(jobPosting.getSkill())) {
-                        jobPosting.setSkill(dto.getSkill());
+                        jobPosting.setSkill(String.join(",", dto.getSkill()));
                     }
 
                     if (dto.getSalary() != null && !dto.getSalary().equals(jobPosting.getSalary())) {
@@ -265,7 +265,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingViewDto.setAvatar(jobPosting.getAvatar());
                     jobPostingViewDto.setAbout(jobPosting.getAbout());
                     jobPostingViewDto.setBenefit(jobPosting.getBenefit());
-                    jobPostingViewDto.setSkill(jobPosting.getSkill());
+                    jobPostingViewDto.setSkill(jobPosting.getSkill().split(","));
                     jobPostingViewDto.setView(jobPosting.getView());
                     jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
                     jobPostingViewDto.setLocation(jobPosting.getLocation());
@@ -303,7 +303,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                 jobPostingViewDto.setAvatar(jobPosting.getAvatar());
                 jobPostingViewDto.setAbout(jobPosting.getAbout());
                 jobPostingViewDto.setBenefit(jobPosting.getBenefit());
-                jobPostingViewDto.setSkill(jobPosting.getSkill());
+                jobPostingViewDto.setSkill(jobPosting.getSkill().split(","));
                 jobPostingViewDto.setView(jobPosting.getView());
                 jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
                 jobPostingViewDto.setLocation(jobPosting.getLocation());

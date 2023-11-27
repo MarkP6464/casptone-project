@@ -36,7 +36,7 @@ public class JobPostingAddDto {
 
     private Integer applyAgain;
 
-    private String skill;
+    private String[] skill;
 
     private Integer view;
 

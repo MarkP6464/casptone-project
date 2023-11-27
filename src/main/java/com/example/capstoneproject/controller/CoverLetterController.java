@@ -85,10 +85,10 @@ public class CoverLetterController {
         return result;
     }
 
-    @PostMapping("/user/{user-id}/cv/cover-letter")
+    @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
     @PreAuthorize("hasAuthority('create:candidate')")
-    public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId, @RequestBody CoverLetterAddDto Dto) {
-        return coverLetterService.createCoverLetter(userId, Dto);
+    public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
+        return coverLetterService.createCoverLetter(userId, cvId, Dto);
     }
 
     @GetMapping("/user/{user-id}/cv/cover-letters")

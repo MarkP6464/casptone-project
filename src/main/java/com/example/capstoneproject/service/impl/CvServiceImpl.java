@@ -558,146 +558,10 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 }
             });
 
-            //Evaluate with Content
-//            int evaluateId = 1;
-//            for (int i = 1; i <= 5; i++) {
-//                Evaluate evaluate = evaluates.get(i - 1);
-//                List<Section> sections = cvRepository.findSectionsWithNonPassStatus(evaluateId, SectionLogStatus.Pass);
-//
-//                // Tạo một danh sách để lưu trữ các đối tượng có sự khác biệt
-//                List<ContentDetailDto> sameSections = new ArrayList<>();
-//
-//                // Lặp qua danh sách sectionCvDtos
-//                for (SectionCvDto sectionCvDto : sectionCvDtos) {
-//                    // Kiểm tra xem có section tương ứng trong danh sách sections không
-//                    for (Section section : sections) {
-//                        if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()) {
-//                            sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-//                        }
-//                    }
-//                }
-//
-//                // Tạo đối tượng ContentDto và thêm sameSections vào nó
-//                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
-//
-//                // Thêm contentDto vào danh sách content hoặc practice tùy thuộc vào i
-//                if (i <= 6) {
-//                    contentList.add(contentDto);
-//                } else {
-//                    practiceList.add(contentDto);
-//                }
-//                evaluateId++;
-//            }
-
             contentList = evaluateContentSections(cv, evaluates, sectionCvDtos);
 
-            //Evaluate with Best Practices
-//            for (int i = 6; i <= 11; i++) {
-//                Evaluate evaluate = evaluates.get(i);
-//
-//                List<ContentDetailDto> sameSections = new ArrayList<>();
-//
-//                //check location = null
-//                if (i == 6) {
-//                    List<Section> sections = cvRepository.findAllByTypeName(SectionEvaluate.experience);
-//                    // Lặp qua danh sách sectionCvDtos
-//                    for (SectionCvDto sectionCvDto : sectionCvDtos) {
-//                        // Kiểm tra xem có section tương ứng trong danh sách sections không
-//                        for (Section section : sections) {
-//                            if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
-//                                    && section.getTypeName() == SectionEvaluate.experience && sectionCvDto.getLocation() == null) {
-//                                sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                //check date = null
-//                if (i == 7) {
-//                    List<Section> sections = cvRepository.findAllByTypeNames(Arrays.asList(SectionEvaluate.experience, SectionEvaluate.project, SectionEvaluate.involvement));
-//                    // Lặp qua danh sách sectionCvDtos
-//                    for (SectionCvDto sectionCvDto : sectionCvDtos) {
-//                        // Kiểm tra xem có section tương ứng trong danh sách sections không
-//                        for (Section section : sections) {
-//                            if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
-//                                    && (sectionCvDto.getStartDate() == null || sectionCvDto.getEndDate() == null)) {
-//                                sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-//                            }
-//                        }
-//                    }
-//                }
-//                if (i == 8) {
-//                    Optional<Users> users = usersRepository.findUsersById(userId);
-//                    if (users.isPresent()) {
-//                        if (users.get().getPhone() != null) {
-//                            //checkAdd = false;
-//                        }
-//                    }
-//                }
-//                if (i == 9) {
-//                    Optional<Users> users = usersRepository.findUsersById(userId);
-//                    if (users.isPresent()) {
-//                        if (users.get().getLinkin() != null) {
-//                            //checkAdd = false;
-//                        }
-//                    }
-//                }
-//
-//                //check count word
-//                if (i == 10) {
-//                    if (totalWords[0] > 300) {
-//                        // Chuyển mảng totalWords thành chuỗi trước khi nối
-//                        String totalWordsString = Arrays.toString(totalWords);
-//
-//                        // Tạo đối tượng ContentDto và thêm sameSections và totalWordsString vào nó
-//                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription() + totalWordsString, sameSections);
-//
-//                        // Thêm contentDto vào danh sách content hoặc practice tùy thuộc vào i
-//                        if (i <= 6) {
-//                            contentList.add(contentDto);
-//                        } else {
-//                            practiceList.add(contentDto);
-//                        }
-//                    }
-//                }
-//                //chek summary
-//                if (i ==11){
-//                    Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-//                    if(cv1.getSummary()!=null || cv.getSummary().length()<30){
-//
-//                    }
-//                }
-//                    ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
-//
-//                    // Thêm contentDto vào danh sách content hoặc practice tùy thuộc vào i
-//                    if (i <= 6) {
-//                        contentList.add(contentDto);
-//                    } else {
-//                        practiceList.add(contentDto);
-//                    }
-//                evaluateId++;
-//            }
             practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
 
-
-            //Evaluate with Optimational
-//            for (int i = 12; i <= 13; i++) {
-//                Evaluate evaluate = evaluates.get(i);
-//                List<ContentDetailDto> sameSections = new ArrayList<>();
-//
-//                //check Ats = null
-//                if (i == 12) {
-//                    Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-//                    Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(getCv.getJobDescription().getId());
-//                    List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescription.get().getId());
-//                    if(ats!=null){
-//
-//                    }
-//                }
-//                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getMore(), evaluate.getDescription(), sameSections);
-//                optimizationList.add(contentDto);
-//                evaluateId++;
-//            }
             optimizationList = evaluateOptimational(evaluates, cvId);
 
             ScoreDto scoreDto = new ScoreDto(contentList, practiceList, optimizationList);
@@ -775,7 +639,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         List<ContentDto> contentList = new ArrayList<>();
         int evaluateId = 1;
 
-        for (int i = 1; i <= 6; i++) {
+        for (int i = 1; i <= 7; i++) {
             Evaluate evaluate = evaluates.get(i - 1);
             List<Section> sections = cvRepository.findSectionsWithNonPassStatus(evaluateId, SectionLogStatus.Pass);
 
@@ -783,7 +647,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
             ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
 
-            if (i <= 6) {
+            if (i <= 7) {
                 contentList.add(contentDto);
             }
 
@@ -811,12 +675,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     private List<ContentDto> evaluateBestPractices(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos, int userId, int cvId, int[] totalWords, Cv cv) {
         List<ContentDto> resultList = new ArrayList<>();
 
-        for (int i = 6; i < 12; i++) {
+        for (int i = 7; i < 13; i++) {
             Evaluate evaluate = evaluates.get(i);
             List<ContentDetailDto> sameSections = new ArrayList<>();
 
             switch (i) {
-                case 6:
+                case 7:
                     // Check location = null
                     List<Section> sections = cvRepository.findAllByTypeName(SectionEvaluate.experience);
                     for (SectionCvDto sectionCvDto : sectionCvDtos) {
@@ -832,7 +696,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 7:
+                case 8:
                     // Check date = null
                     List<Section> dateSections = cvRepository.findAllByTypeNames(Arrays.asList(SectionEvaluate.experience, SectionEvaluate.project, SectionEvaluate.involvement));
                     for (SectionCvDto sectionCvDto : sectionCvDtos) {
@@ -847,7 +711,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 8:
+                case 9:
                     // Check phone = null
                     Optional<Users> users = usersRepository.findUsersById(userId);
                     if (users.isPresent() && users.get().getPhone() != null) {
@@ -857,7 +721,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 9:
+                case 10:
                     // Check linkin = null
                     Optional<Users> users1 = usersRepository.findUsersById(userId);
                     if (users1.isPresent() && users1.get().getLinkin() != null) {
@@ -867,7 +731,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 10:
+                case 11:
                     // Check count word
                     if (totalWords[0] < 300) {
                         String totalWordsString = Arrays.toString(totalWords);
@@ -876,7 +740,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 11:
+                case 12:
                     // Check summary
                     Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
                     if (cv1.getSummary() == null || cv1.getSummary().length() < 30) {
@@ -895,12 +759,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     private List<ContentDto> evaluateOptimational(List<Evaluate> evaluates, int cvId) {
         List<ContentDto> contentDtoList = new ArrayList<>();
 
-        for (int i = 12; i < 13; i++) {
+        for (int i = 13; i < 14; i++) {
             Evaluate evaluate = evaluates.get(i);
             List<ContentDetailDto> sameSections = new ArrayList<>();
 
             switch (i) {
-                case 12:
+                case 13:
                     // Check Ats = null
                     Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
                     JobDescription jobDescription = getCv.getJobDescription();

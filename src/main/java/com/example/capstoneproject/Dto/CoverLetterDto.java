@@ -18,4 +18,5 @@ public class CoverLetterDto {
     private String company;
     private String description;
     private UserCoverLetterDto user;
+    private Integer cvId;
 }

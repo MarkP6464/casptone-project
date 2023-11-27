@@ -94,7 +94,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
+        <!-- https://mvnrepository.com/artifact/org.languagetool/languagetool-core -->
+        <dependency>
+            <groupId>org.languagetool</groupId>
+            <artifactId>language-en</artifactId>
+            <version>6.3</version>
+        </dependency>
+        <!-- Thanks for using https://jar-download.com -->
+
+
+
+        <!--        <dependency>-->
 <!--            <groupId>org.apache.opennlp</groupId>-->
 <!--            <artifactId>opennlp-tools</artifactId>-->
 <!--            <version>1.9.3</version>-->

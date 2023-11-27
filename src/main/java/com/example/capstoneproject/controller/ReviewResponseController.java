@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.CommentDto;
-import com.example.capstoneproject.Dto.ReviewRatingAddDto;
-import com.example.capstoneproject.Dto.ReviewResponseDto;
-import com.example.capstoneproject.Dto.ReviewResponseUpdateDto;
+import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.SendControl;
 import com.example.capstoneproject.service.ReviewResponseService;
@@ -40,10 +37,15 @@ public class ReviewResponseController {
         return ResponseEntity.ok(reviewResponseService.sendReviewRating(responseId,dto));
     }
 
-    @PutMapping("/expert/{expert-id}/review-response/{response-id}/comment/{commentId}")
+    @PutMapping("/expert/{expert-id}/review-response/{response-id}/comment/{comment-id}")
     @PreAuthorize("hasAuthority('update:expert')")
-    public ResponseEntity<?> putReviewResponse(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @PathVariable("commentId") String commentId,String newContent) throws JsonProcessingException {
-        return ResponseEntity.ok(reviewResponseService.updateComment(expertId, responseId,commentId,newContent));
+    public ResponseEntity<?> putReviewResponse(
+            @PathVariable("expert-id") Integer expertId,
+            @PathVariable("response-id") Integer responseId,
+            @PathVariable("comment-id") String commentId,
+            @RequestBody CommentNewDto dto
+    ) throws JsonProcessingException {
+        return ResponseEntity.ok(reviewResponseService.updateComment(expertId, responseId, commentId, dto));
     }
 
     @DeleteMapping("/expert/{expert-id}/review-response/{response-id}/comment/{comment-id}")
@@ -54,8 +56,12 @@ public class ReviewResponseController {
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/overall")
     @PreAuthorize("hasAuthority('update:expert')")
-    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @RequestBody ReviewResponseUpdateDto dto)  {
-        return ResponseEntity.ok(reviewResponseService.updateReviewResponse(expertId, responseId,dto));
+    public ResponseEntity<?> putReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId, @RequestBody ReviewResponseUpdateDto dto) throws JsonProcessingException {
+        if(reviewResponseService.updateReviewResponse(expertId, responseId,dto)){
+            return ResponseEntity.ok("Save successful.");
+        }
+        return ResponseEntity.ok("Save fail.");
+
     }
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/public")
