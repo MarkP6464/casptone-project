@@ -38,7 +38,7 @@ public class ReviewResponseController {
     }
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/comment/{comment-id}")
-//    @PreAuthorize("hasAuthority('update:expert')")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> putReviewResponse(
             @PathVariable("expert-id") Integer expertId,
             @PathVariable("response-id") Integer responseId,

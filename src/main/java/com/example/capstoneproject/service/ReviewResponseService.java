@@ -1,6 +1,8 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
+import com.example.capstoneproject.Dto.responses.ReviewResponseViewDto;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
@@ -21,8 +23,8 @@ public interface ReviewResponseService {
 
     boolean publicReviewResponse(Integer expertId, Integer responseId);
 
-    ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException;
-    ReviewResponseDto getReviewResponse(Integer expertId, Integer response) throws JsonProcessingException;
+    ReviewResponseViewDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException;
+    ReviewResponseViewDto getReviewResponse(Integer expertId, Integer response) throws JsonProcessingException;
     String sendReviewRating(Integer responseId, ReviewRatingAddDto dto);
 
 }

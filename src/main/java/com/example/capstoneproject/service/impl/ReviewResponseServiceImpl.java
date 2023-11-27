@@ -1,6 +1,8 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
+import com.example.capstoneproject.Dto.responses.ReviewResponseViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
@@ -12,6 +14,7 @@ import com.example.capstoneproject.service.ReviewResponseService;
 import com.example.capstoneproject.service.TransactionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -465,9 +468,9 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
     }
 
     @Override
-    public ReviewResponseDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
+    public ReviewResponseViewDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
         Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Done);
-        ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
+        ReviewResponseViewDto reviewResponseDto = new ReviewResponseViewDto();
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             if (Objects.equals(userId, reviewRequest.getCv().getUser().getId())) {
@@ -481,6 +484,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                         reviewResponseDto.setScore(reviewResponse.getScore());
                     }
                     reviewResponseDto.setComment(reviewResponse.getComment());
+                    ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
+                    reviewResponseDto.setRequest(reviewRequestViewDto);
                     return reviewResponseDto;
                 }
             } else {
@@ -492,10 +497,25 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         return reviewResponseDto;
     }
 
+    @NotNull
+    private static ReviewRequestViewDto getReviewRequestViewDto(ReviewResponse reviewResponse) {
+        ReviewRequestViewDto reviewRequestViewDto = new ReviewRequestViewDto();
+        reviewRequestViewDto.setId(reviewResponse.getReviewRequest().getId());
+        reviewRequestViewDto.setResumeName(reviewResponse.getReviewRequest().getCv().getResumeName());
+        reviewRequestViewDto.setAvatar(reviewResponse.getReviewRequest().getCv().getUser().getAvatar());
+        reviewRequestViewDto.setName(reviewResponse.getReviewRequest().getCv().getUser().getName());
+        reviewRequestViewDto.setNote(reviewResponse.getReviewRequest().getNote());
+        reviewRequestViewDto.setPrice(reviewResponse.getReviewRequest().getPrice());
+        reviewRequestViewDto.setStatus(reviewResponse.getReviewRequest().getStatus());
+        reviewRequestViewDto.setReceivedDate(reviewResponse.getReviewRequest().getReceivedDate());
+        reviewRequestViewDto.setDeadline(reviewResponse.getReviewRequest().getDeadline());
+        return reviewRequestViewDto;
+    }
+
     @Override
-    public ReviewResponseDto getReviewResponse(Integer expertId, Integer requestId) throws JsonProcessingException {
+    public ReviewResponseViewDto getReviewResponse(Integer expertId, Integer requestId) throws JsonProcessingException {
         Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
-        ReviewResponseDto reviewResponseDto = new ReviewResponseDto();
+        ReviewResponseViewDto reviewResponseDto = new ReviewResponseViewDto();
         if (expertOptional.isPresent()) {
             Expert expert = expertOptional.get();
             Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndReviewRequest_Id(expert.getId(), requestId);
@@ -508,6 +528,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 }
                 reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
                 reviewResponseDto.setComment(reviewResponse.getComment());
+                ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
+                reviewResponseDto.setRequest(reviewRequestViewDto);
             }
             return reviewResponseDto;
         } else {
