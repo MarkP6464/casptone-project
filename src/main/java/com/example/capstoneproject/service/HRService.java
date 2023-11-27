@@ -13,5 +13,5 @@ public interface HRService {
 
     HRDto update(HRDto dto);
 
-    HRDto register() throws Exception;
+    HRDto register(Long expenditure, Long conversionAmount) throws Exception;
 }

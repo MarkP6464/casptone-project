@@ -8,6 +8,9 @@ public class PaymentConstant {
     @Value("${quota.ratio}")
     public static Long quotaRatio;
 
-    @Value("${vip.ratio}")
-    public static Long vipRatio;
+    @Value("${vip.AMonthRatio}")
+    public static Long vipAMonthRatio;
+
+    @Value("${vip.AYearRatio}")
+    public static Long vipAYearRatio;
 }
