@@ -2,11 +2,9 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
-import com.example.capstoneproject.Dto.responses.ReviewRequestSecondViewDto;
 import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -23,8 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +31,9 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
 
     @Autowired
     ReviewRequestRepository reviewRequestRepository;
+
+    @Autowired
+    PriceOptionRepository priceOptionRepository;
 
     @Autowired
     ReviewResponseRepository reviewResponseRepository;
@@ -78,44 +78,59 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     }
 
     @Override
-    public ReviewRequestDto createReviewRequest(Integer cvId, Integer expertId, ReviewRequestAddDto dto) throws JsonProcessingException {
+    public String createReviewRequest(Integer cvId, Integer expertId, Integer optionId, ReviewRequestAddDto dto) throws JsonProcessingException {
         ReviewRequest reviewRequest = modelMapper.map(dto,ReviewRequest.class);
         Cv cv = cvService.getCvById(cvId);
         Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
         Optional<Expert> expertOptional = expertRepository.findByIdAndRole_RoleName(expertId,RoleType.EXPERT);
-        ReviewRequest saved;
         if(expertOptional.isPresent() && expertOptional.get().getPrice()!=null){
             Expert expert = expertOptional.get();
             if(expert.getPunish()){
                 throw new BadRequestException("This expert is currently being punished, please submit a review request later.");
             }else{
-                if (cv != null) {
-                    historyService.create(cv.getUser().getId(), cv.getId());
-                    List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
-                    if(histories!=null){
-                        History history = histories.get(0);
-                        if (usersOptional.isPresent()) {
-                            Users users = usersOptional.get();
-                            reviewRequest.setReceivedDate(dto.getDeadline());
-                            reviewRequest.setNote(dto.getNote());
-                            reviewRequest.setPrice(dto.getPrice());
-                            reviewRequest.setStatus(StatusReview.Waiting);
-                            reviewRequest.setExpertId(users.getId());
-                            reviewRequest.setHistoryId(history.getId());
-                            reviewRequest.setCv(cv);
-                            saved = reviewRequestRepository.save(reviewRequest);
-//                            acceptReviewRequest(expertId, saved.getId());
-                            sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                            transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), reviewRequest.getPrice());
-                            return reviewRequestMapper.mapEntityToDto(saved);
-                        } else {
-                            throw new BadRequestException("Expert ID not found");
+                Optional<PriceOption> priceOptionOptional = priceOptionRepository.findByExpertIdAndId(expert.getId(), optionId);
+                if(priceOptionOptional.isPresent()){
+                    PriceOption price = priceOptionOptional.get();
+
+                    Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+
+                    // Sử dụng Calendar để thêm 2 ngày
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(currentTimestamp);
+                    calendar.add(Calendar.DAY_OF_MONTH, price.getDay());
+
+                    // Lấy Timestamp sau khi cộng thêm
+                    Timestamp newTimestamp = new Timestamp(calendar.getTimeInMillis());
+                    if (cv != null) {
+                        historyService.create(cv.getUser().getId(), cv.getId());
+                        List<History> histories = historyRepository.findAllByCv_IdAndCv_StatusOrderByTimestampDesc(cvId, BasicStatus.ACTIVE);
+                        if(histories!=null){
+                            History history = histories.get(0);
+                            if (usersOptional.isPresent()) {
+                                Users users = usersOptional.get();
+                                reviewRequest.setReceivedDate(currentTimestamp);
+                                reviewRequest.setDeadline(newTimestamp);
+                                reviewRequest.setNote(dto.getNote());
+                                reviewRequest.setPrice(price.getPrice());
+                                reviewRequest.setStatus(StatusReview.Waiting);
+                                reviewRequest.setExpertId(users.getId());
+                                reviewRequest.setHistoryId(history.getId());
+                                reviewRequest.setCv(cv);
+                                reviewRequestRepository.save(reviewRequest);
+                                sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
+                                transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), Double.valueOf(reviewRequest.getPrice()));
+                                return "Send request successful.";
+                            } else {
+                                throw new BadRequestException("Expert ID not found");
+                            }
+                        }else{
+                            throw new BadRequestException("Please syn previous when send request");
                         }
-                    }else{
-                        throw new BadRequestException("Please syn previous when send request");
+                    } else {
+                        throw new BadRequestException("CV ID not found");
                     }
-                } else {
-                    throw new BadRequestException("CV ID not found");
+                }else{
+                    throw new BadRequestException("That option id does not exist in this expert.");
                 }
             }
         }
@@ -130,7 +145,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             if(reviewRequest.getStatus()==StatusReview.Waiting){
                 reviewRequest.setStatus(StatusReview.Processing);
                 reviewRequestRepository.save(reviewRequest);
-                reviewResponseService.createReviewResponse(reviewRequest.getCv().getId(), reviewRequest.getId());
+                reviewResponseService.createReviewResponse(reviewRequest.getHistoryId(), reviewRequest.getId());
                 sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
                 return "Accept successful";
             }else{
@@ -142,11 +157,10 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     }
 
     @Override
-    public List<ReviewRequestSecondViewDto> getListReviewRequest(Integer expertId, String sortBy, String sortOrder, String searchTerm) {
+    public List<ReviewRequestViewDto> getListReviewRequest(Integer expertId, String sortBy, String sortOrder, String searchTerm) {
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByExpertId(expertId);
 
         if (reviewRequests != null && !reviewRequests.isEmpty()) {
-            LocalDate currentDate = LocalDate.now();
             List<ReviewRequestViewDto> reviewRequestDtos = new ArrayList<>();
 
             for (ReviewRequest reviewRequest : reviewRequests) {
@@ -195,35 +209,18 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 reviewRequestDtos = filterBySearchTerm(reviewRequestDtos, searchTerm);
             }
 
-            List<ReviewRequestSecondViewDto> secondViewDto = new ArrayList<>();
-            for (ReviewRequestViewDto reviewRequest : reviewRequestDtos) {
-                ReviewRequestSecondViewDto reviewRequestViewSeDto = new ReviewRequestSecondViewDto();
-                reviewRequestViewSeDto.setId(reviewRequest.getId());
-                reviewRequestViewSeDto.setResumeName(reviewRequest.getResumeName());
-                reviewRequestViewSeDto.setAvatar(reviewRequest.getAvatar());
-                reviewRequestViewSeDto.setName(reviewRequest.getName());
-                reviewRequestViewSeDto.setNote(reviewRequest.getNote());
-                reviewRequestViewSeDto.setPrice(reviewRequest.getPrice());
-                reviewRequestViewSeDto.setStatus(reviewRequest.getStatus());
-                reviewRequestViewSeDto.setReceivedDate(prettyTime.format(reviewRequest.getReceivedDate()));
-                reviewRequestViewSeDto.setDeadline(prettyTime.format(reviewRequest.getDeadline()));
-                // Ánh xạ dữ liệu từ reviewRequest sang reviewRequestViewDto (giống như trước)
-                secondViewDto.add(reviewRequestViewSeDto);
-            }
 
-
-            return secondViewDto;
+            return reviewRequestDtos;
         } else {
             throw new BadRequestException("Currently no results were found in your system.");
         }
     }
 
     @Override
-    public List<ReviewRequestSecondViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm) {
+    public List<ReviewRequestViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm) {
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByCv_User_Id(userId);
 
         if (reviewRequests != null && !reviewRequests.isEmpty()) {
-            LocalDate currentDate = LocalDate.now();
             List<ReviewRequestViewDto> reviewRequestDtos = new ArrayList<>();
 
             for (ReviewRequest reviewRequest : reviewRequests) {
@@ -257,25 +254,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 reviewRequestDtos = filterBySearchTerm(reviewRequestDtos, searchTerm);
             }
-
-            List<ReviewRequestSecondViewDto> secondViewDto = new ArrayList<>();
-            for (ReviewRequestViewDto reviewRequest : reviewRequestDtos) {
-                ReviewRequestSecondViewDto reviewRequestViewSeDto = new ReviewRequestSecondViewDto();
-                reviewRequestViewSeDto.setId(reviewRequest.getId());
-                reviewRequestViewSeDto.setResumeName(reviewRequest.getResumeName());
-                reviewRequestViewSeDto.setAvatar(reviewRequest.getAvatar());
-                reviewRequestViewSeDto.setName(reviewRequest.getName());
-                reviewRequestViewSeDto.setNote(reviewRequest.getNote());
-                reviewRequestViewSeDto.setPrice(reviewRequest.getPrice());
-                reviewRequestViewSeDto.setStatus(reviewRequest.getStatus());
-                reviewRequestViewSeDto.setReceivedDate(prettyTime.format(reviewRequest.getReceivedDate()));
-                reviewRequestViewSeDto.setDeadline(prettyTime.format(reviewRequest.getDeadline()));
-                // Ánh xạ dữ liệu từ reviewRequest sang reviewRequestViewDto (giống như trước)
-                secondViewDto.add(reviewRequestViewSeDto);
-            }
-
-
-            return secondViewDto;
+            return reviewRequestDtos;
         } else {
             throw new BadRequestException("Currently no results were found in your system.");
         }

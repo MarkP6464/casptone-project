@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,12 +24,12 @@ public class ReviewRequestViewDto {
 
     private String note;
 
-    private Double price;
+    private Long price;
 
     private StatusReview status;
 
-    private LocalDateTime receivedDate;
+    private Timestamp receivedDate;
 
-    private LocalDateTime deadline;
+    private Timestamp deadline;
 
 }

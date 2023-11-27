@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -19,11 +21,11 @@ public class ReviewRequestSecondViewDto {
 
     private String note;
 
-    private Double price;
+    private Long price;
 
     private StatusReview status;
 
-    private String receivedDate;
+    private Timestamp receivedDate;
 
-    private String deadline;
+    private Timestamp deadline;
 }

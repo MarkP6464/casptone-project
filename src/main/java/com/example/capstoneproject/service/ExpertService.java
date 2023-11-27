@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public interface ExpertService {
-    boolean updateExpert(Integer expertId, Integer cvId, ExpertUpdateDto dto) throws JsonProcessingException;
+    boolean updateExpert(Integer expertId, ExpertUpdateDto dto);
     ExpertConfigViewDto getExpertConfig(Integer expertId);
     List<ExpertViewChooseDto> getExpertList(String search);
     ExpertReviewViewDto getDetailExpert(Integer expertId);

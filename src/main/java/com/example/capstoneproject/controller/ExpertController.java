@@ -25,10 +25,10 @@ public class ExpertController {
         this.expertService = expertService;
     }
 
-    @PutMapping("/expert/{expert-id}/cv/{cv-id}/information/config")
+    @PutMapping("/expert/{expert-id}/cv/information/config")
     @PreAuthorize("hasAuthority('update:expert')")
-    public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, @PathVariable("cv-id") Integer cvId, @RequestBody ExpertUpdateDto dto) throws JsonProcessingException {
-        if (expertService.updateExpert(expertId, cvId, dto)) {
+    public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, @RequestBody ExpertUpdateDto dto) {
+        if (expertService.updateExpert(expertId, dto)) {
             return ResponseEntity.ok("Update success");
         } else {
             return ResponseEntity.badRequest().body("Update failed");

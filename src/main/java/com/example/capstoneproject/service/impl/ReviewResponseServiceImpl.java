@@ -74,7 +74,6 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public void createReviewResponse(Integer historyId, Integer requestId) throws JsonProcessingException {
-//        Cv cv = cvRepository.getById(cvId);
         Optional<History> historyOptional = historyRepository.findById(historyId);
         if(historyOptional.isPresent()){
             History history = historyOptional.get();

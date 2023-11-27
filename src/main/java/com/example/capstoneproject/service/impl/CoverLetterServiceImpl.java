@@ -567,6 +567,32 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         return chatResponse;
     }
 
+    @Override
+    public ChatResponse rewritteExperience(ReWritterExperienceDto dto) throws JsonProcessingException {
+        if(dto.getJobTitle()!=null && dto.getBullet()!=null){
+            String system = "Improve writing prompt\n" +
+                    "As an expert in CV writing, your task is to enhance the description of experience as a " + dto.getJobTitle() + ". The revised writing should keep the original content and adhere to best practices in CV writing, including short, concise bullet points, quantify if possible , focusing on achievements rather than responsibilities. Your response solely provide the content base on the current description provided:";
+            String userMessage = "“" + dto.getBullet() + "”\n" +
+                    "Start with bullet point don’t need to elaborate any unnecessary information";
+            ChatResponse chatResponse = new ChatResponse();
+            List<Map<String, Object>> messagesList = new ArrayList<>();
+            Map<String, Object> systemMessage = new HashMap<>();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", system);
+            messagesList.add(systemMessage);
+            Map<String, Object> userMessageMap = new HashMap<>();
+            userMessageMap.put("role", "user");
+            userMessageMap.put("content", userMessage);
+            messagesList.add(userMessageMap);
+            String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+            String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
+            chatResponse.setReply(response);
+            return chatResponse;
+        }else{
+            throw new BadRequestException("Please enter full job title and description.");
+        }
+    }
+
     public String processString(String input) {
         int index = input.indexOf("\n\n");
         if (index != -1) {

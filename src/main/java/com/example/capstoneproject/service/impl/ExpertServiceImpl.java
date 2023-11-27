@@ -11,16 +11,14 @@ import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ExpertService;
 import com.example.capstoneproject.service.HistoryService;
+import com.example.capstoneproject.service.PriceOptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.capstoneproject.enums.RoleType.EXPERT;
@@ -50,13 +48,19 @@ public class ExpertServiceImpl implements ExpertService {
     ExperienceMapper experienceMapper;
 
     @Autowired
+    PriceOptionRepository priceOptionRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Autowired
     UsersRepository usersRepository;
 
+    @Autowired
+    PriceOptionService priceOptionService;
+
     @Override
-    public boolean updateExpert(Integer expertId, Integer cvId, ExpertUpdateDto dto) throws JsonProcessingException {
+    public boolean updateExpert(Integer expertId, ExpertUpdateDto dto) {
         Users expertOptional = expertRepository.findExpertByIdAndRole_RoleName(expertId, EXPERT);
         if (Objects.nonNull(expertOptional)) {
             if (expertOptional instanceof Expert) {
@@ -81,11 +85,11 @@ public class ExpertServiceImpl implements ExpertService {
                 if (dto.getExperiences() != null && !dto.getExperiences().equals(expert.getExperiences())) {
                     expert.setExperience(dto.getExperiences());
                 }
-                if (dto.getPrice() != null && !dto.getPrice().equals(expert.getPrice())) {
-                    expert.setPrice(dto.getPrice());
+                if (dto.getPrice() != null) {
+                    priceOptionService.editPriceOption(expert.getId(),dto.getPrice());
                 }
-                if(cvId!=null){
-                    Optional<Cv> cvOptional = cvRepository.findById(cvId);
+                if(dto.getCvId()!=null){
+                    Optional<Cv> cvOptional = cvRepository.findById(dto.getCvId());
                     if(cvOptional.isPresent()){
                         Cv cv = cvOptional.get();
                         expert.setCvId(cv.getId());
@@ -116,7 +120,17 @@ public class ExpertServiceImpl implements ExpertService {
                 expertConfigViewDto.setCompany(expert.getCompany());
                 expertConfigViewDto.setAbout(expert.getAbout());
                 expertConfigViewDto.setExperiences(expert.getExperience());
-                expertConfigViewDto.setPrice(expert.getPrice());
+                List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
+                if(!priceOptions.isEmpty()){
+                    List<PriceOptionDto> priceOptionDtos = new ArrayList<>();
+                    for(PriceOption priceOption: priceOptions){
+                        PriceOptionDto priceOptionDto = new PriceOptionDto();
+                        priceOptionDto.setDay(priceOption.getDay());
+                        priceOptionDto.setPrice(priceOption.getPrice());
+                        priceOptionDtos.add(priceOptionDto);
+                    }
+                    expertConfigViewDto.setPrice(priceOptionDtos);
+                }
                 if(expert.getCvId()!=null){
                     Optional<Cv> cvOptional = cvRepository.findById(expert.getCvId());
                     if(cvOptional.isPresent()){
@@ -167,7 +181,18 @@ public class ExpertServiceImpl implements ExpertService {
             expertReviewViewDto.setStar(calculatorStar(expert.getId()));
             expertReviewViewDto.setDescription(expert.getAbout());
             expertReviewViewDto.setCompany(expert.getCompany());
-            expertReviewViewDto.setPrice(expert.getPrice());
+            List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
+            if(!priceOptions.isEmpty()){
+                List<PriceOptionViewDto> priceOpionDtos = new ArrayList<>();
+                for(PriceOption priceOption: priceOptions){
+                    PriceOptionViewDto priceOptionViewDto = new PriceOptionViewDto();
+                    priceOptionViewDto.setId(priceOption.getId());
+                    priceOptionViewDto.setDay(priceOption.getDay());
+                    priceOptionViewDto.setPrice(priceOption.getPrice());
+                    priceOpionDtos.add(priceOptionViewDto);
+                }
+                expertReviewViewDto.setPrice(priceOpionDtos);
+            }
             expertReviewViewDto.setExperience(expert.getExperience());
             expertReviewViewDto.setNumberReview(calculatorReview(expert.getId()));
 

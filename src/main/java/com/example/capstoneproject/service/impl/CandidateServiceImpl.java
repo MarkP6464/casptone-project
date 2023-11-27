@@ -1,12 +1,20 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CandidateDto;
+import com.example.capstoneproject.Dto.CvAddNewDto;
+import com.example.capstoneproject.Dto.UsersViewDto;
 import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
 import com.example.capstoneproject.entity.Candidate;
+import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.exception.BadRequestException;
+import com.example.capstoneproject.mapper.CvMapper;
+import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.CandidateRepository;
+import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.service.CandidateService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +31,16 @@ public class CandidateServiceImpl implements CandidateService {
     CandidateRepository candidateRepository;
 
     @Autowired
+    CvRepository cvRepository;
+
+    @Autowired
     ModelMapper modelMapper;
+
+    @Autowired
+    CvMapper cvMapper;
+
+    @Autowired
+    UsersMapper usersMapper;
 
     @Override
     public boolean updateCandidate(Integer candidateId, CandidateDto dto) {
@@ -111,6 +128,30 @@ public class CandidateServiceImpl implements CandidateService {
         }
 
         return candidateOverViewDtos;
+    }
+
+    @Override
+    public List<CvAddNewDto> getAllCvPublishCandidate(Integer candidateId) throws JsonProcessingException {
+        List<Cv> cvs = cvRepository.findAllByUsersIdAndStatus(candidateId, BasicStatus.ACTIVE);
+        List<CvAddNewDto> cvss = new ArrayList<>();
+        if(!cvs.isEmpty()){
+            for(Cv cv: cvs){
+                if(cv.getSearchable()){
+                    CvAddNewDto cvDto = cvMapper.cvAddNewDto(cv);
+                    UsersViewDto usersViewDto = usersMapper.toView(cv.getUser());
+                    modelMapper.map(usersViewDto, cvDto);
+                    cvDto.getCertifications().clear();
+                    cvDto.getExperiences().clear();
+                    cvDto.getInvolvements().clear();
+                    cvDto.getEducations().clear();
+                    cvDto.getProjects().clear();
+                    cvDto.getSkills().clear();
+                    modelMapper.map(cv.deserialize(), cvDto);
+                    cvss.add(cvDto);
+                }
+            }
+        }
+        return cvss;
     }
 
 
