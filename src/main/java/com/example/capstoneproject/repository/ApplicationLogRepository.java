@@ -12,6 +12,8 @@ import java.util.List;
 public interface ApplicationLogRepository extends JpaRepository<ApplicationLog, Integer> {
     List<ApplicationLog> findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(Integer userId, Integer postingId);
 
+    List<ApplicationLog> findAllByJobPosting_IdOrderByTimestampDesc(Integer postingId);
+
     @Query("SELECT COUNT(al) FROM ApplicationLog al WHERE al.jobPosting.id = :jobPostingId")
     int countByJobPostingId(@Param("jobPostingId") Integer jobPostingId);
 }

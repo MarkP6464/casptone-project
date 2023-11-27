@@ -1,12 +1,11 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.HRDto;
-import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
+import com.example.capstoneproject.Dto.responses.HRResponse;
+import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.constant.PaymentConstant;
-import com.example.capstoneproject.entity.HR;
-import com.example.capstoneproject.entity.ReviewRequest;
-import com.example.capstoneproject.entity.Transaction;
-import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.MoneyType;
 import com.example.capstoneproject.enums.StatusReview;
@@ -15,9 +14,12 @@ import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ForbiddenException;
 import com.example.capstoneproject.mapper.HRMapper;
 import com.example.capstoneproject.repository.HRRepository;
+import com.example.capstoneproject.repository.UsersRepository;
+import com.example.capstoneproject.service.AdminConfigurationService;
 import com.example.capstoneproject.service.HRService;
 import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.utils.SecurityUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ import java.util.Objects;
 
 @Service
 public class HRServiceImpl implements HRService {
+    @Autowired
+    UsersRepository usersRepository;
 
     @Autowired
     HRRepository hrRepository;
@@ -39,57 +43,75 @@ public class HRServiceImpl implements HRService {
     HRMapper hrMapper;
     @Autowired
     TransactionService transactionService;
+    @Autowired
+    AdminConfigurationService adminConfigurationService;
 
     @Override
     public HRDto get(Integer id){
-        HR hr = hrRepository.getOne(id);
-        if (Objects.nonNull(hr)){
-            return hrMapper.toDto(hr);
-        }else {
-            throw new BadRequestException("HR Not found");
-        }
+         Users user = usersRepository.findUsersById(id).get();
+         if (user instanceof HR){
+             HR hr = (HR) user;
+             if (Objects.nonNull(hr)){
+                 return hrMapper.toDto(hr);
+             }else {
+                 throw new BadRequestException("HR Not found");
+             }
+         }
+        throw new BadRequestException("Not found HR by id");
     }
 
     @Override
-    public HRDto update(HRDto dto){
-        HR hr = hrMapper.toEntity(dto);
-        if (Objects.nonNull(hr)){
-            return hrMapper.toDto(hr);
-        }else {
-            throw new BadRequestException("HR Not found");
-        }
-    }
-
-    @Override
-    public HRDto register(Long expenditure, Long conversionAmount) throws Exception {
-        Users users = (Users) SecurityUtil.getLoginUser();
-        if (users instanceof HR){
-            HR hr = (HR) users;
-            TransactionDto transactionDto = new TransactionDto();
-            if (PaymentConstant.vipAMonthRatio.equals(expenditure) || PaymentConstant.vipAYearRatio.equals(expenditure)){
-                if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
-                    if (Long.valueOf(30).equals(conversionAmount)){
-                        transactionDto.setResponseMessage("extend 1 month subscription");
-                        transactionDto.setExpenditure(expenditure);
-                        transactionDto.setTransactionType(TransactionType.ADD);
-                        transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
-                    }else if (Long.valueOf(365).equals(conversionAmount)){
-                        transactionDto.setResponseMessage("extend 1 year subscription");
-                        transactionDto.setExpenditure(expenditure);
-                        transactionDto.setTransactionType(TransactionType.ADD);
-                        transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
-                    }else {
-                        throw new BadRequestException("Not a valid register subscription params");
-                    }
-                }
-                transactionService.create(transactionDto);
-            }else {
-                throw new BadRequestException("Not a valid register subscription params");
+    public HRDto update(HRResponse dto){
+        Users users = usersRepository.findUsersById(dto.getId()).get();
+        if (Objects.nonNull(users)){
+            if (users instanceof HR){
+                HR hr = (HR) users;
+                hrMapper.toEntity(dto, hr);
+                return hrMapper.toDto(hrRepository.save(hr));
             }
-        } else {
-            throw new ForbiddenException("You are not HR!");
         }
-        return null;
+        throw new BadRequestException("user not found");
+    }
+
+    @Override
+    public void register(TransactionResponse dto) throws Exception {
+        Users users = usersRepository.findUsersById(dto.getUserId()).get();
+        Long expenditure = dto.getExpenditure();
+        Long conversionAmount = dto.getConversionAmount();
+        if (Objects.nonNull(users)) {
+            if (users instanceof HR) {
+                HR hr = (HR) users;
+                TransactionDto transactionDto = new TransactionDto();
+                AdminConfigurationResponse adminConfigurationDto = adminConfigurationService.getByAdminId(1);
+                if (adminConfigurationDto.getVipMonthRatio().equals(expenditure) || adminConfigurationDto.getVipYearRatio().equals(expenditure)) {
+                    if (adminConfigurationDto.getVipMonthRatio().equals(expenditure)) {
+                        if (Long.valueOf(30).equals(conversionAmount)) {
+                            transactionDto.setResponseMessage("extend 1 month subscription");
+                            transactionDto.setExpenditure(expenditure);
+                            transactionDto.setTransactionType(TransactionType.ADD);
+                            transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
+                        }else {
+                            throw new BadRequestException("Not a valid register subscription params");
+                        }
+                    }else if (adminConfigurationDto.getVipYearRatio().equals(expenditure)) {
+                        if (Long.valueOf(365).equals(conversionAmount)) {
+                            transactionDto.setResponseMessage("extend 1 year subscription");
+                            transactionDto.setExpenditure(expenditure);
+                            transactionDto.setTransactionType(TransactionType.ADD);
+                            transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
+                        } else {
+                            throw new BadRequestException("Not a valid register subscription params");
+                        }
+                    }
+                    transactionDto.setUserId(dto.getUserId());
+                    transactionService.create(transactionDto);
+                } else {
+                    throw new BadRequestException("Not a valid register subscription params");
+                }
+            } else {
+                throw new ForbiddenException("You are not HR!");
+            }
+        }
     }
     @Scheduled(cron = "0 0 0 * * ?")
     public void checkSubscription(){

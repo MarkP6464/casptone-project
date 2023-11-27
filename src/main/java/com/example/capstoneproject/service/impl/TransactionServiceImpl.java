@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.constant.PaymentConstant;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -88,7 +90,6 @@ public class TransactionServiceImpl implements TransactionService {
         jo.addProperty("uid", transactionDto.getUserId());
         jo.addProperty("transactionId", requestId);
         jo.addProperty("expenditure", transactionDto.getExpenditure());
-        jo.addProperty("transactionType", transactionDto.getTransactionType().toString());
         String extraData = gson.toJson(jo);
 
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
@@ -118,7 +119,6 @@ public class TransactionServiceImpl implements TransactionService {
         String tid = s.get("transactionid").getAsString();
         String uid = s.get("uid").getAsString();
         Long expenditure = s.get("expenditure").getAsLong();
-        String transactionType = s.get("transactionType").getAsString();
         Transaction transaction = transactionRepository.findByRequestId(tid);
         if (code.equals(0)) {
             if (Objects.nonNull(transaction)){
@@ -130,6 +130,9 @@ public class TransactionServiceImpl implements TransactionService {
             if (Objects.nonNull(user)){
                 if (user instanceof HR){
                     HR hr = (HR) user;
+                    if (LocalDate.now().isAfter(hr.getExpiredDay())){
+                        hr.setExpiredDay(LocalDate.now());
+                    }
                     if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
                         hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
                     } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
@@ -137,8 +140,7 @@ public class TransactionServiceImpl implements TransactionService {
                     }
                     hr.setVip(true);
                     usersRepository.save(hr);
-                } else
-                if (MoneyType.CREDIT.equals(transactionType))  {
+                } else {
                     user.setAccountBalance((user.getAccountBalance() + expenditure));
                 }
             }
@@ -156,7 +158,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto requestToWithdraw(TransactionDto dto){
+    public TransactionDto requestToWithdraw(TransactionResponse dto){
         Users user = usersService.getUsersById(dto.getUserId());
         if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0){
             throw new BadRequestException("Account balance is not enough!");

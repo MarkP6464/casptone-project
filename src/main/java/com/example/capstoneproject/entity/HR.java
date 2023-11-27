@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @DiscriminatorValue("HR")
 public class HR extends Users{
 
-    private Boolean subscription;
+    private Boolean subscription = false;
 
     @Column(name = "company_name", columnDefinition = "NVARCHAR(50)")
     private String companyName;
@@ -30,6 +30,7 @@ public class HR extends Users{
     @Column(name = "company_description", columnDefinition = "NVARCHAR(200)")
     private String companyDescription;
 
-    private LocalDate expiredDay;
+    @NonNull
+    private LocalDate expiredDay = LocalDate.now();
 
 }
