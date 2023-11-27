@@ -1,9 +1,11 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.CandidateDto;
+import com.example.capstoneproject.Dto.CvAddNewDto;
 import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.CandidateService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,17 @@ public class CandidateController {
     public ResponseEntity<CandidateDto> getCandidateConfig(@PathVariable("candidate-id") Integer candidateId) {
         CandidateDto candidateDto = candidateService.getCandidateConfig(candidateId);
         if (candidateDto != null) {
+            return new ResponseEntity<>(candidateDto, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/candidate/{candidate-id}/information/cvs/publish")
+//    @PreAuthorize("hasAuthority('read:candidate')")
+    public ResponseEntity<?> getAllCvPublishCandidate(@PathVariable("candidate-id") Integer candidateId) throws JsonProcessingException {
+        List<CvAddNewDto> candidateDto = candidateService.getAllCvPublishCandidate(candidateId);
+        if (!candidateDto.isEmpty()) {
             return new ResponseEntity<>(candidateDto, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
