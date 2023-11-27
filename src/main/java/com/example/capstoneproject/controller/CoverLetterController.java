@@ -55,7 +55,7 @@ public class CoverLetterController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/cv/{cv-id}/summary")
+    @PostMapping("/cv/experience/re-writer")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> rewriteExperience(
             @RequestBody ReWritterExperienceDto dto
