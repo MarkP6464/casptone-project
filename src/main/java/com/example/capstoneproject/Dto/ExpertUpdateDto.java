@@ -3,6 +3,7 @@ package com.example.capstoneproject.Dto;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -21,7 +22,7 @@ public class ExpertUpdateDto {
 
     private Integer experiences;
 
-    private Double price;
+    private List<PriceOptionDto> price;
 
     private Integer cvId;
 }

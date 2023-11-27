@@ -1,10 +1,12 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.Dto.PriceOptionDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -24,5 +26,5 @@ public class ExpertConfigViewDto {
 
     private String cv;
 
-    private Double price;
+    private List<PriceOptionDto> price;
 }

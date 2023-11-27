@@ -1,18 +1,12 @@
 package com.example.capstoneproject.entity;
 
-import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.sql.Timestamp;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -22,11 +16,11 @@ public class ReviewRequest {
     @Column(name = "review_request_id")
     private Integer id;
 
-    private LocalDateTime receivedDate;
+    private Timestamp receivedDate;
 
-    private LocalDateTime deadline;
+    private Timestamp deadline;
 
-    private Double price;
+    private Long price;
 
     @Enumerated(EnumType.STRING)
     private StatusReview status;

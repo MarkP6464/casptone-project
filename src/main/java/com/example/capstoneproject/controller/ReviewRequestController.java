@@ -3,6 +3,7 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
 import com.example.capstoneproject.Dto.responses.ReviewRequestSecondViewDto;
+import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
 import com.example.capstoneproject.enums.SortBy;
 import com.example.capstoneproject.enums.SortOrder;
 import com.example.capstoneproject.service.ReviewRequestService;
@@ -24,15 +25,15 @@ public class ReviewRequestController {
     }
 
 
-    @PostMapping("/{cv-id}/expert/{expert-id}/request-review")
+    @PostMapping("/{cv-id}/expert/{expert-id}/request-review/option/{option-id}")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
-    public ReviewRequestDto postReviewRequest(@PathVariable("cv-id") int cvId, @PathVariable("expert-id") int expertId, @RequestBody ReviewRequestAddDto Dto) throws JsonProcessingException {
-        return reviewRequestService.createReviewRequest(cvId,expertId,Dto);
+    public String postReviewRequest(@PathVariable("cv-id") Integer cvId, @PathVariable("expert-id") Integer expertId, @PathVariable("option-id") Integer optionId, @RequestBody ReviewRequestAddDto Dto) throws JsonProcessingException {
+        return reviewRequestService.createReviewRequest(cvId,expertId,optionId,Dto);
     }
 
     @GetMapping("/candidate/{candidate-id}/review-requests")
     @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
-    public List<ReviewRequestSecondViewDto> getListCandidateReviewRequest(
+    public List<ReviewRequestViewDto> getListCandidateReviewRequest(
             @PathVariable("candidate-id") Integer candidateId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
             @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
@@ -43,7 +44,7 @@ public class ReviewRequestController {
 
     @GetMapping("/expert/{expert-id}/review-requests")
     @PreAuthorize("hasAuthority('read:expert')")
-    public List<ReviewRequestSecondViewDto> getListReviewRequest(
+    public List<ReviewRequestViewDto> getListReviewRequest(
             @PathVariable("expert-id") Integer expertId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
             @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
