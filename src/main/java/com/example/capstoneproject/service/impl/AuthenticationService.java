@@ -101,7 +101,7 @@ public class AuthenticationService {
                 userViewLoginDto.setName(candidate.getName());
                 userViewLoginDto.setAvatar(candidate.getAvatar());
                 userViewLoginDto.setPhone(candidate.getPhone());
-                userViewLoginDto.setPermissionWebsite(candidate.getPersonalWebsite());
+                userViewLoginDto.setPersonalWebsite(candidate.getPersonalWebsite());
                 userViewLoginDto.setEmail(candidate.getEmail());
                 userViewLoginDto.setLinkin(candidate.getLinkin());
                 userViewLoginDto.setAccountBalance(candidate.getAccountBalance());
