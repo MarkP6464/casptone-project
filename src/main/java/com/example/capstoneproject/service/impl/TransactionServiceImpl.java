@@ -197,15 +197,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount){
+
+        //giam tien user
+        Users user = usersService.getUsersById(sentId);
+        if (user.getAccountBalance() < amount.longValue()){
+            throw new BadRequestException("Account Balance is not enough!!");
+        }
+        user.setAccountBalance((long) (user.getAccountBalance() - amount));
+        usersRepository.save(user);
+
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, null,
                 TransactionType.TRANSFER, MoneyType.CREDIT, Double.valueOf(amount).longValue(), 0L, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
-        //giam tien user
-        Users user = usersService.getUsersById(sentId);
-        user.setAccountBalance((long) (user.getAccountBalance() - amount));
-        usersRepository.save(user);
         return transactionMapper.toDto(transaction);
     }
 
