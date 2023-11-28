@@ -1179,8 +1179,6 @@ public class CvServiceImpl implements CvService {
 
         for (int i = 15; i < 17; i++) {
             Evaluate evaluate = evaluates.get(i);
-            List<ContentDetailDto> sameSections = new ArrayList<>();
-
             switch (i) {
                 case 15:
                     // Check use template
@@ -1201,8 +1199,6 @@ public class CvServiceImpl implements CvService {
                 default:
                     break;
             }
-
-            contentDtoList.add(new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections));
         }
 
         return contentDtoList;

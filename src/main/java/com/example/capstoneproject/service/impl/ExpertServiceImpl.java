@@ -181,6 +181,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertReviewViewDto.setStar(calculatorStar(expert.getId()));
             expertReviewViewDto.setDescription(expert.getAbout());
             expertReviewViewDto.setCompany(expert.getCompany());
+            expertReviewViewDto.setCvId(expert.getCvId());
             List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
             if(!priceOptions.isEmpty()){
                 List<PriceOptionViewDto> priceOpionDtos = new ArrayList<>();
