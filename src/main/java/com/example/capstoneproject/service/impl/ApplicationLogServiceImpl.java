@@ -85,27 +85,23 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         applicationLog.setTimestamp(LocalDate.now());
 
         if (jobPostingOptional.isPresent()){
-            JobPosting jobPosting = jobPostingOptional.get();
+            JobPosting jobPosting = jobPostingOptional.get();List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
             applicationLog.setJobPosting(jobPosting);
-            List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
-            ApplicationLog applicationLogCheck = applicationLogs.get(0);
-            LocalDate countDate = applicationLogCheck.getTimestamp();
-            Integer condition = jobPosting.getApplyAgain();
-            LocalDate resultDate = countDate.plusDays(condition);
-            if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
-                applicationLog.setJobPosting(jobPosting);
-                applicationLog.setNote(dto.getNote());
-                Optional<Users> usersOptional1 = usersRepository.findUsersById(userId);
-                if (usersOptional1.isPresent()){
-                    Users user = usersOptional1.get();
-                    applicationLog.setUser(user);
+            if (!applicationLogs.isEmpty()){
+                ApplicationLog applicationLogCheck = applicationLogs.get(0);
+                LocalDate countDate = applicationLogCheck.getTimestamp();
+                Integer condition = jobPosting.getApplyAgain();
+                LocalDate resultDate = countDate.plusDays(condition);
+                if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
+                    applicationLog.setJobPosting(jobPosting);
+                }else{
+                    throw new BadRequestException("Please apply after date " + resultDate);
                 }
-                applicationLogRepository.save(applicationLog);
-                sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                return true;
-            }else{
-                throw new BadRequestException("Please apply after date " + resultDate);
             }
+            applicationLog.setNote(dto.getNote());
+            applicationLogRepository.save(applicationLog);
+            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+            return true;
         } else throw new InternalServerException("Not found Job posting");
     }
 
