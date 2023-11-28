@@ -520,7 +520,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_ExpertIdAndReviewRequest_Id(expert.getId(), requestId);
             if (reviewResponseOptional.isPresent()) {
                 ReviewResponse reviewResponse = reviewResponseOptional.get();
-                if(reviewResponse.getStatus()==null){
+                if(reviewResponse.getFeedbackDetail().isEmpty()){
                     throw new BadRequestException("Please accept the request to view details.");
                 }else{
                     reviewResponseDto.setId(reviewResponse.getId());

@@ -21,6 +21,8 @@ public class Score {
 
     private Integer practice;
 
+    private Integer format;
+
     @Column(columnDefinition = "NVARCHAR(30)")
     private String result;
 

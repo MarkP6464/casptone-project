@@ -17,6 +17,8 @@ public class ScoreDto {
     List<ContentDto> practice;
     Integer scoreOptimization;
     List<ContentDto> optimization;
+    Integer scoreFormat;
+    List<ContentDto> format;
     String result;
 
 }

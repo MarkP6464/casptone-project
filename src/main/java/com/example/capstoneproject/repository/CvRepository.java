@@ -22,6 +22,8 @@ public interface CvRepository extends JpaRepository<Cv, Integer> {
 
     Optional<Cv> findByUser_IdAndId(Integer UsersId, Integer cvId);
 
+    Optional<Cv> findByUser_Id(Integer userId);
+
     @Query("SELECT c FROM Cv c WHERE c.id =:cvId AND c.id = :cvId AND c.status = :status")
     Optional<Cv> findByIdAndStatus(@Param("cvId") Integer cvId, @Param("status") BasicStatus status);
 

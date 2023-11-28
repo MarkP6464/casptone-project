@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -379,6 +381,7 @@ public class CvServiceImpl implements CvService {
             Users user = usersOptional.get();
             modelMapper.map(dto, user);
             user = usersRepository.save(user);
+
             return usersMapper.toView(user);
         } else {
             throw new IllegalArgumentException("UsersId not found: " + UsersId);
@@ -442,6 +445,7 @@ public class CvServiceImpl implements CvService {
                 List<ContentDto> contentList = new ArrayList<>();
                 List<ContentDto> practiceList = new ArrayList<>();
                 List<ContentDto> optimizationList = new ArrayList<>();
+                List<ContentDto> formatList = new ArrayList<>();
                 for (SkillDto x : cvBodyDto.getSkills()) {
                     if (x.getIsDisplay()) {
                         String description = x.getDescription();
@@ -580,7 +584,24 @@ public class CvServiceImpl implements CvService {
 
                 optimizationList = evaluateOptimational(evaluates, cvId);
 
-                ScoreDto scoreDto = new ScoreDto(score.getContent(),contentList,score.getPractice(), practiceList,score.getOptimization(), optimizationList,score.getResult());
+                formatList = evaluateFormat(evaluates, cvId);
+
+                //check score practice have any change
+                Double practice = evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords);
+                if (!Double.valueOf(practice).equals(score.getPractice())) {
+                    score.setPractice(practice.intValue());
+                    scoreRepository.save(score);
+                }
+
+                //check score format have any change
+                Double format = evaluateFormatScore(evaluates, cvId);
+                if (!Double.valueOf(format).equals(score.getFormat())) {
+                    score.setPractice(format.intValue());
+                    scoreRepository.save(score);
+                }
+
+
+                ScoreDto scoreDto = new ScoreDto(score.getContent(),contentList,score.getPractice(), practiceList,score.getOptimization(), optimizationList, score.getFormat(), formatList,score.getResult());
                 List<ScoreDto> result = new ArrayList<>();
                 result.add(scoreDto);
 
@@ -600,6 +621,7 @@ public class CvServiceImpl implements CvService {
                 List<ContentDto> contentList = new ArrayList<>();
                 List<ContentDto> practiceList = new ArrayList<>();
                 List<ContentDto> optimizationList = new ArrayList<>();
+                List<ContentDto> formatList = new ArrayList<>();
                 for (SkillDto x : cvBodyDto.getSkills()) {
                     if (x.getIsDisplay()) {
                         String description = x.getDescription();
@@ -744,17 +766,20 @@ public class CvServiceImpl implements CvService {
                 Double content = cvRepository.calculateTotalScoreByScoreIdAndStatus(savedScoreId,SectionLogStatus.Pass);
                 Double practice = evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords);
                 Double optimization = evaluateOptimationalScore(evaluates, cvId);
+                Double format = evaluateFormatScore(evaluates, cvId);
                 Double totalScore = calculateTotalScore(evaluates);
-                double resultPercentage = (content / totalScore) * 40;
+                double resultPercentage = (content / totalScore) * 50;
                 double practicePercentage = (practice / totalScore) * 30;
-                double optimizationPercentage = (optimization / totalScore) * 30;
-                double totalPercentage = resultPercentage + practicePercentage + optimizationPercentage;
+                double optimizationPercentage = (optimization / totalScore) * 10;
+                double formatPercentage = (format / totalScore) * 10;
+                double totalPercentage = resultPercentage + practicePercentage + optimizationPercentage + formatPercentage;
                 String resultLabel = getResultLabel(totalPercentage);
 
                 Score scoreOptional1 = scoreRepository.findById1(savedScoreId);
                 scoreOptional1.setContent((int) Math.round(content));
                 scoreOptional1.setPractice((int) Math.round(practice));
                 scoreOptional1.setOptimization((int) Math.round(optimization));
+                scoreOptional1.setFormat((int) Math.round(format));
                 scoreOptional1.setResult(resultLabel);
                 scoreRepository.save(scoreOptional1);
 
@@ -764,7 +789,9 @@ public class CvServiceImpl implements CvService {
 
                 optimizationList = evaluateOptimational(evaluates, cvId);
 
-                ScoreDto scoreDto = new ScoreDto((int) Math.round(content),contentList,(int) Math.round(practice), practiceList,(int) Math.round(optimization), optimizationList,resultLabel);
+                formatList = evaluateFormat(evaluates, cvId);
+
+                ScoreDto scoreDto = new ScoreDto((int) Math.round(content),contentList,(int) Math.round(practice), practiceList,(int) Math.round(optimization), optimizationList,(int) Math.round(format),formatList,resultLabel);
                 List<ScoreDto> result = new ArrayList<>();
                 result.add(scoreDto);
 
@@ -1145,6 +1172,95 @@ public class CvServiceImpl implements CvService {
         }
 
         return score;
+    }
+
+    private List<ContentDto> evaluateFormat(List<Evaluate> evaluates, int cvId) throws JsonProcessingException {
+        List<ContentDto> contentDtoList = new ArrayList<>();
+
+        for (int i = 15; i < 17; i++) {
+            Evaluate evaluate = evaluates.get(i);
+            List<ContentDetailDto> sameSections = new ArrayList<>();
+
+            switch (i) {
+                case 15:
+                    // Check use template
+
+                    break;
+                case 16:
+                    // Check font size
+                    Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+                    CvBodyDto cvBodyDto = getCv.deserialize();
+                    String font = cvBodyDto.getCvStyle().getFontSize();
+                    Integer getFont = getFontSize(font);
+                    if(!(getFont>8 && getFont<=11)){
+                        ContentDto contentDto = new ContentDto(evaluate.getTitle(),evaluate.getDescription(),null);
+                        contentDtoList.add(contentDto);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            contentDtoList.add(new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections));
+        }
+
+        return contentDtoList;
+    }
+
+    private Double evaluateFormatScore(List<Evaluate> evaluates, int cvId) throws JsonProcessingException {
+        double score = 0.0;
+
+        for (int i = 15; i < 17; i++) {
+            Evaluate evaluate = evaluates.get(i);
+            List<ContentDetailDto> sameSections = new ArrayList<>();
+
+            switch (i) {
+                case 15:
+                    // Check use template
+                    Evaluate evaluate1 = evaluateRepository.findById(16);
+                    score += evaluate1.getScore();
+
+                    break;
+                case 16:
+                    // Check font size
+                    Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+                    CvBodyDto cvBodyDto = getCv.deserialize();
+                    String font = cvBodyDto.getCvStyle().getFontSize();
+                    Integer getFont = getFontSize(font);
+                    if(getFont>8 && getFont<=11){
+                        Evaluate evaluate2 = evaluateRepository.findById(17);
+                        score += evaluate2.getScore();
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return score;
+    }
+
+    public Integer getFontSize(String font){
+        // Define a pattern to match digits
+        Pattern pattern = Pattern.compile("\\d+");
+
+        // Create a matcher with the input font string
+        Matcher matcher = pattern.matcher(font);
+
+        // Check if there is a match
+        if (matcher.find()) {
+            // Extract the matched digits
+            String numericPart = matcher.group();
+
+            // Convert the numeric part to an integer
+
+            // Now, fontSize contains the numeric part without "pt"
+            return Integer.parseInt(numericPart);
+        } else {
+            return 0;
+        }
     }
 
 }
