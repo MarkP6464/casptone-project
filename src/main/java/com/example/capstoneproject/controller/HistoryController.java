@@ -22,11 +22,11 @@ public class HistoryController {
         this.historyService = historyService;
     }
 
-    @GetMapping("/user/{user-id}/cv/{cv-id}/history/{history-id}")
+    @GetMapping("/user/{user-id}/cv/history/{history-id}")
     @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
-    public ResponseEntity<?> getHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @PathVariable("history-id") Integer historyId) throws JsonProcessingException {
-        if(Objects.nonNull(historyService.getHistory(userId,cvId,historyId))){
-            return ResponseEntity.ok(historyService.getHistory(userId,cvId,historyId));
+    public ResponseEntity<?> getHistory(@PathVariable("user-id") Integer userId, @PathVariable("history-id") Integer historyId) throws JsonProcessingException {
+        if(Objects.nonNull(historyService.getHistory(userId,historyId))){
+            return ResponseEntity.ok(historyService.getHistory(userId,historyId));
         }else{
             throw new ResourceNotFoundException("kop");
         }

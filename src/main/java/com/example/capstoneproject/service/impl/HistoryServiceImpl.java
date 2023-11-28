@@ -101,8 +101,8 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
-    public HistoryDto getHistory(Integer userId, Integer cvId, Integer historyId) throws JsonProcessingException {
-        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
+    public HistoryDto getHistory(Integer userId, Integer historyId) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findByUser_Id(userId);
         HistoryDto historyViewDto = new HistoryDto();
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
