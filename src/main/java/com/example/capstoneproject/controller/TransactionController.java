@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -52,6 +53,7 @@ public class TransactionController {
 //    }
 
     @PostMapping("/input-credit")
+    @PreAuthorize("hasAnyAuthority('create:candidate', 'update:candidate')")
     public String addCredit(@RequestBody TransactionResponse dto) throws Exception {
         TransactionDto transactionDto = new TransactionDto();
         transactionDto.setMoneyType(MoneyType.CREDIT);
@@ -64,30 +66,35 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/query-transaction")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
             TransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
         return ResponseEntity.status(HttpStatus.OK).body(transaction.getStatus());
     }
 
     @PostMapping(value = "/withdraw")
+    @PreAuthorize("hasAnyAuthority('create:expert')")
     public ResponseEntity withdraw(@RequestBody TransactionResponse transactionDto) throws Exception {
         TransactionDto transaction = transactionService.requestToWithdraw(transactionDto);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
     @PostMapping(value = "/approve-withdraw-request")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
     public ResponseEntity approve(@RequestBody String id) throws Exception {
         TransactionDto transaction = transactionService.approveWithdrawRequest(id);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
     @PostMapping(value = "/reject-withdraw-request")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
     public ResponseEntity reject(@RequestBody String id) throws Exception {
         TransactionDto transaction = transactionService.approveWithdrawRequest(id);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
     @GetMapping(value = "/view-withdraw-request")
+    @PreAuthorize("hasAnyAuthority('read:admin', 'read:expert')")
     public ResponseEntity viewWithdrawList() throws Exception {
         List<TransactionDto> list =  transactionService.viewWithdrawList();
         return ResponseEntity.status(HttpStatus.OK).body(list);

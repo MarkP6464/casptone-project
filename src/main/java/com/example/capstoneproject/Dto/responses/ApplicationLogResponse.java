@@ -20,6 +20,6 @@ public class ApplicationLogResponse {
     String note;
     String email;
 
-    List<HashMap<String, String>> cvs = new ArrayList<>();
-    List<HashMap<String, String>> coverLetters = new ArrayList<>();
+    HashMap<String, Object> cvs = new HashMap<>();
+    HashMap<String, Object> coverLetters = new HashMap<>();
 }

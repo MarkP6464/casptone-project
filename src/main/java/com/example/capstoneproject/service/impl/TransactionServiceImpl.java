@@ -25,6 +25,7 @@ import com.mservice.allinone.processor.allinone.CaptureMoMo;
 import com.mservice.allinone.processor.allinone.QueryStatusTransaction;
 import com.mservice.shared.sharedmodels.Environment;
 import com.mservice.shared.sharedmodels.PartnerInfo;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -234,4 +235,13 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toDto(transaction);
     }
 
+    public TransactionDto chargePerRequest(int userId){
+        Users users = usersService.getUsersById(userId);
+        if (Long.compare(users.getAccountBalance(), 1000L) > 0 ){
+            String requestId = String.valueOf(System.currentTimeMillis());
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, null, TransactionType.SERVICE, MoneyType.CREDIT, 1000L, 1L,null, TransactionStatus.PENDING, usersService.getUsersById(1));
+            Transaction transaction1 = transactionRepository.save(transaction);
+            return transactionMapper.toDto(transaction1);
+        }else throw  new BadRequestException("account balance is not enough!!");
+    }
 }

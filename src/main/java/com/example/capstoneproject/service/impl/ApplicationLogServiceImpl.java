@@ -13,6 +13,7 @@ import com.example.capstoneproject.service.ApplicationLogService;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,9 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
     @Autowired
     HistoryService historyService;
+
+    @Autowired
+    HistoryRepository historyRepository;
 
     @Autowired
     CoverLetterRepository coverLetterRepository;
@@ -152,33 +156,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_IdOrderByTimestampDesc(postId);
         if (!list.isEmpty()){
             ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
-             newList = list.stream().map(x -> {
-                applicationLogResponse.setEmail(x.getUser().getEmail());
-                applicationLogResponse.setCandidateName(x.getUser().getUsername());
-                applicationLogResponse.setApplyDate(x.getTimestamp());
-                applicationLogResponse.setNote(x.getNote());
-
-                HistoryDto history = historyService.getHistoryById(x.getCv());
-                if (Objects.nonNull(history)){
-                    HashMap map = new HashMap();
-                    map.put("id", history.getId());
-                    Optional<Cv> cv = cvRepository.findById(history.getCvId());
-                    if (Objects.isNull(cv)){
-                        throw new InternalServerException("cvId not match with historyId");
-                    }
-                    map.put("resumeName", cv.get().getResumeName());
-                    applicationLogResponse.getCvs().add(map);
-                }
-                Optional<HistoryCoverLetter> historyCoverLetterOptional = historyCoverLetterRepository.findById(x.getCv());
-                if (historyCoverLetterOptional.isPresent()){
-                    HistoryCoverLetter historyCoverLetter = historyCoverLetterOptional.get();
-                    HashMap map = new HashMap();
-                    map.put("id", historyCoverLetter.getId());
-                    map.put("title", historyCoverLetter.getTitle());
-                    applicationLogResponse.getCoverLetters().add(map);
-                }
-                return applicationLogResponse;
-            }).collect(Collectors.toList());
+             newList = list.stream().map(x -> modelMapper.map(x, ApplicationLogResponse.class)).collect(Collectors.toList());
         }
         return newList;
     }
@@ -187,35 +165,36 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     public List<ApplicationLogResponse> getAllByHrID(Integer hrId){
         List<ApplicationLogResponse> newList = null;
         List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
+        HashMap<Integer, String> listCvMap = new HashMap<>();
+        List<Integer> cvList = new ArrayList<>();
+        List<Integer> clList = new ArrayList<>();
         if (!list.isEmpty()){
-            ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
+            list.stream().map(x -> {
+                return listCvMap.put(x.getCv(), null);
+            });
             newList = list.stream().map(x -> {
+                cvList.add(x.getCv());
+                if (Objects.nonNull(x.getCoverLetter())){
+                    clList.add(x.getCoverLetter());
+                }
+                ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
                 applicationLogResponse.setEmail(x.getUser().getEmail());
                 applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
-
-                HistoryDto history = historyService.getHistoryById(x.getCv());
-                if (Objects.nonNull(history)){
-                    HashMap map = new HashMap();
-                    map.put("id", history.getId());
-                    Optional<Cv> cv = cvRepository.findById(history.getCvId());
-                    if (Objects.isNull(cv)){
-                        throw new InternalServerException("cvId not match with historyId");
-                    }
-                    map.put("resumeName", cv.get().getResumeName());
-                    applicationLogResponse.getCvs().add(map);
-                }
-                Optional<HistoryCoverLetter> historyCoverLetterOptional = historyCoverLetterRepository.findById(x.getCv());
-                if (historyCoverLetterOptional.isPresent()){
-                    HistoryCoverLetter historyCoverLetter = historyCoverLetterOptional.get();
-                    HashMap map = new HashMap();
-                    map.put("id", historyCoverLetter.getId());
-                    map.put("title", historyCoverLetter.getTitle());
-                    applicationLogResponse.getCoverLetters().add(map);
-                }
+                applicationLogResponse.getCvs().put("historyId", x.getCv());
+                applicationLogResponse.getCvs().put("resumeName", null);
                 return applicationLogResponse;
             }).collect(Collectors.toList());
+            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
+            cvHistoryList.stream().forEach(x -> {
+                listCvMap.put(x.getId(), x.getCv().getResumeName());
+            });
+            newList.stream().forEach(x -> {
+                Integer historyID = (Integer) x.getCvs().get("historyId");
+                x.getCvs().put("resumeName", listCvMap.get(historyID));
+            });
+            System.out.println(listCvMap);
         }
         return newList;
     }
