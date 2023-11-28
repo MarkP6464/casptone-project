@@ -1,6 +1,5 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.CvDto;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,13 +21,13 @@ public class HistoryController {
         this.historyService = historyService;
     }
 
-    @GetMapping("/user/{user-id}/cv/history/{history-id}")
+    @GetMapping("/user/cv/history/{history-id}")
     @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
-    public ResponseEntity<?> getHistory(@PathVariable("user-id") Integer userId, @PathVariable("history-id") Integer historyId) throws JsonProcessingException {
-        if(Objects.nonNull(historyService.getHistory(userId,historyId))){
-            return ResponseEntity.ok(historyService.getHistory(userId,historyId));
+    public ResponseEntity<?> getHistory(@PathVariable("history-id") Integer historyId) throws JsonProcessingException {
+        if(Objects.nonNull(historyService.getHistory(historyId))){
+            return ResponseEntity.ok(historyService.getHistory(historyId));
         }else{
-            throw new ResourceNotFoundException("kop");
+            throw new ResourceNotFoundException("");
         }
     }
 

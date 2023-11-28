@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,11 +25,12 @@ public class CoverLetterController {
     }
 
     @PostMapping("cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
-    @PreAuthorize("hasAuthority('create:candidate')")
+//    @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
             @PathVariable("cv-id") Integer cvId,
             @PathVariable("cover-letter-id") Integer coverId,
-            @RequestBody CoverLetterGenerationDto dto
+            @RequestBody CoverLetterGenerationDto dto,
+            Principal principal
     ) throws JsonProcessingException {
         if (dto.getTemperature() < 0.2 || dto.getTemperature() > 1.0) {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
@@ -36,7 +38,8 @@ public class CoverLetterController {
         ChatResponse result = coverLetterService.generateCoverLetter(
                 coverId,
                 cvId,
-                dto
+                dto,
+                principal
 
         );
         return ResponseEntity.ok(result);
@@ -46,11 +49,13 @@ public class CoverLetterController {
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> generateSummary(
             @PathVariable("cv-id") Integer cvId,
-            @RequestBody SummaryGenerationDto dto
+            @RequestBody SummaryGenerationDto dto,
+            Principal principal
     ) throws JsonProcessingException {
         ChatResponse result = coverLetterService.generateSummaryCV(
                 cvId,
-                dto
+                dto,
+                principal
         );
         return ResponseEntity.ok(result);
     }
@@ -58,10 +63,12 @@ public class CoverLetterController {
     @PostMapping("/cv/experience/re-writer")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> rewriteExperience(
-            @RequestBody ReWritterExperienceDto dto
+            @RequestBody ReWritterExperienceDto dto,
+            Principal principal
     ) throws JsonProcessingException {
         ChatResponse result = coverLetterService.rewritteExperience(
-                dto
+                dto,
+                principal
         );
         return ResponseEntity.ok(result);
     }
@@ -70,7 +77,8 @@ public class CoverLetterController {
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
-            @PathVariable("cv-id") Integer cvId
+            @PathVariable("cv-id") Integer cvId,
+            Principal principal
     ) throws JsonProcessingException {
         if (temperature < 0.2 || temperature > 1.0) {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
@@ -78,7 +86,8 @@ public class CoverLetterController {
 
         ChatResponse result = coverLetterService.reviewCV(
                 temperature,
-                cvId
+                cvId,
+                principal
         );
         return ResponseEntity.ok(result);
     }
@@ -87,17 +96,19 @@ public class CoverLetterController {
     @PostMapping("/cover-letter/revise")
     @PreAuthorize("hasAuthority('create:candidate')")
     public ChatResponse generateCoverLetterRevise(
-            @RequestBody CoverLetterReviseDto dto
+            @RequestBody CoverLetterReviseDto dto,
+            Principal principal
     ) throws JsonProcessingException {
 
         ChatResponse result = coverLetterService.reviseCoverLetter(
-                dto
+                dto,
+                principal
         );
         return result;
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
-    @PreAuthorize("hasAuthority('create:candidate')")
+//    @PreAuthorize("hasAuthority('create:candidate')")
     public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(userId, cvId, Dto);
     }

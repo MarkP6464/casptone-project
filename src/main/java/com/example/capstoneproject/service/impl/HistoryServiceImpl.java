@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -99,25 +98,19 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
-    public HistoryDto getHistory(Integer userId, Integer historyId) throws JsonProcessingException {
-        Optional<Cv> cvOptional = cvRepository.findByUser_Id(userId);
+    public HistoryDto getHistory(Integer historyId) throws JsonProcessingException {
         HistoryDto historyViewDto = new HistoryDto();
-        if (cvOptional.isPresent()) {
-            Cv cv = cvOptional.get();
-            Optional<History> historyOptional = historyRepository.findByCv_IdAndCv_StatusAndId(cv.getId(), BasicStatus.ACTIVE, historyId);
-            if(historyOptional.isPresent()){
-                History history = historyOptional.get();
-                CvBodyReviewDto cvBodyReviewDto = history.deserialize();
-                historyViewDto.setId(history.getId());
-                historyViewDto.setTimestamp(history.getTimestamp());
-                historyViewDto.setCvBody(cvBodyReviewDto);
-                return  historyViewDto;
-            }else {
-                throw new ResourceNotFoundException("History ID not exist into Cv ID");
-            }
-
+        Optional<History> historyOptional = historyRepository.findById(historyId);
+        if(historyOptional.isPresent()){
+            History history = historyOptional.get();
+            CvBodyReviewDto cvBodyReviewDto = history.deserialize();
+            historyViewDto.setId(history.getId());
+            historyViewDto.setTimestamp(history.getTimestamp());
+            historyViewDto.setCvBody(cvBodyReviewDto);
+            return  historyViewDto;
+        }else {
+            throw new ResourceNotFoundException("History ID not exist into Cv ID");
         }
-        throw new ResourceNotFoundException("Cv ID not exist into User ID");
     }
 
 

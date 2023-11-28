@@ -12,13 +12,16 @@ import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CoverLetterService;
 import com.example.capstoneproject.service.HistorySummaryService;
+import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.service.UsersService;
+import com.example.capstoneproject.utils.SecurityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,12 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Autowired
     ChatGPTServiceImpl chatGPTService;
+
+    @Autowired
+    SecurityUtil securityUtil;
+
+    @Autowired
+    TransactionService transactionService;
 
     @Autowired
     HistorySummaryService historySummaryService;
@@ -55,7 +64,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public ChatResponse generateCoverLetter(Integer coverId,  Integer cvId, CoverLetterGenerationDto dto) throws JsonProcessingException {
+    public ChatResponse generateCoverLetter(Integer coverId,  Integer cvId, CoverLetterGenerationDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
@@ -86,6 +95,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 userMessageMap.put("content", userMessage);
                 messagesList.add(userMessageMap);
                 String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+                transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
                 String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,dto.getTemperature());
                 coverLetter.setId(coverLetter.getId());
                 coverLetter.setDescription(processString(response));
@@ -106,7 +116,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     }
 
-    public ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto) throws JsonProcessingException {
+    public ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
             Cv cv = cvsOptional.get();
@@ -161,6 +171,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
             String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,1);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
@@ -171,7 +182,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         }
     }
 
-    public ChatResponse reviewCV(float temperature, Integer cvId) throws JsonProcessingException {
+    public ChatResponse reviewCV(float temperature, Integer cvId, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
             Cv cv = cvsOptional.get();
@@ -420,6 +431,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
             String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
@@ -548,7 +560,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public ChatResponse reviseCoverLetter(CoverLetterReviseDto dto) throws JsonProcessingException {
+    public ChatResponse reviseCoverLetter(CoverLetterReviseDto dto, Principal principal) throws JsonProcessingException {
         String revise = "You are a cover letter editor. You will be given a piece of isolated text from within a cover letter and told how you can improve it. Only respond with the revision. Make sure the revision is in the same language as the given isolated text.";
         String userMessage = "Isolated text from within cover letter: " + dto.getContent() + ". It should be improved by making it more: " + dto.getImprovement();
         ChatResponse chatResponse = new ChatResponse();
@@ -562,13 +574,14 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         userMessageMap.put("content", userMessage);
         messagesList.add(userMessageMap);
         String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+        transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
         String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
         chatResponse.setReply(response);
         return chatResponse;
     }
 
     @Override
-    public ChatResponse rewritteExperience(ReWritterExperienceDto dto) throws JsonProcessingException {
+    public ChatResponse rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException {
         if(dto.getJobTitle()!=null && dto.getBullet()!=null){
             String system = "Improve writing prompt\n" +
                     "As an expert in CV writing, your task is to enhance the description of experience as a " + dto.getJobTitle() + ". The revised writing should keep the original content and adhere to best practices in CV writing, including short, concise bullet points, quantify if possible , focusing on achievements rather than responsibilities. Your response solely provide the content base on the current description provided:";
@@ -585,6 +598,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
             String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
             chatResponse.setReply(response);
             return chatResponse;
