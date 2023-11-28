@@ -14,5 +14,5 @@ public interface HistoryService {
 
     List<HistoryDateViewDto> getListHistoryDate(Integer userId, Integer cvId);
 
-    HistoryDto getHistory(Integer userId, Integer historyId) throws JsonProcessingException;
+    HistoryDto getHistory(Integer historyId) throws JsonProcessingException;
 }
