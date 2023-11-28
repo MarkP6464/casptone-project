@@ -1,10 +1,12 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.MoneyType;
 import com.example.capstoneproject.enums.TransactionStatus;
+import com.example.capstoneproject.enums.TransactionType;
 import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.service.TransactionService;
 import com.google.gson.Gson;
@@ -28,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/transaction")
+@RequestMapping("/api/v1/transaction")
 public class TransactionController {
     @Autowired
     TransactionService transactionService;
@@ -51,8 +53,10 @@ public class TransactionController {
 //    }
 
     @PostMapping("/input-credit")
-    public RedirectView addCredit(@RequestBody TransactionDto transactionDto) throws Exception {
+    public RedirectView addCredit(@RequestBody TransactionResponse dto) throws Exception {
+        TransactionDto transactionDto = new TransactionDto();
         transactionDto.setMoneyType(MoneyType.CREDIT);
+        transactionDto.setTransactionType(TransactionType.ADD);
         String returnUrl = transactionService.create(transactionDto);
         return new RedirectView(returnUrl);
     }
@@ -64,7 +68,7 @@ public class TransactionController {
     }
 
     @PostMapping(value = "/withdraw")
-    public ResponseEntity withdraw(@RequestBody TransactionDto transactionDto) throws Exception {
+    public ResponseEntity withdraw(@RequestBody TransactionResponse transactionDto) throws Exception {
         TransactionDto transaction = transactionService.requestToWithdraw(transactionDto);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }

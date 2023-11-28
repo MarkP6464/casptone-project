@@ -18,7 +18,7 @@ public class ExpertViewDto {
 
     private String phone;
 
-    private String permissionWebsite;
+    private String personalWebsite;
 
     private String email;
 

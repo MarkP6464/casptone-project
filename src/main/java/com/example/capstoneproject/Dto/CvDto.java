@@ -16,6 +16,9 @@ public class CvDto {
     private String resumeName;
     private String fieldOrDomain;
     private String experience;
+    private String companyName;
+    private String jobTitle;
+    private String linkin;
     private String summary;
     private BasicStatus status;
     private CvBodyDto cvBody;

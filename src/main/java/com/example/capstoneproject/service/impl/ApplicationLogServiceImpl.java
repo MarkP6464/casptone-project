@@ -1,11 +1,14 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
+import com.example.capstoneproject.Dto.responses.HistoryViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ApplicationLogService;
+import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
@@ -16,9 +19,8 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ApplicationLogServiceImpl implements ApplicationLogService {
@@ -35,6 +37,12 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     ApplicationLogRepository applicationLogRepository;
 
     @Autowired
+    HistoryCoverLetterRepository historyCoverLetterRepository;
+
+    @Autowired
+    HistoryService historyService;
+
+    @Autowired
     CoverLetterRepository coverLetterRepository;
 
     @Autowired
@@ -47,8 +55,16 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
             Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndId(userId,coverLetterId);
+            HistoryViewDto hisCvId = historyService.create(userId, cvId);
             if(coverLetterOptional.isPresent()){
                 CoverLetter coverLetter = coverLetterOptional.get();
+                //save cover letter history
+                HistoryCoverLetter historyCoverLetter = new HistoryCoverLetter();
+                historyCoverLetter = modelMapper.map(coverLetter, HistoryCoverLetter.class);
+                historyCoverLetter.setId(null);
+                historyCoverLetter.setCoverLetter(coverLetter);
+                historyCoverLetter = historyCoverLetterRepository.save(historyCoverLetter);
+
                 CoverLetterApplyDto coverLetterApplyDto = new CoverLetterApplyDto();
                 coverLetterApplyDto.toCoverLetterBody(modelMapper.map(coverLetter, CoverLetterDto.class));
                 Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(postingId, BasicStatus.ACTIVE, BasicStatus.PUBLIC);
@@ -61,35 +77,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         LocalDate countDate = applicationLogCheck.getTimestamp();
                         LocalDate resultDate = countDate.plusDays(condition);
                         if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
-                            CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
-                            cvBodyApplyDto.setResumeName(cv.getResumeName());
-                            applicationLog.setTimestamp(currentDate);
-                            CvBodyDto cvBodyDto = cv.deserialize();
-                            CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
-                            cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
-                            cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
-                            cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
-                            cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
-                            cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
-                            cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
-                            cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
-                            cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
-                            cvBodyReviewDto.setSummary(cv.getSummary());
-                            cvBodyReviewDto.setName(cv.getUser().getName());
-                            cvBodyReviewDto.setAddress(cv.getUser().getAddress());
-                            cvBodyReviewDto.setPhone(cv.getUser().getPhone());
-                            cvBodyReviewDto.setPersonalWebsite(cv.getUser().getPersonalWebsite());
-                            cvBodyReviewDto.setEmail(cv.getUser().getEmail());
-                            cvBodyReviewDto.setLinkin(cv.getUser().getLinkin());
-                            // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                            cvBodyApplyDto.setCv(cvBodyReviewJson);
-
-                            String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
-
-                            applicationLog.setCv(cvBodyReviewResumeJson);
-                            applicationLog.setCoverLetter(coverLetterApplyDto.getCoverLetterApply());
+                            applicationLog.setCv(hisCvId.getId());
+                            applicationLog.setCoverLetter(historyCoverLetter.getId());
                             applicationLog.setJobPosting(jobPosting);
                             applicationLog.setNote(dto.getNote());
                             Optional<Users> usersOptional = usersRepository.findUsersById(userId);
@@ -105,34 +94,9 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                         }
                     }else{
                         applicationLog.setTimestamp(currentDate);
-                        CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
-                        cvBodyApplyDto.setResumeName(cv.getResumeName());
-                        CvBodyDto cvBodyDto = cv.deserialize();
-                        CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
-                        cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
-                        cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
-                        cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
-                        cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
-                        cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
-                        cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
-                        cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
-                        cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
-                        cvBodyReviewDto.setSummary(cv.getSummary());
-                        cvBodyReviewDto.setName(cv.getUser().getName());
-                        cvBodyReviewDto.setAddress(cv.getUser().getAddress());
-                        cvBodyReviewDto.setPhone(cv.getUser().getPhone());
-                        cvBodyReviewDto.setPersonalWebsite(cv.getUser().getPersonalWebsite());
-                        cvBodyReviewDto.setEmail(cv.getUser().getEmail());
-                        cvBodyReviewDto.setLinkin(cv.getUser().getLinkin());
-                        // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                        cvBodyApplyDto.setCv(cvBodyReviewJson);
 
-                        String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
-
-                        applicationLog.setCv(cvBodyReviewResumeJson);
-                        applicationLog.setCoverLetter(coverLetterApplyDto.getCoverLetterApply());
+                        applicationLog.setCv(hisCvId.getId());
+                        applicationLog.setCoverLetter(historyCoverLetter.getId());
                         applicationLog.setJobPosting(jobPosting);
                         applicationLog.setNote(dto.getNote());
                         Optional<Users> usersOptional = usersRepository.findUsersById(userId);
@@ -185,7 +149,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
                             String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
 
-                            applicationLog.setCv(cvBodyReviewResumeJson);
+                            applicationLog.setCv(hisCvId.getId());
                             applicationLog.setJobPosting(jobPosting);
                             applicationLog.setNote(dto.getNote());
                             Optional<Users> usersOptional = usersRepository.findUsersById(userId);
@@ -227,7 +191,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
                         String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
 
-                        applicationLog.setCv(cvBodyReviewResumeJson);
+                        applicationLog.setCv(hisCvId.getId());
                         applicationLog.setJobPosting(jobPosting);
                         applicationLog.setNote(dto.getNote());
                         Optional<Users> usersOptional = usersRepository.findUsersById(userId);
@@ -247,7 +211,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             throw new BadRequestException("CV ID not exist in User ID.");
         }
     }
-    private void sendEmail(String toEmail, String subject, String message) {
+    public static void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";
         String username = "cvbuilder.ai@gmail.com";
@@ -286,5 +250,37 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             e.printStackTrace();
             throw new RuntimeException("Failed to send email.");
         }
+    }
+
+    @Override
+    public List<ApplicationLogResponse> getAll(Integer postId){
+        List<ApplicationLogResponse> newList = null;
+        List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_IdOrderByTimestampDesc(postId);
+        if (!list.isEmpty()){
+            ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
+             newList = list.stream().map(x -> {
+                applicationLogResponse.setEmail(x.getUser().getEmail());
+                applicationLogResponse.setCandidateName(x.getUser().getUsername());
+                applicationLogResponse.setApplyDate(x.getTimestamp());
+                applicationLogResponse.setNote(x.getNote());
+
+                Cv cv = cvRepository.findById(x.getCv()).get();
+                if (Objects.nonNull(cv)){
+                    HashMap map = new HashMap();
+                    map.put("id", cv.getId());
+                    map.put("resumeName", cv.getResumeName());
+                    applicationLogResponse.getCoverLetters().add(map);
+                }
+                CoverLetter letter = coverLetterRepository.findById(x.getCv()).get();
+                if (Objects.nonNull(letter)){
+                    HashMap map = new HashMap();
+                    map.put("id", letter.getId());
+                    map.put("title", letter.getTitle());
+                    applicationLogResponse.getCoverLetters().add(map);
+                }
+                return applicationLogResponse;
+            }).collect(Collectors.toList());
+        }
+        return newList;
     }
 }

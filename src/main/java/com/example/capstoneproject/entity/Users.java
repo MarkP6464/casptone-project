@@ -21,7 +21,8 @@ import java.util.List;
 @DiscriminatorFormula(
         "CASE WHEN price IS NOT NULL THEN 'Expert' " +
                 " WHEN publish IS NOT NULL THEN 'Candidate' " +
-                "ELSE 'Users' end"
+                " WHEN expired_day IS NOT NULL THEN 'HR' " +
+                "ELSE 'Admin' end"
 )
 public class Users implements UserDetails {
     @Id

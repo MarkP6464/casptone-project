@@ -19,12 +19,21 @@ public class CvBodyDto {
     private Boolean sharable = false;
 
     private Boolean searchable = false;
+
     private String resumeName;
+
+    private String jobTitle;
+
+    private String jobDescription;
+
+    private String companyName;
 
     private String fieldOrDomain;
 
     private String experience;
+
     private String templateType = "classical";
+
     private CvStyleDto cvStyle = new CvStyleDto();
 
     private List<SkillDto> skills = new ArrayList<>();

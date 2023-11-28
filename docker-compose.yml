@@ -1,0 +1,33 @@
+version: "3"
+services:
+  minh-fe:
+    image: heaty566/capstone-minh-fe:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - mono
+  minh-server:
+    image: minhptq/capstone-minh-server:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=capstone
+    depends_on:
+      - minh-db
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - mono
+  minh-db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=capstone
+    ports:
+      - "3306:3306"
+    networks:
+      - mono
+networks:
+  mono:

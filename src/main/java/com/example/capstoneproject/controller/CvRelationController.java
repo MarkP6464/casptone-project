@@ -34,7 +34,6 @@ public class CvRelationController {
     @Autowired
     ObjectMapper objectMapper;
 
-
     @GetMapping("/{cvId}/{theRelation}")
     public List<?> getAllARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation) throws Exception {
 

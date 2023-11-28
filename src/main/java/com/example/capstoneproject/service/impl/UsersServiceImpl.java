@@ -67,7 +67,7 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
             UsersViewDto.setName(users.getName());
             UsersViewDto.setAvatar(users.getAvatar());
             UsersViewDto.setPhone(users.getPhone());
-            UsersViewDto.setPermissionWebsite(users.getPersonalWebsite());
+            UsersViewDto.setPersonalWebsite(users.getPersonalWebsite());
             UsersViewDto.setEmail(users.getEmail());
             UsersViewDto.setLinkin(users.getLinkin());
             UsersViewDto.setCountry(users.getCountry());

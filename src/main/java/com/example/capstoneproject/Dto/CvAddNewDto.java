@@ -22,10 +22,12 @@ public class CvAddNewDto {
     private String phone;
     private String name;
     private String resumeName;
-
+    private String companyName;
+    private String jobTitle;
     private String fieldOrDomain;
-
+    private String jobDescription;
     private String experience;
+    private String linkin;
     private Long id;
     private String content;
     private String summary;

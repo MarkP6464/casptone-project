@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.Transaction;
 import com.mservice.allinone.models.QueryStatusTransactionResponse;
 
@@ -15,7 +16,7 @@ public interface TransactionService {
 
     TransactionDto savePaymentStatus(String orderId, String requestId) throws Exception;
 
-    TransactionDto requestToWithdraw(TransactionDto dto);
+    TransactionDto requestToWithdraw(TransactionResponse dto);
 
     TransactionDto approveWithdrawRequest(String id);
 

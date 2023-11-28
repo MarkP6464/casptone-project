@@ -22,7 +22,6 @@ public class CvBodyReviewDto {
     private String phone;
 
     private String personalWebsite;
-    private String permissionWebsite;
 
     private String email;
 

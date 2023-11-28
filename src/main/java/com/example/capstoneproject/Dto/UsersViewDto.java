@@ -1,16 +1,17 @@
 package com.example.capstoneproject.Dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 
 @NoArgsConstructor
 @Getter
 @Setter
-public class UsersViewDto {
+@Builder
+@AllArgsConstructor
+public class UsersViewDto implements Serializable {
     private Integer id;
 
     private String name;
@@ -19,7 +20,7 @@ public class UsersViewDto {
 
     private String phone;
 
-    private String permissionWebsite;
+    private String personalWebsite;
 
     private String email;
 

@@ -81,7 +81,7 @@ public class AuthenticationService {
                 userViewLoginDto.setName(users.getName());
                 userViewLoginDto.setAvatar(users.getAvatar());
                 userViewLoginDto.setPhone(users.getPhone());
-                userViewLoginDto.setPermissionWebsite(users.getPersonalWebsite());
+                userViewLoginDto.setPersonalWebsite(users.getPersonalWebsite());
                 userViewLoginDto.setEmail(users.getEmail());
                 userViewLoginDto.setLinkin(users.getLinkin());
                 userViewLoginDto.setAccountBalance(users.getAccountBalance());
@@ -101,7 +101,7 @@ public class AuthenticationService {
                 userViewLoginDto.setName(candidate.getName());
                 userViewLoginDto.setAvatar(candidate.getAvatar());
                 userViewLoginDto.setPhone(candidate.getPhone());
-                userViewLoginDto.setPermissionWebsite(candidate.getPersonalWebsite());
+                userViewLoginDto.setPersonalWebsite(candidate.getPersonalWebsite());
                 userViewLoginDto.setEmail(candidate.getEmail());
                 userViewLoginDto.setLinkin(candidate.getLinkin());
                 userViewLoginDto.setAccountBalance(candidate.getAccountBalance());

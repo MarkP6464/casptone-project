@@ -2,17 +2,18 @@ package com.example.capstoneproject.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-public class CoverLetter {
+public class HistoryCoverLetter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -29,11 +30,8 @@ public class CoverLetter {
     @Column(columnDefinition = "TEXT")
     private String description;
     @ManyToOne
-    @JoinColumn(name = "cv_id")
-    private Cv cv;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "coverLetter")
-    private List<HistoryCoverLetter> historyCoverLetter;
+    @JoinColumn(name = "cover_letter_id")
+    private CoverLetter coverLetter;
 
     public String toJson() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

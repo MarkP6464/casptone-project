@@ -1,12 +1,17 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.HRDto;
 import com.example.capstoneproject.Dto.NoteDto;
+import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -34,5 +39,13 @@ public class ApplicationLogController {
         } else {
             return ResponseEntity.badRequest().body("Apply failed");
         }
+    }
+
+
+    @GetMapping("/{post-id}/")
+    @PreAuthorize("hasAnyAuthority('read:hr')")
+    public ResponseEntity<?> getAllLog(@PathVariable("post-id") Integer postId) throws JsonProcessingException {
+        List<ApplicationLogResponse> list =  applicationLogService.getAll(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 }
