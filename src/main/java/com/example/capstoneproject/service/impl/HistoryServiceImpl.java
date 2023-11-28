@@ -74,12 +74,10 @@ public class HistoryServiceImpl implements HistoryService {
             history.setCvBody(cvBodyReviewJson);
             history.setTimestamp(timestamp);
             history.setCv(cv);
-            historyRepository.save(history);
+            return modelMapper.map(historyRepository.save(history), HistoryViewDto.class);
         }else {
             throw new BadRequestException("UserID not exist this CvID");
         }
-
-        return null;
     }
 
     @Override
@@ -120,6 +118,19 @@ public class HistoryServiceImpl implements HistoryService {
 
         }
         throw new ResourceNotFoundException("Cv ID not exist into User ID");
+    }
+
+
+    @Override
+    public HistoryDto getHistoryById(Integer historyId){
+
+        Optional<History> historyOptional = historyRepository.findById(historyId);
+        if (historyOptional.isPresent()){
+            History history = historyOptional.get();
+            HistoryDto historyDto = modelMapper.map(history, HistoryDto.class);
+            historyDto.setCvId(history.getCv().getId());
+            return historyDto;
+        } else throw new ResourceNotFoundException("Not found history of the cover letter id!");
     }
 
 }

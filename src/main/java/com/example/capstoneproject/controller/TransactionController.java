@@ -53,18 +53,21 @@ public class TransactionController {
 //    }
 
     @PostMapping("/input-credit")
-    public RedirectView addCredit(@RequestBody TransactionResponse dto) throws Exception {
+    public String addCredit(@RequestBody TransactionResponse dto) throws Exception {
         TransactionDto transactionDto = new TransactionDto();
         transactionDto.setMoneyType(MoneyType.CREDIT);
+        transactionDto.setExpenditure(dto.getExpenditure());
+        transactionDto.setConversionAmount(dto.getConversionAmount());
+        transactionDto.setUserId(dto.getUserId());
         transactionDto.setTransactionType(TransactionType.ADD);
         String returnUrl = transactionService.create(transactionDto);
-        return new RedirectView(returnUrl);
+        return returnUrl;
     }
 
-    @PostMapping(value = "/query-transaction")
+    @GetMapping(value = "/query-transaction")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
             TransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
-        return ResponseEntity.status(HttpStatus.OK).body(transaction);
+        return ResponseEntity.status(HttpStatus.OK).body(transaction.getStatus());
     }
 
     @PostMapping(value = "/withdraw")

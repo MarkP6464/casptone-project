@@ -79,10 +79,10 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-        String domain = "https://cvbuilder.monoinfinity.net";
+        String domain = "https://api-cvbuilder.monoinfinity.net";
 
-        String returnURL = domain + "/transaction/query-transaction";
-        String notifyURL = domain + "/transaction/query-transaction";
+        String returnURL = domain + "/api/v1/transaction/query-transaction";
+        String notifyURL = domain + "/api/v1/transaction/query-transaction";
 
         //GET this from HOSTEL OWNER
         Gson gson = new Gson();
@@ -116,7 +116,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         JsonObject s  = new Gson().fromJson(new String(queryStatusTransactionResponse.getExtraData()), JsonObject.class);
         Integer code = queryStatusTransactionResponse.getErrorCode();
-        String tid = s.get("transactionid").getAsString();
+        String tid = s.get("transactionId").getAsString();
         String uid = s.get("uid").getAsString();
         Long expenditure = s.get("expenditure").getAsLong();
         Transaction transaction = transactionRepository.findByRequestId(tid);

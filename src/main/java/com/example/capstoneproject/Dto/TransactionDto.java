@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter @Setter
@@ -33,4 +34,6 @@ public class TransactionDto {
     private TransactionStatus status;
 
     private Integer userId;
+
+    private LocalDateTime createdDate;
 }
