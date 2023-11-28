@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter @Setter
 public class TransactionDto {
+    private Long id;
     private String sentId;
 
     private String requestId;

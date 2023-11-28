@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findBySentId(String id);
 
     List<Transaction> findAllByTransactionTypeAndStatus(TransactionType transactionType, TransactionStatus transactionStatus);
@@ -24,5 +24,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     Transaction findByRequestId(String id);
 
-    Transaction getById(String id);
+    Optional<Transaction> findById(Long id);
 }

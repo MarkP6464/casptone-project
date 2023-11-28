@@ -24,6 +24,8 @@ public interface TransactionService {
 
     TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount);
 
+    Transaction getById(Long id);
+
     TransactionDto requestToReviewFail(String requestId);
 
     TransactionDto requestToReviewSuccessFul(String requestId);

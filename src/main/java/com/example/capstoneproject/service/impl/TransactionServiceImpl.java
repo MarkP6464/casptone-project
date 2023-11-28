@@ -17,6 +17,7 @@ import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.service.UsersService;
+import com.google.api.gax.rpc.NotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mservice.allinone.models.CaptureMoMoResponse;
@@ -31,9 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -215,8 +218,16 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public Transaction getById(Long id){
+        Optional<Transaction> transaction = transactionRepository.findById(id);
+        if (Objects.nonNull(transaction)) {
+            return transaction.get();
+        } else throw new BadRequestException("Not found transaction");
+    }
+
+    @Override
     public TransactionDto requestToReviewFail(String requestId){
-        Transaction transaction = transactionRepository.findByRequestId(requestId);
+        Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
         transaction.setStatus(TransactionStatus.FAIL);
         transaction = transactionRepository.save(transaction);
 
@@ -229,7 +240,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionDto requestToReviewSuccessFul(String requestId){
-        Transaction transaction = transactionRepository.findByRequestId(requestId);
+        Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
         transaction.setStatus(TransactionStatus.SUCCESSFULLY);
         transaction = transactionRepository.save(transaction);
 
