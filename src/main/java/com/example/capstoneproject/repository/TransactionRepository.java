@@ -20,6 +20,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     List<Transaction> findBySentIdAndUser_Id(String id, Long receiveId);
 
+    List<Transaction> findBySentIdOrUser_Id(String id, Integer userId);
+
     Transaction findByRequestId(String id);
 
     Transaction getById(String id);

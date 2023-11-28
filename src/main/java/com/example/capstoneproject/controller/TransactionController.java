@@ -39,9 +39,8 @@ public class TransactionController {
     TransactionRepository transactionRepository;
 
     @GetMapping
-    public List<TransactionDto> getAll(@RequestParam String sentId, @RequestParam(required = false) Long receiverId){
-        List<TransactionDto> list = null;
-        list = Objects.nonNull(receiverId) ? transactionService.getAll(sentId, receiverId) : transactionService.getAll(sentId);
+    public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
+        List<TransactionDto> list = transactionService.getAll(sentId);
         return list;
     }
 
