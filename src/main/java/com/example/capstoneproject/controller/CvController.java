@@ -70,16 +70,6 @@ public class CvController {
         return cvService.updateCvContact(UsersId, dto);
     }
 
-//    @PutMapping("/{user-id}/cv/{cv-id}/template/{template-id}")
-//    public String updateTemplate(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @PathVariable("template-id") int templateId) {
-//        boolean check = cvService.updateCvTemplate(UsersId, cvId, templateId);
-//        if (check) {
-//            return "Changes saved";
-//        } else {
-//            return "Changes fail";
-//        }
-//    }
-
     @DeleteMapping("/{user-id}/cv/{cv-id}")
     public String deleteCv(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId) {
         cvService.deleteCvById(UsersId, cvId);
@@ -115,7 +105,6 @@ public class CvController {
     public List<ExperienceRoleDto> getListExperienceRole(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
         return cvService.getListExperienceRole(userId,cvId);
     }
-
 
 
     @GetMapping("/{userId}/cv/{cvId}/micro")

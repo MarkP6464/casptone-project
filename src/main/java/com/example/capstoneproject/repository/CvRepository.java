@@ -33,6 +33,12 @@ public interface CvRepository extends JpaRepository<Cv, Integer> {
             "WHERE sl.evaluate.id = :evaluateId AND sl.Status != :status")
     List<Section> findSectionsWithNonPassStatus(@Param("evaluateId") int evaluateId, @Param("status") SectionLogStatus status);
 
+    @Query("SELECT SUM(e.score) FROM ScoreLog sLog " +
+            "JOIN sLog.sectionLog sl " +
+            "JOIN sl.evaluate e " +
+            "WHERE sLog.score.id = :scoreId AND sl.Status = :status")
+    Double calculateTotalScoreByScoreIdAndStatus(@Param("scoreId") Integer scoreId, @Param("status") SectionLogStatus status);
+
     @Query("SELECT s FROM Section s WHERE s.TypeName = :typeName")
     List<Section> findAllByTypeName(SectionEvaluate typeName);
 

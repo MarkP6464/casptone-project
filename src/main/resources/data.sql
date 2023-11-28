@@ -67,16 +67,18 @@ VALUES (6,'Quantified Bullet Points', 'Add metrics to each bullet point when pos
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
 VALUES (7,'Spelling and grammar', 'Be careful in using appropriate words.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (8,'Your location number is missing', 'Add a valid location to be contacted easily.', 5.0, 10.0,5,5);
+VALUES (8,'Passive voice', 'Using passive voice in your resume can make it harder for employers to identify your specific contributions.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (9,'Your date number is missing', 'Add valid dates for achievements to be validated.', 5.0, 10.0,5,5);
+VALUES (9,'Your location number is missing', 'Add a valid location to be contacted easily.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (10,'Your Phone number is missing', 'Add a valid phone number to be contacted easily.', 5.0, 10.0,5,5);
+VALUES (10,'Your date number is missing', 'Add valid dates for achievements to be validated.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (11,'Your Linkedin url is', 'Your Linkedin URL should be abbreviated like in/charles-bloomberg.', 5.0, 10.0,5,5);
+VALUES (11,'Your Phone number is missing', 'Add a valid phone number to be contacted easily.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (12,'Your resume has', 'Your resume should contain between 400-800 words.', 5.0, 10.0,5,5);
+VALUES (12,'Your Linkedin url is', 'Your Linkedin URL should be abbreviated like in/charles-bloomberg.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (13,'Your Summary is missing', 'Please do not leave summary blank.', 5.0, 10.0,5,5);
+VALUES (13,'Your resume has', 'Your resume should contain between 400-800 words.', 5.0, 10.0,5,5);
 INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
-VALUES (14,'Your resume is not tailored for a specific job description', 'Add specific keywords from a targeted job description to optimize your resume. ', 5.0, 10.0,5,5);
+VALUES (14,'Your Summary is missing', 'Please do not leave summary blank.', 5.0, 10.0,5,5);
+INSERT INTO evaluate (id, title, description, score, max_score, condition1, condition2)
+VALUES (15,'Your resume is not tailored for a specific job description', 'Add specific keywords from a targeted job description to optimize your resume. ', 5.0, 10.0,5,5);

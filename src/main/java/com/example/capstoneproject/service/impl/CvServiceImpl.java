@@ -25,6 +25,15 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     CvRepository cvRepository;
 
     @Autowired
+    ScoreRepository scoreRepository;
+
+    @Autowired
+    ScoreLogRepository scoreLogRepository;
+
+    @Autowired
+    SectionLogRepository sectionLogRepository;
+
+    @Autowired
     UsersMapper usersMapper;
     @Autowired
     @Lazy
@@ -420,157 +429,369 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     public List<ScoreDto> getEvaluateCv(int userId, int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.getById(cvId);
         List<SectionCvDto> sectionCvDtos = new ArrayList<>();
+        List<SectionAddScoreLogDto> sectionAddScoreLogDtos = new ArrayList<>();
         List<Evaluate> evaluates = evaluateRepository.findAll();
-        final int[] totalWords = {0};
+        Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+        if(scoreOptional.isPresent()){
+            Score score = scoreOptional.get();
 
-        if (Objects.nonNull(cv)) {
-            CvBodyDto cvBodyDto = cv.deserialize();
-            List<ContentDto> contentList = new ArrayList<>();
-            List<ContentDto> practiceList = new ArrayList<>();
-            List<ContentDto> optimizationList = new ArrayList<>();
-            for (SkillDto x : cvBodyDto.getSkills()) {
-                if (x.getIsDisplay()) {
-                    String description = x.getDescription();
-                    if (description != null) {
-                        String[] words = description.split("\\s+");
-                        totalWords[0] += words.length;
+            final int[] totalWords = {0};
+
+            if (Objects.nonNull(cv)) {
+                CvBodyDto cvBodyDto = cv.deserialize();
+                List<ContentDto> contentList = new ArrayList<>();
+                List<ContentDto> practiceList = new ArrayList<>();
+                List<ContentDto> optimizationList = new ArrayList<>();
+                for (SkillDto x : cvBodyDto.getSkills()) {
+                    if (x.getIsDisplay()) {
+                        String description = x.getDescription();
+                        if (description != null) {
+                            String[] words = description.split("\\s+");
+                            totalWords[0] += words.length;
+                        }
                     }
                 }
-            }
 
-            cvBodyDto.getCertifications().forEach(x -> {
-                if (x.getIsDisplay()) {
-                    String skill = x.getCertificateRelevance();
-                    if (skill != null) {
-                        String word = skill;
+                cvBodyDto.getCertifications().forEach(x -> {
+                    if (x.getIsDisplay()) {
+                        String skill = x.getCertificateRelevance();
+                        if (skill != null) {
+                            String word = skill;
+                            String[] words = word.split("\\s+");
+                            totalWords[0] += words.length;
+                        }
+                    }
+                });
+
+                cvBodyDto.getEducations().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        String minor = x.getMinor();
+                        String description = x.getDescription();
+                        if(minor==null){
+                            minor = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = description + " " + minor;
                         String[] words = word.split("\\s+");
                         totalWords[0] += words.length;
                     }
+                });
+
+                cvBodyDto.getExperiences().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        int experienceId = x.getId();
+                        String title = x.getRole();
+                        String location = x.getLocation();
+                        String duration = x.getDuration();
+                        String company = x.getCompanyName();
+                        String description = x.getDescription();
+                        if(title==null){
+                            title = "";
+                        }
+                        if(location==null){
+                            location = "";
+                        }
+                        if(duration==null){
+                            duration = "";
+                        }
+                        if(company==null){
+                            company = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = title + " " + location + " " + company + " " + description;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
+                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.experience, experienceId));
+                        Experience e = experienceRepository.findById(x.getId().intValue()).get();
+                        modelMapper.map(e, x);
+                    }
+                });
+
+                cvBodyDto.getProjects().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        int projectId = x.getId();
+                        String title = x.getTitle();
+                        String duration = x.getDuration();
+                        String organization = x.getOrganization();
+                        String description = x.getDescription();
+                        if(title==null){
+                            title = "";
+                        }
+                        if(organization==null){
+                            organization = "";
+                        }
+                        if(duration==null){
+                            duration = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = title + " " + organization + " " + description;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
+                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.project, projectId));
+                        Project e = projectRepository.findById(x.getId().intValue()).get();
+                        modelMapper.map(e, x);
+                    }
+                });
+
+                cvBodyDto.getInvolvements().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        int involvementId = x.getId();
+                        String duration = x.getDuration();
+                        String title = x.getOrganizationRole();
+                        String name = x.getOrganizationName();
+                        String college = x.getCollege();
+                        String description = x.getDescription();
+                        if(title==null){
+                            title = "";
+                        }
+                        if(name==null){
+                            name = "";
+                        }
+                        if(duration==null){
+                            duration = "";
+                        }
+                        if(college==null){
+                            college = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = title + " " + name + " " + college + " " + description;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
+                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.involvement, involvementId));
+                        Involvement e = involvementRepository.findById(x.getId().intValue()).get();
+                        modelMapper.map(e, x);
+                    }
+                });
+
+                contentList = evaluateContentSections(evaluates, sectionCvDtos);
+
+                practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
+
+                optimizationList = evaluateOptimational(evaluates, cvId);
+
+                ScoreDto scoreDto = new ScoreDto(score.getContent(),contentList,score.getPractice(), practiceList,score.getOptimization(), optimizationList,score.getResult());
+                List<ScoreDto> result = new ArrayList<>();
+                result.add(scoreDto);
+
+                return result;
+            }
+        }else{
+            Score score = new Score();
+            score.setCv(cv);
+            Score savedScore = scoreRepository.save(score);
+
+            Integer savedScoreId = savedScore.getId();
+
+            final int[] totalWords = {0};
+
+            if (Objects.nonNull(cv)) {
+                CvBodyDto cvBodyDto = cv.deserialize();
+                List<ContentDto> contentList = new ArrayList<>();
+                List<ContentDto> practiceList = new ArrayList<>();
+                List<ContentDto> optimizationList = new ArrayList<>();
+                for (SkillDto x : cvBodyDto.getSkills()) {
+                    if (x.getIsDisplay()) {
+                        String description = x.getDescription();
+                        if (description != null) {
+                            String[] words = description.split("\\s+");
+                            totalWords[0] += words.length;
+                        }
+                    }
                 }
-            });
 
-            cvBodyDto.getEducations().forEach(x -> {
-                if(x.getIsDisplay()){
-                    String minor = x.getMinor();
-                    String description = x.getDescription();
-                    if(minor==null){
-                        minor = "";
+                cvBodyDto.getCertifications().forEach(x -> {
+                    if (x.getIsDisplay()) {
+                        String skill = x.getCertificateRelevance();
+                        if (skill != null) {
+                            String word = skill;
+                            String[] words = word.split("\\s+");
+                            totalWords[0] += words.length;
+                        }
                     }
-                    if(description==null){
-                        description = "";
+                });
+
+                cvBodyDto.getEducations().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        String minor = x.getMinor();
+                        String description = x.getDescription();
+                        if(minor==null){
+                            minor = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = description + " " + minor;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
                     }
-                    String word = description + " " + minor;
-                    String[] words = word.split("\\s+");
-                    totalWords[0] += words.length;
+                });
+
+                cvBodyDto.getExperiences().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        int experienceId = x.getId();
+                        String title = x.getRole();
+                        String location = x.getLocation();
+                        String duration = x.getDuration();
+                        String company = x.getCompanyName();
+                        String description = x.getDescription();
+                        if(title==null){
+                            title = "";
+                        }
+                        if(location==null){
+                            location = "";
+                        }
+                        if(duration==null){
+                            duration = "";
+                        }
+                        if(company==null){
+                            company = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = title + " " + location + " " + company + " " + description;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
+                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.experience, experienceId));
+                        Experience e = experienceRepository.findById(x.getId().intValue()).get();
+                        modelMapper.map(e, x);
+                    }
+                });
+
+                cvBodyDto.getProjects().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        int projectId = x.getId();
+                        String title = x.getTitle();
+                        String duration = x.getDuration();
+                        String organization = x.getOrganization();
+                        String description = x.getDescription();
+                        if(title==null){
+                            title = "";
+                        }
+                        if(organization==null){
+                            organization = "";
+                        }
+                        if(duration==null){
+                            duration = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = title + " " + organization + " " + description;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
+                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.project, projectId));
+                        Project e = projectRepository.findById(x.getId().intValue()).get();
+                        modelMapper.map(e, x);
+                    }
+                });
+
+                cvBodyDto.getInvolvements().forEach(x -> {
+                    if(x.getIsDisplay()){
+                        int involvementId = x.getId();
+                        String duration = x.getDuration();
+                        String title = x.getOrganizationRole();
+                        String name = x.getOrganizationName();
+                        String college = x.getCollege();
+                        String description = x.getDescription();
+                        if(title==null){
+                            title = "";
+                        }
+                        if(name==null){
+                            name = "";
+                        }
+                        if(duration==null){
+                            duration = "";
+                        }
+                        if(college==null){
+                            college = "";
+                        }
+                        if(description==null){
+                            description = "";
+                        }
+                        String word = title + " " + name + " " + college + " " + description;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
+                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.involvement, involvementId));
+                        Involvement e = involvementRepository.findById(x.getId().intValue()).get();
+                        modelMapper.map(e, x);
+                    }
+                });
+
+                for (SectionAddScoreLogDto sectionLog1: sectionAddScoreLogDtos){
+                    List<SectionLog> sectionLog = sectionLogRepository.findBySection_TypeNameAndSection_TypeId(sectionLog1.getTypeName(), sectionLog1.getTypeId());
+                    for(SectionLog sectionLog2: sectionLog){
+                        ScoreLog scoreLog = new ScoreLog();
+                        scoreLog.setSectionLog(sectionLog2);
+                        scoreLog.setScore(savedScore);
+                        scoreLogRepository.save(scoreLog);
+                    }
                 }
-            });
+                Double content = cvRepository.calculateTotalScoreByScoreIdAndStatus(savedScoreId,SectionLogStatus.Pass);
+                Double practice = evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords);
+                Double optimization = evaluateOptimationalScore(evaluates, cvId);
+                Double totalScore = calculateTotalScore(evaluates);
+                double resultPercentage = (content / totalScore) * 40;
+                double practicePercentage = (practice / totalScore) * 30;
+                double optimizationPercentage = (optimization / totalScore) * 30;
+                double totalPercentage = resultPercentage + practicePercentage + optimizationPercentage;
+                String resultLabel = getResultLabel(totalPercentage);
 
-            cvBodyDto.getExperiences().forEach(x -> {
-                if(x.getIsDisplay()){
-                    int experienceId = x.getId();
-                    String title = x.getRole();
-                    String location = x.getLocation();
-                    String duration = x.getDuration();
-                    String company = x.getCompanyName();
-                    String description = x.getDescription();
-                    if(title==null){
-                        title = "";
-                    }
-                    if(location==null){
-                        location = "";
-                    }
-                    if(duration==null){
-                        duration = "";
-                    }
-                    if(company==null){
-                        company = "";
-                    }
-                    if(description==null){
-                        description = "";
-                    }
-                    String word = title + " " + location + " " + company + " " + description;
-                    String[] words = word.split("\\s+");
-                    totalWords[0] += words.length;
-                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
-                    Experience e = experienceRepository.findById(x.getId().intValue()).get();
-                    modelMapper.map(e, x);
+                Optional<Score> scoreOptional1 = scoreRepository.findById(savedScoreId);
+                if(scoreOptional.isPresent()){
+                    Score score1 = scoreOptional1.get();
+                    score1.setContent((int) Math.round(content));
+                    score1.setPractice((int) Math.round(practice));
+                    score1.setOptimization((int) Math.round(optimization));
+                    score1.setResult(resultLabel);
+                    scoreRepository.save(score1);
                 }
-            });
 
-            cvBodyDto.getProjects().forEach(x -> {
-                if(x.getIsDisplay()){
-                    int projectId = x.getId();
-                    String title = x.getTitle();
-                    String duration = x.getDuration();
-                    String organization = x.getOrganization();
-                    String description = x.getDescription();
-                    if(title==null){
-                        title = "";
-                    }
-                    if(organization==null){
-                        organization = "";
-                    }
-                    if(duration==null){
-                        duration = "";
-                    }
-                    if(description==null){
-                        description = "";
-                    }
-                    String word = title + " " + organization + " " + description;
-                    String[] words = word.split("\\s+");
-                    totalWords[0] += words.length;
-                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
-                    Project e = projectRepository.findById(x.getId().intValue()).get();
-                    modelMapper.map(e, x);
-                }
-            });
+                contentList = evaluateContentSections(evaluates, sectionCvDtos);
 
-            cvBodyDto.getInvolvements().forEach(x -> {
-                if(x.getIsDisplay()){
-                    int involvementId = x.getId();
-                    String duration = x.getDuration();
-                    String title = x.getOrganizationRole();
-                    String name = x.getOrganizationName();
-                    String college = x.getCollege();
-                    String description = x.getDescription();
-                    if(title==null){
-                        title = "";
-                    }
-                    if(name==null){
-                        name = "";
-                    }
-                    if(duration==null){
-                        duration = "";
-                    }
-                    if(college==null){
-                        college = "";
-                    }
-                    if(description==null){
-                        description = "";
-                    }
-                    String word = title + " " + name + " " + college + " " + description;
-                    String[] words = word.split("\\s+");
-                    totalWords[0] += words.length;
-                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
-                    Involvement e = involvementRepository.findById(x.getId().intValue()).get();
-                    modelMapper.map(e, x);
-                }
-            });
+                practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
 
-            contentList = evaluateContentSections(cv, evaluates, sectionCvDtos);
+                optimizationList = evaluateOptimational(evaluates, cvId);
 
-            practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
+                ScoreDto scoreDto = new ScoreDto((int) Math.round(content),contentList,(int) Math.round(practice), practiceList,(int) Math.round(optimization), optimizationList,resultLabel);
+                List<ScoreDto> result = new ArrayList<>();
+                result.add(scoreDto);
 
-            optimizationList = evaluateOptimational(evaluates, cvId);
+                return result;
+            }
 
-            ScoreDto scoreDto = new ScoreDto(contentList, practiceList, optimizationList);
-            List<ScoreDto> result = new ArrayList<>();
-            result.add(scoreDto);
-
-            return result;
         }
-
         return Collections.emptyList();
+    }
+
+    public static double calculateTotalScore(List<Evaluate> evaluates) {
+        return evaluates.stream()
+                .mapToDouble(Evaluate::getScore)
+                .sum();
+    }
+
+    private String getResultLabel(double percentage) {
+        if (percentage < 50) {
+            return "bad";
+        } else if (percentage >= 50  && percentage <= 79) {
+            return "improvement";
+        } else {
+            return "excellent";
+        }
     }
 
     @Override
@@ -634,19 +855,18 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         return experienceRoles;
     }
 
-    private List<ContentDto> evaluateContentSections(Cv cv, List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos) {
+    private List<ContentDto> evaluateContentSections(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos) {
         List<ContentDto> contentList = new ArrayList<>();
         int evaluateId = 1;
 
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 1; i <= 8; i++) {
             Evaluate evaluate = evaluates.get(i - 1);
             List<Section> sections = cvRepository.findSectionsWithNonPassStatus(evaluateId, SectionLogStatus.Pass);
 
             List<ContentDetailDto> sameSections = findSameSections(sectionCvDtos, sections);
 
-            ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
-
-            if (i <= 7) {
+            if (!sameSections.isEmpty()) {
+                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
                 contentList.add(contentDto);
             }
 
@@ -674,12 +894,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
     private List<ContentDto> evaluateBestPractices(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos, int userId, int cvId, int[] totalWords, Cv cv) {
         List<ContentDto> resultList = new ArrayList<>();
 
-        for (int i = 7; i < 13; i++) {
+        for (int i = 8; i < 14; i++) {
             Evaluate evaluate = evaluates.get(i);
             List<ContentDetailDto> sameSections = new ArrayList<>();
 
             switch (i) {
-                case 7:
+                case 8:
                     // Check location = null
                     List<Section> sections = cvRepository.findAllByTypeName(SectionEvaluate.experience);
                     for (SectionCvDto sectionCvDto : sectionCvDtos) {
@@ -695,7 +915,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 8:
+                case 9:
                     // Check date = null
                     List<Section> dateSections = cvRepository.findAllByTypeNames(Arrays.asList(SectionEvaluate.experience, SectionEvaluate.project, SectionEvaluate.involvement));
                     for (SectionCvDto sectionCvDto : sectionCvDtos) {
@@ -710,27 +930,27 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 9:
+                case 10:
                     // Check phone = null
                     Optional<Users> users = usersRepository.findUsersById(userId);
-                    if (users.isPresent() && users.get().getPhone() != null) {
+                    if (users.isPresent() && users.get().getPhone() == null) {
                         ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                         // Do something
-                    }
-                    break;
-
-                case 10:
-                    // Check linkin = null
-                    Optional<Users> users1 = usersRepository.findUsersById(userId);
-                    if (users1.isPresent() && users1.get().getLinkin() != null) {
-                        // Do something
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
-                        resultList.add(contentDto);
                     }
                     break;
 
                 case 11:
+                    // Check linkin = null
+                    Optional<Users> users1 = usersRepository.findUsersById(userId);
+                    if (users1.isPresent() && users1.get().getLinkin() == null) {
+                        // Do something
+                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                case 12:
                     // Check count word
                     if (totalWords[0] < 300) {
                         String totalWordsString = Arrays.toString(totalWords);
@@ -739,7 +959,7 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                     }
                     break;
 
-                case 12:
+                case 13:
                     // Check summary
                     Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
                     if (cv1.getSummary() == null || cv1.getSummary().length() < 30) {
@@ -755,15 +975,128 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         return resultList;
     }
 
+    private Double evaluateBestPracticesScore(List<SectionCvDto> sectionCvDtos, int userId, int cvId, int[] totalWords) {
+        double scorePractice = 0.0;
+        for (int i = 8; i < 14; i++) {
+            switch (i) {
+                case 8:
+                    // Check location = null
+                    List<Section> sections = cvRepository.findAllByTypeName(SectionEvaluate.experience);
+                    boolean atLeastOneMatch = false;
+                    for (SectionCvDto sectionCvDto : sectionCvDtos) {
+                        for (Section section : sections) {
+                            if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
+                                    && section.getTypeName() == SectionEvaluate.experience && sectionCvDto.getLocation() == null
+                                    && sectionCvDto.getTitle() != null) {
+                                atLeastOneMatch = true;
+                            }
+                        }
+                    }
+                    if (!atLeastOneMatch) {
+                        Evaluate evaluate1 = evaluateRepository.findById(9);
+                        if(evaluate1!=null){
+                            scorePractice += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                case 9:
+                    // Check date = null
+                    List<Section> dateSections = cvRepository.findAllByTypeNames(Arrays.asList(SectionEvaluate.experience, SectionEvaluate.project, SectionEvaluate.involvement));
+                    boolean atLeastOneMatchdate = false;
+                    for (SectionCvDto sectionCvDto : sectionCvDtos) {
+                        for (Section section : dateSections) {
+                            if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
+                                    && (sectionCvDto.getDuration() == null && sectionCvDto.getTitle() != null)) {
+                                atLeastOneMatchdate = true;
+                            }
+                        }
+                    }
+                    if (!atLeastOneMatchdate) {
+                        Evaluate evaluate1 = evaluateRepository.findById(10);
+                        if(evaluate1!=null){
+                            scorePractice += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                case 10:
+                    // Check phone = null
+                    Optional<Users> users = usersRepository.findUsersById(userId);
+                    boolean atLeastOneMatchPhone = false;
+                    if (users.isPresent() && users.get().getPhone() == null) {
+                        atLeastOneMatchPhone = true;
+                        // Do something
+                    }
+                    if (!atLeastOneMatchPhone) {
+                        Evaluate evaluate1 = evaluateRepository.findById(11);
+                        if(evaluate1!=null){
+                            scorePractice += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                case 11:
+                    // Check linkin = null
+                    Optional<Users> users1 = usersRepository.findUsersById(userId);
+                    boolean atLeastOneMatchLinkin = false;
+                    if (users1.isPresent() && users1.get().getLinkin() == null) {
+                        // Do something
+                        atLeastOneMatchLinkin = true;
+                    }
+                    if (!atLeastOneMatchLinkin) {
+                        Evaluate evaluate1 = evaluateRepository.findById(12);
+                        if(evaluate1!=null){
+                            scorePractice += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                case 12:
+                    // Check count word
+                    boolean atLeastOneMatchWord = false;
+                    if (totalWords[0] < 300) {
+                        atLeastOneMatchWord = true;
+                    }
+                    if (!atLeastOneMatchWord) {
+                        Evaluate evaluate1 = evaluateRepository.findById(13);
+                        if(evaluate1!=null){
+                            scorePractice += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                case 13:
+                    // Check summary
+                    boolean atLeastOneMatchSummary = false;
+                    Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+                    if (cv1.getSummary() == null || cv1.getSummary().length() < 30) {
+                        atLeastOneMatchSummary = true;
+                    }
+                    if (!atLeastOneMatchSummary) {
+                        Evaluate evaluate1 = evaluateRepository.findById(14);
+                        if(evaluate1!=null){
+                            scorePractice += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return scorePractice;
+    }
+
     private List<ContentDto> evaluateOptimational(List<Evaluate> evaluates, int cvId) {
         List<ContentDto> contentDtoList = new ArrayList<>();
 
-        for (int i = 13; i < 14; i++) {
+        for (int i = 14; i < 15; i++) {
             Evaluate evaluate = evaluates.get(i);
             List<ContentDetailDto> sameSections = new ArrayList<>();
 
             switch (i) {
-                case 13:
+                case 14:
                     // Check Ats = null
                     Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
                     JobDescription jobDescription = getCv.getJobDescription();
@@ -784,6 +1117,37 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
         }
 
         return contentDtoList;
+    }
+
+    private Double evaluateOptimationalScore(List<Evaluate> evaluates, int cvId) {
+        double score = 0.0;
+
+        for (int i = 14; i < 15; i++) {
+            Evaluate evaluate = evaluates.get(i);
+            List<ContentDetailDto> sameSections = new ArrayList<>();
+
+            switch (i) {
+                case 14:
+                    // Check Ats = null
+                    Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+                    JobDescription jobDescription = getCv.getJobDescription();
+                    if (jobDescription != null) {
+                        Integer jobDescriptionId = jobDescription.getId();
+                        List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionId);
+                        if (ats != null) {
+                            Evaluate evaluate1 = evaluateRepository.findById(15);
+                            score += evaluate1.getScore();
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+
+        return score;
     }
 
 }

@@ -11,8 +11,12 @@ import java.util.List;
 @Getter
 @Setter
 public class ScoreDto {
+    Integer scoreContent;
     List<ContentDto> content;
+    Integer scorePractice;
     List<ContentDto> practice;
+    Integer scoreOptimization;
     List<ContentDto> optimization;
+    String result;
 
 }

@@ -254,7 +254,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
-                if (evaluateId == 7) {
+                if (evaluateId == 9) {
                     break;
                 }
             }
@@ -325,7 +325,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             sectionLogDto1.setStatus(bulletPointDto.getStatus());
             sectionLogService.create(sectionLogDto1);
             evaluateId++;
-            if (evaluateId == 7) {
+            if (evaluateId == 9) {
                 break;
             }
         }

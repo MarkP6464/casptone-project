@@ -27,6 +27,12 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     ExperienceRepository experienceRepository;
 
     @Autowired
+    ScoreRepository scoreRepository;
+
+    @Autowired
+    ScoreLogRepository scoreLogRepository;
+
+    @Autowired
     CvService cvService;
 
     @Autowired
@@ -70,47 +76,6 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public ExperienceViewDto createExperience(Integer id, ExperienceDto dto) {
-//        Experience experience = experienceMapper.mapDtoToEntity(dto);
-//        Users Users = usersService.getUsersById(id);
-//        experience.setUser(Users);
-//        experience.setStatus(BasicStatus.ACTIVE);
-//        Experience saved = experienceRepository.save(experience);
-//
-//        //Save evaluate db
-//        SectionDto sectionDto = new SectionDto();
-//        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(id, BasicStatus.ACTIVE);
-//        if (!experiences.isEmpty()) {
-//            sectionDto.setTypeId(experiences.get(0).getId());
-//        }
-//        sectionDto.setTitle(saved.getRole());
-//        sectionDto.setTypeName(SectionEvaluate.experience);
-//        SectionDto section = sectionService.create(sectionDto);
-//
-//        //Get process evaluate
-//        List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
-//        ExperienceViewDto experienceViewDto = new ExperienceViewDto();
-//        experienceViewDto.setId(saved.getId());
-//        experienceViewDto.setRole(saved.getRole());
-//        experienceViewDto.setCompanyName(saved.getCompanyName());
-//        experienceViewDto.setStartDate(saved.getStartDate());
-//        experienceViewDto.setEndDate(saved.getEndDate());
-//        experienceViewDto.setLocation(saved.getLocation());
-//        experienceViewDto.setDescription(saved.getDescription());
-//        experienceViewDto.setBulletPointDtos(evaluateResult);
-//
-//        //Save evaluateLog into db
-//        List<Evaluate> evaluates = evaluateRepository.findAll();
-//
-//        for (int i = 0; i < evaluates.size(); i++) {
-//            Evaluate evaluate = evaluates.get(i);
-//            BulletPointDto bulletPointDto = evaluateResult.get(i);
-//            SectionLogDto sectionLogDto1 = new SectionLogDto();
-//            sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
-//            sectionLogDto1.setEvaluate(evaluate);
-//            sectionLogDto1.setBullet(bulletPointDto.getResult());
-//            sectionLogDto1.setStatus(bulletPointDto.getStatus());
-//            sectionLogService.create(sectionLogDto1);
-//        }
         return null;
     }
 
@@ -262,6 +227,17 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, experience.getId());
+
+            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+            if(scoreOptional.isPresent()){
+                Score score = scoreOptional.get();
+                //Delete score in db
+                scoreLogRepository.deleteAllByScore_Id(score.getId());
+
+                //Delete score in db
+                scoreRepository.deleteByCv_Id(cvId);
+            }
+
             sectionLogRepository.deleteBySection_Id(section.getId());
             //Get process evaluate
             List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
@@ -289,7 +265,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
-                if (evaluateId == 7) {
+                if (evaluateId == 9) {
                     break;
                 }
             }
@@ -390,7 +366,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             sectionLogDto1.setStatus(bulletPointDto.getStatus());
             sectionLogService.create(sectionLogDto1);
             evaluateId++;
-            if (evaluateId == 7) {
+            if (evaluateId == 9) {
                 break;
             }
         }
