@@ -235,12 +235,15 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toDto(transaction);
     }
 
-    public TransactionDto chargePerRequest(int userId){
+    @Override
+    public TransactionDto chargePerRequest(Integer userId){
         Users users = usersService.getUsersById(userId);
-        if (Long.compare(users.getAccountBalance(), 1000L) > 0 ){
+        if (Long.compare(users.getAccountBalance(), 1000L) >= 0 ){
             String requestId = String.valueOf(System.currentTimeMillis());
             Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, null, TransactionType.SERVICE, MoneyType.CREDIT, 1000L, 1L,null, TransactionStatus.PENDING, usersService.getUsersById(1));
             Transaction transaction1 = transactionRepository.save(transaction);
+            users.setAccountBalance(users.getAccountBalance()-1000L);
+            usersRepository.save(users);
             return transactionMapper.toDto(transaction1);
         }else throw  new BadRequestException("account balance is not enough!!");
     }
