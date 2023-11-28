@@ -10,6 +10,8 @@ import java.util.List;
 public interface TransactionService {
     List<TransactionDto> getAll(String id);
 
+    List<TransactionDto> showAll();
+
     List<TransactionDto> getAll(String id, Long receiverId);
 
     String create(TransactionDto transactionDto) throws Exception;

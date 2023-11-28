@@ -72,6 +72,17 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public List<TransactionDto> showAll(){
+        List<Transaction> list = transactionRepository.findAll();
+        List<TransactionDto> dtos = list.stream().map(x -> {
+            TransactionDto dto = transactionMapper.toDto(x);
+            dto.setUserId(x.getUser().getId());
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Override
     public List<TransactionDto> getAll(String id, Long receiverId){
         List<Transaction> list = transactionRepository.findBySentIdAndUser_Id(id, receiverId);
         List<TransactionDto> dtos = list.stream().map(x -> transactionMapper.toDto(x)).collect(Collectors.toList());
