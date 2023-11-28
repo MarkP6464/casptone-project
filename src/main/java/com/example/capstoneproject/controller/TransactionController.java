@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -39,9 +40,8 @@ public class TransactionController {
     TransactionRepository transactionRepository;
 
     @GetMapping
-    public List<TransactionDto> getAll(@RequestParam String sentId, @RequestParam(required = false) Long receiverId){
-        List<TransactionDto> list = null;
-        list = Objects.nonNull(receiverId) ? transactionService.getAll(sentId, receiverId) : transactionService.getAll(sentId);
+    public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
+        List<TransactionDto> list = transactionService.getAll(sentId);
         return list;
     }
 
@@ -53,39 +53,48 @@ public class TransactionController {
 //    }
 
     @PostMapping("/input-credit")
-    public RedirectView addCredit(@RequestBody TransactionResponse dto) throws Exception {
+    @PreAuthorize("hasAnyAuthority('create:candidate', 'update:candidate')")
+    public String addCredit(@RequestBody TransactionResponse dto) throws Exception {
         TransactionDto transactionDto = new TransactionDto();
         transactionDto.setMoneyType(MoneyType.CREDIT);
+        transactionDto.setExpenditure(dto.getExpenditure());
+        transactionDto.setConversionAmount(dto.getConversionAmount());
+        transactionDto.setUserId(dto.getUserId());
         transactionDto.setTransactionType(TransactionType.ADD);
         String returnUrl = transactionService.create(transactionDto);
-        return new RedirectView(returnUrl);
+        return returnUrl;
     }
 
-    @PostMapping(value = "/query-transaction")
+    @GetMapping(value = "/query-transaction")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
             TransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
-        return ResponseEntity.status(HttpStatus.OK).body(transaction);
+        return ResponseEntity.status(HttpStatus.OK).body(transaction.getStatus());
     }
 
     @PostMapping(value = "/withdraw")
+    @PreAuthorize("hasAnyAuthority('create:expert')")
     public ResponseEntity withdraw(@RequestBody TransactionResponse transactionDto) throws Exception {
         TransactionDto transaction = transactionService.requestToWithdraw(transactionDto);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
     @PostMapping(value = "/approve-withdraw-request")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
     public ResponseEntity approve(@RequestBody String id) throws Exception {
         TransactionDto transaction = transactionService.approveWithdrawRequest(id);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
     @PostMapping(value = "/reject-withdraw-request")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
     public ResponseEntity reject(@RequestBody String id) throws Exception {
         TransactionDto transaction = transactionService.approveWithdrawRequest(id);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
     @GetMapping(value = "/view-withdraw-request")
+    @PreAuthorize("hasAnyAuthority('read:admin', 'read:expert')")
     public ResponseEntity viewWithdrawList() throws Exception {
         List<TransactionDto> list =  transactionService.viewWithdrawList();
         return ResponseEntity.status(HttpStatus.OK).body(list);

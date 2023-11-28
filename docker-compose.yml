@@ -14,7 +14,7 @@ services:
     depends_on:
       - minh-db
     env_file:
-      - src/.env
+      - .env
     ports:
       - "8080:8080"
     networks:

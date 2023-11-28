@@ -5,12 +5,15 @@ import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.Dto.responses.HistoryViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
+import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.models.auth.In;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,9 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     HistoryService historyService;
 
     @Autowired
+    HistoryRepository historyRepository;
+
+    @Autowired
     CoverLetterRepository coverLetterRepository;
 
     @Autowired
@@ -50,167 +56,59 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     @Override
     public boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId, NoteDto dto) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
+        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(postingId, BasicStatus.ACTIVE, StatusReview.Published);
         ApplicationLog applicationLog = new ApplicationLog();
         LocalDate currentDate = LocalDate.now();
-        if(cvOptional.isPresent()){
+
+
+        Optional<Users> usersOptional = usersRepository.findUsersById(userId);
+        if (usersOptional.isPresent()){
+            Users user = usersOptional.get();
+            applicationLog.setUser(user);
+        }else throw new InternalServerException("Not found user");
+        if(cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
-            Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndId(userId,coverLetterId);
             HistoryViewDto hisCvId = historyService.create(userId, cvId);
-            if(coverLetterOptional.isPresent()){
-                CoverLetter coverLetter = coverLetterOptional.get();
-                //save cover letter history
-                HistoryCoverLetter historyCoverLetter = new HistoryCoverLetter();
-                historyCoverLetter = modelMapper.map(coverLetter, HistoryCoverLetter.class);
-                historyCoverLetter.setId(null);
-                historyCoverLetter.setCoverLetter(coverLetter);
-                historyCoverLetter = historyCoverLetterRepository.save(historyCoverLetter);
+            applicationLog.setCv(hisCvId.getId());
+        }else throw new InternalServerException("Not found cv");
+        Cv cv = cvOptional.get();
+        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndId(userId, coverLetterId);
+        if(coverLetterOptional.isPresent()){
+            CoverLetter coverLetter = coverLetterOptional.get();
 
-                CoverLetterApplyDto coverLetterApplyDto = new CoverLetterApplyDto();
-                coverLetterApplyDto.toCoverLetterBody(modelMapper.map(coverLetter, CoverLetterDto.class));
-                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(postingId, BasicStatus.ACTIVE, BasicStatus.PUBLIC);
-                if(jobPostingOptional.isPresent()){
-                    JobPosting jobPosting = jobPostingOptional.get();
-                    Integer condition = jobPosting.getApplyAgain();
-                    List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
-                    if(applicationLogs!=null){
-                        ApplicationLog applicationLogCheck = applicationLogs.get(0);
-                        LocalDate countDate = applicationLogCheck.getTimestamp();
-                        LocalDate resultDate = countDate.plusDays(condition);
-                        if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
-                            applicationLog.setCv(hisCvId.getId());
-                            applicationLog.setCoverLetter(historyCoverLetter.getId());
-                            applicationLog.setJobPosting(jobPosting);
-                            applicationLog.setNote(dto.getNote());
-                            Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-                            if (usersOptional.isPresent()){
-                                Users user = usersOptional.get();
-                                applicationLog.setUser(user);
-                            }
-                            applicationLogRepository.save(applicationLog);
-                            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                            return true;
-                        }else{
-                            throw new BadRequestException("Please apply after date " + resultDate);
-                        }
-                    }else{
-                        applicationLog.setTimestamp(currentDate);
+            //save cover letter history
+            HistoryCoverLetter historyCoverLetter = new HistoryCoverLetter();
+            historyCoverLetter = modelMapper.map(coverLetter, HistoryCoverLetter.class);
+            historyCoverLetter.setId(null);
+            historyCoverLetter.setCoverLetter(coverLetter);
+            historyCoverLetter = historyCoverLetterRepository.save(historyCoverLetter);
 
-                        applicationLog.setCv(hisCvId.getId());
-                        applicationLog.setCoverLetter(historyCoverLetter.getId());
-                        applicationLog.setJobPosting(jobPosting);
-                        applicationLog.setNote(dto.getNote());
-                        Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-                        if (usersOptional.isPresent()){
-                            Users user = usersOptional.get();
-                            applicationLog.setUser(user);
-                        }
-                        applicationLogRepository.save(applicationLog);
-                        sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                        return true;
-                    }
+            applicationLog.setCoverLetter(historyCoverLetter.getId());
+        }
+        applicationLog.setNote(dto.getNote());
+        applicationLog.setTimestamp(LocalDate.now());
+
+        if (jobPostingOptional.isPresent()){
+            JobPosting jobPosting = jobPostingOptional.get();List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
+            applicationLog.setJobPosting(jobPosting);
+            if (!applicationLogs.isEmpty()){
+                ApplicationLog applicationLogCheck = applicationLogs.get(0);
+                LocalDate countDate = applicationLogCheck.getTimestamp();
+                Integer condition = jobPosting.getApplyAgain();
+                LocalDate resultDate = countDate.plusDays(condition);
+                if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
+                    applicationLog.setJobPosting(jobPosting);
                 }else{
-                    throw new BadRequestException("Posting ID not exist");
-                }
-            }else{
-                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(postingId, BasicStatus.ACTIVE, BasicStatus.PUBLIC);
-                if(jobPostingOptional.isPresent()){
-                    JobPosting jobPosting = jobPostingOptional.get();
-                    Integer condition = jobPosting.getApplyAgain();
-                    List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
-                    if(applicationLogs!=null){
-                        ApplicationLog applicationLogCheck = applicationLogs.get(0);
-                        LocalDate countDate = applicationLogCheck.getTimestamp();
-                        LocalDate resultDate = countDate.plusDays(condition);
-                        if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
-                            applicationLog.setTimestamp(currentDate);
-                            CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
-                            cvBodyApplyDto.setResumeName(cv.getResumeName());
-                            CvBodyDto cvBodyDto = cv.deserialize();
-                            CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
-                            cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
-                            cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
-                            cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
-                            cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
-                            cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
-                            cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
-                            cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
-                            cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
-                            cvBodyReviewDto.setSummary(cv.getSummary());
-                            cvBodyReviewDto.setName(cv.getUser().getName());
-                            cvBodyReviewDto.setAddress(cv.getUser().getAddress());
-                            cvBodyReviewDto.setPhone(cv.getUser().getPhone());
-                            cvBodyReviewDto.setPersonalWebsite(cv.getUser().getPersonalWebsite());
-                            cvBodyReviewDto.setEmail(cv.getUser().getEmail());
-                            cvBodyReviewDto.setLinkin(cv.getUser().getLinkin());
-                            // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                            cvBodyApplyDto.setCv(cvBodyReviewJson);
-
-                            String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
-
-                            applicationLog.setCv(hisCvId.getId());
-                            applicationLog.setJobPosting(jobPosting);
-                            applicationLog.setNote(dto.getNote());
-                            Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-                            if (usersOptional.isPresent()){
-                                Users user = usersOptional.get();
-                                applicationLog.setUser(user);
-                            }
-                            applicationLogRepository.save(applicationLog);
-                            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                            return true;
-                        }else{
-                            throw new BadRequestException("Please apply after date " + resultDate);
-                        }
-                    }else{
-                        applicationLog.setTimestamp(currentDate);
-                        CvBodyApplyDto cvBodyApplyDto = new CvBodyApplyDto();
-                        cvBodyApplyDto.setResumeName(cv.getResumeName());
-                        CvBodyDto cvBodyDto = cv.deserialize();
-                        CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
-                        cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
-                        cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
-                        cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
-                        cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
-                        cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());
-                        cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
-                        cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
-                        cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
-                        cvBodyReviewDto.setSummary(cv.getSummary());
-                        cvBodyReviewDto.setName(cv.getUser().getName());
-                        cvBodyReviewDto.setAddress(cv.getUser().getAddress());
-                        cvBodyReviewDto.setPhone(cv.getUser().getPhone());
-                        cvBodyReviewDto.setPersonalWebsite(cv.getUser().getPersonalWebsite());
-                        cvBodyReviewDto.setEmail(cv.getUser().getEmail());
-                        cvBodyReviewDto.setLinkin(cv.getUser().getLinkin());
-                        // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
-                        cvBodyApplyDto.setCv(cvBodyReviewJson);
-
-                        String cvBodyReviewResumeJson = objectMapper.writeValueAsString(cvBodyApplyDto);
-
-                        applicationLog.setCv(hisCvId.getId());
-                        applicationLog.setJobPosting(jobPosting);
-                        applicationLog.setNote(dto.getNote());
-                        Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-                        if (usersOptional.isPresent()){
-                            Users user = usersOptional.get();
-                            applicationLog.setUser(user);
-                        }
-                        applicationLogRepository.save(applicationLog);
-                        sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                        return true;
-                    }
-                }else{
-                    throw new BadRequestException("Posting ID not exist");
+                    throw new BadRequestException("Please apply after date " + resultDate);
                 }
             }
-        }else{
-            throw new BadRequestException("CV ID not exist in User ID.");
-        }
+            applicationLog.setNote(dto.getNote());
+            applicationLogRepository.save(applicationLog);
+            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+            return true;
+        } else throw new InternalServerException("Not found Job posting");
     }
+
     public static void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";
@@ -258,28 +156,45 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_IdOrderByTimestampDesc(postId);
         if (!list.isEmpty()){
             ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
-             newList = list.stream().map(x -> {
+             newList = list.stream().map(x -> modelMapper.map(x, ApplicationLogResponse.class)).collect(Collectors.toList());
+        }
+        return newList;
+    }
+
+    @Override
+    public List<ApplicationLogResponse> getAllByHrID(Integer hrId){
+        List<ApplicationLogResponse> newList = null;
+        List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
+        HashMap<Integer, String> listCvMap = new HashMap<>();
+        List<Integer> cvList = new ArrayList<>();
+        List<Integer> clList = new ArrayList<>();
+        if (!list.isEmpty()){
+            list.stream().map(x -> {
+                return listCvMap.put(x.getCv(), null);
+            });
+            newList = list.stream().map(x -> {
+                cvList.add(x.getCv());
+                if (Objects.nonNull(x.getCoverLetter())){
+                    clList.add(x.getCoverLetter());
+                }
+                ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
                 applicationLogResponse.setEmail(x.getUser().getEmail());
                 applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
-
-                Cv cv = cvRepository.findById(x.getCv()).get();
-                if (Objects.nonNull(cv)){
-                    HashMap map = new HashMap();
-                    map.put("id", cv.getId());
-                    map.put("resumeName", cv.getResumeName());
-                    applicationLogResponse.getCoverLetters().add(map);
-                }
-                CoverLetter letter = coverLetterRepository.findById(x.getCv()).get();
-                if (Objects.nonNull(letter)){
-                    HashMap map = new HashMap();
-                    map.put("id", letter.getId());
-                    map.put("title", letter.getTitle());
-                    applicationLogResponse.getCoverLetters().add(map);
-                }
+                applicationLogResponse.getCvs().put("historyId", x.getCv());
+                applicationLogResponse.getCvs().put("resumeName", null);
                 return applicationLogResponse;
             }).collect(Collectors.toList());
+            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
+            cvHistoryList.stream().forEach(x -> {
+                listCvMap.put(x.getId(), x.getCv().getResumeName());
+            });
+            newList.stream().forEach(x -> {
+                Integer historyID = (Integer) x.getCvs().get("historyId");
+                x.getCvs().put("resumeName", listCvMap.get(historyID));
+            });
+            System.out.println(listCvMap);
         }
         return newList;
     }

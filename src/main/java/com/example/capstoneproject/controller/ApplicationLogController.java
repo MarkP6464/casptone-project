@@ -1,16 +1,19 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.ApplicationLogCustomDto;
 import com.example.capstoneproject.Dto.HRDto;
 import com.example.capstoneproject.Dto.NoteDto;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -42,10 +45,19 @@ public class ApplicationLogController {
     }
 
 
-    @GetMapping("/{post-id}/")
+    @GetMapping("/application-log/{post-id}")
     @PreAuthorize("hasAnyAuthority('read:hr')")
-    public ResponseEntity<?> getAllLog(@PathVariable("post-id") Integer postId) throws JsonProcessingException {
-        List<ApplicationLogResponse> list =  applicationLogService.getAll(postId);
-        return ResponseEntity.status(HttpStatus.OK).body(list);
+    public ResponseEntity<List<ApplicationLogResponse>> getAllLog(@PathVariable("post-id") Integer postId){
+//        List<ApplicationLogResponse> list =  applicationLogService.getAll(postId);
+//        ApplicationLogCustomDto result = new ApplicationLogCustomDto();
+//        result.setList(list);
+        return ResponseEntity.ok(applicationLogService.getAll(postId));
+    }
+
+    @GetMapping("/application-log/hr/{hr-id}")
+    @PreAuthorize("hasAnyAuthority('read:hr')")
+    public List<ApplicationLogResponse> getAllLogByHrId(@PathVariable("hr-id") Integer hrId){
+        List<ApplicationLogResponse> list =  applicationLogService.getAllByHrID(hrId);
+        return list;
     }
 }

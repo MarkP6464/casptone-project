@@ -25,6 +25,7 @@ import com.mservice.allinone.processor.allinone.CaptureMoMo;
 import com.mservice.allinone.processor.allinone.QueryStatusTransaction;
 import com.mservice.shared.sharedmodels.Environment;
 import com.mservice.shared.sharedmodels.PartnerInfo;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,8 +58,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionDto> getAll(String id){
-        List<Transaction> list = transactionRepository.findBySentId(id);
-        List<TransactionDto> dtos = list.stream().map(x -> transactionMapper.toDto(x)).collect(Collectors.toList());
+        Integer receivedID = Integer.parseInt(id);
+        List<Transaction> list = transactionRepository.findBySentIdOrUser_Id(id, receivedID);
+        List<TransactionDto> dtos = list.stream().map(x -> {
+            TransactionDto dto = transactionMapper.toDto(x);
+            dto.setUserId(receivedID);
+            return dto;
+        }).collect(Collectors.toList());
         return dtos;
     }
 
@@ -79,10 +85,10 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-        String domain = "https://cvbuilder.monoinfinity.net";
+        String domain = "https://api-cvbuilder.monoinfinity.net";
 
-        String returnURL = domain + "/transaction/query-transaction";
-        String notifyURL = domain + "/transaction/query-transaction";
+        String returnURL = domain + "/api/v1/transaction/query-transaction";
+        String notifyURL = domain + "/api/v1/transaction/query-transaction";
 
         //GET this from HOSTEL OWNER
         Gson gson = new Gson();
@@ -116,41 +122,46 @@ public class TransactionServiceImpl implements TransactionService {
 
         JsonObject s  = new Gson().fromJson(new String(queryStatusTransactionResponse.getExtraData()), JsonObject.class);
         Integer code = queryStatusTransactionResponse.getErrorCode();
-        String tid = s.get("transactionid").getAsString();
+        String tid = s.get("transactionId").getAsString();
         String uid = s.get("uid").getAsString();
         Long expenditure = s.get("expenditure").getAsLong();
         Transaction transaction = transactionRepository.findByRequestId(tid);
-        if (code.equals(0)) {
-            if (Objects.nonNull(transaction)){
-                transaction.setStatus(TransactionStatus.SUCCESSFULLY);
-            }else {
-                throw new InternalServerException("Cannot find transaction status");
-            }
-            Users user = usersService.getUsersById(Integer.parseInt(uid));
-            if (Objects.nonNull(user)){
-                if (user instanceof HR){
-                    HR hr = (HR) user;
-                    if (LocalDate.now().isAfter(hr.getExpiredDay())){
-                        hr.setExpiredDay(LocalDate.now());
+        if (TransactionStatus.PENDING.equals(transaction.getStatus())){
+            if (code.equals(0)) {
+                if (Objects.nonNull(transaction)){
+                    transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+                }else {
+                    throw new InternalServerException("Cannot find transaction status");
+                }
+                Users user = usersService.getUsersById(Integer.parseInt(uid));
+                if (Objects.nonNull(user)){
+                    if (user instanceof HR){
+                        HR hr = (HR) user;
+                        if (LocalDate.now().isAfter(hr.getExpiredDay())){
+                            hr.setExpiredDay(LocalDate.now());
+                        }
+                        if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
+                            hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
+                        } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
+                            hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
+                        }
+                        hr.setVip(true);
+                        usersRepository.save(hr);
+                    } else {
+                        user.setAccountBalance((user.getAccountBalance() + expenditure));
                     }
-                    if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
-                        hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
-                    } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
-                        hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
-                    }
-                    hr.setVip(true);
-                    usersRepository.save(hr);
-                } else {
-                    user.setAccountBalance((user.getAccountBalance() + expenditure));
+                }
+            } else {
+                if (Objects.nonNull(transaction)){
+                    transaction.setStatus(TransactionStatus.FAIL);
+                }else {
+                    throw new InternalServerException("Cannot find transaction status");
                 }
             }
-        } else {
-            if (Objects.nonNull(transaction)){
-                transaction.setStatus(TransactionStatus.FAIL);
-            }else {
-                throw new InternalServerException("Cannot find transaction status");
-            }
+        }else {
+            throw new InternalServerException("transaction status is not available to update");
         }
+
         transaction.setMomoId(queryStatusTransactionResponse.getTransId());
         transaction.setResponseMessage(queryStatusTransactionResponse.getLocalMessage());
         transaction = transactionRepository.save(transaction);
@@ -224,4 +235,13 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionMapper.toDto(transaction);
     }
 
+    public TransactionDto chargePerRequest(int userId){
+        Users users = usersService.getUsersById(userId);
+        if (Long.compare(users.getAccountBalance(), 1000L) > 0 ){
+            String requestId = String.valueOf(System.currentTimeMillis());
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, null, TransactionType.SERVICE, MoneyType.CREDIT, 1000L, 1L,null, TransactionStatus.PENDING, usersService.getUsersById(1));
+            Transaction transaction1 = transactionRepository.save(transaction);
+            return transactionMapper.toDto(transaction1);
+        }else throw  new BadRequestException("account balance is not enough!!");
+    }
 }

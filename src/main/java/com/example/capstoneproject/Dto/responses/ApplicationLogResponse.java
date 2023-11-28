@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,6 +20,6 @@ public class ApplicationLogResponse {
     String note;
     String email;
 
-    List<HashMap<String, String>> cvs;
-    List<HashMap<String, String>> coverLetters;
+    HashMap<String, Object> cvs = new HashMap<>();
+    HashMap<String, Object> coverLetters = new HashMap<>();
 }
