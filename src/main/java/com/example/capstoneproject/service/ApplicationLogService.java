@@ -11,4 +11,6 @@ public interface ApplicationLogService {
     boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId, NoteDto dto) throws JsonProcessingException;
 
     List<ApplicationLogResponse> getAll(Integer postId);
+
+    List<ApplicationLogResponse> getAllByHrID(Integer hrId);
 }

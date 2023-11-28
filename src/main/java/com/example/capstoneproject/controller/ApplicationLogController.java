@@ -53,4 +53,13 @@ public class ApplicationLogController {
 //        result.setList(list);
         return ResponseEntity.ok(applicationLogService.getAll(postId));
     }
+
+    @GetMapping("/application-log/hr/{hr-id}")
+    @PreAuthorize("hasAnyAuthority('read:hr')")
+    public ResponseEntity<List<ApplicationLogResponse>> getAllLogByHrId(@PathVariable("hr-id") Integer hrId){
+        List<ApplicationLogResponse> list =  applicationLogService.getAllByHrID(hrId);
+        ApplicationLogCustomDto result = new ApplicationLogCustomDto();
+        result.setList(list);
+        return ResponseEntity.ok(list);
+    }
 }

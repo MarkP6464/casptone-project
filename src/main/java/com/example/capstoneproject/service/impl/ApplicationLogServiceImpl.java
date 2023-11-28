@@ -186,4 +186,41 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         }
         return newList;
     }
+
+    @Override
+    public List<ApplicationLogResponse> getAllByHrID(Integer hrId){
+        List<ApplicationLogResponse> newList = null;
+        List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
+        if (!list.isEmpty()){
+            ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
+            newList = list.stream().map(x -> {
+                applicationLogResponse.setEmail(x.getUser().getEmail());
+                applicationLogResponse.setCandidateName(x.getUser().getUsername());
+                applicationLogResponse.setApplyDate(x.getTimestamp());
+                applicationLogResponse.setNote(x.getNote());
+
+                HistoryDto history = historyService.getHistoryById(x.getCv());
+                if (Objects.nonNull(history)){
+                    HashMap map = new HashMap();
+                    map.put("id", history.getId());
+                    Optional<Cv> cv = cvRepository.findById(history.getCvId());
+                    if (Objects.isNull(cv)){
+                        throw new InternalServerException("cvId not match with historyId");
+                    }
+                    map.put("resumeName", cv.get().getResumeName());
+                    applicationLogResponse.getCvs().add(map);
+                }
+                Optional<HistoryCoverLetter> historyCoverLetterOptional = historyCoverLetterRepository.findById(x.getCv());
+                if (historyCoverLetterOptional.isPresent()){
+                    HistoryCoverLetter historyCoverLetter = historyCoverLetterOptional.get();
+                    HashMap map = new HashMap();
+                    map.put("id", historyCoverLetter.getId());
+                    map.put("title", historyCoverLetter.getTitle());
+                    applicationLogResponse.getCoverLetters().add(map);
+                }
+                return applicationLogResponse;
+            }).collect(Collectors.toList());
+        }
+        return newList;
+    }
 }

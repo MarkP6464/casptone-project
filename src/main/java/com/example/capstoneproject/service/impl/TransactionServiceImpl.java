@@ -120,37 +120,42 @@ public class TransactionServiceImpl implements TransactionService {
         String uid = s.get("uid").getAsString();
         Long expenditure = s.get("expenditure").getAsLong();
         Transaction transaction = transactionRepository.findByRequestId(tid);
-        if (code.equals(0)) {
-            if (Objects.nonNull(transaction)){
-                transaction.setStatus(TransactionStatus.SUCCESSFULLY);
-            }else {
-                throw new InternalServerException("Cannot find transaction status");
-            }
-            Users user = usersService.getUsersById(Integer.parseInt(uid));
-            if (Objects.nonNull(user)){
-                if (user instanceof HR){
-                    HR hr = (HR) user;
-                    if (LocalDate.now().isAfter(hr.getExpiredDay())){
-                        hr.setExpiredDay(LocalDate.now());
+        if (TransactionStatus.PENDING.equals(transaction.getStatus())){
+            if (code.equals(0)) {
+                if (Objects.nonNull(transaction)){
+                    transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+                }else {
+                    throw new InternalServerException("Cannot find transaction status");
+                }
+                Users user = usersService.getUsersById(Integer.parseInt(uid));
+                if (Objects.nonNull(user)){
+                    if (user instanceof HR){
+                        HR hr = (HR) user;
+                        if (LocalDate.now().isAfter(hr.getExpiredDay())){
+                            hr.setExpiredDay(LocalDate.now());
+                        }
+                        if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
+                            hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
+                        } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
+                            hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
+                        }
+                        hr.setVip(true);
+                        usersRepository.save(hr);
+                    } else {
+                        user.setAccountBalance((user.getAccountBalance() + expenditure));
                     }
-                    if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
-                        hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
-                    } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
-                        hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
-                    }
-                    hr.setVip(true);
-                    usersRepository.save(hr);
-                } else {
-                    user.setAccountBalance((user.getAccountBalance() + expenditure));
+                }
+            } else {
+                if (Objects.nonNull(transaction)){
+                    transaction.setStatus(TransactionStatus.FAIL);
+                }else {
+                    throw new InternalServerException("Cannot find transaction status");
                 }
             }
-        } else {
-            if (Objects.nonNull(transaction)){
-                transaction.setStatus(TransactionStatus.FAIL);
-            }else {
-                throw new InternalServerException("Cannot find transaction status");
-            }
+        }else {
+            throw new InternalServerException("transaction status is not available to update");
         }
+
         transaction.setMomoId(queryStatusTransactionResponse.getTransId());
         transaction.setResponseMessage(queryStatusTransactionResponse.getLocalMessage());
         transaction = transactionRepository.save(transaction);
