@@ -14,7 +14,7 @@ public interface CoverLetterService extends BaseService<CoverLetterDto, Integer>
     boolean updateCoverLetter(Integer cvId, Integer coverLetterId, CoverLetterUpdateDto dto);
     boolean deleteCoverLetterById(Integer UsersId,Integer coverLetterId);
     CoverLetterDto getCoverLetter(Integer userId, Integer coverLetterId);
-    ChatResponse reviseCoverLetter(CoverLetterReviseDto dto) throws JsonProcessingException;
-    ChatResponse rewritteExperience(ReWritterExperienceDto dto) throws JsonProcessingException;
+    ChatResponse reviseCoverLetter(Integer userId, CoverLetterReviseDto dto) throws JsonProcessingException;
+    ChatResponse rewritteExperience(Integer userId, ReWritterExperienceDto dto) throws JsonProcessingException;
 
 }

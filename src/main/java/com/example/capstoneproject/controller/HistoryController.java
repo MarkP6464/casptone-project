@@ -1,6 +1,5 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.CvDto;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;

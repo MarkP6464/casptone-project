@@ -55,7 +55,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
-    public ChatResponse generateCoverLetter(Integer coverId,  Integer cvId, CoverLetterGenerationDto dto) throws JsonProcessingException {
+    public ChatResponse generateCoverLetter(Integer userId,  Integer cvId, Integer coverId, CoverLetterGenerationDto dto) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
@@ -106,7 +106,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     }
 
-    public ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto) throws JsonProcessingException {
+    public ChatResponse generateSummaryCV(Integer userId, Integer cvId, SummaryGenerationDto dto) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
             Cv cv = cvsOptional.get();
@@ -171,7 +171,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         }
     }
 
-    public ChatResponse reviewCV(float temperature, Integer cvId) throws JsonProcessingException {
+    public ChatResponse reviewCV(Integer userId, Integer cvId, float temperature) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
             Cv cv = cvsOptional.get();
@@ -548,7 +548,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public ChatResponse reviseCoverLetter(CoverLetterReviseDto dto) throws JsonProcessingException {
+    public ChatResponse reviseCoverLetter(Integer userId, CoverLetterReviseDto dto) throws JsonProcessingException {
         String revise = "You are a cover letter editor. You will be given a piece of isolated text from within a cover letter and told how you can improve it. Only respond with the revision. Make sure the revision is in the same language as the given isolated text.";
         String userMessage = "Isolated text from within cover letter: " + dto.getContent() + ". It should be improved by making it more: " + dto.getImprovement();
         ChatResponse chatResponse = new ChatResponse();
@@ -568,7 +568,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public ChatResponse rewritteExperience(ReWritterExperienceDto dto) throws JsonProcessingException {
+    public ChatResponse rewritteExperience(Integer userId, ReWritterExperienceDto dto) throws JsonProcessingException {
         if(dto.getJobTitle()!=null && dto.getBullet()!=null){
             String system = "Improve writing prompt\n" +
                     "As an expert in CV writing, your task is to enhance the description of experience as a " + dto.getJobTitle() + ". The revised writing should keep the original content and adhere to best practices in CV writing, including short, concise bullet points, quantify if possible , focusing on achievements rather than responsibilities. Your response solely provide the content base on the current description provided:";

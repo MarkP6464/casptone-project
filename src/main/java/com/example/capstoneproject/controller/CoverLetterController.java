@@ -23,9 +23,10 @@ public class CoverLetterController {
         this.coverLetterService = coverLetterService;
     }
 
-    @PostMapping("cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
+    @PostMapping("user/{user-id}/cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
     @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
+            @PathVariable("user-id") Integer userId,
             @PathVariable("cv-id") Integer cvId,
             @PathVariable("cover-letter-id") Integer coverId,
             @RequestBody CoverLetterGenerationDto dto
@@ -34,41 +35,47 @@ public class CoverLetterController {
             return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
         }
         ChatResponse result = coverLetterService.generateCoverLetter(
-                coverId,
+                userId,
                 cvId,
+                coverId,
                 dto
 
         );
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/cv/{cv-id}/summary")
+    @PostMapping("user/{user-id}/cv/{cv-id}/summary")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> generateSummary(
+            @PathVariable("user-id") Integer userId,
             @PathVariable("cv-id") Integer cvId,
             @RequestBody SummaryGenerationDto dto
     ) throws JsonProcessingException {
         ChatResponse result = coverLetterService.generateSummaryCV(
+                userId,
                 cvId,
                 dto
         );
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/cv/experience/re-writer")
+    @PostMapping("user/{user-id}/cv/experience/re-writer")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> rewriteExperience(
+            @PathVariable("user-id") Integer userId,
             @RequestBody ReWritterExperienceDto dto
     ) throws JsonProcessingException {
         ChatResponse result = coverLetterService.rewritteExperience(
+                userId,
                 dto
         );
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/cv/{cv-id}/review")
+    @PostMapping("user/{user-id}/cv/{cv-id}/review")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> reviewCv(
+            @PathVariable("user-id") Integer userId,
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId
     ) throws JsonProcessingException {
@@ -77,20 +84,23 @@ public class CoverLetterController {
         }
 
         ChatResponse result = coverLetterService.reviewCV(
-                temperature,
-                cvId
+                userId,
+                cvId,
+                temperature
         );
         return ResponseEntity.ok(result);
     }
 
 
-    @PostMapping("/cover-letter/revise")
+    @PostMapping("user/{user-id}/cover-letter/revise")
     @PreAuthorize("hasAuthority('create:candidate')")
     public ChatResponse generateCoverLetterRevise(
+            @PathVariable("user-id") Integer userId,
             @RequestBody CoverLetterReviseDto dto
     ) throws JsonProcessingException {
 
         ChatResponse result = coverLetterService.reviseCoverLetter(
+                userId,
                 dto
         );
         return result;
