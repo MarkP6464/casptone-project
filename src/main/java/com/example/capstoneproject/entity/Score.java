@@ -25,7 +25,7 @@ public class Score {
     private String result;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cv_id", referencedColumnName = "id")
+    @JoinColumn(name = "cv_id")
     private Cv cv;
 
 }

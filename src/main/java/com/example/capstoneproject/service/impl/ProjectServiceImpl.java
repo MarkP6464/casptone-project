@@ -27,6 +27,12 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     ProjectRepository projectRepository;
 
     @Autowired
+    ScoreLogRepository scoreLogRepository;
+
+    @Autowired
+    ScoreRepository scoreRepository;
+
+    @Autowired
     ProjectMapper projectMapper;
 
     @Autowired
@@ -226,6 +232,17 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.project, project.getId());
+
+            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+            if(scoreOptional.isPresent()){
+                Score score = scoreOptional.get();
+                //Delete score in db
+                scoreLogRepository.deleteAllByScore_Id(score.getId());
+
+                //Delete score in db
+                scoreRepository.deleteScoreById(score.getId());
+            }
+
             sectionLogRepository.deleteBySection_Id(section.getId());
             //Get process evaluate
             List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());

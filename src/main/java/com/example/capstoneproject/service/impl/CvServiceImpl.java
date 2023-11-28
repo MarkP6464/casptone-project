@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> implements CvService {
+public class CvServiceImpl implements CvService {
     @Autowired
     CvRepository cvRepository;
 
@@ -94,7 +94,6 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
 
 
     public CvServiceImpl(CvRepository cvRepository, CvMapper cvMapper) {
-        super(cvRepository, cvMapper, cvRepository::findById);
         this.cvRepository = cvRepository;
         this.cvMapper = cvMapper;
     }
@@ -752,15 +751,12 @@ public class CvServiceImpl extends AbstractBaseService<Cv, CvDto, Integer> imple
                 double totalPercentage = resultPercentage + practicePercentage + optimizationPercentage;
                 String resultLabel = getResultLabel(totalPercentage);
 
-                Optional<Score> scoreOptional1 = scoreRepository.findById(savedScoreId);
-                if(scoreOptional.isPresent()){
-                    Score score1 = scoreOptional1.get();
-                    score1.setContent((int) Math.round(content));
-                    score1.setPractice((int) Math.round(practice));
-                    score1.setOptimization((int) Math.round(optimization));
-                    score1.setResult(resultLabel);
-                    scoreRepository.save(score1);
-                }
+                Score scoreOptional1 = scoreRepository.findById1(savedScoreId);
+                scoreOptional1.setContent((int) Math.round(content));
+                scoreOptional1.setPractice((int) Math.round(practice));
+                scoreOptional1.setOptimization((int) Math.round(optimization));
+                scoreOptional1.setResult(resultLabel);
+                scoreRepository.save(scoreOptional1);
 
                 contentList = evaluateContentSections(evaluates, sectionCvDtos);
 

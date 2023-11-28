@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public interface CvService extends BaseService<CvDto, Integer> {
+public interface CvService {
 
     CvAddNewDto createCv(Integer id, CvBodyDto dto) throws JsonProcessingException;
 

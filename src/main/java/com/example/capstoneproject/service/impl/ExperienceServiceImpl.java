@@ -235,7 +235,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 scoreLogRepository.deleteAllByScore_Id(score.getId());
 
                 //Delete score in db
-                scoreRepository.deleteByCv_Id(cvId);
+                scoreRepository.deleteScoreById(score.getId());
             }
 
             sectionLogRepository.deleteBySection_Id(section.getId());
