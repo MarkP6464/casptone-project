@@ -55,22 +55,26 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     public JobDescriptionViewDto createJobDescription(Integer cvId, JobDescriptionDto dto) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
-            JobDescription jobDescription = modelMapper.map(dto, JobDescription.class);
-            jobDescription.setTitle(dto.getTitle());
-            jobDescription.setDescription(dto.getDescription());
-            JobDescription saved = jobDescriptionRepository.save(jobDescription);
-            Integer jobId = saved.getId();
-            List<AtsDto> atsList = evaluateService.ListAts(cvId,jobId,dto);
-            JobDescriptionViewDto jobDescriptionViewDto = jobDescriptionMapper.mapEntityToDto(jobDescription);
-            jobDescriptionViewDto.setAts(atsList);
-            Cv cv = cvOptional.get();
-            Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(jobId);
-            if(jobDescriptionOptional.isPresent()){
-                JobDescription jobDescription1 = jobDescriptionOptional.get();
-                cv.setJobDescription(jobDescription1);
+            if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<500){
+                JobDescription jobDescription = modelMapper.map(dto, JobDescription.class);
+                jobDescription.setTitle(dto.getTitle());
+                jobDescription.setDescription(dto.getDescription());
+                JobDescription saved = jobDescriptionRepository.save(jobDescription);
+                Integer jobId = saved.getId();
+                List<AtsDto> atsList = evaluateService.ListAts(cvId,jobId,dto);
+                JobDescriptionViewDto jobDescriptionViewDto = jobDescriptionMapper.mapEntityToDto(jobDescription);
+                jobDescriptionViewDto.setAts(atsList);
+                Cv cv = cvOptional.get();
+                Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(jobId);
+                if(jobDescriptionOptional.isPresent()){
+                    JobDescription jobDescription1 = jobDescriptionOptional.get();
+                    cv.setJobDescription(jobDescription1);
+                }
+                cvRepository.save(cv);
+                return jobDescriptionViewDto;
+            }else{
+                throw new BadRequestException("Description please contain 30 characters or more.");
             }
-            cvRepository.save(cv);
-            return jobDescriptionViewDto;
         }else{
             throw new BadRequestException("Cv ID not found.");
         }
@@ -101,14 +105,14 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
-            if(countWords(dto.getDescription())>30){
+            if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<500){
                 Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
                 List<AtsDto> atsList;
                 JobDescriptionViewDto jobDescriptionViewDto = new JobDescriptionViewDto();
                 if (jobDescriptionOptional.isPresent()) {
                     JobDescription jobDescription = jobDescriptionOptional.get();
 
-                    if(jobDescription.getTitle().equals(dto.getTitle())){
+                    if(dto.getTitle()==null && jobDescription.getTitle().equals(dto.getTitle())){
                         jobDescription.setTitle(jobDescription.getTitle());
                     }else{
                         jobDescription.setTitle(dto.getTitle());
