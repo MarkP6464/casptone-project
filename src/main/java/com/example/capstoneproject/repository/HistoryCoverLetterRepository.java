@@ -6,6 +6,7 @@ import com.example.capstoneproject.enums.BasicStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,4 +14,6 @@ import java.util.Optional;
 public interface HistoryCoverLetterRepository extends JpaRepository<HistoryCoverLetter, Integer> {
 
     Optional<HistoryCoverLetter> findById(Integer historyId);
+
+    List<HistoryCoverLetter> findAllByIdIn(Collection<Integer> id);
 }
