@@ -3,6 +3,7 @@ package com.example.capstoneproject.service;
 import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.UsersViewDto;
 import com.example.capstoneproject.Dto.responses.UserJobTitleViewDto;
+import com.example.capstoneproject.Dto.responses.UserManageViewDto;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.RoleType;
@@ -19,5 +20,7 @@ public interface UsersService extends BaseService<UsersDto, Integer> {
     UsersDto findByIdAndRole_RoleName(Integer userId);
 
     List<UserJobTitleViewDto> getJobTitleUser(Integer userId) throws JsonProcessingException;
+
+    List<UserManageViewDto> manageUser();
 
 }
