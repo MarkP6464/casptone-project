@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.ExperienceRoleDto;
 import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.UsersViewDto;
 import com.example.capstoneproject.Dto.responses.UserJobTitleViewDto;
+import com.example.capstoneproject.Dto.responses.UserManageViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -104,6 +105,26 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
         }
 
         return jobTitles;
+    }
+
+    @Override
+    public List<UserManageViewDto> manageUser() {
+        List<Users> users = UsersRepository.findAll();
+        List<UserManageViewDto> userManages = new ArrayList<>();
+        if(!users.isEmpty()){
+            for(Users user: users){
+                UserManageViewDto userManageViewDto = new UserManageViewDto();
+                userManageViewDto.setId(user.getId());
+                userManageViewDto.setName(user.getName());
+                userManageViewDto.setAvatar(user.getAvatar());
+                userManageViewDto.setPhone(user.getPhone());
+                userManageViewDto.setEmail(user.getEmail());
+                userManageViewDto.setAccountBalance(user.getAccountBalance());
+                userManageViewDto.setRole(user.getRole().getRoleName());
+                userManages.add(userManageViewDto);
+            }
+        }
+        return userManages;
     }
 
 }

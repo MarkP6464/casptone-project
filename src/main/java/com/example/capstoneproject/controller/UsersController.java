@@ -48,4 +48,9 @@ public class UsersController {
     public UsersDto findByIdAndRoleName(@PathVariable("user-id") Integer userId) {
         return UsersService.findByIdAndRole_RoleName(userId);
     }
+
+    @GetMapping("manage/customer/information")
+    public ResponseEntity<?> manageUser() {
+        return ResponseEntity.ok(UsersService.manageUser());
+    }
 }
