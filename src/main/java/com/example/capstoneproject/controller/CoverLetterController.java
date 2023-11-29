@@ -66,7 +66,7 @@ public class CoverLetterController {
             @RequestBody ReWritterExperienceDto dto,
             Principal principal
     ) throws JsonProcessingException {
-        ChatResponse result = coverLetterService.rewritteExperience(
+        ChatResponseArray result = coverLetterService.rewritteExperience(
                 dto,
                 principal
         );

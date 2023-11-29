@@ -581,13 +581,13 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public ChatResponse rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException {
+    public ChatResponseArray rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException {
         if(dto.getJobTitle()!=null && dto.getBullet()!=null){
             String system = "Improve writing prompt\n" +
                     "As an expert in CV writing, your task is to enhance the description of experience as a " + dto.getJobTitle() + ". The revised writing should keep the original content and adhere to best practices in CV writing, including short, concise bullet points, quantify if possible , focusing on achievements rather than responsibilities. Your response solely provide the content base on the current description provided:";
             String userMessage = "“" + dto.getBullet() + "”\n" +
                     "Start with bullet point don’t need to elaborate any unnecessary information";
-            ChatResponse chatResponse = new ChatResponse();
+            ChatResponseArray chatResponse = new ChatResponseArray();
             List<Map<String, Object>> messagesList = new ArrayList<>();
             Map<String, Object> systemMessage = new HashMap<>();
             systemMessage.put("role", "system");
@@ -600,7 +600,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
             transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
             String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
-            chatResponse.setReply(response);
+            chatResponse.setReply(splitText(response));
             return chatResponse;
         }else{
             throw new BadRequestException("Please enter full job title and description.");
@@ -613,5 +613,16 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             return input.substring(index + 2);
         }
         return input;
+    }
+
+    public static String[] splitText(String text) {
+        // Use positive lookahead to include "• " in the split result
+        String[] splitValues = text.split("(?=• )");
+
+        // Trim and filter out empty values
+        return java.util.Arrays.stream(splitValues)
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .toArray(String[]::new);
     }
 }
