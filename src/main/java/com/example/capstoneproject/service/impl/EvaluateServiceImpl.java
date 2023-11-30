@@ -7,7 +7,10 @@ import com.example.capstoneproject.repository.AtsRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.EvaluateRepository;
 import com.example.capstoneproject.repository.JobDescriptionRepository;
+import com.example.capstoneproject.service.TransactionService;
+import com.example.capstoneproject.utils.SecurityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.semgraph.SemanticGraph;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +36,12 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     @Autowired
     ChatGPTServiceImpl chatGPTService;
+
+    @Autowired
+    TransactionService transactionService;
+
+    @Autowired
+    SecurityUtil securityUtil;
 
     private StanfordCoreNLP pipeline;
 
@@ -407,10 +417,25 @@ public class EvaluateServiceImpl implements EvaluateService {
     }
 
     @Override
-    public List<AtsDto> ListAts(int cvId, int jobId, JobDescriptionDto chatRequest) throws JsonProcessingException {
-        String message1 = "find 10 keywords: JOB TITLE: " +chatRequest.getTitle()+", JOB DESCRIPTION: "+chatRequest.getDescription();
-        String response = chatGPTService.chatWithGPT(message1);
-        List<AtsDto> atsDtoList = extractKeywords(response);
+    public List<AtsDto> ListAts(int cvId, int jobId, JobDescriptionDto dto, Principal principal) throws JsonProcessingException {
+        String system = "Please input the job description in the text box below. This prompt will identify and extract relevant Application Tracking System (ATS) keywords from the description provided. ATS keywords are crucial for optimizing job applications to ensure they pass through automated tracking systems effectively.";
+        String userMessage = "Job Description:\n" +
+                "“"+dto.getDescription()+"”\n"+
+                "Limit only 15 the most important keywords. Limit only 15 the most important keywords, no need to be formal.\n" +
+                "Keywords Extracted:";
+        List<Map<String, Object>> messagesList = new ArrayList<>();
+        Map<String, Object> systemMessage = new HashMap<>();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", system);
+        messagesList.add(systemMessage);
+        Map<String, Object> userMessageMap = new HashMap<>();
+        userMessageMap.put("role", "user");
+        userMessageMap.put("content", userMessage);
+        messagesList.add(userMessageMap);
+        String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+        transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+        String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
+        List<AtsDto> atsDtoList = extractAtsKeywords(response);
         List<AtsDto> atsList = new ArrayList<>();
         Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(jobId);
         if (jobDescription.isPresent()) {
@@ -674,26 +699,21 @@ public class EvaluateServiceImpl implements EvaluateService {
             return "";
         }
     }
-    public static List<AtsDto> extractKeywords(String response) {
-    List<AtsDto> keywordsList = new ArrayList<>();
-    Pattern pattern = Pattern.compile("(\\d+\\.\\s*)(.*?)\\n|$");
-    Matcher matcher = pattern.matcher(response);
+    private List<AtsDto> extractAtsKeywords(String input) {
+        List<AtsDto> atsList = new ArrayList<>();
 
-    while (matcher.find()) {
-        String keyword = matcher.group(2);
-        if (keyword != null) {
-            String[] keywords = keyword.split(",\\s*");
-            for (String k : keywords) {
-                AtsDto atsDto = new AtsDto();
-                atsDto.setAts(k.trim());
-                keywordsList.add(atsDto);
-            }
+        // Biểu thức chính quy để tìm các dòng bắt đầu với số và sau đó trích xuất nội dung
+        Pattern pattern = Pattern.compile("\\d+\\.\\s+(.*)");
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            String keyword = matcher.group(1);
+            AtsDto atsDto = new AtsDto();
+            atsDto.setAts(keyword);
+            atsList.add(atsDto);
         }
+
+        return atsList;
     }
-
-    return keywordsList;
-}
-
-
 
 }

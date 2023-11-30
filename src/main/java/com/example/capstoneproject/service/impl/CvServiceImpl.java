@@ -397,6 +397,15 @@ public class CvServiceImpl implements CvService {
     public CvDto synchUp(int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.getById(cvId);
         if (Objects.nonNull(cv)) {
+            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+            if(scoreOptional.isPresent()){
+                Score score = scoreOptional.get();
+                //Delete score in db
+                scoreLogRepository.deleteAllByScore_Id(score.getId());
+
+                //Delete score in db
+                scoreRepository.deleteScoreById(score.getId());
+            }
             CvBodyDto cvBodyDto = cv.deserialize();
             cvBodyDto.getEducations().forEach(x -> {
                 Education e = educationRepository.findById(x.getId().intValue()).get();
@@ -435,149 +444,146 @@ public class CvServiceImpl implements CvService {
         List<SectionAddScoreLogDto> sectionAddScoreLogDtos = new ArrayList<>();
         List<Evaluate> evaluates = evaluateRepository.findAll();
         Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
-        if(scoreOptional.isPresent()){
-            Score score = scoreOptional.get();
-
-            final int[] totalWords = {0};
-
-            if (Objects.nonNull(cv)) {
-                CvBodyDto cvBodyDto = cv.deserialize();
-                List<ContentDto> contentList = new ArrayList<>();
-                List<ContentDto> practiceList = new ArrayList<>();
-                List<ContentDto> optimizationList = new ArrayList<>();
-                List<ContentDto> formatList = new ArrayList<>();
-                for (SkillDto x : cvBodyDto.getSkills()) {
-                    if (x.getIsDisplay()) {
-                        String description = x.getDescription();
-                        if (description != null) {
-                            String[] words = description.split("\\s+");
-                            totalWords[0] += words.length;
-                        }
+        List<ContentDto> contentList;
+        List<ContentDto> practiceList;
+        List<ContentDto> optimizationList;
+        List<ContentDto> formatList;
+        final int[] totalWords = {0};
+        if (Objects.nonNull(cv)){
+            CvBodyDto cvBodyDto = cv.deserialize();
+            for (SkillDto x : cvBodyDto.getSkills()) {
+                if (x.getIsDisplay()) {
+                    String description = x.getDescription();
+                    if (description != null) {
+                        String[] words = description.split("\\s+");
+                        totalWords[0] += words.length;
                     }
                 }
+            }
 
-                cvBodyDto.getCertifications().forEach(x -> {
-                    if (x.getIsDisplay()) {
-                        String skill = x.getCertificateRelevance();
-                        if (skill != null) {
-                            String word = skill;
-                            String[] words = word.split("\\s+");
-                            totalWords[0] += words.length;
-                        }
-                    }
-                });
-
-                cvBodyDto.getEducations().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        String minor = x.getMinor();
-                        String description = x.getDescription();
-                        if(minor==null){
-                            minor = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = description + " " + minor;
+            cvBodyDto.getCertifications().forEach(x -> {
+                if (x.getIsDisplay()) {
+                    String skill = x.getCertificateRelevance();
+                    if (skill != null) {
+                        String word = skill;
                         String[] words = word.split("\\s+");
                         totalWords[0] += words.length;
                     }
-                });
+                }
+            });
 
-                cvBodyDto.getExperiences().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        int experienceId = x.getId();
-                        String title = x.getRole();
-                        String location = x.getLocation();
-                        String duration = x.getDuration();
-                        String company = x.getCompanyName();
-                        String description = x.getDescription();
-                        if(title==null){
-                            title = "";
-                        }
-                        if(location==null){
-                            location = "";
-                        }
-                        if(duration==null){
-                            duration = "";
-                        }
-                        if(company==null){
-                            company = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = title + " " + location + " " + company + " " + description;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
-                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.experience, experienceId));
-                        Experience e = experienceRepository.findById(x.getId().intValue()).get();
-                        modelMapper.map(e, x);
+            cvBodyDto.getEducations().forEach(x -> {
+                if(x.getIsDisplay()){
+                    String minor = x.getMinor();
+                    String description = x.getDescription();
+                    if(minor==null){
+                        minor = "";
                     }
-                });
-
-                cvBodyDto.getProjects().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        int projectId = x.getId();
-                        String title = x.getTitle();
-                        String duration = x.getDuration();
-                        String organization = x.getOrganization();
-                        String description = x.getDescription();
-                        if(title==null){
-                            title = "";
-                        }
-                        if(organization==null){
-                            organization = "";
-                        }
-                        if(duration==null){
-                            duration = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = title + " " + organization + " " + description;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
-                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.project, projectId));
-                        Project e = projectRepository.findById(x.getId().intValue()).get();
-                        modelMapper.map(e, x);
+                    if(description==null){
+                        description = "";
                     }
-                });
+                    String word = description + " " + minor;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                }
+            });
 
-                cvBodyDto.getInvolvements().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        int involvementId = x.getId();
-                        String duration = x.getDuration();
-                        String title = x.getOrganizationRole();
-                        String name = x.getOrganizationName();
-                        String college = x.getCollege();
-                        String description = x.getDescription();
-                        if(title==null){
-                            title = "";
-                        }
-                        if(name==null){
-                            name = "";
-                        }
-                        if(duration==null){
-                            duration = "";
-                        }
-                        if(college==null){
-                            college = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = title + " " + name + " " + college + " " + description;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
-                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.involvement, involvementId));
-                        Involvement e = involvementRepository.findById(x.getId().intValue()).get();
-                        modelMapper.map(e, x);
+            cvBodyDto.getExperiences().forEach(x -> {
+                if(x.getIsDisplay()){
+                    int experienceId = x.getId();
+                    String title = x.getRole();
+                    String location = x.getLocation();
+                    String duration = x.getDuration();
+                    String company = x.getCompanyName();
+                    String description = x.getDescription();
+                    if(title==null){
+                        title = "";
                     }
-                });
+                    if(location==null){
+                        location = "";
+                    }
+                    if(duration==null){
+                        duration = "";
+                    }
+                    if(company==null){
+                        company = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = title + " " + location + " " + company + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
+                    sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.experience, experienceId));
+                    Experience e = experienceRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
+            });
 
+            cvBodyDto.getProjects().forEach(x -> {
+                if(x.getIsDisplay()){
+                    int projectId = x.getId();
+                    String title = x.getTitle();
+                    String duration = x.getDuration();
+                    String organization = x.getOrganization();
+                    String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(organization==null){
+                        organization = "";
+                    }
+                    if(duration==null){
+                        duration = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = title + " " + organization + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
+                    sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.project, projectId));
+                    Project e = projectRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
+            });
+
+            cvBodyDto.getInvolvements().forEach(x -> {
+                if(x.getIsDisplay()){
+                    int involvementId = x.getId();
+                    String duration = x.getDuration();
+                    String title = x.getOrganizationRole();
+                    String name = x.getOrganizationName();
+                    String college = x.getCollege();
+                    String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(name==null){
+                        name = "";
+                    }
+                    if(duration==null){
+                        duration = "";
+                    }
+                    if(college==null){
+                        college = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = title + " " + name + " " + college + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
+                    sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.involvement, involvementId));
+                    Involvement e = involvementRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
+            });
+            if(scoreOptional.isPresent()){
+                Score score = scoreOptional.get();
                 contentList = evaluateContentSections(evaluates, sectionCvDtos);
 
                 practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
@@ -587,16 +593,16 @@ public class CvServiceImpl implements CvService {
                 formatList = evaluateFormat(evaluates, cvId);
 
                 //check score practice have any change
-                Double practice = evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords);
-                if (!Double.valueOf(practice).equals(score.getPractice())) {
-                    score.setPractice(practice.intValue());
+                int practice = (int) Math.floor(evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords));
+                if (practice!=score.getPractice()) {
+                    score.setPractice(practice);
                     scoreRepository.save(score);
                 }
 
                 //check score format have any change
-                Double format = evaluateFormatScore(evaluates, cvId);
-                if (!Double.valueOf(format).equals(score.getFormat())) {
-                    score.setPractice(format.intValue());
+                int format = (int) Math.floor(evaluateFormatScore(evaluates, cvId));
+                if (format!=score.getFormat()) {
+                    score.setPractice(format);
                     scoreRepository.save(score);
                 }
 
@@ -606,154 +612,12 @@ public class CvServiceImpl implements CvService {
                 result.add(scoreDto);
 
                 return result;
-            }
-        }else{
-            Score score = new Score();
-            score.setCv(cv);
-            Score savedScore = scoreRepository.save(score);
+            }else{
+                Score score = new Score();
+                score.setCv(cv);
+                Score savedScore = scoreRepository.save(score);
 
-            Integer savedScoreId = savedScore.getId();
-
-            final int[] totalWords = {0};
-
-            if (Objects.nonNull(cv)) {
-                CvBodyDto cvBodyDto = cv.deserialize();
-                List<ContentDto> contentList = new ArrayList<>();
-                List<ContentDto> practiceList = new ArrayList<>();
-                List<ContentDto> optimizationList = new ArrayList<>();
-                List<ContentDto> formatList = new ArrayList<>();
-                for (SkillDto x : cvBodyDto.getSkills()) {
-                    if (x.getIsDisplay()) {
-                        String description = x.getDescription();
-                        if (description != null) {
-                            String[] words = description.split("\\s+");
-                            totalWords[0] += words.length;
-                        }
-                    }
-                }
-
-                cvBodyDto.getCertifications().forEach(x -> {
-                    if (x.getIsDisplay()) {
-                        String skill = x.getCertificateRelevance();
-                        if (skill != null) {
-                            String word = skill;
-                            String[] words = word.split("\\s+");
-                            totalWords[0] += words.length;
-                        }
-                    }
-                });
-
-                cvBodyDto.getEducations().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        String minor = x.getMinor();
-                        String description = x.getDescription();
-                        if(minor==null){
-                            minor = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = description + " " + minor;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                    }
-                });
-
-                cvBodyDto.getExperiences().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        int experienceId = x.getId();
-                        String title = x.getRole();
-                        String location = x.getLocation();
-                        String duration = x.getDuration();
-                        String company = x.getCompanyName();
-                        String description = x.getDescription();
-                        if(title==null){
-                            title = "";
-                        }
-                        if(location==null){
-                            location = "";
-                        }
-                        if(duration==null){
-                            duration = "";
-                        }
-                        if(company==null){
-                            company = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = title + " " + location + " " + company + " " + description;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
-                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.experience, experienceId));
-                        Experience e = experienceRepository.findById(x.getId().intValue()).get();
-                        modelMapper.map(e, x);
-                    }
-                });
-
-                cvBodyDto.getProjects().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        int projectId = x.getId();
-                        String title = x.getTitle();
-                        String duration = x.getDuration();
-                        String organization = x.getOrganization();
-                        String description = x.getDescription();
-                        if(title==null){
-                            title = "";
-                        }
-                        if(organization==null){
-                            organization = "";
-                        }
-                        if(duration==null){
-                            duration = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = title + " " + organization + " " + description;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
-                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.project, projectId));
-                        Project e = projectRepository.findById(x.getId().intValue()).get();
-                        modelMapper.map(e, x);
-                    }
-                });
-
-                cvBodyDto.getInvolvements().forEach(x -> {
-                    if(x.getIsDisplay()){
-                        int involvementId = x.getId();
-                        String duration = x.getDuration();
-                        String title = x.getOrganizationRole();
-                        String name = x.getOrganizationName();
-                        String college = x.getCollege();
-                        String description = x.getDescription();
-                        if(title==null){
-                            title = "";
-                        }
-                        if(name==null){
-                            name = "";
-                        }
-                        if(duration==null){
-                            duration = "";
-                        }
-                        if(college==null){
-                            college = "";
-                        }
-                        if(description==null){
-                            description = "";
-                        }
-                        String word = title + " " + name + " " + college + " " + description;
-                        String[] words = word.split("\\s+");
-                        totalWords[0] += words.length;
-                        sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
-                        sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.involvement, involvementId));
-                        Involvement e = involvementRepository.findById(x.getId().intValue()).get();
-                        modelMapper.map(e, x);
-                    }
-                });
-
+                Integer savedScoreId = savedScore.getId();
                 for (SectionAddScoreLogDto sectionLog1: sectionAddScoreLogDtos){
                     List<SectionLog> sectionLog = sectionLogRepository.findBySection_TypeNameAndSection_TypeId(sectionLog1.getTypeName(), sectionLog1.getTypeId());
                     for(SectionLog sectionLog2: sectionLog){
@@ -763,7 +627,7 @@ public class CvServiceImpl implements CvService {
                         scoreLogRepository.save(scoreLog);
                     }
                 }
-                Double content = cvRepository.calculateTotalScoreByScoreIdAndStatus(savedScoreId,SectionLogStatus.Pass);
+                Double content = evaluateContentScore(evaluates,sectionCvDtos);
                 Double practice = evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords);
                 Double optimization = evaluateOptimationalScore(evaluates, cvId);
                 Double format = evaluateFormatScore(evaluates, cvId);
@@ -797,7 +661,6 @@ public class CvServiceImpl implements CvService {
 
                 return result;
             }
-
         }
         return Collections.emptyList();
     }
@@ -913,6 +776,26 @@ public class CvServiceImpl implements CvService {
         }
 
         return sameSections;
+    }
+
+    private Double evaluateContentScore(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos) {
+        double scoreContent = 0.0;
+        int evaluateId = 1;
+
+        for (int i = 1; i <= 8; i++) {
+            Evaluate evaluate = evaluates.get(i - 1);
+            List<Section> sections = cvRepository.findSectionsWithNonPassStatus(evaluateId, SectionLogStatus.Pass);
+
+            List<ContentDetailDto> sameSections = findSameSections(sectionCvDtos, sections);
+
+            if (sameSections.isEmpty()) {
+                scoreContent += evaluate.getScore();
+            }
+
+            evaluateId++;
+        }
+
+        return scoreContent;
     }
 
     private List<ContentDto> evaluateBestPractices(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos, int userId, int cvId, int[] totalWords, Cv cv) {
