@@ -173,7 +173,7 @@ public class TransactionServiceImpl implements TransactionService {
                 }
             }
         }else {
-            throw new InternalServerException("transaction status is not available to update");
+            throw new BadRequestException("transaction status is not available to update");
         }
 
         transaction.setMomoId(queryStatusTransactionResponse.getTransId());
@@ -239,27 +239,31 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDto requestToReviewFail(String requestId){
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
-        transaction.setStatus(TransactionStatus.FAIL);
-        transaction = transactionRepository.save(transaction);
+        if (TransactionStatus.PENDING.equals(transaction.getStatus())) {
+            transaction.setStatus(TransactionStatus.FAIL);
+            transaction = transactionRepository.save(transaction);
 
-        //tra tien cho candidate
-        Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
-        user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
-        usersRepository.save(user);
-        return transactionMapper.toDto(transaction);
+            //tra tien cho candidate
+            Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
+            user.setAccountBalance((user.getAccountBalance() + transaction.getExpenditure()));
+            usersRepository.save(user);
+            return transactionMapper.toDto(transaction);
+        } else throw new BadRequestException("transaction status is not available to update");
     }
 
     @Override
     public TransactionDto requestToReviewSuccessFul(String requestId){
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
-        transaction.setStatus(TransactionStatus.SUCCESSFULLY);
-        transaction = transactionRepository.save(transaction);
+        if (TransactionStatus.PENDING.equals(transaction.getStatus())) {
+            transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+            transaction = transactionRepository.save(transaction);
 
-        //cong tien cho expert
-        Users user = usersService.getUsersById(transaction.getUser().getId());
-        user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
-        usersRepository.save(user);
-        return transactionMapper.toDto(transaction);
+            //cong tien cho expert
+            Users user = usersService.getUsersById(transaction.getUser().getId());
+            user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
+            usersRepository.save(user);
+            return transactionMapper.toDto(transaction);
+        } else throw new BadRequestException("transaction status is not available to update");
     }
 
     @Override
