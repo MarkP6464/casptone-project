@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class JobDescriptionController {
@@ -17,8 +19,8 @@ public class JobDescriptionController {
 
     @PostMapping("cv/{cv-id}/job-description")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
-    public JobDescriptionViewDto postJobDescription(@PathVariable("cv-id") int cvId, @RequestBody JobDescriptionDto Dto) throws JsonProcessingException {
-        return jobDescriptionService.createJobDescription(cvId,Dto);
+    public JobDescriptionViewDto postJobDescription(@PathVariable("cv-id") int cvId, @RequestBody JobDescriptionDto Dto, Principal principal) throws JsonProcessingException {
+        return jobDescriptionService.createJobDescription(cvId,Dto,principal);
     }
 
     @GetMapping("cv/{cv-id}/job-description/ats")
@@ -29,7 +31,7 @@ public class JobDescriptionController {
 
     @PutMapping("cv/{cv-id}/job-description/ats")
     @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
-    public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") Integer cvId, @RequestBody JobDescriptionDto Dto) throws Exception {
-        return jobDescriptionService.updateJobDescription(cvId,Dto);
+    public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") Integer cvId, @RequestBody JobDescriptionDto Dto, Principal principal) throws Exception {
+        return jobDescriptionService.updateJobDescription(cvId,Dto,principal);
     }
 }

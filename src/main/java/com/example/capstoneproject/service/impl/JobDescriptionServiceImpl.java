@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     }
 
     @Override
-    public JobDescriptionViewDto createJobDescription(Integer cvId, JobDescriptionDto dto) throws JsonProcessingException {
+    public JobDescriptionViewDto createJobDescription(Integer cvId, JobDescriptionDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<500){
@@ -61,7 +62,7 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
                 jobDescription.setDescription(dto.getDescription());
                 JobDescription saved = jobDescriptionRepository.save(jobDescription);
                 Integer jobId = saved.getId();
-                List<AtsDto> atsList = evaluateService.ListAts(cvId,jobId,dto);
+                List<AtsDto> atsList = evaluateService.ListAts(cvId,jobId,dto,principal);
                 JobDescriptionViewDto jobDescriptionViewDto = jobDescriptionMapper.mapEntityToDto(jobDescription);
                 jobDescriptionViewDto.setAts(atsList);
                 Cv cv = cvOptional.get();
@@ -101,7 +102,7 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     }
 
     @Override
-    public JobDescriptionViewDto updateJobDescription(Integer cvId, JobDescriptionDto dto) throws Exception {
+    public JobDescriptionViewDto updateJobDescription(Integer cvId, JobDescriptionDto dto, Principal principal) throws Exception {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
@@ -124,7 +125,7 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
                         }else{
                             jobDescription.setDescription(dto.getDescription());
                             atsRepository.deleteByJobDescriptionId(jobDescription.getId());
-                            atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto);
+                            atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto,principal);
                         }
                     }else{
                         atsList = evaluateService.getAts(cvId,jobDescription.getId());
