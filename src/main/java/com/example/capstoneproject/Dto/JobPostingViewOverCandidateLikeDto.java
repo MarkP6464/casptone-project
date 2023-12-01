@@ -19,7 +19,7 @@ public class JobPostingViewOverCandidateLikeDto {
 
     private String location;
 
-    private String skill;
+    private String[] skill;
 
     private String salary;
 
