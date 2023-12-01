@@ -397,7 +397,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingLikeAdd.setCompanyName(jobPosting.getCompanyName());
                     jobPostingLikeAdd.setAvatar(jobPosting.getAvatar());
                     jobPostingLikeAdd.setLocation(jobPosting.getLocation());
-                    jobPostingLikeAdd.setSkill(jobPosting.getSkill());
+                    jobPostingLikeAdd.setSkill(jobPosting.getSkill().split(","));
                     jobPostingLikeAdd.setSalary(jobPosting.getSalary());
                     jobPostingLikeAdd.setCreateDate(prettyTime.format(jobPosting.getCreateDate()));
                     Optional<Like> likeOptional = likeRepository.findByUser_IdAndJobPosting_Id(userId, jobPosting.getId());

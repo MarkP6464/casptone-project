@@ -87,7 +87,7 @@ public class CvController {
     }
 
     @GetMapping("{user-id}/cv/{cv-id}/evaluate")
-    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert', 'read:candidate')")
     public List<ScoreDto> getEvaluateCV(@PathVariable("user-id") int userId, @PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.getEvaluateCv(userId, cvId);
     }

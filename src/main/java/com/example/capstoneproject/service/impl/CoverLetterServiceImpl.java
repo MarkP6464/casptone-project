@@ -617,12 +617,13 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     public static String[] splitText(String text) {
         // Use positive lookahead to include "• " in the split result
-        String[] splitValues = text.split("(?=• )");
+        String[] splitValues = text.split("(?=[•\\-])");
 
-        // Trim and filter out empty values
-        return java.util.Arrays.stream(splitValues)
+        // Trim and filter out empty values, replace "-" with "•"
+        return Arrays.stream(splitValues)
                 .map(String::trim)
                 .filter(value -> !value.isEmpty())
+                .map(value -> value.replace("-", "•"))
                 .toArray(String[]::new);
     }
 }

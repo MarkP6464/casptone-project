@@ -4,20 +4,18 @@ import lombok.*;
 
 import java.util.List;
 
-@Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class ScoreDto {
-    Integer scoreContent;
+    ScoreMaxMinDto scoreContent;
     List<ContentDto> content;
-    Integer scorePractice;
+    ScoreMaxMinDto scorePractice;
     List<ContentDto> practice;
-    Integer scoreOptimization;
+    ScoreMaxMinDto scoreOptimization;
     List<ContentDto> optimization;
-    Integer scoreFormat;
+    ScoreMaxMinDto scoreFormat;
     List<ContentDto> format;
     String result;
 

@@ -78,7 +78,7 @@ public class LikeServiceImpl implements LikeService {
                             jobPostingLikeAdd.setCompanyName(jobPosting.getCompanyName());
                             jobPostingLikeAdd.setAvatar(jobPosting.getAvatar());
                             jobPostingLikeAdd.setLocation(jobPosting.getLocation());
-                            jobPostingLikeAdd.setSkill(jobPosting.getSkill());
+                            jobPostingLikeAdd.setSkill(jobPosting.getSkill().split(","));
                             jobPostingLikeAdd.setSalary(jobPosting.getSalary());
                             jobPostingLikeAdd.setCreateDate(prettyTime.format(jobPosting.getCreateDate()));
                             jobPostingLike.add(jobPostingLikeAdd);

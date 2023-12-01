@@ -94,13 +94,10 @@ public class CvServiceImpl implements CvService {
     @Autowired
     AtsRepository atsRepository;
 
-
     public CvServiceImpl(CvRepository cvRepository, CvMapper cvMapper) {
         this.cvRepository = cvRepository;
         this.cvMapper = cvMapper;
     }
-
-
 
     @Override
     public List<CvViewDto> GetCvsById(Integer UsersId, String content) {
@@ -284,7 +281,7 @@ public class CvServiceImpl implements CvService {
                 cvDupDto.setStatus(BasicStatus.ACTIVE);
                 cvDupDto.setSummary(cv.getSummary());
                 cvDupDto.setCvBody(cv.getCvBody());
-                cvDupDto.setEvaluation(cv.getEvaluation());
+                cvDupDto.setEvaluation(cv.getOverview());
                 if (cv.getJobDescription() != null) {
                     Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
                     if (jobDescriptionOptional.isPresent()) {
@@ -316,7 +313,7 @@ public class CvServiceImpl implements CvService {
                 cvDto.setStatus(cvReturn.getStatus());
                 cvDto.setSummary(cvReturn.getSummary());
                 cvDto.setCvBody(cvReturn.deserialize());
-                cvDto.setEvaluate(cvReturn.getEvaluation() != null ? cvReturn.deserializeScore() : null);
+                cvDto.setEvaluate(cvReturn.getOverview() != null ? cvReturn.deserializeOverview() : null);
                 cvDto.setJobDescription(cvReturn.getJobDescription());
                 cvDto.setUsersDto(modelMapper.map(cvReturn.getUser(), UsersDto.class));
             } else {
@@ -406,6 +403,9 @@ public class CvServiceImpl implements CvService {
                 //Delete score in db
                 scoreRepository.deleteScoreById(score.getId());
             }
+
+            cv.setOverview(null);
+            cvRepository.save(cv);
             CvBodyDto cvBodyDto = cv.deserialize();
             cvBodyDto.getEducations().forEach(x -> {
                 Education e = educationRepository.findById(x.getId().intValue()).get();
@@ -438,8 +438,9 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public List<ScoreDto> getEvaluateCv(int userId, int cvId) throws JsonProcessingException {
+    public ScoreDto getEvaluateCv(int userId, int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.getById(cvId);
+        ScoreDto scoreDto = new ScoreDto();
         List<SectionCvDto> sectionCvDtos = new ArrayList<>();
         List<SectionAddScoreLogDto> sectionAddScoreLogDtos = new ArrayList<>();
         List<Evaluate> evaluates = evaluateRepository.findAll();
@@ -582,36 +583,36 @@ public class CvServiceImpl implements CvService {
                     modelMapper.map(e, x);
                 }
             });
-            if(scoreOptional.isPresent()){
+            if(scoreOptional.isPresent()&& cv.getOverview()!=null){
                 Score score = scoreOptional.get();
-                contentList = evaluateContentSections(evaluates, sectionCvDtos);
+                ScoreDto overview = cv.deserializeOverview();
 
-                practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
-
-                optimizationList = evaluateOptimational(evaluates, cvId);
-
-                formatList = evaluateFormat(evaluates, cvId);
-
-                //check score practice have any change
-                int practice = (int) Math.floor(evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords));
-                if (practice!=score.getPractice()) {
-                    score.setPractice(practice);
+                // Check if the practice score has changed
+                int newPractice = (int) Math.floor(evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords));
+                if (newPractice != score.getPractice()) {
+                    score.setPractice(newPractice);
                     scoreRepository.save(score);
+
+                    ScoreMaxMinDto scoreMaxMinPractice = new ScoreMaxMinDto(newPractice, 100, newPractice + "/6");
+                    overview.setScorePractice(scoreMaxMinPractice);
                 }
 
-                //check score format have any change
-                int format = (int) Math.floor(evaluateFormatScore(evaluates, cvId));
-                if (format!=score.getFormat()) {
-                    score.setPractice(format);
+                // Check if the format score has changed
+                int newFormat = (int) Math.floor(evaluateFormatScore(evaluates, cvId));
+                if (newFormat != score.getFormat()) {
+                    score.setFormat(newFormat);
                     scoreRepository.save(score);
+
+                    ScoreMaxMinDto scoreMaxMinFormat = new ScoreMaxMinDto(newFormat, 100, newFormat + "/2");
+                    overview.setScoreFormat(scoreMaxMinFormat);
                 }
 
+                // Update the overview and save the CV if necessary
+                cv.setOverview(cv.toOverviewBody(overview));
+                cvRepository.save(cv);
 
-                ScoreDto scoreDto = new ScoreDto(score.getContent(),contentList,score.getPractice(), practiceList,score.getOptimization(), optimizationList, score.getFormat(), formatList,score.getResult());
-                List<ScoreDto> result = new ArrayList<>();
-                result.add(scoreDto);
+                return overview;
 
-                return result;
             }else{
                 Score score = new Score();
                 score.setCv(cv);
@@ -631,44 +632,42 @@ public class CvServiceImpl implements CvService {
                 Double practice = evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords);
                 Double optimization = evaluateOptimationalScore(evaluates, cvId);
                 Double format = evaluateFormatScore(evaluates, cvId);
-                Double totalScore = calculateTotalScore(evaluates);
-                double resultPercentage = (content / totalScore) * 50;
-                double practicePercentage = (practice / totalScore) * 30;
-                double optimizationPercentage = (optimization / totalScore) * 10;
-                double formatPercentage = (format / totalScore) * 10;
+                double resultPercentage = (content / 8) * 50;
+                double practicePercentage = (practice / 6) * 30;
+                double optimizationPercentage = (optimization / 1) * 10;
+                double formatPercentage = (format / 2) * 10;
                 double totalPercentage = resultPercentage + practicePercentage + optimizationPercentage + formatPercentage;
                 String resultLabel = getResultLabel(totalPercentage);
 
                 Score scoreOptional1 = scoreRepository.findById1(savedScoreId);
-                scoreOptional1.setContent((int) Math.round(content));
-                scoreOptional1.setPractice((int) Math.round(practice));
-                scoreOptional1.setOptimization((int) Math.round(optimization));
-                scoreOptional1.setFormat((int) Math.round(format));
+                scoreOptional1.setContent((int) Math.round((content/8)*100));
+                scoreOptional1.setPractice((int) Math.round((practice/6)*100));
+                scoreOptional1.setOptimization((int) Math.round(optimization*100));
+                scoreOptional1.setFormat((int) Math.round((format/2)*100));
                 scoreOptional1.setResult(resultLabel);
-                scoreRepository.save(scoreOptional1);
+                Score getScore = scoreRepository.save(scoreOptional1);
 
                 contentList = evaluateContentSections(evaluates, sectionCvDtos);
+                ScoreMaxMinDto contentS = new ScoreMaxMinDto(getScore.getContent(),100,content.intValue() + "/8");
 
                 practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv);
+                ScoreMaxMinDto practiceS = new ScoreMaxMinDto(getScore.getPractice(),100,practice.intValue() + "/6");
 
                 optimizationList = evaluateOptimational(evaluates, cvId);
+                ScoreMaxMinDto optimationS = new ScoreMaxMinDto(getScore.getOptimization(),100,optimization.intValue() + "/1");
 
                 formatList = evaluateFormat(evaluates, cvId);
+                ScoreMaxMinDto formatS = new ScoreMaxMinDto(getScore.getFormat(),100,format.intValue() + "/2");
 
-                ScoreDto scoreDto = new ScoreDto((int) Math.round(content),contentList,(int) Math.round(practice), practiceList,(int) Math.round(optimization), optimizationList,(int) Math.round(format),formatList,resultLabel);
-                List<ScoreDto> result = new ArrayList<>();
-                result.add(scoreDto);
 
-                return result;
+                scoreDto = new ScoreDto(contentS,contentList,practiceS, practiceList,optimationS, optimizationList,formatS,formatList,resultLabel);
+                cv.setOverview(cv.toOverviewBody(scoreDto));
+                cvRepository.save(cv);
+
+                return scoreDto;
             }
         }
-        return Collections.emptyList();
-    }
-
-    public static double calculateTotalScore(List<Evaluate> evaluates) {
-        return evaluates.stream()
-                .mapToDouble(Evaluate::getScore)
-                .sum();
+        return scoreDto;
     }
 
     private String getResultLabel(double percentage) {
@@ -753,7 +752,7 @@ public class CvServiceImpl implements CvService {
             List<ContentDetailDto> sameSections = findSameSections(sectionCvDtos, sections);
 
             if (!sameSections.isEmpty()) {
-                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
+                ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), sameSections);
                 contentList.add(contentDto);
             }
 
@@ -783,13 +782,12 @@ public class CvServiceImpl implements CvService {
         int evaluateId = 1;
 
         for (int i = 1; i <= 8; i++) {
-            Evaluate evaluate = evaluates.get(i - 1);
             List<Section> sections = cvRepository.findSectionsWithNonPassStatus(evaluateId, SectionLogStatus.Pass);
 
             List<ContentDetailDto> sameSections = findSameSections(sectionCvDtos, sections);
 
             if (sameSections.isEmpty()) {
-                scoreContent += evaluate.getScore();
+                scoreContent += 1;
             }
 
             evaluateId++;
@@ -815,7 +813,7 @@ public class CvServiceImpl implements CvService {
                                     && section.getTypeName() == SectionEvaluate.experience && sectionCvDto.getLocation() == null
                                     && sectionCvDto.getTitle() != null) {
                                 sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-                                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
+                                ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), sameSections);
                                 resultList.add(contentDto);
                             }
                         }
@@ -830,7 +828,7 @@ public class CvServiceImpl implements CvService {
                             if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
                                     && (sectionCvDto.getDuration() == null && sectionCvDto.getTitle() != null)) {
                                 sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
-                                ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections);
+                                ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), sameSections);
                                 resultList.add(contentDto);
                             }
                         }
@@ -841,7 +839,7 @@ public class CvServiceImpl implements CvService {
                     // Check phone = null
                     Optional<Users> users = usersRepository.findUsersById(userId);
                     if (users.isPresent() && users.get().getPhone() == null) {
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                         // Do something
                     }
@@ -852,7 +850,7 @@ public class CvServiceImpl implements CvService {
                     Optional<Users> users1 = usersRepository.findUsersById(userId);
                     if (users1.isPresent() && users1.get().getLinkin() == null) {
                         // Do something
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                     }
                     break;
@@ -861,7 +859,7 @@ public class CvServiceImpl implements CvService {
                     // Check count word
                     if (totalWords[0] < 300) {
                         String totalWordsString = Arrays.toString(totalWords);
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription() + totalWordsString, null);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription() + totalWordsString, null);
                         resultList.add(contentDto);
                     }
                     break;
@@ -870,7 +868,7 @@ public class CvServiceImpl implements CvService {
                     // Check summary
                     Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
                     if (cv1.getSummary() == null || cv1.getSummary().length() < 30) {
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(), evaluate.getDescription(), null);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), null);
                         resultList.add(contentDto);
                     }
                     break;
@@ -900,10 +898,7 @@ public class CvServiceImpl implements CvService {
                         }
                     }
                     if (!atLeastOneMatch) {
-                        Evaluate evaluate1 = evaluateRepository.findById(9);
-                        if(evaluate1!=null){
-                            scorePractice += evaluate1.getScore();
-                        }
+                        scorePractice += 1;
                     }
                     break;
 
@@ -920,10 +915,7 @@ public class CvServiceImpl implements CvService {
                         }
                     }
                     if (!atLeastOneMatchdate) {
-                        Evaluate evaluate1 = evaluateRepository.findById(10);
-                        if(evaluate1!=null){
-                            scorePractice += evaluate1.getScore();
-                        }
+                        scorePractice += 1;
                     }
                     break;
 
@@ -936,10 +928,7 @@ public class CvServiceImpl implements CvService {
                         // Do something
                     }
                     if (!atLeastOneMatchPhone) {
-                        Evaluate evaluate1 = evaluateRepository.findById(11);
-                        if(evaluate1!=null){
-                            scorePractice += evaluate1.getScore();
-                        }
+                        scorePractice += 1;
                     }
                     break;
 
@@ -952,10 +941,7 @@ public class CvServiceImpl implements CvService {
                         atLeastOneMatchLinkin = true;
                     }
                     if (!atLeastOneMatchLinkin) {
-                        Evaluate evaluate1 = evaluateRepository.findById(12);
-                        if(evaluate1!=null){
-                            scorePractice += evaluate1.getScore();
-                        }
+                        scorePractice += 1;
                     }
                     break;
 
@@ -966,10 +952,7 @@ public class CvServiceImpl implements CvService {
                         atLeastOneMatchWord = true;
                     }
                     if (!atLeastOneMatchWord) {
-                        Evaluate evaluate1 = evaluateRepository.findById(13);
-                        if(evaluate1!=null){
-                            scorePractice += evaluate1.getScore();
-                        }
+                        scorePractice += 1;
                     }
                     break;
 
@@ -981,10 +964,7 @@ public class CvServiceImpl implements CvService {
                         atLeastOneMatchSummary = true;
                     }
                     if (!atLeastOneMatchSummary) {
-                        Evaluate evaluate1 = evaluateRepository.findById(14);
-                        if(evaluate1!=null){
-                            scorePractice += evaluate1.getScore();
-                        }
+                        scorePractice += 1;
                     }
                     break;
 
@@ -1020,7 +1000,7 @@ public class CvServiceImpl implements CvService {
                     break;
             }
 
-            contentDtoList.add(new ContentDto(evaluate.getTitle(), evaluate.getDescription(), sameSections));
+            contentDtoList.add(new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), sameSections));
         }
 
         return contentDtoList;
@@ -1030,8 +1010,6 @@ public class CvServiceImpl implements CvService {
         double score = 0.0;
 
         for (int i = 14; i < 15; i++) {
-            Evaluate evaluate = evaluates.get(i);
-            List<ContentDetailDto> sameSections = new ArrayList<>();
 
             switch (i) {
                 case 14:
@@ -1042,8 +1020,7 @@ public class CvServiceImpl implements CvService {
                         Integer jobDescriptionId = jobDescription.getId();
                         List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionId);
                         if (ats != null) {
-                            Evaluate evaluate1 = evaluateRepository.findById(15);
-                            score += evaluate1.getScore();
+                            score += 1;
                         }
                     }
                     break;
@@ -1074,7 +1051,7 @@ public class CvServiceImpl implements CvService {
                     String font = cvBodyDto.getCvStyle().getFontSize();
                     Integer getFont = getFontSize(font);
                     if(!(getFont>8 && getFont<=11)){
-                        ContentDto contentDto = new ContentDto(evaluate.getTitle(),evaluate.getDescription(),null);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(),evaluate.getDescription(),null);
                         contentDtoList.add(contentDto);
                     }
                     break;
@@ -1091,14 +1068,10 @@ public class CvServiceImpl implements CvService {
         double score = 0.0;
 
         for (int i = 15; i < 17; i++) {
-            Evaluate evaluate = evaluates.get(i);
-            List<ContentDetailDto> sameSections = new ArrayList<>();
-
             switch (i) {
                 case 15:
                     // Check use template
-                    Evaluate evaluate1 = evaluateRepository.findById(16);
-                    score += evaluate1.getScore();
+                    score += 1;
 
                     break;
                 case 16:
@@ -1108,8 +1081,7 @@ public class CvServiceImpl implements CvService {
                     String font = cvBodyDto.getCvStyle().getFontSize();
                     Integer getFont = getFontSize(font);
                     if(getFont>8 && getFont<=11){
-                        Evaluate evaluate2 = evaluateRepository.findById(17);
-                        score += evaluate2.getScore();
+                        score += 1;
                     }
                     break;
 

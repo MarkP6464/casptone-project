@@ -19,9 +19,11 @@ public class Evaluate {
 
     @Column(columnDefinition = "TEXT")
     private String description;
-    private double score;
-    private double maxScore;
+
+    private Boolean critical;
+
     private int condition1;
+
     private int condition2;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "evaluate")

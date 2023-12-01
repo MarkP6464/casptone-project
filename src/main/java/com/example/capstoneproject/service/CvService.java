@@ -31,17 +31,13 @@ public interface CvService {
 
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
-//    boolean updateCvContent(int UsersId, int cvId, CvAddNewDto dto);
-
     UsersViewDto updateCvContact(int UsersId, UsersViewDto dto);
-
-//    boolean updateCvTemplate(int UsersId, int cvId, int templateId);
 
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 
     CvDto synchUp(int cvId) throws JsonProcessingException;
 
-    List<ScoreDto> getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
+    ScoreDto getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
 
     Cv findByUser_IdAndId(Integer UsersId, Integer cvId);
 

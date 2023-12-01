@@ -57,7 +57,7 @@ public class Cv {
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
-    private String evaluation;
+    private String overview;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
@@ -83,9 +83,28 @@ public class Cv {
         return objectMapper.readValue(this.cvBody, CvBodyDto.class);
     }
 
-    public ScoreDto deserializeScore() throws JsonProcessingException {
+    public String toOverviewBody(ScoreDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(this.evaluation, ScoreDto.class);
+        String map = objectMapper.writeValueAsString(dto);
+        this.setOverview(map);
+        return map;
     }
+
+    public ScoreDto deserializeOverview() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(this.overview, ScoreDto.class);
+    }
+
+    private Cv updateCvFromScoreDto(Cv cv, ScoreDto scoreDto) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String overviewMap = objectMapper.writeValueAsString(scoreDto);
+        cv.setOverview(overviewMap);
+        return cv;
+    }
+
+//    public ScoreDto deserializeScore() throws JsonProcessingException {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        return objectMapper.readValue(this.evaluation, ScoreDto.class);
+//    }
 }
 
