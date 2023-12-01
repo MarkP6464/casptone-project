@@ -225,6 +225,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             experienceDto.setIsDisplay(dto.getIsDisplay());
             cvService.updateCvBody(cvId, cvBodyDto);
 
+
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, experience.getId());
 
@@ -238,7 +239,11 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 scoreRepository.deleteScoreById(score.getId());
             }
 
-            sectionLogRepository.deleteBySection_Id(section.getId());
+            if(section!=null){
+                sectionLogRepository.deleteBySection_Id(section.getId());
+                cv.setOverview(null);
+                cvRepository.save(cv);
+            }
             //Get process evaluate
             List<BulletPointDto> evaluateResult = evaluateService.checkSentences(dto.getDescription());
             ExperienceViewDto experienceViewDto = new ExperienceViewDto();
@@ -259,7 +264,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 Evaluate evaluate = evaluates.get(i);
                 BulletPointDto bulletPointDto = evaluateResult.get(i);
                 SectionLogDto sectionLogDto1 = new SectionLogDto();
-                sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(sectionMapper.mapEntityToDto(section)));
+                sectionLogDto1.setSection(section);
                 sectionLogDto1.setEvaluate(evaluate);
                 sectionLogDto1.setBullet(bulletPointDto.getResult());
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
