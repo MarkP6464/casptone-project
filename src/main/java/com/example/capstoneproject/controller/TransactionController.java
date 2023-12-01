@@ -40,14 +40,14 @@ public class TransactionController {
     TransactionRepository transactionRepository;
 
     @GetMapping("/get-all/{user-id}")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
         List<TransactionDto> list = transactionService.getAll(sentId);
         return list;
     }
 
     @GetMapping("/show-all")
-    @PreAuthorize("hasAnyAuthority('read:admin')")
+    @PreAuthorize("hasAnyAuthority('read:admin-messages')")
     public List<TransactionDto> showAll(){
         List<TransactionDto> list = transactionService.showAll();
         return list;
@@ -74,7 +74,7 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/query-transaction")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
             TransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
         return ResponseEntity.status(HttpStatus.OK).body(transaction.getStatus());
@@ -103,7 +103,7 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/view-withdraw-request")
-    @PreAuthorize("hasAnyAuthority('read:admin', 'read:expert')")
+    @PreAuthorize("hasAnyAuthority('read:admin-messages', 'read:expert')")
     public ResponseEntity viewWithdrawList() throws Exception {
         List<TransactionDto> list =  transactionService.viewWithdrawList();
         return ResponseEntity.status(HttpStatus.OK).body(list);
