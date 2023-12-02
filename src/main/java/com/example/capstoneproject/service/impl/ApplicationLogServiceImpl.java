@@ -214,4 +214,11 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         }
         return newList;
     }
+
+    @Override
+    public List<ApplicationLogResponse> getAllByCandidateId(Integer id){
+        List<ApplicationLogResponse> newList = Collections.EMPTY_LIST;
+        List<ApplicationLog> list = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
+        return newList;
+    }
 }
