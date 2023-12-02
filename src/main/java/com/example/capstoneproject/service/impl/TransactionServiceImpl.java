@@ -162,7 +162,7 @@ public class TransactionServiceImpl implements TransactionService {
                         hr.setVip(true);
                         usersRepository.save(hr);
                     } else {
-                        user.setAccountBalance((user.getAccountBalance() + expenditure));
+                        user.setAccountBalance((user.getAccountBalance() + expenditure / ratio));
                     }
                 }
             } else {
@@ -245,7 +245,7 @@ public class TransactionServiceImpl implements TransactionService {
 
             //tra tien cho candidate
             Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
-            user.setAccountBalance((user.getAccountBalance() + transaction.getExpenditure()));
+            user.setAccountBalance((user.getAccountBalance() + transaction.getConversionAmount()));
             usersRepository.save(user);
             return transactionMapper.toDto(transaction);
         } else throw new BadRequestException("transaction status is not available to update");
@@ -260,7 +260,7 @@ public class TransactionServiceImpl implements TransactionService {
 
             //cong tien cho expert
             Users user = usersService.getUsersById(transaction.getUser().getId());
-            user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
+            user.setAccountBalance( (user.getAccountBalance() + transaction.getConversionAmount()));
             usersRepository.save(user);
             return transactionMapper.toDto(transaction);
         } else throw new BadRequestException("transaction status is not available to update");
