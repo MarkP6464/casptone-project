@@ -219,6 +219,53 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     public List<ApplicationLogResponse> getAllByCandidateId(Integer id){
         List<ApplicationLogResponse> newList = Collections.EMPTY_LIST;
         List<ApplicationLog> list = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
+        HashMap<Integer, String> listCvMap = new HashMap<>();
+        HashMap<Integer, String> listClMap = new HashMap<>();
+        List<Integer> cvList = new ArrayList<>();
+        List<Integer> clList = new ArrayList<>();
+        if (!list.isEmpty()){
+            list.stream().map(x -> {
+                return listCvMap.put(x.getCv(), null);
+            });
+            list.stream().map(x -> {
+                return listClMap.put(x.getCoverLetter(), null);
+            });
+
+            newList = list.stream().map(x -> {
+                cvList.add(x.getCv());
+                if (Objects.nonNull(x.getCoverLetter())){
+                    clList.add(x.getCoverLetter());
+                }
+                ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
+                applicationLogResponse.setEmail(x.getUser().getEmail());
+                applicationLogResponse.setCandidateName(x.getUser().getUsername());
+                applicationLogResponse.setApplyDate(x.getTimestamp());
+                applicationLogResponse.setNote(x.getNote());
+                applicationLogResponse.getCvs().put("historyId", x.getCv());
+                applicationLogResponse.getCvs().put("resumeName", null);
+                applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());
+                applicationLogResponse.getCoverLetters().put("title", null);
+                return applicationLogResponse;
+            }).collect(Collectors.toList());
+
+            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
+            cvHistoryList.stream().forEach(x -> {
+                listCvMap.put(x.getId(), x.getCv().getResumeName());
+            });
+            newList.stream().forEach(x -> {
+                Integer historyID = (Integer) x.getCvs().get("historyId");
+                x.getCvs().put("resumeName", listCvMap.get(historyID));
+            });
+
+            List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
+            clHistoryList.stream().forEach(x -> {
+                listClMap.put(x.getId(), x.getTitle());
+            });
+            newList.stream().forEach(x -> {
+                Integer historyCoverLetterId = (Integer) x.getCvs().get("historyCoverLetterId");
+                x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
+            });
+        }
         return newList;
     }
 }
