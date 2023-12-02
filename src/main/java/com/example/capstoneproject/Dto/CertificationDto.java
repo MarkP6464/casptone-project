@@ -18,7 +18,7 @@ public class CertificationDto {
     private String Name;
     private String CertificateSource;
 
-    private int EndYear;
+    private Integer EndYear;
 
     private String CertificateRelevance;
 }

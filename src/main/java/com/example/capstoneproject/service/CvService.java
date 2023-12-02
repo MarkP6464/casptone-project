@@ -8,6 +8,7 @@ import com.example.capstoneproject.enums.RoleType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -32,6 +33,8 @@ public interface CvService {
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
     UsersViewDto updateCvContact(int UsersId, UsersViewDto dto);
+
+    Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal);
 
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 

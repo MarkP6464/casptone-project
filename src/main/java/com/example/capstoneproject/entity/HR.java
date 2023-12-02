@@ -27,7 +27,7 @@ public class HR extends Users{
 
     private String companyLogo;
 
-    @Column(name = "company_description", columnDefinition = "NVARCHAR(200)")
+    @Column(name = "company_description", columnDefinition = "TEXT")
     private String companyDescription;
 
     @NonNull

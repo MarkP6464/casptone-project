@@ -41,6 +41,9 @@ public class Cv {
     @Column(columnDefinition = "NVARCHAR(50)")
     private String companyName;
 
+    @Column(columnDefinition = "NVARCHAR(200)")
+    private String jobDescriptionTarget;
+
     private Boolean sharable;
 
     private Boolean searchable;

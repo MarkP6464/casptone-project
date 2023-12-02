@@ -10,12 +10,14 @@ import com.example.capstoneproject.mapper.CvMapper;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.*;
+import com.example.capstoneproject.utils.SecurityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +36,9 @@ public class CvServiceImpl implements CvService {
 
     @Autowired
     SectionLogRepository sectionLogRepository;
+
+    @Autowired
+    SecurityUtil securityUtil;
 
     @Autowired
     UsersMapper usersMapper;
@@ -382,6 +387,22 @@ public class CvServiceImpl implements CvService {
             return usersMapper.toView(user);
         } else {
             throw new IllegalArgumentException("UsersId not found: " + UsersId);
+        }
+    }
+
+    @Override
+    public Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal){
+        UserViewLoginDto user = securityUtil.getLoginUser(principal);
+        Optional<Cv> cvOptional = cvRepository.findById(id);
+
+        if (cvOptional.isPresent()) {
+            Cv cv = cvOptional.get();
+            modelMapper.map(dto, cv);
+
+            cvRepository.save(cv);
+            return true;
+        } else {
+            throw new IllegalArgumentException("CvId not found: " + id);
         }
     }
 

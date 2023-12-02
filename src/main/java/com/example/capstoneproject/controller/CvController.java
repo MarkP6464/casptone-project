@@ -3,12 +3,14 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.service.CvService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -77,6 +79,14 @@ public class CvController {
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public UsersViewDto updateContact(@PathVariable("user-id") int UsersId, @RequestBody UsersViewDto dto) {
         return cvService.updateCvContact(UsersId, dto);
+    }
+
+    @PutMapping("/{cv-id}/target")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    public String updateContact(@PathVariable("cv-id") int id, @RequestBody CvUpdateDto dto, Principal principal) {
+        if (cvService.updateCvTarget(id, dto, principal)){
+            return "Update success";
+        } else throw new InternalServerException("Update Fail");
     }
 
     @DeleteMapping("/{user-id}/cv/{cv-id}")
