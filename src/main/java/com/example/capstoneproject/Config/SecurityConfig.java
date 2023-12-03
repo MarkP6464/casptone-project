@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain httpSecurity(final HttpSecurity http) throws Exception {
         return http
                 .authorizeRequests(authz -> authz
-                        .antMatchers("/api/messages/protected", "/api/messages/admin").authenticated()
+                        .antMatchers("/api/messages/protected", "/api/messages/admin", "api/v1/transaction/query-transaction").authenticated()
                         .anyRequest().permitAll())
                 .cors().configurationSource(request -> {
                         CorsConfiguration cors = new CorsConfiguration();
