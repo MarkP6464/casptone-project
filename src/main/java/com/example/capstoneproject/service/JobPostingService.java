@@ -23,5 +23,7 @@ public interface JobPostingService {
     List<JobPostingViewDetailDto> getListByHr(Integer hrId, String sortBy, String sortOrder, String searchTerm);
     List<JobPostingViewOverCandidateLikeDto> getJobPostingsByCandidate(Integer userId, String title, String location);
     List<JobPostingViewDto> getListPublic(Integer userId, Integer cvId, String title, String working, String location) throws JsonProcessingException;
+    List<CandidateOverViewDto> getAllCandidateFilterCV(Integer postingId) throws JsonProcessingException;
+
 
 }

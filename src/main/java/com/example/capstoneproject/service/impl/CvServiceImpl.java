@@ -604,7 +604,7 @@ public class CvServiceImpl implements CvService {
                     modelMapper.map(e, x);
                 }
             });
-            if(scoreOptional.isPresent()&& cv.getOverview()!=null){
+            if(!cv.getOverview().isEmpty()){
                 Score score = scoreOptional.get();
                 ScoreDto overview = cv.deserializeOverview();
 
