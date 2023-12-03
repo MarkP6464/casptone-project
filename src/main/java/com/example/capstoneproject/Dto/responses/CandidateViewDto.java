@@ -1,5 +1,6 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.Dto.CvResumeDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -7,7 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CandidateDto {
+public class CandidateViewDto {
     private String name;
 
     private String avatar;
@@ -20,5 +21,5 @@ public class CandidateDto {
 
     private boolean publish;
 
-    private Integer[] cv;
+    private CvResumeDto[] cv;
 }

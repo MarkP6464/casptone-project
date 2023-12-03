@@ -2,8 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CandidateDto;
 import com.example.capstoneproject.Dto.CvAddNewDto;
+import com.example.capstoneproject.Dto.CvResumeDto;
 import com.example.capstoneproject.Dto.UsersViewDto;
 import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
+import com.example.capstoneproject.Dto.responses.CandidateViewDto;
 import com.example.capstoneproject.entity.Candidate;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,7 +48,6 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public boolean updateCandidate(Integer candidateId, CandidateDto dto) {
         Optional<Candidate> candidateOptional = candidateRepository.findByIdAndRole_RoleName(candidateId, RoleType.CANDIDATE);
-        CandidateDto candidateDto = new CandidateDto();
         if(candidateOptional.isPresent()){
             Candidate candidate = candidateOptional.get();
             if(dto!=null){
@@ -66,6 +68,21 @@ public class CandidateServiceImpl implements CandidateService {
                 }
                 candidate.setPublish(dto.isPublish());
                 candidateRepository.save(candidate);
+
+
+                List<Cv> cvs = cvRepository.findAllByUsersIdAndStatus(candidateId, BasicStatus.ACTIVE);
+                Integer[] cv = dto.getCv();
+
+                for (Cv cvItem : cvs) {
+                    if (Arrays.asList(cv).contains(cvItem.getId())) {
+                        cvItem.setSearchable(true);
+                    } else {
+                        cvItem.setSearchable(false);
+                    }
+                    cvRepository.save(cvItem);
+                }
+
+
                 return true;
             }
         }else{
@@ -75,11 +92,29 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
-    public CandidateDto getCandidateConfig(Integer candidateId) {
+    public CandidateViewDto getCandidateConfig(Integer candidateId) {
+        CandidateViewDto candidateView = new CandidateViewDto();
         Optional<Candidate> candidateOptional = candidateRepository.findByIdAndRole_RoleName(candidateId, RoleType.CANDIDATE);
         if(candidateOptional.isPresent()){
             Candidate candidate =  candidateOptional.get();
-            return modelMapper.map(candidate, CandidateDto.class);
+            List<Cv> cvs = cvRepository.findAllByUser_IdAndStatusAndSearchableIsTrue(candidate.getId(),BasicStatus.ACTIVE);
+            CvResumeDto[] cvArray = new CvResumeDto[cvs.size()];
+            for (int i = 0; i < cvs.size(); i++) {
+                Cv cv = cvs.get(i);
+                CvResumeDto cvR = new CvResumeDto();
+                cvR.setId(cv.getId());
+                cvR.setResumeName(cv.getResumeName());
+                cvArray[i] = cvR;
+            }
+            candidateView.setName(candidate.getName());
+            candidateView.setAvatar(candidate.getAvatar());
+            candidateView.setJobTitle(candidate.getJobTitle());
+            candidateView.setCompany(candidate.getCompany());
+            candidateView.setAbout(candidate.getAbout());
+            candidateView.setPublish(candidate.isPublish());
+// Assuming you have a setter for cv in CandidateViewDto
+            candidateView.setCv(cvArray);
+            return candidateView;
         }else{
             throw new BadRequestException("Candidate ID not found");
         }

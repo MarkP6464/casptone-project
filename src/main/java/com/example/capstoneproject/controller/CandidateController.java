@@ -3,6 +3,7 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.CandidateDto;
 import com.example.capstoneproject.Dto.CvAddNewDto;
 import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
+import com.example.capstoneproject.Dto.responses.CandidateViewDto;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.CandidateService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,8 +35,8 @@ public class CandidateController {
 
     @GetMapping("/candidate/{candidate-id}/information/config")
     @PreAuthorize("hasAuthority('read:candidate')")
-    public ResponseEntity<CandidateDto> getCandidateConfig(@PathVariable("candidate-id") Integer candidateId) {
-        CandidateDto candidateDto = candidateService.getCandidateConfig(candidateId);
+    public ResponseEntity<CandidateViewDto> getCandidateConfig(@PathVariable("candidate-id") Integer candidateId) {
+        CandidateViewDto candidateDto = candidateService.getCandidateConfig(candidateId);
         if (candidateDto != null) {
             return new ResponseEntity<>(candidateDto, HttpStatus.OK);
         } else {
@@ -44,7 +45,7 @@ public class CandidateController {
     }
 
     @GetMapping("/candidate/{candidate-id}/information/cvs/publish")
-//    @PreAuthorize("hasAuthority('read:candidate')")
+    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getAllCvPublishCandidate(@PathVariable("candidate-id") Integer candidateId) throws JsonProcessingException {
         List<CvAddNewDto> candidateDto = candidateService.getAllCvPublishCandidate(candidateId);
         if (!candidateDto.isEmpty()) {
