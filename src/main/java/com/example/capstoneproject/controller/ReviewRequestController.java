@@ -26,7 +26,7 @@ public class ReviewRequestController {
 
 
     @PostMapping("/{cv-id}/expert/{expert-id}/request-review/option/{option-id}")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public String postReviewRequest(@PathVariable("cv-id") Integer cvId, @PathVariable("expert-id") Integer expertId, @PathVariable("option-id") Integer optionId, @RequestBody ReviewRequestAddDto Dto) throws JsonProcessingException {
         return reviewRequestService.createReviewRequest(cvId,expertId,optionId,Dto);
     }
@@ -54,7 +54,7 @@ public class ReviewRequestController {
     }
 
     @PutMapping("/expert/{expert-id}/review-request/{review-request-id}/accept")
-    @PreAuthorize("hasAuthority('update:expert')")
+//    @PreAuthorize("hasAuthority('update:expert')")
     public String acceptReviewRequest(
             @PathVariable("expert-id") Integer expertId,
             @PathVariable("review-request-id") Integer requestId
@@ -63,7 +63,7 @@ public class ReviewRequestController {
     }
 
     @PutMapping("/expert/{expert-id}/review-request/{review-request-id}/reject")
-    @PreAuthorize("hasAuthority('update:expert')")
+//    @PreAuthorize("hasAuthority('update:expert')")
     public String rejectReviewRequest(
             @PathVariable("expert-id") Integer expertId,
             @PathVariable("review-request-id") Integer requestId

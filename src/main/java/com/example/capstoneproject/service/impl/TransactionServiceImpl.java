@@ -1,5 +1,6 @@
 package com.example.capstoneproject.service.impl;
 
+import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.constant.PaymentConstant;
@@ -17,6 +18,7 @@ import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.service.UsersService;
+import com.google.api.gax.rpc.NotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mservice.allinone.models.CaptureMoMoResponse;
@@ -31,9 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,6 +73,17 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public List<TransactionDto> showAll(){
+        List<Transaction> list = transactionRepository.findAll();
+        List<TransactionDto> dtos = list.stream().map(x -> {
+            TransactionDto dto = transactionMapper.toDto(x);
+            dto.setUserId(x.getUser().getId());
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Override
     public List<TransactionDto> getAll(String id, Long receiverId){
         List<Transaction> list = transactionRepository.findBySentIdAndUser_Id(id, receiverId);
         List<TransactionDto> dtos = list.stream().map(x -> transactionMapper.toDto(x)).collect(Collectors.toList());
@@ -85,10 +100,10 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-        String domain = "https://api-cvbuilder.monoinfinity.net";
+        String domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
 
-        String returnURL = domain + "/api/v1/transaction/query-transaction";
-        String notifyURL = domain + "/api/v1/transaction/query-transaction";
+        String returnURL = domain;
+        String notifyURL = domain;
 
         //GET this from HOSTEL OWNER
         Gson gson = new Gson();
@@ -112,7 +127,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto savePaymentStatus(String orderId, String requestId) throws Exception {
+    public AddMoneyTransactionDto savePaymentStatus(String orderId, String requestId) throws Exception {
 
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
         Environment environment = Environment.selectEnv("dev", Environment.ProcessType.PAY_GATE);
@@ -148,7 +163,7 @@ public class TransactionServiceImpl implements TransactionService {
                         hr.setVip(true);
                         usersRepository.save(hr);
                     } else {
-                        user.setAccountBalance((user.getAccountBalance() + expenditure));
+                        user.setAccountBalance((user.getAccountBalance() + expenditure / ratio));
                     }
                 }
             } else {
@@ -159,13 +174,16 @@ public class TransactionServiceImpl implements TransactionService {
                 }
             }
         }else {
-            throw new InternalServerException("transaction status is not available to update");
+            throw new BadRequestException("transaction status is not available to update");
         }
 
         transaction.setMomoId(queryStatusTransactionResponse.getTransId());
         transaction.setResponseMessage(queryStatusTransactionResponse.getLocalMessage());
         transaction = transactionRepository.save(transaction);
-        return transactionMapper.toDto(transaction);
+        AddMoneyTransactionDto addMoneyTransactionDto = new AddMoneyTransactionDto();
+        addMoneyTransactionDto.setMomoResponse(queryStatusTransactionResponse);
+        addMoneyTransactionDto.setConversionAmount(expenditure / ratio);
+        return addMoneyTransactionDto;
     }
 
     @Override
@@ -197,42 +215,59 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount){
+
+        //giam tien user
+        Users user = usersService.getUsersById(sentId);
+        if (user.getAccountBalance() < amount.longValue()){
+            throw new BadRequestException("Account Balance is not enough!!");
+        }
+        user.setAccountBalance((long) (user.getAccountBalance() - amount));
+        usersRepository.save(user);
+
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, null,
                 TransactionType.TRANSFER, MoneyType.CREDIT, Double.valueOf(amount).longValue(), 0L, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
-        //giam tien user
-        Users user = usersService.getUsersById(sentId);
-        user.setAccountBalance((long) (user.getAccountBalance() - amount));
-        usersRepository.save(user);
         return transactionMapper.toDto(transaction);
+    }
+
+    @Override
+    public Transaction getById(Long id){
+        Optional<Transaction> transaction = transactionRepository.findById(id);
+        if (Objects.nonNull(transaction)) {
+            return transaction.get();
+        } else throw new BadRequestException("Not found transaction");
     }
 
     @Override
     public TransactionDto requestToReviewFail(String requestId){
-        Transaction transaction = transactionRepository.findByRequestId(requestId);
-        transaction.setStatus(TransactionStatus.FAIL);
-        transaction = transactionRepository.save(transaction);
+        Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
+        if (TransactionStatus.PENDING.equals(transaction.getStatus())) {
+            transaction.setStatus(TransactionStatus.FAIL);
+            transaction = transactionRepository.save(transaction);
 
-        //tra tien cho candidate
-        Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
-        user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
-        usersRepository.save(user);
-        return transactionMapper.toDto(transaction);
+            //tra tien cho candidate
+            Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
+            user.setAccountBalance((user.getAccountBalance() + transaction.getConversionAmount()));
+            usersRepository.save(user);
+            return transactionMapper.toDto(transaction);
+        } else throw new BadRequestException("transaction status is not available to update");
     }
 
     @Override
     public TransactionDto requestToReviewSuccessFul(String requestId){
-        Transaction transaction = transactionRepository.findByRequestId(requestId);
-        transaction.setStatus(TransactionStatus.SUCCESSFULLY);
-        transaction = transactionRepository.save(transaction);
+        Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
+        if (TransactionStatus.PENDING.equals(transaction.getStatus())) {
+            transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+            transaction = transactionRepository.save(transaction);
 
-        //cong tien cho expert
-        Users user = usersService.getUsersById(transaction.getUser().getId());
-        user.setAccountBalance( (user.getAccountBalance() + transaction.getExpenditure()));
-        usersRepository.save(user);
-        return transactionMapper.toDto(transaction);
+            //cong tien cho expert
+            Users user = usersService.getUsersById(transaction.getUser().getId());
+            user.setAccountBalance( (user.getAccountBalance() + transaction.getConversionAmount()));
+            usersRepository.save(user);
+            return transactionMapper.toDto(transaction);
+        } else throw new BadRequestException("transaction status is not available to update");
     }
 
     @Override

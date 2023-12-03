@@ -13,4 +13,6 @@ public interface ApplicationLogService {
     List<ApplicationLogResponse> getAll(Integer postId);
 
     List<ApplicationLogResponse> getAllByHrID(Integer hrId);
+
+    List<ApplicationLogResponse> getAllByCandidateId(Integer id);
 }

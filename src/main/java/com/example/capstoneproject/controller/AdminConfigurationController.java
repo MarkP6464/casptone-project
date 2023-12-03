@@ -19,14 +19,14 @@ public class AdminConfigurationController {
     AdminConfigurationService adminConfigurationService;
 
     @GetMapping("/information/config")
-    @PreAuthorize("hasAnyAuthority('read:admin')")
+    @PreAuthorize("hasAnyAuthority('read:admin-messages')")
     public ResponseEntity<?> getAdminConfigurationInfo() {
         AdminConfigurationResponse dto = adminConfigurationService.getByAdminId(1);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/information/config")
-    @PreAuthorize("hasAnyAuthority('update:admin')")
+    @PreAuthorize("hasAnyAuthority('update:admin-messages')")
     public ResponseEntity<?> update(@RequestBody AdminConfigurationResponse dto) {
         return ResponseEntity.ok(adminConfigurationService.update(dto));
     }

@@ -21,11 +21,11 @@ public class EducationDto {
     private String CollegeName;
     private String Location;
 
-    private int EndYear;
+    private Integer EndYear;
 
     private String Minor;
 
-    private double Gpa;
+    private Double Gpa;
 
     private String Description;
 }

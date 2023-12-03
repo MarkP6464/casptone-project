@@ -60,4 +60,11 @@ public class ApplicationLogController {
         List<ApplicationLogResponse> list =  applicationLogService.getAllByHrID(hrId);
         return list;
     }
+
+    @GetMapping("/application-log/candidate/{candidate-id}")
+    @PreAuthorize("hasAnyAuthority('read:candidate')")
+    public List<ApplicationLogResponse> getAllLogByCandidateId(@PathVariable("candidate-id") Integer id){
+        List<ApplicationLogResponse> list =  applicationLogService.getAllByCandidateId(id);
+        return list;
+    }
 }

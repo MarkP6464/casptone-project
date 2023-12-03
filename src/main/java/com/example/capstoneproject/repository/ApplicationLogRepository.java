@@ -15,6 +15,9 @@ public interface ApplicationLogRepository extends JpaRepository<ApplicationLog, 
     List<ApplicationLog> findAllByJobPosting_IdOrderByTimestampDesc(Integer postingId);
     List<ApplicationLog> findAllByJobPosting_User_IdOrderByTimestamp(Integer id);
 
+
+    List<ApplicationLog> findAllByUser_IdOrderByTimestamp(Integer id);
+
     @Query("SELECT COUNT(al) FROM ApplicationLog al WHERE al.jobPosting.id = :jobPostingId")
     int countByJobPostingId(@Param("jobPostingId") Integer jobPostingId);
 }

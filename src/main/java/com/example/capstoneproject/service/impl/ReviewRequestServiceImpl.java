@@ -2,6 +2,7 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
+import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -116,9 +117,10 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                                 reviewRequest.setExpertId(users.getId());
                                 reviewRequest.setHistoryId(history.getId());
                                 reviewRequest.setCv(cv);
-                                reviewRequestRepository.save(reviewRequest);
                                 sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
-                                transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), Double.valueOf(reviewRequest.getPrice()));
+                                TransactionDto dto1 = transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), Double.valueOf(reviewRequest.getPrice()));
+                                reviewRequest.setTransaction(transactionService.getById(dto1.getId()));
+                                reviewRequestRepository.save(reviewRequest);
                                 return "Send request successful.";
                             } else {
                                 throw new BadRequestException("Expert ID not found");
@@ -268,7 +270,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             reviewRequest.setStatus(StatusReview.Reject);
             reviewRequestRepository.save(reviewRequest);
             sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
-            transactionService.requestToReviewFail(requestId.toString());
+            transactionService.requestToReviewFail(reviewRequest.getTransaction().getId().toString());
             return "Reject successful";
         } else {
             throw new RuntimeException("Expert ID incorrect or Request ID incorrect");

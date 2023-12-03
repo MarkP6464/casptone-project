@@ -32,7 +32,9 @@ public class Education {
     @Column(columnDefinition = "NVARCHAR(100)")
     private String Minor;
 
-    private double Gpa;
+
+    @Column(columnDefinition = "DOUBLE", nullable = true)
+    private Double Gpa;
 
     @Column(columnDefinition = "TEXT")
     private String Description;

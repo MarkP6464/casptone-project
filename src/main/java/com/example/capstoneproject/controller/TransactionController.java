@@ -1,5 +1,6 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.Transaction;
@@ -39,9 +40,17 @@ public class TransactionController {
     @Autowired
     TransactionRepository transactionRepository;
 
-    @GetMapping
+    @GetMapping("/get-all/{user-id}")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
         List<TransactionDto> list = transactionService.getAll(sentId);
+        return list;
+    }
+
+    @GetMapping("/show-all")
+    @PreAuthorize("hasAnyAuthority('read:admin-messages')")
+    public List<TransactionDto> showAll(){
+        List<TransactionDto> list = transactionService.showAll();
         return list;
     }
 
@@ -66,11 +75,12 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/query-transaction")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
-            TransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
-        return ResponseEntity.status(HttpStatus.OK).body(transaction.getStatus());
+        AddMoneyTransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
+        return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
+
 
     @PostMapping(value = "/withdraw")
     @PreAuthorize("hasAnyAuthority('create:expert')")
@@ -94,7 +104,7 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/view-withdraw-request")
-    @PreAuthorize("hasAnyAuthority('read:admin', 'read:expert')")
+    @PreAuthorize("hasAnyAuthority('read:admin-messages', 'read:expert')")
     public ResponseEntity viewWithdrawList() throws Exception {
         List<TransactionDto> list =  transactionService.viewWithdrawList();
         return ResponseEntity.status(HttpStatus.OK).body(list);

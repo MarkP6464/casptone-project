@@ -453,7 +453,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     ReviewRequest reviewRequest = reviewRequestOptional.get();
                     reviewRequest.setStatus(StatusReview.Done);
                     reviewRequestRepository.save(reviewRequest);
-                    transactionService.requestToReviewSuccessFul(reviewRequest.getTransaction().getRequestId());
+                    transactionService.requestToReviewSuccessFul(reviewRequest.getTransaction().getId().toString());
                 }else{
                     throw new BadRequestException("Update fail status review request.");
                 }

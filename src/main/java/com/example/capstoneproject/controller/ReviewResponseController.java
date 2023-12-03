@@ -65,7 +65,7 @@ public class ReviewResponseController {
     }
 
     @PutMapping("/expert/{expert-id}/review-response/{response-id}/public")
-    @PreAuthorize("hasAuthority('update:expert')")
+//    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> publicReviewResponseOverall(@PathVariable("expert-id") Integer expertId, @PathVariable("response-id") Integer responseId)  {
         return ResponseEntity.ok(reviewResponseService.publicReviewResponse(expertId, responseId));
     }

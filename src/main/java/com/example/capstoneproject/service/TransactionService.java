@@ -1,5 +1,6 @@
 package com.example.capstoneproject.service;
 
+import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.Transaction;
@@ -10,11 +11,13 @@ import java.util.List;
 public interface TransactionService {
     List<TransactionDto> getAll(String id);
 
+    List<TransactionDto> showAll();
+
     List<TransactionDto> getAll(String id, Long receiverId);
 
     String create(TransactionDto transactionDto) throws Exception;
 
-    TransactionDto savePaymentStatus(String orderId, String requestId) throws Exception;
+    AddMoneyTransactionDto savePaymentStatus(String orderId, String requestId) throws Exception;
 
     TransactionDto requestToWithdraw(TransactionResponse dto);
 
@@ -23,6 +26,8 @@ public interface TransactionService {
     List<TransactionDto> viewWithdrawList();
 
     TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount);
+
+    Transaction getById(Long id);
 
     TransactionDto requestToReviewFail(String requestId);
 
