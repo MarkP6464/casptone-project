@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CandidateOverViewDto {
+    private Integer id;
     private String name;
 
     private String avatar;
