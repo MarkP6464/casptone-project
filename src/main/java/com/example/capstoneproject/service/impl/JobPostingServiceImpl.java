@@ -2,13 +2,11 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.*;
-import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.JobPosting;
-import com.example.capstoneproject.entity.Like;
-import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.entity.*;
 //import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.ReviewStatus;
+import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.repository.*;
@@ -44,6 +42,9 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Autowired
     ApplicationLogRepository applicationLogRepository;
+
+    @Autowired
+    CandidateRepository candidateRepository;
 
     @Autowired
     ModelMapper modelMapper;
@@ -457,6 +458,124 @@ public class JobPostingServiceImpl implements JobPostingService {
                     .map(jobPosting -> modelMapper.map(jobPosting, JobPostingViewDto.class))
                     .collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public List<CandidateOverViewDto> getAllCandidateFilterCV(Integer postingId) throws JsonProcessingException {
+        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatus(postingId, ACTIVE);
+        List<CvMatchingDto> cvMatching = new ArrayList<>();
+        List<CandidateOverViewDto> listCandidate = new ArrayList<>();
+        Set<Integer> existingCandidateIds = new HashSet<>(); // To keep track of existing candidate IDs
+        if(jobPostingOptional.isPresent()){
+            JobPosting jobPosting = jobPostingOptional.get();
+            if(!jobPosting.getSkill().isEmpty()){
+                String requirement = jobPosting.getSkill();
+                List<Candidate> candidates = candidateRepository.findAllByPublishTrueAndRole_RoleName(RoleType.CANDIDATE);
+                for(Candidate candidate: candidates){
+                    List<Cv> cvs = cvRepository.findAllByUser_IdAndStatusAndSearchableIsTrue(candidate.getId(), ACTIVE);
+                    for(Cv cv:cvs){
+                        CvBodyDto cvBodyDto = cv.deserialize();
+                        StringBuilder cvSkillBuilder = new StringBuilder();
+                        for (SkillDto x : cvBodyDto.getSkills()) {
+                            if (x.getIsDisplay()) {
+                                cvSkillBuilder.append(x.getDescription());
+                            }
+                        }
+                        String cvSkill = cvSkillBuilder.toString();
+                        CvMatchingDto matching = new CvMatchingDto();
+                        matching.setCandidateId(cv.getUser().getId());
+                        matching.setCvId(cv.getId());
+                        matching.setName(cv.getUser().getName());
+                        matching.setAvatar(cv.getUser().getAvatar());
+                        matching.setJobTitle(cv.getJobTitle());
+                        matching.setCompany(cv.getCompanyName());
+                        matching.setAbout(cv.getUser().getAbout());
+                        matching.setScore(findSimilarityRatio(cvSkill,requirement));
+                        cvMatching.add(matching);
+                    }
+                }
+
+            }else{
+                throw new BadRequestException("Please choice other job posting. Because this job posting dont have requirement.");
+            }
+
+            // Sort cvMatching by score in descending order
+            cvMatching.sort(Comparator.comparingDouble(CvMatchingDto::getScore).reversed());
+
+            // Populate listCandidate and avoid duplicates
+            for (CvMatchingDto cvMatch : cvMatching) {
+                if (!existingCandidateIds.contains(cvMatch.getCandidateId()) && cvMatch.getScore() >= 1) {
+                    CandidateOverViewDto candidate = new CandidateOverViewDto();
+                    candidate.setId(cvMatch.getCandidateId());
+                    candidate.setName(cvMatch.getName());
+                    candidate.setAvatar(cvMatch.getAvatar());
+                    candidate.setJobTitle(cvMatch.getJobTitle());
+                    candidate.setCompany(cvMatch.getCompany());
+                    candidate.setAbout(cvMatch.getAbout());
+                    listCandidate.add(candidate);
+
+                    // Add the candidate ID to the set to track existing candidates
+                    existingCandidateIds.add(cvMatch.getCandidateId());
+                }
+            }
+
+        }else{
+            throw new BadRequestException("Job posting ID not found.");
+        }
+        return listCandidate;
+    }
+    public double findSimilarityRatio(String sentence1, String sentence2) {
+
+        HashMap<String, Integer> firstSentenceMap = new HashMap<>();
+        HashMap<String, Integer> secondSentenceMap = new HashMap<>();
+
+        String[] firstSentenceWords = sentence1.split(" ");
+        String[] secondSentenceWords = sentence2.split(" ");
+
+        for (String word : firstSentenceWords) {
+            if (firstSentenceMap.containsKey(word)) {
+                firstSentenceMap.put(word, firstSentenceMap.get(word) + 1);
+            }
+            else {
+                firstSentenceMap.put(word, 1);
+            }
+        }
+
+        for (String word : secondSentenceWords) {
+            if (secondSentenceMap.containsKey(word)) {
+                secondSentenceMap.put(word, secondSentenceMap.get(word) + 1);
+            }
+            else {
+                secondSentenceMap.put(word, 1);
+            }
+        }
+
+        double totalWords = 0;
+        double totalHits = 0;
+
+        if (firstSentenceWords.length >= secondSentenceWords.length) {
+            totalWords = firstSentenceWords.length;
+            for (Map.Entry<String, Integer> entry : firstSentenceMap.entrySet()) {
+                String key = entry.getKey();
+
+                if (secondSentenceMap.containsKey(key)) {
+                    totalHits = totalHits + Math.min(secondSentenceMap.get(key), firstSentenceMap.get(key));
+                }
+            }
+        }
+        else {
+            totalWords = secondSentenceWords.length;
+            for (Map.Entry<String, Integer> entry : secondSentenceMap.entrySet()) {
+                String key = entry.getKey();
+
+                if (firstSentenceMap.containsKey(key)) {
+                    totalHits = totalHits + Math.min(secondSentenceMap.get(key), firstSentenceMap.get(key));
+                }
+            }
+
+        }
+
+        return (totalHits/totalWords)*100;
     }
 
     private void sortJobPostingList(List<JobPostingViewOverDto> jobPostings, String sortBy, String sortOrder) {

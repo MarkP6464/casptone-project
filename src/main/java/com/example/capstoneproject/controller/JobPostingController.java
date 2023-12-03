@@ -1,13 +1,11 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.JobPostingAddDto;
-import com.example.capstoneproject.Dto.JobPostingDto;
 import com.example.capstoneproject.Dto.JobPostingViewOverCandidateLikeDto;
+import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
 import com.example.capstoneproject.Dto.responses.JobPostingViewDetailDto;
 import com.example.capstoneproject.Dto.responses.JobPostingViewDto;
 import com.example.capstoneproject.Dto.responses.JobPostingViewUserDetailDto;
-import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.enums.PublicControl;
 import com.example.capstoneproject.enums.SortByJob;
 import com.example.capstoneproject.enums.SortOrder;
 import com.example.capstoneproject.service.JobPostingService;
@@ -18,9 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static com.example.capstoneproject.enums.BasicStatus.PRIVATE;
-import static com.example.capstoneproject.enums.BasicStatus.PUBLIC;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -53,6 +48,15 @@ public class JobPostingController {
             @RequestParam(name = "location", required = false) String location) {
 
         List<JobPostingViewOverCandidateLikeDto> jobPostings = jobPostingService.getJobPostingsByCandidate(userId, title, location);
+
+        return ResponseEntity.ok(jobPostings);
+    }
+
+    @GetMapping("/hr/job-posting/{job-posting-id}/match/skills")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
+    public ResponseEntity<?> getJobPostingsByCandidateMatching(
+            @PathVariable("job-posting-id") Integer postingId) throws JsonProcessingException {
+        List<CandidateOverViewDto> jobPostings = jobPostingService.getAllCandidateFilterCV(postingId);
 
         return ResponseEntity.ok(jobPostings);
     }
@@ -128,29 +132,4 @@ public class JobPostingController {
         }
     }
 
-//    @GetMapping("/user/cv/job-postings")
-//    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
-//    public ResponseEntity<?> searchPostingByCustomer(
-//            @RequestParam(name = "userId", required = false) Integer userId,
-//            @RequestParam(name = "cvId", required = false) Integer cvId,
-//            @RequestParam(name = "title", required = false) String title,
-//            @RequestParam(name = "working", required = false) String working,
-//            @RequestParam(name = "location", required = false) String location
-//    ) throws JsonProcessingException {
-//        return ResponseEntity.ok(jobPostingService.getListPublic(userId, cvId, title, working, location));
-//    }
-//
-//    private BasicStatus mapShareToBasicStatus(PublicControl share) {
-//        if (share == null) {
-//            return null;
-//        }
-//        switch (share) {
-//            case PUBLIC:
-//                return PUBLIC;
-//            case PRIVATE:
-//                return PRIVATE;
-//            default:
-//                throw new IllegalArgumentException("Invalid share value.");
-//        }
-//    }
 }
