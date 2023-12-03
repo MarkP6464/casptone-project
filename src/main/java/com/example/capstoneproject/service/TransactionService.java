@@ -1,5 +1,6 @@
 package com.example.capstoneproject.service;
 
+import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.Transaction;
@@ -16,7 +17,7 @@ public interface TransactionService {
 
     String create(TransactionDto transactionDto) throws Exception;
 
-    TransactionDto savePaymentStatus(String orderId, String requestId) throws Exception;
+    AddMoneyTransactionDto savePaymentStatus(String orderId, String requestId) throws Exception;
 
     TransactionDto requestToWithdraw(TransactionResponse dto);
 
