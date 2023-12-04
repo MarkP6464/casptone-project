@@ -100,10 +100,10 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-        String domain = "https://api-cvbuilder.monoinfinity.net";
+        String domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
 
-        String returnURL = domain + "/api/v1/transaction/query-transaction";
-        String notifyURL = domain + "/api/v1/transaction/query-transaction";
+        String returnURL = domain;
+        String notifyURL = domain;
 
         //GET this from HOSTEL OWNER
         Gson gson = new Gson();
@@ -127,7 +127,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto savePaymentStatus(String orderId, String requestId) throws Exception {
+    public AddMoneyTransactionDto savePaymentStatus(String orderId, String requestId) throws Exception {
 
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
         Environment environment = Environment.selectEnv("dev", Environment.ProcessType.PAY_GATE);
@@ -180,7 +180,10 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setMomoId(queryStatusTransactionResponse.getTransId());
         transaction.setResponseMessage(queryStatusTransactionResponse.getLocalMessage());
         transaction = transactionRepository.save(transaction);
-        return transactionMapper.toDto(transaction);
+        AddMoneyTransactionDto addMoneyTransactionDto = new AddMoneyTransactionDto();
+        addMoneyTransactionDto.setMomoResponse(queryStatusTransactionResponse);
+        addMoneyTransactionDto.setConversionAmount(expenditure / ratio);
+        return addMoneyTransactionDto;
     }
 
     @Override

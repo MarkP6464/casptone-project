@@ -75,10 +75,10 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/query-transaction")
-//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
-        TransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
-        return ResponseEntity.status(HttpStatus.OK).body(transaction.getStatus());
+        AddMoneyTransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
+        return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
 
