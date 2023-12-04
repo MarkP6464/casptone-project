@@ -21,7 +21,7 @@ public class ReviewRequestSecondViewDto {
 
     private String note;
 
-    private Long price;
+    private String price;
 
     private StatusReview status;
 

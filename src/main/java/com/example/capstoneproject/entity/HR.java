@@ -25,6 +25,7 @@ public class HR extends Users{
     @Column(name = "company_location", columnDefinition = "NVARCHAR(100)")
     private String companyLocation;
 
+    @Column(columnDefinition = "TEXT")
     private String companyLogo;
 
     @Column(name = "company_description", columnDefinition = "TEXT")

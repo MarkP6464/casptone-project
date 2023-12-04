@@ -33,7 +33,7 @@ public class ReviewRequestController {
 
     @GetMapping("/candidate/{candidate-id}/review-requests")
     @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
-    public List<ReviewRequestViewDto> getListCandidateReviewRequest(
+    public List<ReviewRequestSecondViewDto> getListCandidateReviewRequest(
             @PathVariable("candidate-id") Integer candidateId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
             @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
@@ -44,7 +44,7 @@ public class ReviewRequestController {
 
     @GetMapping("/expert/{expert-id}/review-requests")
     @PreAuthorize("hasAuthority('read:expert')")
-    public List<ReviewRequestViewDto> getListReviewRequest(
+    public List<ReviewRequestSecondViewDto> getListReviewRequest(
             @PathVariable("expert-id") Integer expertId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
             @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,

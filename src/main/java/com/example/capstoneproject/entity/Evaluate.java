@@ -22,9 +22,7 @@ public class Evaluate {
 
     private Boolean critical;
 
-    private int condition1;
-
-    private int condition2;
+    private Integer score;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "evaluate")
     private List<SectionLog> sectionLogs = new ArrayList<>();
