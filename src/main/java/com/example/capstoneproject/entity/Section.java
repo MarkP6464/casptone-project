@@ -19,7 +19,7 @@ public class Section {
     @Enumerated(EnumType.STRING)
     private SectionEvaluate TypeName;
 
-    private int TypeId;
+    private Integer TypeId;
 
     @Column(columnDefinition = "NVARCHAR(50)")
     private String Title;

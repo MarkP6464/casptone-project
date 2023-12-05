@@ -602,33 +602,7 @@ public class CvServiceImpl implements CvService {
             });
             if(cv.getOverview()!=null){
                 Score score = scoreOptional.get();
-                ScoreDto overview = cv.deserializeOverview();
-
-                // Check if the practice score has changed
-                int newPractice = (int) Math.floor(evaluateBestPracticesScore(sectionCvDtos, userId, cvId, totalWords));
-                if (newPractice != score.getPractice()) {
-                    score.setPractice(newPractice);
-                    scoreRepository.save(score);
-
-                    ScoreMaxMinDto scoreMaxMinPractice = new ScoreMaxMinDto(newPractice, 100, newPractice + "/6");
-                    overview.setScorePractice(scoreMaxMinPractice);
-                }
-
-                // Check if the format score has changed
-                int newFormat = (int) Math.floor(evaluateFormatScore(evaluates, cvId));
-                if (newFormat != score.getFormat()) {
-                    score.setFormat(newFormat);
-                    scoreRepository.save(score);
-
-                    ScoreMaxMinDto scoreMaxMinFormat = new ScoreMaxMinDto(newFormat, 100, newFormat + "/2");
-                    overview.setScoreFormat(scoreMaxMinFormat);
-                }
-
-                // Update the overview and save the CV if necessary
-                cv.setOverview(cv.toOverviewBody(overview));
-                cvRepository.save(cv);
-
-                return overview;
+                return cv.deserializeOverview();
 
             }else{
                 Score score = new Score();
