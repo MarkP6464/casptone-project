@@ -2,7 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
-import com.example.capstoneproject.service.impl.CoverLetterServiceImpl;
+import com.example.capstoneproject.service.CoverLetterService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +17,15 @@ import java.util.List;
 public class CoverLetterController {
 
     @Autowired
-    CoverLetterServiceImpl coverLetterService;
+    CoverLetterService coverLetterService;
 
 
-    public CoverLetterController(CoverLetterServiceImpl coverLetterService) {
+    public CoverLetterController(CoverLetterService coverLetterService) {
         this.coverLetterService = coverLetterService;
     }
 
     @PostMapping("cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
-//    @PreAuthorize("hasAuthority('create:candidate')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
             @PathVariable("cv-id") Integer cvId,
             @PathVariable("cover-letter-id") Integer coverId,
@@ -108,7 +108,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/cover-letter")
-//    @PreAuthorize("hasAuthority('create:candidate')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public CoverLetterViewDto createCoverLetter(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @RequestBody CoverLetterAddDto Dto) {
         return coverLetterService.createCoverLetter(userId, cvId, Dto);
     }

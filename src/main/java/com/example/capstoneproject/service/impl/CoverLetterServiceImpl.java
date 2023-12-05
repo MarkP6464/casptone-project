@@ -64,6 +64,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
+    @Override
     public ChatResponse generateCoverLetter(Integer coverId,  Integer cvId, CoverLetterGenerationDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
@@ -110,6 +111,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     }
 
+    @Override
     public ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
@@ -176,6 +178,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         }
     }
 
+    @Override
     public ChatResponse reviewCV(float temperature, Integer cvId, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
