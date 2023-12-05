@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 
 @NoArgsConstructor
@@ -21,6 +22,7 @@ public class Experience {
     private String Role;
 
     @Column(columnDefinition = "NVARCHAR(100)")
+    @NotNull
     private String CompanyName;
 
     @Column(columnDefinition = "NVARCHAR(100)")

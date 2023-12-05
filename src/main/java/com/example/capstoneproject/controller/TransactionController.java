@@ -54,13 +54,6 @@ public class TransactionController {
         return list;
     }
 
-//    @PostMapping("/input-quota")
-//    public RedirectView createTransaction(@RequestBody TransactionDto transactionDto) throws Exception {
-//            transactionDto.setMoneyType(MoneyType.QUOTA);
-//            String returnUrl = transactionService.create(transactionDto);
-//            return new RedirectView(returnUrl);
-//    }
-
     @PostMapping("/input-credit")
     @PreAuthorize("hasAnyAuthority('create:candidate', 'update:candidate')")
     public String addCredit(@RequestBody TransactionResponse dto) throws Exception {
@@ -89,16 +82,9 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
-    @PostMapping(value = "/approve-withdraw-request")
+    @PostMapping(value = "/approve-withdraw-request/{request-id}")
     @PreAuthorize("hasAnyAuthority('update:admin')")
-    public ResponseEntity approve(@RequestBody String id) throws Exception {
-        TransactionDto transaction = transactionService.approveWithdrawRequest(id);
-        return ResponseEntity.status(HttpStatus.OK).body(transaction);
-    }
-
-    @PostMapping(value = "/reject-withdraw-request")
-    @PreAuthorize("hasAnyAuthority('update:admin')")
-    public ResponseEntity reject(@RequestBody String id) throws Exception {
+    public ResponseEntity approve(@PathVariable("request-id") String id ) throws Exception {
         TransactionDto transaction = transactionService.approveWithdrawRequest(id);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }

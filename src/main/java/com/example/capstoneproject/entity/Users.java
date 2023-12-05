@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -62,6 +63,7 @@ public class Users implements UserDetails {
     private String personalWebsite;
 
     @Column(name = "email", columnDefinition = "NVARCHAR(50)")
+    @Pattern(regexp = "/^\\S+@\\S+\\.\\S+$/", message = "Please check your email format!!")
     private String email;
 
     @Column(name = "linkin", columnDefinition = "TEXT")
@@ -72,9 +74,6 @@ public class Users implements UserDetails {
 
     @Column(name = "account_Balance")
     private Long accountBalance = 0L;
-
-    @Column(name = "vip")
-    private Boolean vip;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
