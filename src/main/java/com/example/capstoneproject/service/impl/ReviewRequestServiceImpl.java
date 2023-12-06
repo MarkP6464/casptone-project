@@ -3,6 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.responses.ReviewRequestSecondViewDto;
 import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -159,7 +160,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     }
 
     @Override
-    public List<ReviewRequestViewDto> getListReviewRequest(Integer expertId, String sortBy, String sortOrder, String searchTerm) {
+    public List<ReviewRequestSecondViewDto> getListReviewRequest(Integer expertId, String sortBy, String sortOrder, String searchTerm) {
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByExpertId(expertId);
 
         if (reviewRequests != null && !reviewRequests.isEmpty()) {
@@ -211,15 +212,29 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 reviewRequestDtos = filterBySearchTerm(reviewRequestDtos, searchTerm);
             }
 
+            List<ReviewRequestSecondViewDto> reviewRequestReturn = new ArrayList<>();
+            for(ReviewRequestViewDto reviewRequestViewDto: reviewRequestDtos){
+                ReviewRequestSecondViewDto reviewRequestSecondViewDto = new ReviewRequestSecondViewDto();
+                reviewRequestSecondViewDto.setId(reviewRequestViewDto.getId());
+                reviewRequestSecondViewDto.setResumeName(reviewRequestViewDto.getResumeName());
+                reviewRequestSecondViewDto.setAvatar(reviewRequestViewDto.getAvatar());
+                reviewRequestSecondViewDto.setName(reviewRequestViewDto.getName());
+                reviewRequestSecondViewDto.setNote(reviewRequestViewDto.getNote());
+                reviewRequestSecondViewDto.setPrice(formatPrice(reviewRequestViewDto.getPrice()));
+                reviewRequestSecondViewDto.setStatus(reviewRequestViewDto.getStatus());
+                reviewRequestSecondViewDto.setReceivedDate(reviewRequestViewDto.getReceivedDate());
+                reviewRequestSecondViewDto.setDeadline(reviewRequestViewDto.getDeadline());
+                reviewRequestReturn.add(reviewRequestSecondViewDto);
+            }
 
-            return reviewRequestDtos;
+            return reviewRequestReturn;
         } else {
             throw new BadRequestException("Currently no results were found in your system.");
         }
     }
 
     @Override
-    public List<ReviewRequestViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm) {
+    public List<ReviewRequestSecondViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm) {
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByCv_User_Id(userId);
 
         if (reviewRequests != null && !reviewRequests.isEmpty()) {
@@ -256,7 +271,23 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 reviewRequestDtos = filterBySearchTerm(reviewRequestDtos, searchTerm);
             }
-            return reviewRequestDtos;
+
+            List<ReviewRequestSecondViewDto> reviewRequestReturn = new ArrayList<>();
+            for(ReviewRequestViewDto reviewRequestViewDto: reviewRequestDtos){
+                ReviewRequestSecondViewDto reviewRequestSecondViewDto = new ReviewRequestSecondViewDto();
+                reviewRequestSecondViewDto.setId(reviewRequestViewDto.getId());
+                reviewRequestSecondViewDto.setResumeName(reviewRequestViewDto.getResumeName());
+                reviewRequestSecondViewDto.setAvatar(reviewRequestViewDto.getAvatar());
+                reviewRequestSecondViewDto.setName(reviewRequestViewDto.getName());
+                reviewRequestSecondViewDto.setNote(reviewRequestViewDto.getNote());
+                reviewRequestSecondViewDto.setPrice(formatPrice(reviewRequestViewDto.getPrice()));
+                reviewRequestSecondViewDto.setStatus(reviewRequestViewDto.getStatus());
+                reviewRequestSecondViewDto.setReceivedDate(reviewRequestViewDto.getReceivedDate());
+                reviewRequestSecondViewDto.setDeadline(reviewRequestViewDto.getDeadline());
+                reviewRequestReturn.add(reviewRequestSecondViewDto);
+            }
+
+            return reviewRequestReturn;
         } else {
             throw new BadRequestException("Currently no results were found in your system.");
         }
@@ -365,6 +396,24 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             e.printStackTrace();
             throw new RuntimeException("Failed to send email.");
         }
+    }
+
+    public static String formatPrice(long price) {
+        String priceStr = String.valueOf(price);
+
+        int length = priceStr.length();
+        StringBuilder formattedPrice = new StringBuilder();
+
+        for (int i = length - 1; i >= 0; i--) {
+            formattedPrice.insert(0, priceStr.charAt(i));
+
+            // Insert a dot after every 3 digits, but not at the beginning
+            if ((length - i) % 3 == 0 && i != 0) {
+                formattedPrice.insert(0, ".");
+            }
+        }
+
+        return formattedPrice.toString();
     }
 
 }

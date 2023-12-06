@@ -64,6 +64,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         this.coverLetterMapper = coverLetterMapper;
     }
 
+    @Override
     public ChatResponse generateCoverLetter(Integer coverId,  Integer cvId, CoverLetterGenerationDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
@@ -78,12 +79,6 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                         "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
                 String content = cv.getCvBody();
                 String userMessage = "";
-//                Optional<Cv> cvsOptional = cvRepository.findById(cvId);
-//                if(cvsOptional.isPresent()){
-//                    Cv cv = cvsOptional.get();
-//                    content = cv.getCvBody();
-//
-//                }
                 userMessage = "My Resume: " + content + ". Job title: " + dto.getJob_title() + " Company: " + dto.getCompany() +  " Job Description: " + dto.getJob_description() + ".";
                 List<Map<String, Object>> messagesList = new ArrayList<>();
                 Map<String, Object> systemMessage = new HashMap<>();
@@ -116,6 +111,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     }
 
+    @Override
     public ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {
@@ -182,6 +178,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         }
     }
 
+    @Override
     public ChatResponse reviewCV(float temperature, Integer cvId, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvsOptional = cvRepository.findById(cvId);
         if (cvsOptional.isPresent()) {

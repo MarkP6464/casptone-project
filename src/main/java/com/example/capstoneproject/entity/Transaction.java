@@ -27,6 +27,7 @@ public class Transaction {
 
     private String momoId;
 
+    @Column(columnDefinition = "TEXT")
     private String responseMessage;
 
     private TransactionType transactionType;

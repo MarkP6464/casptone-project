@@ -35,6 +35,17 @@ public interface CvRepository extends JpaRepository<Cv, Integer> {
             "INNER JOIN s.sectionLogs sl " +
             "WHERE sl.evaluate.id = :evaluateId AND sl.Status != :status")
     List<Section> findSectionsWithNonPassStatus(@Param("evaluateId") int evaluateId, @Param("status") SectionLogStatus status);
+
+    @Query("SELECT DISTINCT s FROM Section s " +
+            "INNER JOIN s.sectionLogs sl " +
+            "WHERE sl.evaluate.id = :evaluateId AND sl.Status = :status")
+    List<Section> findSectionsWithPassStatus(@Param("evaluateId") int evaluateId, @Param("status") SectionLogStatus status);
+
+    @Query("SELECT DISTINCT s FROM Section s " +
+            "INNER JOIN s.sectionLogs sl " +
+            "WHERE sl.evaluate.id = :evaluateId")
+    List<Section> findSections(@Param("evaluateId") int evaluateId);
+
     @Query("SELECT s FROM Section s WHERE s.TypeName = :typeName")
     List<Section> findAllByTypeName(SectionEvaluate typeName);
 

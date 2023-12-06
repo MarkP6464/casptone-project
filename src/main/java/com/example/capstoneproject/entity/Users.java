@@ -49,14 +49,14 @@ public class Users implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String about;
 
-    @Column(name = "password")
+    @Column(name = "password",columnDefinition = "VARCHAR(20)")
     private String password;
 
     @Column(name = "status", columnDefinition = "NVARCHAR(30)")
     @Enumerated(EnumType.STRING)
     private BasicStatus status;
 
-    @Column(name = "phone", columnDefinition = "NVARCHAR(10)")
+    @Column(name = "phone", columnDefinition = "VARCHAR(10)")
     private String phone;
 
     @Column(name = "personal_Website", columnDefinition = "TEXT")
