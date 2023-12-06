@@ -21,5 +21,6 @@ import java.time.LocalDate;
 public class Admin extends Users{
 
     @Type(type = "json")
+    @Column(columnDefinition = "json")
     String configuration;
 }
