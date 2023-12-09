@@ -89,7 +89,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         applicationLog.setTimestamp(LocalDate.now());
 
         if (jobPostingOptional.isPresent()){
-            JobPosting jobPosting = jobPostingOptional.get();List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
+            JobPosting jobPosting = jobPostingOptional.get();
+            List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
             applicationLog.setJobPosting(jobPosting);
             if (!applicationLogs.isEmpty()){
                 ApplicationLog applicationLogCheck = applicationLogs.get(0);

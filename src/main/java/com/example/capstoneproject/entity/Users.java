@@ -63,7 +63,6 @@ public class Users implements UserDetails {
     private String personalWebsite;
 
     @Column(name = "email", columnDefinition = "NVARCHAR(50)")
-    @Pattern(regexp = "/^\\S+@\\S+\\.\\S+$/", message = "Please check your email format!!")
     private String email;
 
     @Column(name = "linkin", columnDefinition = "TEXT")

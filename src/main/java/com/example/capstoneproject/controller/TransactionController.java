@@ -37,9 +37,6 @@ public class TransactionController {
     @Autowired
     TransactionService transactionService;
 
-    @Autowired
-    TransactionRepository transactionRepository;
-
     @GetMapping("/get-all/{user-id}")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
@@ -70,7 +67,7 @@ public class TransactionController {
     @GetMapping(value = "/query-transaction")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
-        AddMoneyTransactionDto transaction = transactionService.savePaymentStatus(orderId, requestId);
+        AddMoneyTransactionDto transaction = transactionService.saveTransactionStatus(orderId, requestId);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 
