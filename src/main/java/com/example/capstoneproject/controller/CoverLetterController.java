@@ -25,7 +25,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
-    @PreAuthorize("hasAuthority('create:candidate')")
+//    @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
             @PathVariable("cv-id") Integer cvId,
             @PathVariable("cover-letter-id") Integer coverId,
@@ -74,7 +74,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("/cv/{cv-id}/review")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId,
