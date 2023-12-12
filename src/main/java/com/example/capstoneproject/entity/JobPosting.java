@@ -67,6 +67,8 @@ public class JobPosting {
     @Enumerated(EnumType.STRING)
     private StatusReview share;
 
+    private Boolean ban;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;

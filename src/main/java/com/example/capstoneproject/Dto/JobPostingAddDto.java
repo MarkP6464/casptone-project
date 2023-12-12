@@ -40,6 +40,8 @@ public class JobPostingAddDto {
 
     private Integer view;
 
+    private Boolean ban;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate deadline;
 

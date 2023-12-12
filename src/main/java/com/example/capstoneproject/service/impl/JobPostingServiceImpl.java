@@ -77,6 +77,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setSalary(dto.getSalary());
             jobPosting.setDeadline(dto.getDeadline());
             jobPosting.setCreateDate(currentDateTime);
+            jobPosting.setBan(false);
             jobPosting.setStatus(ACTIVE);
             jobPosting.setShare(StatusReview.Draft);
             jobPosting.setUser(modelMapper.map(users, Users.class));
@@ -111,6 +112,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setSalary(dto.getSalary());
             jobPosting.setDeadline(dto.getDeadline());
             jobPosting.setCreateDate(currentDateTime);
+            jobPosting.setBan(false);
             jobPosting.setStatus(ACTIVE);
             jobPosting.setShare(StatusReview.Published);
             jobPosting.setUser(modelMapper.map(users, Users.class));
@@ -293,40 +295,36 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Override
     public JobPostingViewUserDetailDto getByUser(Integer userId, Integer jobPostingId) {
-        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(jobPostingId);
+        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndShareAndStatusAndBanIsFalse(jobPostingId,StatusReview.Published, ACTIVE);
         JobPostingViewUserDetailDto jobPostingViewDto = new JobPostingViewUserDetailDto();
         if(jobPostingOptional.isPresent()){
             JobPosting jobPosting = jobPostingOptional.get();
-            if(jobPosting.getStatus()==BasicStatus.ACTIVE && jobPosting.getShare()==StatusReview.Published){
-                jobPostingViewDto.setId(jobPosting.getId());
-                jobPostingViewDto.setTitle(jobPosting.getTitle());
-                jobPostingViewDto.setCompanyName(jobPosting.getCompanyName());
-                jobPostingViewDto.setAvatar(jobPosting.getAvatar());
-                jobPostingViewDto.setAbout(jobPosting.getAbout());
-                jobPostingViewDto.setBenefit(jobPosting.getBenefit());
-                jobPostingViewDto.setSkill(jobPosting.getSkill().split(","));
-                jobPostingViewDto.setView(jobPosting.getView());
-                jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
-                jobPostingViewDto.setLocation(jobPosting.getLocation());
-                jobPostingViewDto.setDescription(jobPosting.getDescription());
-                jobPostingViewDto.setRequirement(jobPosting.getRequirement());
-                jobPostingViewDto.setSalary(jobPosting.getSalary());
-                jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
-                jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
-                jobPostingViewDto.setStatus(jobPosting.getStatus());
-                jobPostingViewDto.setDeadline(jobPosting.getDeadline());
-                jobPostingViewDto.setShare(jobPosting.getShare());
-                Optional<Like> likeOptional = likeRepository.findByUser_IdAndJobPosting_Id(userId, jobPosting.getId());
-                if(likeOptional.isPresent()){
-                    jobPostingViewDto.setLiked(true);
-                }else{
-                    jobPostingViewDto.setLiked(false);
-                }
-
-                return jobPostingViewDto;
+            jobPostingViewDto.setId(jobPosting.getId());
+            jobPostingViewDto.setTitle(jobPosting.getTitle());
+            jobPostingViewDto.setCompanyName(jobPosting.getCompanyName());
+            jobPostingViewDto.setAvatar(jobPosting.getAvatar());
+            jobPostingViewDto.setAbout(jobPosting.getAbout());
+            jobPostingViewDto.setBenefit(jobPosting.getBenefit());
+            jobPostingViewDto.setSkill(jobPosting.getSkill().split(","));
+            jobPostingViewDto.setView(jobPosting.getView());
+            jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
+            jobPostingViewDto.setLocation(jobPosting.getLocation());
+            jobPostingViewDto.setDescription(jobPosting.getDescription());
+            jobPostingViewDto.setRequirement(jobPosting.getRequirement());
+            jobPostingViewDto.setSalary(jobPosting.getSalary());
+            jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
+            jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
+            jobPostingViewDto.setStatus(jobPosting.getStatus());
+            jobPostingViewDto.setDeadline(jobPosting.getDeadline());
+            jobPostingViewDto.setShare(jobPosting.getShare());
+            Optional<Like> likeOptional = likeRepository.findByUser_IdAndJobPosting_Id(userId, jobPosting.getId());
+            if(likeOptional.isPresent()){
+                jobPostingViewDto.setLiked(true);
             }else{
-                throw new BadRequestException("You cant access this posting.");
+                jobPostingViewDto.setLiked(false);
             }
+
+            return jobPostingViewDto;
         }else{
             throw new BadRequestException("Job Posting Id not found.");
         }
@@ -388,7 +386,7 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Override
     public List<JobPostingViewOverCandidateLikeDto> getJobPostingsByCandidate(Integer userId, String title, String location) {
         List<JobPostingViewOverCandidateLikeDto> jobPostingLike = new ArrayList<>();
-        List<JobPosting> jobPostings = jobPostingRepository.findAll();
+        List<JobPosting> jobPostings = jobPostingRepository.findByShareAndStatusAndBanIsFalse(StatusReview.Published, ACTIVE);
         if(jobPostings!=null){
             for(JobPosting jobPosting: jobPostings){
                 JobPostingViewOverCandidateLikeDto jobPostingLikeAdd = new JobPostingViewOverCandidateLikeDto();
@@ -434,7 +432,7 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Override
     public List<JobPostingViewDto> getListPublic(Integer userId, Integer cvId, String title, String working, String location) throws JsonProcessingException {
-        List<JobPosting> jobPostings = jobPostingRepository.findByShare(PUBLIC);
+        List<JobPosting> jobPostings = jobPostingRepository.findByShareAndStatusAndBanIsFalse(StatusReview.Published, ACTIVE);
         if(userId!=null && cvId!=null){
             Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
             Cv cv = cvOptional.get();
@@ -524,6 +522,75 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
         return listCandidate;
     }
+
+    @Override
+    public String updateBan(Integer adminId, Integer postingId) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatus(postingId, ACTIVE);
+            if(jobPostingOptional.isPresent()){
+                JobPosting jobPosting = jobPostingOptional.get();
+                if(!jobPosting.getBan()){
+                    jobPosting.setBan(true);
+                    jobPostingRepository.save(jobPosting);
+                    return "Ban successful";
+                }else{
+                    return "This job posting has now been banned. So you can't ban it";
+                }
+            }else{
+                throw new BadRequestException("Job Posting Id not found.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
+    }
+
+    @Override
+    public String updateUnBan(Integer adminId, Integer postingId) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatus(postingId, ACTIVE);
+            if(jobPostingOptional.isPresent()){
+                JobPosting jobPosting = jobPostingOptional.get();
+                if(jobPosting.getBan()){
+                    jobPosting.setBan(false);
+                    jobPostingRepository.save(jobPosting);
+                    return "UnBan successful";
+                }else{
+                    return "This job posting has not been banned yet. So you cannot unban";
+                }
+
+            }else{
+                throw new BadRequestException("Job Posting Id not found.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
+    }
+
+    @Override
+    public List<JobPostingAdminViewDto> getListAdminPosting(Integer adminId) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            List<JobPostingAdminViewDto> JobPostingAdminViews = new ArrayList<>();
+            List<JobPosting> jobPostings = jobPostingRepository.findByStatusAndShareOrStatusAndBanIsTrue(ACTIVE,StatusReview.Published, ACTIVE);
+            if(jobPostings!=null){
+                for(JobPosting jobPosting:jobPostings){
+                    JobPostingAdminViewDto jobPostingAdminView = new JobPostingAdminViewDto();
+                    jobPostingAdminView.setId(jobPosting.getId());
+                    jobPostingAdminView.setJobTitle(jobPosting.getTitle());
+                    jobPostingAdminView.setCompany(jobPosting.getCompanyName());
+                    jobPostingAdminView.setOwner(jobPosting.getUser().getName());
+                    jobPostingAdminView.setCreateDate(jobPosting.getCreateDate());
+                    JobPostingAdminViews.add(jobPostingAdminView);
+                }
+            }
+            return JobPostingAdminViews;
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
+    }
+
     public double findSimilarityRatio(String sentence1, String sentence2) {
 
         HashMap<String, Integer> firstSentenceMap = new HashMap<>();

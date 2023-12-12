@@ -25,7 +25,7 @@ public class CoverLetterController {
     }
 
     @PostMapping("cv/{cv-id}/cover-letter/{cover-letter-id}/generation")
-//    @PreAuthorize("hasAuthority('create:candidate')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> generateCoverLetter(
             @PathVariable("cv-id") Integer cvId,
             @PathVariable("cover-letter-id") Integer coverId,
@@ -44,54 +44,6 @@ public class CoverLetterController {
         );
         return ResponseEntity.ok(result);
     }
-
-    @PostMapping("/cv/{cv-id}/summary")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
-    public ResponseEntity<?> generateSummary(
-            @PathVariable("cv-id") Integer cvId,
-            @RequestBody SummaryGenerationDto dto,
-            Principal principal
-    ) throws JsonProcessingException {
-        ChatResponse result = coverLetterService.generateSummaryCV(
-                cvId,
-                dto,
-                principal
-        );
-        return ResponseEntity.ok(result);
-    }
-
-    @PostMapping("/cv/experience/re-writer")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
-    public ResponseEntity<?> rewriteExperience(
-            @RequestBody ReWritterExperienceDto dto,
-            Principal principal
-    ) throws JsonProcessingException {
-        ChatResponseArray result = coverLetterService.rewritteExperience(
-                dto,
-                principal
-        );
-        return ResponseEntity.ok(result);
-    }
-
-    @PostMapping("/cv/{cv-id}/review")
-//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
-    public ResponseEntity<?> reviewCv(
-            @RequestParam float temperature,
-            @PathVariable("cv-id") Integer cvId,
-            Principal principal
-    ) throws JsonProcessingException {
-        if (temperature < 0.2 || temperature > 1.0) {
-            return ResponseEntity.badRequest().body("Temperature value is invalid. Must be between 0.2 and 1.0.");
-        }
-
-        ChatResponse result = coverLetterService.reviewCV(
-                temperature,
-                cvId,
-                principal
-        );
-        return ResponseEntity.ok(result);
-    }
-
 
     @PostMapping("/cover-letter/revise")
     @PreAuthorize("hasAuthority('create:candidate')")

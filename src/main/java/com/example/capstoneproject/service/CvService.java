@@ -40,8 +40,6 @@ public interface CvService {
 
     CvDto synchUp(int cvId) throws JsonProcessingException;
 
-    ScoreDto getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
-
     Cv findByUser_IdAndId(Integer UsersId, Integer cvId);
 
     boolean searchable(Integer userId, Integer cvId);
@@ -52,5 +50,9 @@ public interface CvService {
 
     List<ExperienceRoleDto> getListExperienceRole(Integer userId, Integer cvId) throws JsonProcessingException;
 
+    ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto, Principal principal) throws JsonProcessingException;
+    ChatResponse reviewCV(float temperature, Integer cvId, Principal principal) throws JsonProcessingException;
+
+    ChatResponseArray rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException;
 
 }

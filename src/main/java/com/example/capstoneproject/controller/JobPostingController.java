@@ -132,4 +132,22 @@ public class JobPostingController {
         }
     }
 
+    @PutMapping("/admin/{admin-id}/job-posting/{posting-id}/ban")
+    @PreAuthorize("hasAuthority('update:admin')")
+    public ResponseEntity<?> updateBan(@PathVariable("admin-id") Integer adminId, @PathVariable("posting-id") Integer postingId) {
+        return ResponseEntity.ok(jobPostingService.updateBan(adminId, postingId));
+    }
+
+    @PutMapping("/admin/{admin-id}/job-posting/{posting-id}/un-ban")
+    @PreAuthorize("hasAuthority('update:admin')")
+    public ResponseEntity<?> updateUnBan(@PathVariable("admin-id") Integer adminId, @PathVariable("posting-id") Integer postingId) {
+        return ResponseEntity.ok(jobPostingService.updateUnBan(adminId, postingId));
+    }
+
+    @GetMapping("/admin/{admin-id}/job-postings")
+    @PreAuthorize("hasAuthority('read:admin')")
+    public ResponseEntity<?> getListAdminPosting(@PathVariable("admin-id") Integer adminId) {
+        return ResponseEntity.ok(jobPostingService.getListAdminPosting(adminId));
+    }
+
 }
