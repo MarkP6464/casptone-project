@@ -4,15 +4,18 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.Dto.responses.HistoryViewDto;
 import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.enums.ApplicationLogStatus;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.InternalServerException;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.gax.rpc.NotFoundException;
 import io.swagger.models.auth.In;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,6 +57,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
     @Autowired
     ModelMapper modelMapper;
+
     @Override
     public boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId, NoteDto dto) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
@@ -103,6 +108,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                     throw new BadRequestException("Please apply after date " + resultDate);
                 }
             }
+            applicationLog.setStatus(ApplicationLogStatus.RECEIVED);
             applicationLog.setNote(dto.getNote());
             applicationLogRepository.save(applicationLog);
             sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
@@ -268,5 +274,32 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             });
         }
         return newList;
+    }
+
+    @Override
+    public ApplicationLogResponse updateDownloaded(Integer id)  {
+        ApplicationLogResponse response;
+        Optional<ApplicationLog> optionalApplicationLog = applicationLogRepository.findById(id);
+        if (optionalApplicationLog.isPresent()){
+            ApplicationLog entity = optionalApplicationLog.get();
+            entity.setStatus(ApplicationLogStatus.DOWNLOADED);
+            entity = applicationLogRepository.save(entity);
+            response = modelMapper.map(entity, ApplicationLogResponse.class);
+        } else throw new ResourceNotFoundException("Not found the log by id");
+        return response;
+    }
+
+
+    @Override
+    public ApplicationLogResponse updateSeen(Integer id)  {
+        ApplicationLogResponse response;
+        Optional<ApplicationLog> optionalApplicationLog = applicationLogRepository.findById(id);
+        if (optionalApplicationLog.isPresent()){
+            ApplicationLog entity = optionalApplicationLog.get();
+            entity.setStatus(ApplicationLogStatus.DOWNLOADED);
+            entity = applicationLogRepository.save(entity);
+            response = modelMapper.map(entity, ApplicationLogResponse.class);
+        } else throw new ResourceNotFoundException("Not found the log by id");
+        return response;
     }
 }
