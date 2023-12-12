@@ -37,8 +37,12 @@ public class PriceOptionServiceImpl implements PriceOptionService {
         if(expertOptional.isPresent()){
             PriceOption priceOption = new PriceOption();
             Users expert = expertOptional.get();
+            Long validatedPrice = validateAndProcessPrice(dto.getPrice());
+            if(dto.getDay()==null){
+                throw new BadRequestException("Date cannot be empty.");
+            }
             priceOption.setDay(dto.getDay());
-            priceOption.setPrice(dto.getPrice());
+            priceOption.setPrice(validatedPrice);
             priceOption.setExpert((Expert) expert);
             priceOptionRepository.save(priceOption);
             return "Create option successful";
@@ -63,37 +67,62 @@ public class PriceOptionServiceImpl implements PriceOptionService {
 
     @Transactional
     @Override
-    public void editPriceOption(Integer expertId, List<PriceOptionDto> dto) {
+    public void editPriceOption(Integer expertId, List<PriceOptionDto> dtoList) {
         Optional<Users> expertOptional = usersRepository.findByIdAndRole_RoleName(expertId, RoleType.EXPERT);
 
         if (expertOptional.isPresent()) {
             Users expert = expertOptional.get();
 
-            List<PriceOption> priceOptions1 = priceOptionRepository.findAllByExpertId(expert.getId());
-            if(!priceOptions1.isEmpty()){
-                // Xóa tất cả PriceOption của Expert
-                Integer test  = expert.getId();
-                priceOptionRepository.deleteByExpert(expert.getId());
+            List<PriceOption> newPriceOptions = new ArrayList<>();
+
+            for (PriceOptionDto priceOptionDto : dtoList) {
+                Long validatedPrice = validateAndProcessPriceUpdate(priceOptionDto.getPrice());
+
+                // Check if both price and day are valid before creating the PriceOption entity
+                if (validatedPrice != null && priceOptionDto.getDay() != null) {
+                    PriceOption priceOption = new PriceOption();
+                    priceOption.setDay(priceOptionDto.getDay());
+                    priceOption.setPrice(validatedPrice);
+                    priceOption.setExpert((Expert) expert);
+                    newPriceOptions.add(priceOption);
+                }
             }
 
-            // Tạo danh sách mới từ danh sách DTO
-            List<PriceOption> priceOptions = dto.stream()
-                    .map(priceOptionDto -> {
-                        PriceOption priceOption = new PriceOption();
-                        priceOption.setDay(priceOptionDto.getDay());
-                        priceOption.setPrice(priceOptionDto.getPrice());
-                        priceOption.setExpert((Expert) expert);
-                        return priceOption;
-                    })
-                    .collect(Collectors.toList());
-
-            // Lưu danh sách mới vào cơ sở dữ liệu
-            priceOptionRepository.saveAll(priceOptions);
+            // Save the new list to the database only if all prices and days are valid
+            if (newPriceOptions.size() == dtoList.size()) {
+                priceOptionRepository.saveAll(newPriceOptions);
+            } else {
+                throw new BadRequestException("Invalid price or day found. None of the PriceOptions were saved.");
+            }
 
         } else {
             throw new BadRequestException("Expert ID not found.");
         }
     }
 
+    private Long validateAndProcessPrice(Long price) {
+        // Nếu giá trị là null
+        if (price == null) {
+            // Ném BadRequestException
+            throw new BadRequestException("Price cannot be empty.");
+        }
+
+        // Nếu giá trị nhỏ hơn 1000, hoặc có chứa số 0 ở đầu
+        if (price < 1000 || String.valueOf(price).startsWith("0")) {
+            // Xử lý giá trị, có thể đặt một giá trị mặc định hoặc thông báo lỗi
+            throw new BadRequestException("Invalid price. Price must be greater than or equal to 1000.");
+        }
+
+        // Trả về giá trị đã được kiểm tra và xử lý
+        return price;
+    }
+
+    // Function to validate and process the price
+    private Long validateAndProcessPriceUpdate(Long price) {
+        if (price == null || price < 1000 || String.valueOf(price).startsWith("0")) {
+            return null;  // Return null if the price is invalid
+        }
+        return price;
+    }
 
 }

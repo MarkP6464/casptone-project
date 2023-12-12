@@ -72,7 +72,7 @@ public class CoverLetterController {
     }
 
     @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}")
-//    @PreAuthorize("hasAuthority('update:candidate')")
+    @PreAuthorize("hasAuthority('update:candidate')")
     public String updateCoverLetter(@PathVariable("cv-id") int cvId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
         boolean check = coverLetterService.updateCoverLetter(cvId, coverLetterId, Dto);
         if (check) {

@@ -1,10 +1,13 @@
 package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
+import com.example.capstoneproject.Dto.responses.EvaluateViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.RoleType;
 import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.enums.SectionLogStatus;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.AtsMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.TransactionService;
@@ -792,7 +795,7 @@ public class EvaluateServiceImpl implements EvaluateService {
                 scoreOptional1.setResult(resultLabel);
                 scoreRepository.save(scoreOptional1);
 
-                scoreDto = new ScoreDto(contentS,contentList,practiceS, practiceList,optimationS, optimizationList,formatS,formatList,resultLabel);
+                scoreDto = new ScoreDto(contentS,contentList,practiceS, practiceList,optimationS, optimizationList,formatS,formatList,resultLabel,(int)totalPercentage);
                 cv.setOverview(cv.toOverviewBody(scoreDto));
                 cvRepository.save(cv);
 
@@ -800,6 +803,72 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
         }
         return scoreDto;
+    }
+
+    @Override
+    public String updateScoreEvaluate(Integer adminId, Integer evaluateId, EvaluateScoreDto dto) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            Optional<Evaluate> evaluateOptional = evaluateRepository.findById(evaluateId);
+            if(evaluateOptional.isPresent()){
+                Evaluate evaluate = evaluateOptional.get();
+                Integer newScore = dto.getScore();
+                if (newScore != null && newScore >= 1 && newScore <= 10) {
+                    evaluate.setScore(newScore);
+                } else {
+                    throw new BadRequestException("Invalid score. Score must be in the range of 1 to 10.");
+                }
+                evaluateRepository.save(evaluate);
+                return "Update score successful";
+            }else {
+                throw new BadRequestException("Evaluate not found.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
+    }
+
+    @Override
+    public String updateCriteriaEvaluate(Integer adminId, Integer evaluateId, EvaluateCriteriaDto dto) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            Optional<Evaluate> evaluateOptional = evaluateRepository.findById(evaluateId);
+            if(evaluateOptional.isPresent()){
+                Evaluate evaluate = evaluateOptional.get();
+                if (dto.getCriteria() == null) {
+                    evaluate.setCritical(false);
+                } else {
+                    evaluate.setCritical(dto.getCriteria());
+                }
+                evaluateRepository.save(evaluate);
+                return "Update criteria successful";
+            }else {
+                throw new BadRequestException("Evaluate not found.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
+    }
+
+    @Override
+    public List<EvaluateViewDto> viewEvaluate(Integer adminId) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            List<EvaluateViewDto> evaluateViews = new ArrayList<>();
+            List<Evaluate> evaluates = evaluateRepository.findAll();
+            for(Evaluate evaluate: evaluates){
+                EvaluateViewDto evaluateView = new EvaluateViewDto();
+                evaluateView.setId(evaluate.getId());
+                evaluateView.setCriteria(evaluate.getCritical());
+                evaluateView.setDescription(evaluate.getDescription());
+                evaluateView.setTitle(evaluate.getTitle());
+                evaluateView.setScore(evaluate.getScore());
+                evaluateViews.add(evaluateView);
+            }
+            return evaluateViews;
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
     }
 
     public List<String> splitText(String text) {

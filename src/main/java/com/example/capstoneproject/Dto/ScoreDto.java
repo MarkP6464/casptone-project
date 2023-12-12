@@ -18,5 +18,6 @@ public class ScoreDto {
     ScoreMaxMinDto scoreFormat;
     List<ContentDto> format;
     String result;
+    Integer totalScore;
 
 }

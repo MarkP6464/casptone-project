@@ -24,6 +24,8 @@ public interface JobPostingService {
     List<JobPostingViewOverCandidateLikeDto> getJobPostingsByCandidate(Integer userId, String title, String location);
     List<JobPostingViewDto> getListPublic(Integer userId, Integer cvId, String title, String working, String location) throws JsonProcessingException;
     List<CandidateOverViewDto> getAllCandidateFilterCV(Integer postingId) throws JsonProcessingException;
-
+    String updateBan(Integer adminId, Integer postingId);
+    String updateUnBan(Integer adminId, Integer postingId);
+    List<JobPostingAdminViewDto> getListAdminPosting(Integer adminId);
 
 }

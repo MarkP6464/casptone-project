@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.EvaluateViewDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
@@ -16,4 +17,8 @@ public interface EvaluateService {
     List<AtsDto> getAts(int cvId, int jobId) throws JsonProcessingException;
 
     ScoreDto getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
+
+    String updateScoreEvaluate(Integer adminId, Integer evaluateId, EvaluateScoreDto dto);
+    String updateCriteriaEvaluate(Integer adminId, Integer evaluateId, EvaluateCriteriaDto dto);
+    List<EvaluateViewDto> viewEvaluate(Integer adminId);
 }

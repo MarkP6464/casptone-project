@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.capstoneproject.enums.BasicStatus.ACTIVE;
+
 @Service
 public class LikeServiceImpl implements LikeService {
     @Autowired
@@ -68,21 +70,19 @@ public class LikeServiceImpl implements LikeService {
         List<Like> likes = likeRepository.findAllByUser_Id(userId);
         if(likes!=null){
             for(Like likeG: likes){
-                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(likeG.getJobPosting().getId());
+                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndShareAndStatusAndBanIsFalse(likeG.getJobPosting().getId(),StatusReview.Published, ACTIVE);
                     if(jobPostingOptional.isPresent()){
                         JobPostingViewOverCandidateDto jobPostingLikeAdd = new JobPostingViewOverCandidateDto();
                         JobPosting jobPosting = jobPostingOptional.get();
-                        if(jobPosting.getShare()== StatusReview.Published && jobPosting.getStatus()==BasicStatus.ACTIVE){
-                            jobPostingLikeAdd.setId(jobPosting.getId());
-                            jobPostingLikeAdd.setTitle(jobPosting.getTitle());
-                            jobPostingLikeAdd.setCompanyName(jobPosting.getCompanyName());
-                            jobPostingLikeAdd.setAvatar(jobPosting.getAvatar());
-                            jobPostingLikeAdd.setLocation(jobPosting.getLocation());
-                            jobPostingLikeAdd.setSkill(jobPosting.getSkill().split(","));
-                            jobPostingLikeAdd.setSalary(jobPosting.getSalary());
-                            jobPostingLikeAdd.setCreateDate(prettyTime.format(jobPosting.getCreateDate()));
-                            jobPostingLike.add(jobPostingLikeAdd);
-                        }
+                        jobPostingLikeAdd.setId(jobPosting.getId());
+                        jobPostingLikeAdd.setTitle(jobPosting.getTitle());
+                        jobPostingLikeAdd.setCompanyName(jobPosting.getCompanyName());
+                        jobPostingLikeAdd.setAvatar(jobPosting.getAvatar());
+                        jobPostingLikeAdd.setLocation(jobPosting.getLocation());
+                        jobPostingLikeAdd.setSkill(jobPosting.getSkill().split(","));
+                        jobPostingLikeAdd.setSalary(jobPosting.getSalary());
+                        jobPostingLikeAdd.setCreateDate(prettyTime.format(jobPosting.getCreateDate()));
+                        jobPostingLike.add(jobPostingLikeAdd);
                     }
 
             }
