@@ -1,12 +1,12 @@
 package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
 import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.enums.SectionLogStatus;
 import com.example.capstoneproject.mapper.AtsMapper;
-import com.example.capstoneproject.repository.AtsRepository;
-import com.example.capstoneproject.repository.CvRepository;
-import com.example.capstoneproject.repository.EvaluateRepository;
-import com.example.capstoneproject.repository.JobDescriptionRepository;
+import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.utils.SecurityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,6 +21,7 @@ import edu.stanford.nlp.pipeline.*;
 import org.languagetool.JLanguageTool;
 import org.languagetool.language.BritishEnglish;
 import org.languagetool.rules.RuleMatch;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,35 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     @Autowired
     ChatGPTServiceImpl chatGPTService;
+
+    @Autowired
+    SectionLogRepository sectionLogRepository;
+
+    @Autowired
+    ScoreLogRepository scoreLogRepository;
+
+    @Autowired
+    ScoreRepository scoreRepository;
+
+    @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
+    UsersRepository usersRepository;
+
+    @Autowired
+    EducationRepository educationRepository;
+    @Autowired
+    SkillRepository skillRepository;
+    @Autowired
+    ExperienceRepository experienceRepository;
+    @Autowired
+    CertificationRepository certificationRepository;
+    @Autowired
+    InvolvementRepository involvementRepository;
+
+    @Autowired
+    ProjectRepository projectRepository;
 
     @Autowired
     TransactionService transactionService;
@@ -550,6 +581,227 @@ public class EvaluateServiceImpl implements EvaluateService {
         return atsList;
     }
 
+    @Override
+    public ScoreDto getEvaluateCv(int userId, int cvId) throws JsonProcessingException {
+        Cv cv = cvRepository.getById(cvId);
+        ScoreDto scoreDto = new ScoreDto();
+        List<SectionCvDto> sectionCvDtos = new ArrayList<>();
+        List<SectionAddScoreLogDto> sectionAddScoreLogDtos = new ArrayList<>();
+        List<Evaluate> evaluates = evaluateRepository.findAll();
+        Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+        List<ContentDto> contentList;
+        List<ContentDto> practiceList;
+        List<ContentDto> optimizationList;
+        List<ContentDto> formatList;
+        final int[] totalWords = {0};
+        if (Objects.nonNull(cv)){
+            AtomicInteger total = new AtomicInteger(0);
+            AtomicInteger totalExperiences = new AtomicInteger(0);
+            CvBodyDto cvBodyDto = cv.deserialize();
+            for (SkillDto x : cvBodyDto.getSkills()) {
+                if (x.getIsDisplay()) {
+                    String description = x.getDescription();
+                    if (description != null) {
+                        String[] words = description.split("\\s+");
+                        totalWords[0] += words.length;
+                    }
+                }
+            }
+
+            cvBodyDto.getCertifications().forEach(x -> {
+                if (x.getIsDisplay()) {
+                    String skill = x.getCertificateRelevance();
+                    if (skill != null) {
+                        String word = skill;
+                        String[] words = word.split("\\s+");
+                        totalWords[0] += words.length;
+                    }
+                }
+            });
+
+            cvBodyDto.getEducations().forEach(x -> {
+                if(x.getIsDisplay()){
+                    String minor = x.getMinor();
+                    String description = x.getDescription();
+                    if(minor==null){
+                        minor = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = description + " " + minor;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                }
+            });
+
+            cvBodyDto.getExperiences().forEach(x -> {
+                if(x.getIsDisplay()){
+                    total.addAndGet(1);
+                    totalExperiences.addAndGet(1);
+                    int experienceId = x.getId();
+                    String title = x.getRole();
+                    String location = x.getLocation();
+                    String duration = x.getDuration();
+                    String company = x.getCompanyName();
+                    String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(company==null){
+                        company = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = title  + " " + company + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.experience, experienceId, title, location, duration));
+                    sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.experience, experienceId));
+                    Experience e = experienceRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
+            });
+
+            cvBodyDto.getProjects().forEach(x -> {
+                if(x.getIsDisplay()){
+                    total.addAndGet(1);
+                    int projectId = x.getId();
+                    String title = x.getTitle();
+                    String duration = x.getDuration();
+                    String organization = x.getOrganization();
+                    String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(organization==null){
+                        organization = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = title + " " + organization + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.project, projectId, title, null, duration));
+                    sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.project, projectId));
+                    Project e = projectRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
+            });
+
+            cvBodyDto.getInvolvements().forEach(x -> {
+                if(x.getIsDisplay()){
+                    total.addAndGet(1);
+                    int involvementId = x.getId();
+                    String duration = x.getDuration();
+                    String title = x.getOrganizationRole();
+                    String name = x.getOrganizationName();
+                    String college = x.getCollege();
+                    String description = x.getDescription();
+                    if(title==null){
+                        title = "";
+                    }
+                    if(name==null){
+                        name = "";
+                    }
+                    if(college==null){
+                        college = "";
+                    }
+                    if(description==null){
+                        description = "";
+                    }
+                    String word = title + " " + name + " " + college + " " + description;
+                    String[] words = word.split("\\s+");
+                    totalWords[0] += words.length;
+                    sectionCvDtos.add(new SectionCvDto(SectionEvaluate.involvement, involvementId, title, null, duration));
+                    sectionAddScoreLogDtos.add(new SectionAddScoreLogDto(SectionEvaluate.involvement, involvementId));
+                    Involvement e = involvementRepository.findById(x.getId().intValue()).get();
+                    modelMapper.map(e, x);
+                }
+            });
+            if(cv.getOverview()!=null){
+                Score score = scoreOptional.get();
+                return cv.deserializeOverview();
+
+            }else{
+                Score score = new Score();
+                score.setCv(cv);
+                Score savedScore = scoreRepository.save(score);
+
+                Integer savedScoreId = savedScore.getId();
+                for (SectionAddScoreLogDto sectionLog1: sectionAddScoreLogDtos){
+                    List<SectionLog> sectionLog = sectionLogRepository.findBySection_TypeNameAndSection_TypeId(sectionLog1.getTypeName(), sectionLog1.getTypeId());
+                    for(SectionLog sectionLog2: sectionLog){
+                        ScoreLog scoreLog = new ScoreLog();
+                        scoreLog.setSectionLog(sectionLog2);
+                        scoreLog.setScore(savedScore);
+                        scoreLogRepository.save(scoreLog);
+                    }
+                }
+
+                contentList = evaluateContentSections(evaluates, sectionCvDtos, total.get());
+                double contentScore = 0;
+                int contentMax = 0;
+                for(ContentDto contentS:contentList){
+                    contentScore += contentS.getScore();
+                    contentMax += contentS.getMax();
+                }
+                int contentTotal = (int) Math.ceil(( contentScore / contentMax) * 100);
+                ScoreMaxMinDto contentS = new ScoreMaxMinDto( contentTotal,100,(int)contentScore + "/" + contentMax);
+
+
+                practiceList = evaluateBestPractices(evaluates, sectionCvDtos, userId, cvId, totalWords, cv, totalExperiences.get(), total.get());
+                double practiceScore = 0;
+                int practiceMax = 0;
+                for(ContentDto practiceS:practiceList){
+                    practiceScore += practiceS.getScore();
+                    practiceMax += practiceS.getMax();
+                }
+                int practiceTotal = (int) Math.ceil(( practiceScore / practiceMax) * 100);
+                ScoreMaxMinDto practiceS = new ScoreMaxMinDto(practiceTotal,100,(int)practiceScore + "/" + practiceMax);
+
+                optimizationList = evaluateOptimational(evaluates, cvId);
+                double optimizationScore = 0;
+                int optimizationMax = 0;
+                for(ContentDto optimizationS:optimizationList){
+                    optimizationScore += optimizationS.getScore();
+                    optimizationMax += optimizationS.getMax();
+                }
+                int optimizationTotal = (int) Math.ceil(( optimizationScore / optimizationMax) * 100);
+                ScoreMaxMinDto optimationS = new ScoreMaxMinDto(optimizationTotal,100,(int)optimizationScore + "/" + optimizationMax);
+
+                formatList = evaluateFormat(evaluates, cvId);
+                double formatScore = 0;
+                int formatMax = 0;
+                for(ContentDto formatListS:formatList){
+                    formatScore += formatListS.getScore();
+                    formatMax += formatListS.getMax();
+                }
+                int formatTotal = (int) Math.ceil(( formatScore / formatMax) * 100);
+                ScoreMaxMinDto formatS = new ScoreMaxMinDto(formatTotal,100,(int)formatScore + "/" + formatMax);
+
+                Score scoreOptional1 = scoreRepository.findById1(savedScoreId);
+                scoreOptional1.setContent(contentTotal);
+                scoreOptional1.setPractice(practiceTotal);
+                scoreOptional1.setOptimization(optimizationTotal);
+                scoreOptional1.setFormat(formatTotal);
+                double totalPercentage = (contentTotal*0.5) + (practiceTotal*0.3) + (optimizationTotal*0.1) + (formatTotal*0.1);
+                String resultLabel = getResultLabel(totalPercentage);
+                scoreOptional1.setResult(resultLabel);
+                scoreRepository.save(scoreOptional1);
+
+                scoreDto = new ScoreDto(contentS,contentList,practiceS, practiceList,optimationS, optimizationList,formatS,formatList,resultLabel);
+                cv.setOverview(cv.toOverviewBody(scoreDto));
+                cvRepository.save(cv);
+
+                return scoreDto;
+            }
+        }
+        return scoreDto;
+    }
+
     public List<String> splitText(String text) {
         List<String> resultList = new ArrayList<>();
         String[] splitValues = text.split("• ");
@@ -714,6 +966,279 @@ public class EvaluateServiceImpl implements EvaluateService {
         }
 
         return atsList;
+    }
+
+    private List<ContentDto> evaluateContentSections(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos, int total) {
+        List<ContentDto> contentList = new ArrayList<>();
+        int evaluateId = 1;
+
+        for (int i = 1; i <= 8; i++) {
+            Evaluate evaluate = evaluates.get(i - 1);
+            List<Section> sections = cvRepository.findSectionsWithNonPassStatus(evaluateId, SectionLogStatus.Pass);
+            List<Section> sectionsPass = cvRepository.findSectionsWithPassStatus(evaluateId, SectionLogStatus.Pass);
+
+            AnalyzeScoreDto sameSections = findSameSections(sectionCvDtos, sections, sectionsPass, total);
+
+            if (!sameSections.getMoreInfos().isEmpty()) {
+                ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), Math.round((evaluate.getScore() * ((total - sameSections.getCount()) / (double) total)) * 100.0) / 100.0,evaluate.getScore(), sameSections);
+                contentList.add(contentDto);
+            }else{
+                ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),(double) evaluate.getScore(),evaluate.getScore(), sameSections);
+                contentList.add(contentDto);
+            }
+
+            evaluateId++;
+        }
+
+        return contentList;
+    }
+
+    private AnalyzeScoreDto findSameSections(List<SectionCvDto> sectionCvDtos, List<Section> sections, List<Section> sectionsPass, int total) {
+        List<ContentDetailDto> sameSections = new ArrayList<>();
+        int experiences = 0;
+        int projects = 0;
+        int involvements = 0;
+        int count = 0;
+        for (SectionCvDto sectionCvDto : sectionCvDtos) {
+            for (Section section : sections) {
+                if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
+                        && sectionCvDto.getTitle() != null) {
+                    count +=1;
+                    if(section.getTypeName()== SectionEvaluate.experience){
+                        experiences += 1;
+                    }else if(section.getTypeName()== SectionEvaluate.project){
+                        projects += 1;
+                    }else{
+                        involvements += 1;
+                    }
+                    sameSections.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
+                }
+            }
+        }
+
+        return new AnalyzeScoreDto(count,experiences,projects,involvements,total,sameSections);
+    }
+
+
+    private List<ContentDto> evaluateBestPractices(List<Evaluate> evaluates, List<SectionCvDto> sectionCvDtos, int userId, int cvId, int[] totalWords, Cv cv, int totalExperiences, int totalDate) {
+        List<ContentDto> resultList = new ArrayList<>();
+
+        for (int i = 8; i < 14; i++) {
+            Evaluate evaluate = evaluates.get(i);
+
+            switch (i) {
+                case 8:
+                    // Check location = null
+                    int experiences = 0;
+                    int count = 0;
+                    List<ContentDetailDto> sameSectionsLocation = new ArrayList<>();
+                    List<Section> sections = cvRepository.findAllByTypeName(SectionEvaluate.experience);
+                    for (SectionCvDto sectionCvDto : sectionCvDtos) {
+                        for (Section section : sections) {
+                            if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
+                                    && section.getTypeName() == SectionEvaluate.experience
+                                    && sectionCvDto.getTitle() != null) {
+                                if(sectionCvDto.getLocation() == null){
+                                    experiences += 1;
+                                    count += 1;
+                                    sameSectionsLocation.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
+                                }
+                            }
+                        }
+                    }
+                    if(count>=1){
+                        AnalyzeScoreDto analyzeScoreLocation = new AnalyzeScoreDto(count,experiences,0,0,totalExperiences,sameSectionsLocation);
+                        double sco = Math.round((evaluate.getScore() * ((double) (totalExperiences - analyzeScoreLocation.getCount()) / totalExperiences)) * 100.0) / 100.0;
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),sco,evaluate.getScore(), analyzeScoreLocation);
+                        resultList.add(contentDto);
+                    }else{
+                        AnalyzeScoreDto analyzeScoreLocation = new AnalyzeScoreDto(count,experiences,0,0,totalExperiences,null);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),(double)evaluate.getScore(),evaluate.getScore(), analyzeScoreLocation);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                case 9:
+                    // Check date = null
+                    int experiencesDate = 0;
+                    int projectsDate = 0;
+                    int involvementDate = 0;
+                    int countDate = 0;
+                    List<ContentDetailDto> sameSectionsDate = new ArrayList<>();
+                    List<Section> dateSections = cvRepository.findAllByTypeNames(Arrays.asList(SectionEvaluate.experience, SectionEvaluate.project, SectionEvaluate.involvement));
+                    for (SectionCvDto sectionCvDto : sectionCvDtos) {
+                        for (Section section : dateSections) {
+                            if (section.getTypeName() == sectionCvDto.getTypeName() && section.getTypeId() == sectionCvDto.getTypeId()
+                                    && (sectionCvDto.getTitle() != null)) {
+                                if(sectionCvDto.getDuration() == null){
+                                    countDate += 1;
+                                    if(section.getTypeName() == SectionEvaluate.experience){
+                                        experiencesDate += 1;
+                                    }else if(section.getTypeName() == SectionEvaluate.project){
+                                        projectsDate += 1;
+                                    }else{
+                                        involvementDate += 1;
+                                    }
+                                    sameSectionsDate.add(new ContentDetailDto(sectionCvDto.getTypeName(), sectionCvDto.getTypeId(), sectionCvDto.getTitle()));
+                                }
+                            }
+                        }
+                    }
+                    if(countDate>=1){
+                        AnalyzeScoreDto analyzeScoreDate = new AnalyzeScoreDto(countDate,experiencesDate,projectsDate,involvementDate,totalDate,sameSectionsDate);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), Math.round((evaluate.getScore() * ((totalDate - analyzeScoreDate.getCount()) / (double) totalDate)) * 100.0) / 100.0, evaluate.getScore(), analyzeScoreDate);
+                        resultList.add(contentDto);
+                    }else{
+                        AnalyzeScoreDto analyzeScoreDate = new AnalyzeScoreDto(countDate,experiencesDate,projectsDate,involvementDate,totalDate,sameSectionsDate);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), (double) evaluate.getScore(), evaluate.getScore(), analyzeScoreDate);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                case 10:
+                    // Check phone = null
+                    Optional<Users> users = usersRepository.findUsersById(userId);
+                    if (users.isPresent() && users.get().getPhone() == null) {
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),0.0,evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                        // Do something
+                    }else{
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),(double)evaluate.getScore(),evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                case 11:
+                    // Check linkin = null
+                    Optional<Users> users1 = usersRepository.findUsersById(userId);
+                    if (users1.isPresent() && users1.get().getLinkin() == null) {
+                        // Do something
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),0.0,evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }else{
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),(double)evaluate.getScore(),evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                case 12:
+                    // Check count word
+                    if (totalWords[0] < 300) {
+                        String totalWordsString = Arrays.toString(totalWords);
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription() + totalWordsString,0.0,evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }else{
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),(double)evaluate.getScore(),evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                case 13:
+                    // Check summary
+                    Cv cv1 = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+                    if (cv1.getSummary() == null || cv1.getSummary().length() < 30) {
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(),0.0,evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }else{
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(), evaluate.getDescription(), (double)evaluate.getScore(),evaluate.getScore(), null);
+                        resultList.add(contentDto);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return resultList;
+    }
+
+    private List<ContentDto> evaluateOptimational(List<Evaluate> evaluates, int cvId) {
+        List<ContentDto> contentDtoList = new ArrayList<>();
+
+        for (int i = 14; i < 15; i++) {
+            Evaluate evaluate = evaluates.get(i);
+
+            // Check Ats = null
+            Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+            JobDescription jobDescription = getCv.getJobDescription();
+            if (jobDescription != null) {
+                Integer jobDescriptionId = jobDescription.getId();
+                List<Ats> ats = atsRepository.findAllByJobDescriptionId(jobDescriptionId);
+                if (ats == null) {
+                    contentDtoList.add(new ContentDto(evaluate.getCritical(), evaluate.getTitle(), evaluate.getDescription(),0.0,evaluate.getScore(), null));
+                }else {
+                    contentDtoList.add(new ContentDto(evaluate.getCritical(), evaluate.getTitle(), evaluate.getDescription(),(double)evaluate.getScore(),evaluate.getScore(), null));
+                }
+            }
+        }
+
+        return contentDtoList;
+    }
+
+    private List<ContentDto> evaluateFormat(List<Evaluate> evaluates, int cvId) throws JsonProcessingException {
+        List<ContentDto> contentDtoList = new ArrayList<>();
+
+        for (int i = 15; i < 17; i++) {
+            Evaluate evaluate = evaluates.get(i);
+            switch (i) {
+                case 15:
+                    // Check use template
+                    ContentDto contentDto1 = new ContentDto(evaluate.getCritical(),evaluate.getTitle(),evaluate.getDescription(),(double) evaluate.getScore(),evaluate.getScore(),null);
+                    contentDtoList.add(contentDto1);
+
+                    break;
+                case 16:
+                    // Check font size
+                    Cv getCv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+                    CvBodyDto cvBodyDto = getCv.deserialize();
+                    String font = cvBodyDto.getCvStyle().getFontSize();
+                    Integer getFont = getFontSize(font);
+                    if(!(getFont>8 && getFont<=11)){
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(),evaluate.getDescription(),0.0,evaluate.getScore(),null);
+                        contentDtoList.add(contentDto);
+                    }else{
+                        ContentDto contentDto = new ContentDto(evaluate.getCritical(),evaluate.getTitle(),evaluate.getDescription(),(double) evaluate.getScore(),evaluate.getScore(),null);
+                        contentDtoList.add(contentDto);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return contentDtoList;
+    }
+
+    public Integer getFontSize(String font){
+        // Define a pattern to match digits
+        Pattern pattern = Pattern.compile("\\d+");
+
+        // Create a matcher with the input font string
+        Matcher matcher = pattern.matcher(font);
+
+        // Check if there is a match
+        if (matcher.find()) {
+            // Extract the matched digits
+            String numericPart = matcher.group();
+
+            // Convert the numeric part to an integer
+
+            // Now, fontSize contains the numeric part without "pt"
+            return Integer.parseInt(numericPart);
+        } else {
+            return 0;
+        }
+    }
+
+    private String getResultLabel(double percentage) {
+        if (percentage < 50) {
+            return "bad";
+        } else if (percentage >= 50  && percentage <= 79) {
+            return "improvement";
+        } else {
+            return "excellent";
+        }
     }
 
 }

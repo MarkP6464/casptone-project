@@ -26,11 +26,11 @@ public class ChatGPTServiceImpl {
         this.restTemplate = restTemplate;
     }
 
-    public String chatWithGPT(String message) {
+    public String chatWithGPT(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(openAIConfig.getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":[{\"role\":\"system\",\"content\":\"You are a helpful assistant.\"},{\"role\":\"user\",\"content\":\"" + message + "\"}]}";
+        String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<String> responseEntity = restTemplate.exchange(

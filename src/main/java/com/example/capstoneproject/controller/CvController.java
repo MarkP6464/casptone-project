@@ -96,12 +96,6 @@ public class CvController {
         return "Delete successful";
     }
 
-    @GetMapping("{user-id}/cv/{cv-id}/evaluate")
-//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert', 'read:candidate')")
-    public ScoreDto getEvaluateCV(@PathVariable("user-id") int userId, @PathVariable("cv-id") int cvId) throws JsonProcessingException {
-        return cvService.getEvaluateCv(userId, cvId);
-    }
-
     @PutMapping("/{user-id}/cv/{cv-id}/public")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public String searchable(@PathVariable("user-id") int userId, @PathVariable("cv-id") int cvId) {

@@ -14,4 +14,6 @@ public interface EvaluateService {
     List<AtsDto> ListAts(int cvId, int jobId, JobDescriptionDto dto, Principal principal) throws JsonProcessingException;
 
     List<AtsDto> getAts(int cvId, int jobId) throws JsonProcessingException;
+
+    ScoreDto getEvaluateCv(int userId, int cvId) throws JsonProcessingException;
 }
