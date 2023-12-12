@@ -12,8 +12,10 @@ import javax.persistence.*;
 @Setter
 public class AdminConfigurationResponse {
 
-    public Long vipMonthRatio;
+    public Long vipMonthlyPlan;
 
-    public Long vipYearRatio;
+    public Long vipAnnualPlan;
+
+
 
 }

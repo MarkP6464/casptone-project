@@ -12,6 +12,10 @@ public class TransactionResponse {
     @NotNull
     private Long expenditure;
 
+    private Long conversionAmount;
+
     @NotNull
     private Integer userId;
+
+    private String sentId;
 }

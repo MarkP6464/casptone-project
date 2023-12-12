@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public interface ApplicationLogService {
@@ -15,4 +16,8 @@ public interface ApplicationLogService {
     List<ApplicationLogResponse> getAllByHrID(Integer hrId);
 
     List<ApplicationLogResponse> getAllByCandidateId(Integer id);
+
+    ApplicationLogResponse updateDownloaded(Integer id);
+
+    ApplicationLogResponse updateSeen(Integer id);
 }
