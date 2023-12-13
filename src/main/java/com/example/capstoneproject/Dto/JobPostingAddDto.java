@@ -38,8 +38,6 @@ public class JobPostingAddDto {
 
     private String[] skill;
 
-    private Integer view;
-
     private Boolean ban;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

@@ -33,6 +33,9 @@ public class CvServiceImpl implements CvService {
     CvRepository cvRepository;
 
     @Autowired
+    ReviewAiService reviewAiService;
+
+    @Autowired
     ChatGPTServiceImpl chatGPTService;
 
     @Autowired
@@ -203,6 +206,14 @@ public class CvServiceImpl implements CvService {
         Optional<Users> user = usersRepository.findById(UsersId);
 
         if (user.isPresent()) {
+            List<Cv> cvs = cvRepository.findAllByUser_Id(UsersId);
+            if(cvs!=null){
+                for(Cv cv:cvs){
+                    if(cv.getResumeName().equals(dto.getResumeName())){
+                        throw new BadRequestException("Resume name already exists in another cv.");
+                    }
+                }
+            }
             Cv cv = new Cv();
             cv.setStatus(BasicStatus.ACTIVE);
 
@@ -410,7 +421,19 @@ public class CvServiceImpl implements CvService {
 
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
-            modelMapper.map(dto, cv);
+//            modelMapper.map(dto, cv);
+            List<Cv> cvs = cvRepository.findAllByUser_Id(cv.getUser().getId());
+            if(cvs!=null){
+                for(Cv cv1:cvs){
+                    if(cv1.getResumeName().equals(dto.getResumeName())){
+                        throw new BadRequestException("Resume name already exists in another cv.");
+                    }
+                }
+            }
+            cv.setResumeName(dto.getResumeName());
+            cv.setJobTitle(dto.getJobTitle());
+            cv.setCompanyName(dto.getCompanyName());
+            cv.setJobDescriptionTarget(dto.getJobDescriptionTarget());
 
             cvRepository.save(cv);
             return true;
@@ -469,16 +492,6 @@ public class CvServiceImpl implements CvService {
             historyService.create(cv.getUser().getId(),cvId);
         }
         return cvMapper.mapEntityToDto(cv);
-    }
-
-    private String getResultLabel(double percentage) {
-        if (percentage < 50) {
-            return "bad";
-        } else if (percentage >= 50  && percentage <= 79) {
-            return "improvement";
-        } else {
-            return "excellent";
-        }
     }
 
     @Override
@@ -861,6 +874,9 @@ public class CvServiceImpl implements CvService {
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
             transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
             String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
+            ReviewAiDto reviewAiDto = new ReviewAiDto();
+            reviewAiDto.setReview(response);
+            reviewAiService.createReviewAi(cvId,reviewAiDto);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
             return chatResponse;
