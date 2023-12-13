@@ -135,7 +135,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
-            errorBulletShort.setStatus(SectionLogStatus.Error);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletShort.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletShort.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletShort);
         }else {
             BulletPointDto errorBulletShort = new BulletPointDto();
@@ -152,7 +157,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
-            errorBulletPunctuated.setStatus(SectionLogStatus.Error);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletPunctuated.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletPunctuated.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletPunctuated);
         }else{
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
@@ -169,7 +179,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
             errorBulletCount.setResult("Find " + validShortBulletCount + " found in this section.");
-            errorBulletCount.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletCount.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletCount.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletCount);
         } else {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
@@ -188,7 +203,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
-            errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletPersonalPronouns);
         }else{
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
@@ -207,7 +227,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
-            errorBulletFillers.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletFillers.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletFillers.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletFillers);
         }else {
             BulletPointDto errorBulletFillers = new BulletPointDto();
@@ -226,7 +251,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
-            errorBulletQuantified.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletQuantified.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletQuantified.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletQuantified);
         }else {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
@@ -245,7 +275,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
             errorBulletGrammar.setResult(grammar);
-            errorBulletGrammar.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletGrammar.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletGrammar.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletGrammar);
         }else {
             BulletPointDto errorBulletGrammar = new BulletPointDto();
@@ -264,7 +299,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());
             errorBulletPassive.setResult("Take a look at bullet "+passive);
-            errorBulletPassive.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletPassive.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletPassive.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletPassive);
         }else {
             BulletPointDto errorBulletPassive = new BulletPointDto();
@@ -307,7 +347,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
             errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
-            errorBulletShort.setStatus(SectionLogStatus.Error);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletShort.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletShort.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletShort);
         }else {
             BulletPointDto errorBulletShort = new BulletPointDto();
@@ -324,7 +369,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
             errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
-            errorBulletPunctuated.setStatus(SectionLogStatus.Error);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletPunctuated.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletPunctuated.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletPunctuated);
         }else{
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
@@ -341,7 +391,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
             errorBulletCount.setResult("Only " + validShortBulletCount + " found in this section.");
-            errorBulletCount.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletCount.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletCount.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletCount);
         } else {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
@@ -360,7 +415,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
-            errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletPersonalPronouns);
         }else{
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
@@ -379,7 +439,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
-            errorBulletFillers.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletFillers.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletFillers.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletFillers);
         }else {
             BulletPointDto errorBulletFillers = new BulletPointDto();
@@ -398,7 +463,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
-            errorBulletQuantified.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletQuantified.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletQuantified.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletQuantified);
         }else {
             BulletPointDto errorBulletQuantified = new BulletPointDto();
@@ -417,7 +487,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
             errorBulletGrammar.setResult(grammar);
-            errorBulletGrammar.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletGrammar.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletGrammar.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletGrammar);
         }else {
             BulletPointDto errorBulletGrammar = new BulletPointDto();
@@ -436,7 +511,12 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());
             errorBulletPassive.setResult("Take a look at bullet "+passive);
-            errorBulletPassive.setStatus(SectionLogStatus.Warning);
+            // Check if evaluate.getCritical() is true or false
+            if (evaluate.getCritical()) {
+                errorBulletPassive.setStatus(SectionLogStatus.Error);
+            } else {
+                errorBulletPassive.setStatus(SectionLogStatus.Warning);
+            }
             allBulletPoints.add(errorBulletPassive);
         }else {
             BulletPointDto errorBulletPassive = new BulletPointDto();

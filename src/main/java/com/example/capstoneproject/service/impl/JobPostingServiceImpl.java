@@ -11,6 +11,7 @@ import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.JobPostingService;
+import com.example.capstoneproject.service.JobPostingViewService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.modelmapper.ModelMapper;
 import org.ocpsoft.prettytime.PrettyTime;
@@ -30,6 +31,9 @@ public class JobPostingServiceImpl implements JobPostingService {
 
     @Autowired
     UsersRepository usersRepository;
+
+    @Autowired
+    JobPostingViewRepository jobPostingViewRepository;
 
     @Autowired
     LikeRepository likeRepository;
@@ -52,6 +56,9 @@ public class JobPostingServiceImpl implements JobPostingService {
     @Autowired
     JobPostingRepository jobPostingRepository;
 
+    @Autowired
+    JobPostingViewService jobPostingViewService;
+
     @Override
     public boolean createDraft(Integer hrId, JobPostingAddDto dto) {
         Optional<UsersDto> usersOptional = Optional.ofNullable(modelMapper.map(usersRepository.findUsersById(hrId), UsersDto.class));
@@ -69,7 +76,6 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setAbout(dto.getAbout());
             jobPosting.setBenefit(dto.getBenefit());
             jobPosting.setSkill(String.join(",", dto.getSkill()));
-            jobPosting.setView(0);
             if(dto.getApplyAgain()==null){
                 jobPosting.setApplyAgain(0);
             }
@@ -104,7 +110,6 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setAbout(dto.getAbout());
             jobPosting.setBenefit(dto.getBenefit());
             jobPosting.setSkill(String.join(",", dto.getSkill()));
-            jobPosting.setView(0);
             if(dto.getApplyAgain()==null){
                 jobPosting.setApplyAgain(0);
             }
@@ -262,6 +267,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             if(jobPostingOptional.isPresent()){
                 JobPosting jobPosting = jobPostingOptional.get();
                 if(Objects.equals(users.getId(), jobPosting.getUser().getId())){
+                    List<JobPostingView> jobPostingViews = jobPostingViewRepository.findAllByJobPosting_Id(jobPostingId);
                     jobPostingViewDto.setId(jobPosting.getId());
                     jobPostingViewDto.setTitle(jobPosting.getTitle());
                     jobPostingViewDto.setCompanyName(jobPosting.getCompanyName());
@@ -269,7 +275,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingViewDto.setAbout(jobPosting.getAbout());
                     jobPostingViewDto.setBenefit(jobPosting.getBenefit());
                     jobPostingViewDto.setSkill(jobPosting.getSkill().split(","));
-                    jobPostingViewDto.setView(jobPosting.getView());
+                    jobPostingViewDto.setView(jobPostingViews.size());
                     jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
                     jobPostingViewDto.setLocation(jobPosting.getLocation());
                     jobPostingViewDto.setDescription(jobPosting.getDescription());
@@ -298,6 +304,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndShareAndStatusAndBanIsFalse(jobPostingId,StatusReview.Published, ACTIVE);
         JobPostingViewUserDetailDto jobPostingViewDto = new JobPostingViewUserDetailDto();
         if(jobPostingOptional.isPresent()){
+            List<JobPostingView> jobPostingViews = jobPostingViewRepository.findAllByJobPosting_Id(jobPostingId);
             JobPosting jobPosting = jobPostingOptional.get();
             jobPostingViewDto.setId(jobPosting.getId());
             jobPostingViewDto.setTitle(jobPosting.getTitle());
@@ -306,7 +313,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPostingViewDto.setAbout(jobPosting.getAbout());
             jobPostingViewDto.setBenefit(jobPosting.getBenefit());
             jobPostingViewDto.setSkill(jobPosting.getSkill().split(","));
-            jobPostingViewDto.setView(jobPosting.getView());
+            jobPostingViewDto.setView(jobPostingViews.size());
             jobPostingViewDto.setWorkingType(jobPosting.getWorkingType());
             jobPostingViewDto.setLocation(jobPosting.getLocation());
             jobPostingViewDto.setDescription(jobPosting.getDescription());
@@ -324,6 +331,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                 jobPostingViewDto.setLiked(false);
             }
 
+            jobPostingViewService.createJobPostingView(userId,jobPostingId);
             return jobPostingViewDto;
         }else{
             throw new BadRequestException("Job Posting Id not found.");
@@ -340,10 +348,11 @@ public class JobPostingServiceImpl implements JobPostingService {
 
             List<JobPostingViewOverDto> result = new ArrayList<>();
             for (JobPosting jobPosting : jobPostings) {
+                List<JobPostingView> jobPostingViews = jobPostingViewRepository.findAllByJobPosting_Id(jobPosting.getId());
                 JobPostingViewOverDto jobPostingViewDto = new JobPostingViewOverDto();
                 jobPostingViewDto.setId(jobPosting.getId());
                 jobPostingViewDto.setTitle(jobPosting.getTitle());
-                jobPostingViewDto.setView(jobPosting.getView());
+                jobPostingViewDto.setView(jobPostingViews.size());
                 if(jobPosting.getDeadline().isBefore(current)){
                     jobPostingViewDto.setStatus(StatusReview.Overdue);
                 }else {

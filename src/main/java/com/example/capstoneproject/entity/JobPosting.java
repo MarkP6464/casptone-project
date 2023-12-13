@@ -49,8 +49,6 @@ public class JobPosting {
     @Column(columnDefinition = "TEXT")
     private String skill;
 
-    private Integer view;
-
     private Integer applyAgain;
 
     private String salary;

@@ -4,8 +4,8 @@ import com.example.capstoneproject.Dto.ChatResponse;
 import com.example.capstoneproject.Dto.ChatResponseArray;
 import com.example.capstoneproject.Dto.ReWritterExperienceDto;
 import com.example.capstoneproject.Dto.SummaryGenerationDto;
-import com.example.capstoneproject.service.CoverLetterService;
 import com.example.capstoneproject.service.CvService;
+//import com.example.capstoneproject.service.impl.Auth0Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +51,7 @@ public class ChatGptController {
     }
 
     @PostMapping("/cv/{cv-id}/review")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId,
@@ -69,4 +69,21 @@ public class ChatGptController {
         return ResponseEntity.ok(result);
     }
 
+
+//    @Autowired
+//    private Auth0Service auth0Service;
+//
+//    @PostMapping("/add-role")
+//    public void addRoleToUser(@RequestParam String userId, @RequestParam String roleName) {
+//        auth0Service.addRoleToUser(userId, roleName);
+//    }
+//
+//    @PostMapping("/add-role1")
+//    public void addRoleToUser1(@RequestParam String userId, @RequestParam String roleName, @RequestParam String token) {
+//        auth0Service.addRoleToUser1(userId, roleName, token);
+//    }
+//    @PostMapping("/add-role12")
+//    public void addRoleToUser2( @RequestParam String token) {
+//        auth0Service.addRoleToUser2(token);
+//    }
 }

@@ -116,6 +116,14 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
+            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(userId);
+            if(coverLetters!=null){
+                for(CoverLetter coverLetter:coverLetters){
+                    if (coverLetter.getTitle().equals(dto.getTitle())) {
+                        throw new BadRequestException("Title already exists in another cover letter.");
+                    }
+                }
+            }
             CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
             coverLetter.setTitle(dto.getTitle());
             coverLetter.setCv(cv);
@@ -153,6 +161,14 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             CoverLetter existingCoverLetter = existingCoverLetterOptional.get();
             if (!Objects.equals(existingCoverLetter.getCv().getId(), cvId)) {
                 throw new IllegalArgumentException("Cover Letter does not belong to CV with id " + cvId);
+            }
+            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(existingCoverLetter.getCv().getUser().getId());
+            if(coverLetters!=null){
+                for(CoverLetter coverLetter:coverLetters){
+                    if (coverLetter.getTitle().equals(dto.getTitle())) {
+                        throw new BadRequestException("Title already exists in another cover letter.");
+                    }
+                }
             }
             if (dto.getTitle() != null && !dto.getTitle().equals(existingCoverLetter.getTitle())) {
                 existingCoverLetter.setTitle(dto.getTitle());
@@ -233,6 +249,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterDto.setCompany(coverLetter.getCompany());
                 coverLetterDto.setDescription(coverLetter.getDescription());
                 coverLetterDto.setCvId(coverLetter.getCv().getId());
+                coverLetterDto.setResumeName(coverLetter.getCv().getResumeName());
                 coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterDto.class));
             }
         }else {
