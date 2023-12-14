@@ -77,7 +77,7 @@ public class CvController {
 
     @PutMapping("/{user-id}/contact")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
-    public UsersViewDto updateContact(@PathVariable("user-id") int UsersId, @RequestBody UsersViewDto dto) {
+    public UsersViewDto updateContact1(@PathVariable("user-id") int UsersId, @RequestBody UsersViewDto dto) {
         return cvService.updateCvContact(UsersId, dto);
     }
 

@@ -16,6 +16,7 @@ import javax.persistence.Enumerated;
 @Setter
 public class SectionLogDto {
     private String Bullet;
+    private Integer count;
 
     @Enumerated(EnumType.STRING)
     private SectionLogStatus Status;

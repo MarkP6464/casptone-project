@@ -5,14 +5,11 @@ import lombok.*;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-
-@Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class BulletPointDto {
+public class BulletPointComponentDto {
     private String title;
     private String description;
     private String result;
@@ -20,5 +17,4 @@ public class BulletPointDto {
 
     @Enumerated(EnumType.STRING)
     private SectionLogStatus status;
-
 }

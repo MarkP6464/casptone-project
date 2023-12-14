@@ -11,9 +11,11 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class CoverLetterUpdateDto {
-    private String title;
     private String dear;
     private LocalDate date;
     private String company;
     private String description;
+    private String jobTitle;
+    private String jobDescription;
+    private Integer cvId;
 }

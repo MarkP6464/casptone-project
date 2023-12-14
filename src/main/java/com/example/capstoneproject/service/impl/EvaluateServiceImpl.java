@@ -112,29 +112,39 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         List<BulletPointDto> allBulletPoints = new ArrayList<>();
 
-        List<Integer> shortBulletErrors = new ArrayList<>();
-        List<Integer> punctuatedBulletErrors = new ArrayList<>();
+        StringBuilder shortBulletErrors = new StringBuilder();
+        StringBuilder punctuatedBulletErrors = new StringBuilder();
         int validShortBulletCount = 0;
 
         for (int i = 0; i < sentences.size(); i++) {
             String sentence = sentences.get(i);
+
             if (sentence.length() < 20) {
-                shortBulletErrors.add(i + 1);
+                if (shortBulletErrors.length() > 0) {
+                    shortBulletErrors.append(", ");
+                }
+                shortBulletErrors.append(i + 1);
             }
 
             if (!sentence.endsWith(".")) {
-                punctuatedBulletErrors.add(i + 1);
+                if (punctuatedBulletErrors.length() > 0) {
+                    punctuatedBulletErrors.append(", ");
+                }
+                punctuatedBulletErrors.append(i + 1);
             }
 
             validShortBulletCount++;
         }
+        String shortBulletErrorsResult = shortBulletErrors.toString();
+        String punctuatedBulletErrorsResult = punctuatedBulletErrors.toString();
 
-        if (!shortBulletErrors.isEmpty()) {
+        if (!shortBulletErrorsResult.isEmpty()) {
             BulletPointDto errorBulletShort = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
-            errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
+            errorBulletShort.setResult("Take a look at bullet " + shortBulletErrorsResult + ".");
+            errorBulletShort.setCount(countNumbers(shortBulletErrorsResult));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletShort.setStatus(SectionLogStatus.Error);
@@ -151,12 +161,13 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletShort);
         }
 
-        if (!punctuatedBulletErrors.isEmpty()) {
+        if (!punctuatedBulletErrorsResult.isEmpty()) {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
-            errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
+            errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrorsResult + ".");
+            errorBulletPunctuated.setCount(countNumbers(punctuatedBulletErrorsResult));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletPunctuated.setStatus(SectionLogStatus.Error);
@@ -179,6 +190,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
             errorBulletCount.setResult("Find " + validShortBulletCount + " found in this section.");
+            errorBulletCount.setCount(validShortBulletCount);
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletCount.setStatus(SectionLogStatus.Error);
@@ -203,6 +215,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
+            errorBulletPersonalPronouns.setCount(countNumbers(personalPronouns));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
@@ -227,6 +240,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
+            errorBulletFillers.setCount(countNumbers(fillerWord));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletFillers.setStatus(SectionLogStatus.Error);
@@ -251,6 +265,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
+            errorBulletQuantified.setCount(countNumbers(quantified));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletQuantified.setStatus(SectionLogStatus.Error);
@@ -275,6 +290,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
             errorBulletGrammar.setResult(grammar);
+            errorBulletGrammar.setCount(checkGrammarNumber(sentences));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletGrammar.setStatus(SectionLogStatus.Error);
@@ -299,6 +315,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());
             errorBulletPassive.setResult("Take a look at bullet "+passive);
+            errorBulletPassive.setCount(countNumbers(passive));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletPassive.setStatus(SectionLogStatus.Error);
@@ -324,29 +341,39 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         List<BulletPointDto> allBulletPoints = new ArrayList<>();
 
-        List<Integer> shortBulletErrors = new ArrayList<>();
-        List<Integer> punctuatedBulletErrors = new ArrayList<>();
+        StringBuilder shortBulletErrors = new StringBuilder();
+        StringBuilder punctuatedBulletErrors = new StringBuilder();
         int validShortBulletCount = 0;
 
         for (int i = 0; i < sentences.size(); i++) {
             String sentence = sentences.get(i);
+
             if (sentence.length() < 20) {
-                shortBulletErrors.add(i + 1);
+                if (shortBulletErrors.length() > 0) {
+                    shortBulletErrors.append(", ");
+                }
+                shortBulletErrors.append(i + 1);
             }
 
             if (!sentence.endsWith(".")) {
-                punctuatedBulletErrors.add(i + 1);
+                if (punctuatedBulletErrors.length() > 0) {
+                    punctuatedBulletErrors.append(", ");
+                }
+                punctuatedBulletErrors.append(i + 1);
             }
 
             validShortBulletCount++;
         }
+        String shortBulletErrorsResult = shortBulletErrors.toString();
+        String punctuatedBulletErrorsResult = punctuatedBulletErrors.toString();
 
-        if (!shortBulletErrors.isEmpty()) {
+        if (!shortBulletErrorsResult.isEmpty()) {
             BulletPointDto errorBulletShort = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(1);
             errorBulletShort.setTitle(evaluate.getTitle());
             errorBulletShort.setDescription(evaluate.getDescription());
-            errorBulletShort.setResult("Take a look at bullet " + shortBulletErrors.toString() + ".");
+            errorBulletShort.setResult("Take a look at bullet " + shortBulletErrorsResult + ".");
+            errorBulletShort.setCount(countNumbers(shortBulletErrorsResult));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletShort.setStatus(SectionLogStatus.Error);
@@ -363,12 +390,13 @@ public class EvaluateServiceImpl implements EvaluateService {
             allBulletPoints.add(errorBulletShort);
         }
 
-        if (!punctuatedBulletErrors.isEmpty()) {
+        if (!punctuatedBulletErrorsResult.isEmpty()) {
             BulletPointDto errorBulletPunctuated = new BulletPointDto();
             Evaluate evaluate = evaluateRepository.findById(2);
             errorBulletPunctuated.setTitle(evaluate.getTitle());
             errorBulletPunctuated.setDescription(evaluate.getDescription());
-            errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrors.toString() + ".");
+            errorBulletPunctuated.setResult("Take a look at bullet " + punctuatedBulletErrorsResult + ".");
+            errorBulletPunctuated.setCount(countNumbers(punctuatedBulletErrorsResult));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletPunctuated.setStatus(SectionLogStatus.Error);
@@ -390,7 +418,8 @@ public class EvaluateServiceImpl implements EvaluateService {
             Evaluate evaluate = evaluateRepository.findById(3);
             errorBulletCount.setTitle(evaluate.getTitle());
             errorBulletCount.setDescription(evaluate.getDescription());
-            errorBulletCount.setResult("Only " + validShortBulletCount + " found in this section.");
+            errorBulletCount.setResult("Find " + validShortBulletCount + " found in this section.");
+            errorBulletCount.setCount(validShortBulletCount);
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletCount.setStatus(SectionLogStatus.Error);
@@ -415,6 +444,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setResult("Take a look at bullet " + personalPronouns + ".");
+            errorBulletPersonalPronouns.setCount(countNumbers(personalPronouns));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
@@ -438,7 +468,8 @@ public class EvaluateServiceImpl implements EvaluateService {
             Evaluate evaluate = evaluateRepository.findById(5);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
-            errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
+            errorBulletFillers.setResult(fillerWord);
+            errorBulletFillers.setCount(countNumbers(fillerWord));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletFillers.setStatus(SectionLogStatus.Error);
@@ -463,6 +494,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
             errorBulletQuantified.setResult("Take a look at bullet " + quantified + ".");
+            errorBulletQuantified.setCount(countNumbers(quantified));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletQuantified.setStatus(SectionLogStatus.Error);
@@ -487,6 +519,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
             errorBulletGrammar.setResult(grammar);
+            errorBulletGrammar.setCount(checkGrammarNumber(sentences));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletGrammar.setStatus(SectionLogStatus.Error);
@@ -511,6 +544,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());
             errorBulletPassive.setResult("Take a look at bullet "+passive);
+            errorBulletPassive.setCount(countNumbers(passive));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
                 errorBulletPassive.setStatus(SectionLogStatus.Error);
@@ -970,13 +1004,33 @@ public class EvaluateServiceImpl implements EvaluateService {
             for (String sentenceText : sentences1) {
                 List<RuleMatch> matches = langTool.check(sentenceText);
                 for (RuleMatch match : matches) {
-                    result.append(match.getMessage().replaceAll("<[^>]*>", "").replaceAll("\\?$", "").trim());
+                    String errorMessage = match.getMessage();
+                    String suggestedReplacements = String.join(", ", match.getSuggestedReplacements());
+
+                    result.append("Error: ").append(errorMessage).append("\n");
+                    result.append("Suggestions: ").append(suggestedReplacements).append("\n");
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return result.toString();
+    }
+    public int checkGrammarNumber(List<String> sentences1) {
+        int errorCount = 0;
+
+        try {
+            for (String sentenceText : sentences1) {
+                List<RuleMatch> matches = langTool.check(sentenceText);
+                if (!matches.isEmpty()) {
+                    errorCount++;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return errorCount;
     }
 
     private String checkPersonalPronouns(List<String> sentences1) {
@@ -1012,7 +1066,51 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     private String checkFiller(List<String> sentences1) {
         StringBuilder result = new StringBuilder();
+        StringBuilder bullet = new StringBuilder();
+        boolean hasError = false;
         boolean firstMatch = true;
+
+        // Lặp để kiểm tra filter words
+        for (int i = 0; i < sentences1.size(); i++) {
+            String sentenceText = sentences1.get(i);
+            Annotation document = new Annotation(sentenceText);
+            pipeline.annotate(document);
+            List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
+            boolean hasPersonalPronoun = false;
+            StringBuilder filterWords = new StringBuilder();
+
+            for (CoreMap sentence : sentences) {
+                for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+                    String word = token.get(CoreAnnotations.TextAnnotation.class);
+                    String pos = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+
+                    // Kiểm tra nếu từ là filler word
+                    if (pos.equals("RB") || pos.equals("RB$")) {
+                        hasPersonalPronoun = true;
+
+                        // Thêm từ vào chuỗi tạm thời
+                        filterWords.append(word).append(" ");
+                    }
+                }
+            }
+
+            // Nếu câu chứa ít nhất một lỗi
+            if (hasPersonalPronoun) {
+                if (filterWords.length() > 0) {
+                    if (hasError) {
+                        result.append(", ");
+                    }
+                    // Kiểm tra nếu chưa có filter word nào, thêm "This is filter words: "
+                    if (!hasError) {
+                        result.append("This is filter words: ");
+                        hasError = true;
+                    }
+                    result.append(filterWords.toString().trim());
+                }
+            }
+        }
+
+        // Lặp để kiểm tra bullets
         for (int i = 0; i < sentences1.size(); i++) {
             String sentenceText = sentences1.get(i);
             Annotation document = new Annotation(sentenceText);
@@ -1031,13 +1129,19 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             if (hasPersonalPronoun) {
                 if (!firstMatch) {
-                    result.append(", ");
+                    bullet.append(", ");
                 }
-                result.append(i + 1);
+                bullet.append(i + 1);
                 firstMatch = false;
             }
         }
-        return result.toString();
+        String a = "Take a look at bullet: " + bullet;
+
+        if (!hasError) {
+            return "There are currently no bullets found.";
+        }
+
+        return result.toString() + "\n" + a;
     }
 
     private String checkPassiveVoice(List<String> sentences1) {
@@ -1388,6 +1492,25 @@ public class EvaluateServiceImpl implements EvaluateService {
         } else {
             return "excellent";
         }
+    }
+
+    public int countNumbers(String input) {
+        if (input == null || input.isEmpty()) {
+            return 0;
+        }
+
+        // Sử dụng regex để tách các số
+        String[] numbers = input.split("\\D+");
+
+        // Đếm số lượng các số
+        int count = 0;
+        for (String number : numbers) {
+            if (!number.isEmpty()) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
 }

@@ -1,6 +1,5 @@
 package com.example.capstoneproject.repository;
 
-import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.PriceOption;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -59,6 +59,7 @@ public class ExpertServiceImpl implements ExpertService {
     @Autowired
     PriceOptionService priceOptionService;
 
+
     @Override
     public boolean updateExpert(Integer expertId, ExpertUpdateDto dto) {
         Users expertOptional = expertRepository.findExpertByIdAndRole_RoleName(expertId, EXPERT);
@@ -150,7 +151,6 @@ public class ExpertServiceImpl implements ExpertService {
 
     @Override
     public List<ExpertViewChooseDto> getExpertList(String search) {
-//        List<Expert> experts = expertRepository.findAllByRole_RoleNameAndPunishFalse(EXPERT);
         List<Expert> experts;
         if (search == null) {
             experts = expertRepository.findAllByRole_RoleNameAndPunishFalse(EXPERT);
@@ -160,9 +160,10 @@ public class ExpertServiceImpl implements ExpertService {
                     .filter(expert -> isMatched(expert, search))
                     .collect(Collectors.toList());
         }
-
         List<ExpertViewChooseDto> result = experts.stream()
                 .map(this::convertToExpertViewChooseDto)
+                .filter(Objects::nonNull) // Filter out null values
+                .filter(dto -> dto.getPrice() != null) // Filter out DTOs with null price
                 .collect(Collectors.toList());
 
         return result;
@@ -276,19 +277,43 @@ public class ExpertServiceImpl implements ExpertService {
     }
 
     private ExpertViewChooseDto convertToExpertViewChooseDto(Expert expert) {
-        ExpertViewChooseDto viewChooseDto = new ExpertViewChooseDto();
-        viewChooseDto.setId(expert.getId());
-        viewChooseDto.setName(expert.getName());
-        viewChooseDto.setJobTitle(expert.getJobTitle());
-        viewChooseDto.setCompany(expert.getCompany());
-        viewChooseDto.setStar(calculatorStar(expert.getId()));
-        viewChooseDto.setAvatar(expert.getAvatar());
-        viewChooseDto.setCompany(expert.getCompany());
-        viewChooseDto.setPrice(expert.getPrice());
-        viewChooseDto.setExperience(expert.getExperience());
-        viewChooseDto.setNumberReview(calculatorReview(expert.getId()));
-        return viewChooseDto;
+        List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
+
+        if (priceOptions != null && !priceOptions.isEmpty()) {
+            ExpertViewChooseDto viewChooseDto = new ExpertViewChooseDto();
+            viewChooseDto.setId(expert.getId());
+            viewChooseDto.setName(expert.getName());
+            viewChooseDto.setJobTitle(expert.getJobTitle());
+            viewChooseDto.setCompany(expert.getCompany());
+            viewChooseDto.setStar(calculatorStar(expert.getId()));
+            viewChooseDto.setAvatar(expert.getAvatar());
+            viewChooseDto.setCompany(expert.getCompany());
+
+            // Collect prices excluding null values
+            List<Long> validPrices = priceOptions.stream()
+                    .map(PriceOption::getPrice)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (!validPrices.isEmpty()) {
+                long minPrice = Collections.min(validPrices);
+                long maxPrice = Collections.max(validPrices);
+
+                if (minPrice != maxPrice) {
+                    viewChooseDto.setPrice(formatPrice(minPrice) + "-" + formatPrice(maxPrice));
+                } else {
+                    viewChooseDto.setPrice(formatPrice(minPrice));
+                }
+
+                viewChooseDto.setExperience(expert.getExperience());
+                viewChooseDto.setNumberReview(calculatorReview(expert.getId()));
+                return viewChooseDto;
+            }
+        }
+
+        return null;
     }
+
 
     private Double calculatorStar(Integer expertId) {
         List<ReviewResponse> reviewResponses = reviewResponseRepository.findAllByReviewRequest_ExpertId(expertId);
@@ -335,5 +360,21 @@ public class ExpertServiceImpl implements ExpertService {
         }
     }
 
+    public static String formatPrice(long price) {
+        String priceStr = String.valueOf(price);
 
+        int length = priceStr.length();
+        StringBuilder formattedPrice = new StringBuilder();
+
+        for (int i = length - 1; i >= 0; i--) {
+            formattedPrice.insert(0, priceStr.charAt(i));
+
+            // Insert a dot after every 3 digits, but not at the beginning
+            if ((length - i) % 3 == 0 && i != 0) {
+                formattedPrice.insert(0, ".");
+            }
+        }
+
+        return formattedPrice.toString();
+    }
 }

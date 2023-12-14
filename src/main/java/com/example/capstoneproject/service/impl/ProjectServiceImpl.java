@@ -271,6 +271,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 sectionLogDto1.setSection(section);
                 sectionLogDto1.setEvaluate(evaluate);
                 sectionLogDto1.setBullet(bulletPointDto.getResult());
+                sectionLogDto1.setCount(bulletPointDto.getCount());
                 sectionLogDto1.setStatus(bulletPointDto.getStatus());
                 sectionLogService.create(sectionLogDto1);
                 evaluateId++;
@@ -343,6 +344,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             sectionLogDto1.setSection(sectionMapper.mapDtoToEntity(section));
             sectionLogDto1.setEvaluate(evaluate);
             sectionLogDto1.setBullet(bulletPointDto.getResult());
+            sectionLogDto1.setCount(bulletPointDto.getCount());
             sectionLogDto1.setStatus(bulletPointDto.getStatus());
             sectionLogService.create(sectionLogDto1);
             evaluateId++;
