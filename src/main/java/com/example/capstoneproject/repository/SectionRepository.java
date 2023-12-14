@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface SectionRepository extends JpaRepository<Section, Integer> {
-    @Query("SELECT new com.example.capstoneproject.Dto.BulletPointDto(e.title, e.description, sl.Bullet, sl.Status) " +
+    @Query("SELECT new com.example.capstoneproject.Dto.BulletPointDto(e.title, e.description, sl.Bullet,sl.count, sl.Status) " +
             "FROM Section s " +
             "JOIN s.sectionLogs sl " +
             "JOIN sl.evaluate e " +

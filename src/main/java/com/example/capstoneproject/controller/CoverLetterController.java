@@ -71,9 +71,9 @@ public class CoverLetterController {
         return coverLetterService.getAllCoverLetter(userId);
     }
 
-    @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}")
+    @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}/content")
     @PreAuthorize("hasAuthority('update:candidate')")
-    public String updateCoverLetter(@PathVariable("cv-id") int cvId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
+    public String updateContentCoverLetter(@PathVariable("cv-id") int cvId, @PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateDto Dto) {
         boolean check = coverLetterService.updateCoverLetter(cvId, coverLetterId, Dto);
         if (check) {
             return "Changes saved";
@@ -81,6 +81,18 @@ public class CoverLetterController {
             return "Changes fail";
         }
     }
+
+    @PutMapping("/user/cv/cover-letter/{cover-letter-id}/title")
+    @PreAuthorize("hasAuthority('update:candidate')")
+    public String updateTitleCoverLetter(@PathVariable("cover-letter-id") int coverLetterId, @RequestBody CoverLetterUpdateTitleDto Dto) {
+        boolean check = coverLetterService.updateTitleCoverLetter(coverLetterId, Dto);
+        if (check) {
+            return "Changes saved";
+        } else {
+            return "Changes fail";
+        }
+    }
+
 
     @DeleteMapping("/user/{user-id}/cover-letter/{cover-letter-id}")
     @PreAuthorize("hasAuthority('delete:candidate')")

@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.CoverLetterMapper;
 import com.example.capstoneproject.repository.CoverLetterRepository;
@@ -97,6 +98,8 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetter.setDate(dto.getDate());
                 coverLetter.setCompany(dto.getCompany());
                 coverLetter.setDear(dto.getDear());
+                coverLetter.setJobTitle(dto.getJob_title());
+                coverLetter.setJobDescription(dto.getJob_description());
                 coverLetter.setCv(cv);
                 coverLetterRepository.save(coverLetter);
                 ChatResponse chatResponse = new ChatResponse();
@@ -148,8 +151,6 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterViewDto.setTitle(coverLetter.getTitle());
                 coverLetterViewDtos.add(coverLetterViewDto);
             }
-        } else {
-            throw new BadRequestException("Currently, the system does not find any Cover Letter that exists in User.");
         }
         return coverLetterViewDtos;
     }
@@ -162,17 +163,15 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             if (!Objects.equals(existingCoverLetter.getCv().getId(), cvId)) {
                 throw new IllegalArgumentException("Cover Letter does not belong to CV with id " + cvId);
             }
-            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(existingCoverLetter.getCv().getUser().getId());
-            if(coverLetters!=null){
-                for(CoverLetter coverLetter:coverLetters){
-                    if (coverLetter.getTitle().equals(dto.getTitle())) {
-                        throw new BadRequestException("Title already exists in another cover letter.");
-                    }
-                }
+
+            if (dto.getJobTitle() != null && !dto.getJobTitle().equals(existingCoverLetter.getJobTitle())) {
+                existingCoverLetter.setJobTitle(dto.getJobTitle());
             }
-            if (dto.getTitle() != null && !dto.getTitle().equals(existingCoverLetter.getTitle())) {
-                existingCoverLetter.setTitle(dto.getTitle());
+
+            if (dto.getJobDescription() != null && !dto.getJobDescription().equals(existingCoverLetter.getJobDescription())) {
+                existingCoverLetter.setJobDescription(dto.getJobDescription());
             }
+
 
             if (dto.getDear() != null && !dto.getDear().equals(existingCoverLetter.getDear())) {
                 existingCoverLetter.setDear(dto.getDear());
@@ -205,6 +204,40 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                     // Nếu chuỗi sau khi loại bỏ khoảng trắng trở thành rỗng, lấy lại giá trị cũ
                     existingCoverLetter.setDescription(existingCoverLetter.getDescription());
                 }
+            }
+
+            if(dto.getCvId() !=null){
+                Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(dto.getCvId(), BasicStatus.ACTIVE);
+                if(cvOptional.isPresent()){
+                    Cv cv = cvOptional.get();
+                    existingCoverLetter.setCv(cv);
+                }else{
+                    throw new BadRequestException("This cv id not exist.");
+                }
+            }
+
+            coverLetterRepository.save(existingCoverLetter);
+            return true;
+        } else {
+            throw new IllegalArgumentException("Cover Letter ID not found");
+        }
+    }
+
+    @Override
+    public boolean updateTitleCoverLetter(Integer coverLetterId, CoverLetterUpdateTitleDto dto) {
+        Optional<CoverLetter> existingCoverLetterOptional = coverLetterRepository.findById(coverLetterId);
+        if (existingCoverLetterOptional.isPresent()) {
+            CoverLetter existingCoverLetter = existingCoverLetterOptional.get();
+            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(existingCoverLetter.getCv().getUser().getId());
+            if(coverLetters!=null){
+                for(CoverLetter coverLetter:coverLetters){
+                    if (coverLetter.getTitle().equals(dto.getTitle())) {
+                        throw new BadRequestException("Title already exists in another cover letter.");
+                    }
+                }
+            }
+            if (dto.getTitle() != null && !dto.getTitle().equals(existingCoverLetter.getTitle())) {
+                existingCoverLetter.setTitle(dto.getTitle());
             }
 
             coverLetterRepository.save(existingCoverLetter);
@@ -248,6 +281,8 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterDto.setDate(coverLetter.getDate());
                 coverLetterDto.setCompany(coverLetter.getCompany());
                 coverLetterDto.setDescription(coverLetter.getDescription());
+                coverLetterDto.setJobTitle(coverLetter.getJobTitle());
+                coverLetterDto.setJobDescription(coverLetter.getJobDescription());
                 coverLetterDto.setCvId(coverLetter.getCv().getId());
                 coverLetterDto.setResumeName(coverLetter.getCv().getResumeName());
                 coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterDto.class));

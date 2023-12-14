@@ -16,6 +16,8 @@ public class SectionLog {
 
     private String Bullet;
 
+    private Integer count;
+
     @Enumerated(EnumType.STRING)
     private SectionLogStatus Status;
 

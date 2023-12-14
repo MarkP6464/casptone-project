@@ -17,6 +17,8 @@ public class CoverLetterDto {
     private LocalDate date;
     private String company;
     private String description;
+    private String jobTitle;
+    private String jobDescription;
     private UserCoverLetterDto user;
     private Integer cvId;
     private String resumeName;

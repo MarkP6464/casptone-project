@@ -28,6 +28,12 @@ public class CoverLetter {
     private String company;
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "NVARCHAR(100)")
+    private String jobTitle;
+
+    @Column(columnDefinition = "TEXT")
+    private String jobDescription;
     @ManyToOne
     @JoinColumn(name = "cv_id")
     private Cv cv;

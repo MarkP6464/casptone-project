@@ -20,7 +20,7 @@ public class ExpertViewChooseDto {
 
     private String company;
 
-    private Double price;
+    private String price;
 
     private Integer experience;
 
