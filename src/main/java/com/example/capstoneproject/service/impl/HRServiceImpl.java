@@ -71,10 +71,9 @@ public class HRServiceImpl implements HRService {
     }
 
     @Override
-    public void register(TransactionResponse dto) throws Exception {
+    public String register(TransactionResponse dto) throws Exception {
         Users users = usersRepository.findUsersById(dto.getUserId()).get();
         Double expenditure = dto.getExpenditure();
-        Double conversionAmount = dto.getConversionAmount();
         if (Objects.nonNull(users)) {
             if (users instanceof HR) {
                 HR hr = (HR) users;
@@ -82,33 +81,26 @@ public class HRServiceImpl implements HRService {
                 AdminConfigurationResponse adminConfigurationDto = adminConfigurationService.getByAdminId(1);
                 if (adminConfigurationDto.getVipMonthRatio().equals(expenditure) || adminConfigurationDto.getVipYearRatio().equals(expenditure)) {
                     if (adminConfigurationDto.getVipMonthRatio().equals(expenditure)) {
-                        if (Long.valueOf(30).equals(conversionAmount)) {
                             transactionDto.setResponseMessage("extend 1 month subscription");
                             transactionDto.setExpenditure(expenditure);
                             transactionDto.setTransactionType(TransactionType.ADD);
                             transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
-                        }else {
-                            throw new BadRequestException("Not a valid register subscription params");
-                        }
                     }else if (adminConfigurationDto.getVipYearRatio().equals(expenditure)) {
-                        if (Long.valueOf(365).equals(conversionAmount)) {
                             transactionDto.setResponseMessage("extend 1 year subscription");
                             transactionDto.setExpenditure(expenditure);
                             transactionDto.setTransactionType(TransactionType.ADD);
                             transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
-                        } else {
-                            throw new BadRequestException("Not a valid register subscription params");
-                        }
                     }
                     transactionDto.setUserId(dto.getUserId());
-                    transactionService.create(transactionDto);
+                    String s = transactionService.create(transactionDto);
+                    return s;
                 } else {
-                    throw new BadRequestException("Not a valid register subscription params");
+                    throw new BadRequestException("Not a valid register subscription plan");
                 }
             } else {
                 throw new ForbiddenException("You are not HR!");
             }
-        }
+        } else throw new BadRequestException("Not found user id");
     }
     @Scheduled(cron = "0 0 0 * * ?")
     public void checkSubscription(){

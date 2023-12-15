@@ -23,7 +23,7 @@ public class AdminConfigurationController {
     }
 
     @PutMapping("/information/config")
-    @PreAuthorize("hasAnyAuthority('update:admin')")
+//    @PreAuthorize("hasAnyAuthority('update:admin')")
     public ResponseEntity<?> update(@RequestBody AdminConfigurationResponse dto) throws JsonProcessingException {
         return ResponseEntity.ok(adminConfigurationService.update(dto));
     }

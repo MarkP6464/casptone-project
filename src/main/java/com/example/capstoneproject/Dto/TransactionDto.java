@@ -38,4 +38,8 @@ public class TransactionDto {
     private Integer userId;
 
     private LocalDateTime createdDate;
+
+    private String bankName;
+
+    private String bankAccountNumber;
 }

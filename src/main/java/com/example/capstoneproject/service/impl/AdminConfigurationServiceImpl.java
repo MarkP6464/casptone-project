@@ -48,9 +48,8 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
                 AdminConfigurationResponse adminConfigurationResponse = admin.getConfiguration();
                 modelMapper.map(dto, adminConfigurationResponse);
                 admin.setConfiguration(adminConfigurationResponse);
-                usersRepository.save(admin);
-            }
-        }
-        throw new BadRequestException("id not valid to token");
+                return modelMapper.map(usersRepository.save(admin), AdminConfigurationResponse.class);
+            } else throw new BadRequestException("You don't have permission to update! ");
+        } else throw new BadRequestException("id not valid to token");
     }
 }

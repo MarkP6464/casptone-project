@@ -16,5 +16,5 @@ public interface HRService {
 
     HRDto update(HRResponse dto);
 
-    void register(TransactionResponse transactionDto) throws Exception;
+    String register(TransactionResponse transactionDto) throws Exception;
 }
