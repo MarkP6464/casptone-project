@@ -1,10 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.ApplicationLogFullResponse;
-import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
-import com.example.capstoneproject.Dto.responses.HistoryViewDto;
-import com.example.capstoneproject.Dto.responses.JobPostingNameViewDto;
+import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ApplicationLogStatus;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -200,6 +197,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
+                applicationLogResponse.setStatus(x.getStatus());
                 applicationLogResponse.getCvs().put("historyId", x.getCv());
                 applicationLogResponse.getCvs().put("resumeName", null);
                 applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());
@@ -229,8 +227,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     }
 
     @Override
-    public List<ApplicationLogResponse> getAllByCandidateId(Integer id){
-        List<ApplicationLogResponse> newList = Collections.EMPTY_LIST;
+    public List<ApplicationLogCandidateResponse> getAllByCandidateId(Integer id){
+        List<ApplicationLogCandidateResponse> newList = Collections.EMPTY_LIST;
         List<ApplicationLog> list = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
         HashMap<Integer, String> listCvMap = new HashMap<>();
         HashMap<Integer, String> listClMap = new HashMap<>();
@@ -249,11 +247,17 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 if (Objects.nonNull(x.getCoverLetter())){
                     clList.add(x.getCoverLetter());
                 }
-                ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
+                ApplicationLogCandidateResponse applicationLogResponse = new ApplicationLogCandidateResponse();
                 applicationLogResponse.setEmail(x.getUser().getEmail());
                 applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
+                applicationLogResponse.setStatus(x.getStatus());
+                JobPostingNameViewDto jobPostingNameView = new JobPostingNameViewDto();
+                jobPostingNameView.setId(x.getJobPosting().getId());
+                jobPostingNameView.setName(x.getJobPosting().getTitle());
+                applicationLogResponse.setJobPosting(jobPostingNameView);
+                applicationLogResponse.setCompany(x.getJobPosting().getCompanyName());
                 applicationLogResponse.getCvs().put("historyId", x.getCv());
                 applicationLogResponse.getCvs().put("resumeName", null);
                 applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());

@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.NoteDto;
+import com.example.capstoneproject.Dto.responses.ApplicationLogCandidateResponse;
 import com.example.capstoneproject.Dto.responses.ApplicationLogFullResponse;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,7 +17,7 @@ public interface ApplicationLogService {
 
     List<ApplicationLogFullResponse> getAllByHrID(Integer hrId);
 
-    List<ApplicationLogResponse> getAllByCandidateId(Integer id);
+    List<ApplicationLogCandidateResponse> getAllByCandidateId(Integer id);
 
     ApplicationLogResponse updateDownloaded(Integer id);
 

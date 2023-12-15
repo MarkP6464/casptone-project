@@ -29,6 +29,7 @@ public class ApplicationLog {
 
     private Integer coverLetter;
 
+    @Enumerated(EnumType.STRING)
     private ApplicationLogStatus status;
 
     @ManyToOne

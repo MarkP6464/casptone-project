@@ -42,7 +42,7 @@ public class ApplicationLogController {
 
 
     @GetMapping("/application-log/{post-id}")
-//    @PreAuthorize("hasAnyAuthority('read:hr')")
+    @PreAuthorize("hasAnyAuthority('read:hr')")
     public ResponseEntity<List<ApplicationLogResponse>> getAllLog(@PathVariable("post-id") Integer postId){
         return ResponseEntity.ok(applicationLogService.getAll(postId));
     }
@@ -56,9 +56,8 @@ public class ApplicationLogController {
 
     @GetMapping("/application-log/candidate/{candidate-id}")
     @PreAuthorize("hasAnyAuthority('read:candidate')")
-    public List<ApplicationLogResponse> getAllLogByCandidateId(@PathVariable("candidate-id") Integer id){
-        List<ApplicationLogResponse> list =  applicationLogService.getAllByCandidateId(id);
-        return list;
+    public ResponseEntity<?> getAllLogByCandidateId(@PathVariable("candidate-id") Integer id){
+        return ResponseEntity.ok(applicationLogService.getAllByCandidateId(id));
     }
 
     @GetMapping("/application-log/{log-id}/downloaded")

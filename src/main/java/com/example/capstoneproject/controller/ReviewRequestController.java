@@ -32,7 +32,7 @@ public class ReviewRequestController {
     }
 
     @GetMapping("/candidate/{candidate-id}/review-requests")
-    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
+//    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public List<ReviewRequestSecondViewDto> getListCandidateReviewRequest(
             @PathVariable("candidate-id") Integer candidateId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
