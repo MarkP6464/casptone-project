@@ -59,4 +59,17 @@ public class ApplicationLogController {
         List<ApplicationLogResponse> list =  applicationLogService.getAllByCandidateId(id);
         return list;
     }
+
+    @GetMapping("/application-log/{log-id}/downloaded")
+    @PreAuthorize("hasAnyAuthority('read:candidate')")
+    public ApplicationLogResponse updateStatusDownloaded(@PathVariable("log-id") Integer id){
+        ApplicationLogResponse list =  applicationLogService.updateDownloaded(id);
+        return list;
+    }
+    @GetMapping("/application-log/{log-id}/seen")
+    @PreAuthorize("hasAnyAuthority('read:candidate')")
+    public ApplicationLogResponse updateStatusSeen(@PathVariable("log-id") Integer id){
+        ApplicationLogResponse list =  applicationLogService.updateSeen(id);
+        return list;
+    }
 }

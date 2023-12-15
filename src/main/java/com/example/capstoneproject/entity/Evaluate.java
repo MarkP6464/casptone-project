@@ -3,6 +3,7 @@ package com.example.capstoneproject.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class Evaluate {
     private Integer id;
 
     @Column(columnDefinition = "NVARCHAR(100)")
+    @NotNull
     private String title;
 
     @Column(columnDefinition = "TEXT")

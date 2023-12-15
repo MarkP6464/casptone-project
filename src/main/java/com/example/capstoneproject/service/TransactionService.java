@@ -17,7 +17,7 @@ public interface TransactionService {
 
     String create(TransactionDto transactionDto) throws Exception;
 
-    AddMoneyTransactionDto savePaymentStatus(String orderId, String requestId) throws Exception;
+    AddMoneyTransactionDto saveTransactionStatus(String orderId, String requestId) throws Exception;
 
     TransactionDto requestToWithdraw(TransactionResponse dto);
 

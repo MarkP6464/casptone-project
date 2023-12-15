@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 
 @NoArgsConstructor
@@ -22,6 +23,7 @@ public class Education {
     private String Degree;
 
     @Column(columnDefinition = "NVARCHAR(100)")
+    @NotNull
     private String CollegeName;
 
     @Column(columnDefinition = "NVARCHAR(100)")

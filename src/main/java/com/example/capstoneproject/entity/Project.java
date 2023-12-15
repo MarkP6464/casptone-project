@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 
 @NoArgsConstructor
@@ -19,6 +20,7 @@ public class Project {
     private Integer id;
 
     @Column(columnDefinition = "NVARCHAR(100)")
+    @NotNull
     private String Title;
 
     @Column(columnDefinition = "NVARCHAR(100)")

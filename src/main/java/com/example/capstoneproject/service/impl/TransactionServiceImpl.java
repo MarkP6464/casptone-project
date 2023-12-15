@@ -127,7 +127,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public AddMoneyTransactionDto savePaymentStatus(String orderId, String requestId) throws Exception {
+    public AddMoneyTransactionDto saveTransactionStatus(String orderId, String requestId) throws Exception {
 
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
         Environment environment = Environment.selectEnv("dev", Environment.ProcessType.PAY_GATE);

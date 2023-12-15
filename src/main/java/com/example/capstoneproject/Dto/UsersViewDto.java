@@ -2,6 +2,7 @@ package com.example.capstoneproject.Dto;
 
 import lombok.*;
 
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,8 +23,7 @@ public class UsersViewDto implements Serializable {
 
     private String personalWebsite;
 
-    private String email;
-
+    @Pattern(regexp = "^\\S+@\\S+\\.\\S+$", message = "Please check your email format!!")    private String email;
     private String linkin;
 
     private String country;

@@ -43,7 +43,7 @@ public class CvController {
 
     @PostMapping("/{user-id}/cv")
     @PreAuthorize("hasAnyAuthority('create:candidate', 'create:expert')")
-    public CvAddNewDto postCv(@PathVariable("user-id") int UsersId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
+    public CvAddNewDto createCv(@PathVariable("user-id") int UsersId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
         return cvService.createCv(UsersId, Dto);
     }
 

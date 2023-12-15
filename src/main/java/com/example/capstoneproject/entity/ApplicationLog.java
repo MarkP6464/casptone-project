@@ -1,10 +1,10 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.enums.ApplicationLogStatus;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
@@ -28,6 +28,8 @@ public class ApplicationLog {
     private Integer cv;
 
     private Integer coverLetter;
+
+    private ApplicationLogStatus status;
 
     @ManyToOne
     @JoinColumn(name = "job_posting_id")
