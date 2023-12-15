@@ -11,5 +11,5 @@ public class PriceOptionViewDto {
     private Integer id;
     private Integer day;
 
-    private Long price;
+    private String price;
 }

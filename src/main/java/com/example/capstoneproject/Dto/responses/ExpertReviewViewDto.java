@@ -24,6 +24,8 @@ public class ExpertReviewViewDto {
 
     private String company;
 
+    private String priceMinMax;
+
     private List<PriceOptionViewDto> price;
 
     private Integer experience;

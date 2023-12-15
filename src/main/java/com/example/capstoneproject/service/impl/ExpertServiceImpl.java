@@ -184,13 +184,29 @@ public class ExpertServiceImpl implements ExpertService {
             expertReviewViewDto.setCompany(expert.getCompany());
             expertReviewViewDto.setCvId(expert.getCvId());
             List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
+            // Collect prices excluding null values
+            List<Long> validPrices = priceOptions.stream()
+                    .map(PriceOption::getPrice)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (!validPrices.isEmpty()) {
+                long minPrice = Collections.min(validPrices);
+                long maxPrice = Collections.max(validPrices);
+
+                if (minPrice != maxPrice) {
+                    expertReviewViewDto.setPriceMinMax(formatPrice(minPrice) + "-" + formatPrice(maxPrice));
+                } else {
+                    expertReviewViewDto.setPriceMinMax(formatPrice(minPrice));
+                }
+            }
             if(!priceOptions.isEmpty()){
                 List<PriceOptionViewDto> priceOpionDtos = new ArrayList<>();
                 for(PriceOption priceOption: priceOptions){
                     PriceOptionViewDto priceOptionViewDto = new PriceOptionViewDto();
                     priceOptionViewDto.setId(priceOption.getId());
                     priceOptionViewDto.setDay(priceOption.getDay());
-                    priceOptionViewDto.setPrice(priceOption.getPrice());
+                    priceOptionViewDto.setPrice(formatPrice(priceOption.getPrice()));
                     priceOpionDtos.add(priceOptionViewDto);
                 }
                 expertReviewViewDto.setPrice(priceOpionDtos);
