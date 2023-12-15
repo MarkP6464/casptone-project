@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
+import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
@@ -116,7 +117,10 @@ public class TransactionServiceImpl implements TransactionService {
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = config.getMoneyRatio();
         environment.setPartnerInfo(partnerInfo);
-        CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure()), orderInfo, returnURL, notifyURL, extraData);
+        CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure().longValue()), orderInfo, returnURL, notifyURL, extraData);
+        if (Objects.isNull(captureWalletMoMoResponse)){
+            throw new InternalServerException("Momo service is not available");
+        }
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
             Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / ratio, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
@@ -194,11 +198,17 @@ public class TransactionServiceImpl implements TransactionService {
         if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0){
             throw new BadRequestException("Account balance is not enough!");
         }
+        Expert expert = null;
+        if (user instanceof Expert){
+            expert =  (Expert) user;
+        }
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = config.getMoneyRatio();
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
+        transaction.setBankName(expert.getBankName());
+        transaction.setBankAccountNumber(expert.getBankAccountNumber());
         transaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(transaction);
     }

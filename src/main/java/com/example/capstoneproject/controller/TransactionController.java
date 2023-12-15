@@ -52,7 +52,7 @@ public class TransactionController {
     }
 
     @PostMapping("/input-credit")
-    @PreAuthorize("hasAnyAuthority('create:candidate', 'update:candidate')")
+    @PreAuthorize("hasAnyAuthority('create:candidate', 'create:hr', 'create:expert')")
     public String addCredit(@RequestBody TransactionResponse dto) throws Exception {
         TransactionDto transactionDto = new TransactionDto();
         transactionDto.setMoneyType(MoneyType.CREDIT);
@@ -65,7 +65,7 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/query-transaction")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
     public ResponseEntity queryPayment(@RequestParam String orderId, @RequestParam String requestId) throws Exception {
         AddMoneyTransactionDto transaction = transactionService.saveTransactionStatus(orderId, requestId);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
