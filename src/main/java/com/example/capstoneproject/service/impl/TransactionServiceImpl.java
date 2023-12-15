@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -96,8 +97,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (!Objects.nonNull(user)){
             throw new ForbiddenException("User not found");
         }
-        String requestId = String.valueOf(System.currentTimeMillis());
-        String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        String requestId = String.valueOf(currentTimestamp);
+        String orderId = String.valueOf(currentTimestamp) + "_InvoiceID";
         String orderInfo = "CvBuilder";
         String domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
 
