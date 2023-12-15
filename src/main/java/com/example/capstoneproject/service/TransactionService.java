@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.Transaction;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mservice.allinone.models.QueryStatusTransactionResponse;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public interface TransactionService {
 
     AddMoneyTransactionDto saveTransactionStatus(String orderId, String requestId) throws Exception;
 
-    TransactionDto requestToWithdraw(TransactionResponse dto);
+    TransactionDto requestToWithdraw(TransactionResponse dto) throws JsonProcessingException;
 
     TransactionDto approveWithdrawRequest(String id);
 

@@ -22,7 +22,7 @@ public class UserViewLoginDto {
 
     private String linkin;
 
-    private Long accountBalance;
+    private Double accountBalance;
 
     private RoleDto role;
 }

@@ -1,18 +1,14 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.HRDto;
-import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
-import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.HRService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/hr")

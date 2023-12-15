@@ -1,9 +1,6 @@
 package com.example.capstoneproject.controller;
 
-import com.example.capstoneproject.Dto.AdminConfigurationDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
-import com.example.capstoneproject.Dto.responses.TransactionResponse;
-import com.example.capstoneproject.entity.AdminConfiguration;
 import com.example.capstoneproject.service.AdminConfigurationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +16,15 @@ public class AdminConfigurationController {
     AdminConfigurationService adminConfigurationService;
 
     @GetMapping("/information/config")
-    @PreAuthorize("hasAnyAuthority('read:admin-messages')")
-    public ResponseEntity<?> getAdminConfigurationInfo() {
+    @PreAuthorize("hasAnyAuthority('read:admin', 'read:hr')")
+    public ResponseEntity<?> getAdminConfigurationInfo() throws JsonProcessingException {
         AdminConfigurationResponse dto = adminConfigurationService.getByAdminId(1);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/information/config")
-    @PreAuthorize("hasAnyAuthority('update:admin-messages')")
-    public ResponseEntity<?> update(@RequestBody AdminConfigurationResponse dto) {
+    @PreAuthorize("hasAnyAuthority('update:admin')")
+    public ResponseEntity<?> update(@RequestBody AdminConfigurationResponse dto) throws JsonProcessingException {
         return ResponseEntity.ok(adminConfigurationService.update(dto));
     }
 

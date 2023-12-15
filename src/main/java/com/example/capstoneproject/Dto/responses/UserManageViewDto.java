@@ -20,7 +20,7 @@ public class UserManageViewDto {
 
     private String email;
 
-    private Long accountBalance;
+    private Double accountBalance;
 
     private RoleType role;
 }

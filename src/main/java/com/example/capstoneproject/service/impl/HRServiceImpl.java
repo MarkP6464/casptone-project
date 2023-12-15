@@ -1,14 +1,15 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.HRDto;
+import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
-import com.example.capstoneproject.constant.PaymentConstant;
-import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.entity.HR;
+import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.MoneyType;
-import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.enums.TransactionType;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ForbiddenException;
@@ -18,16 +19,12 @@ import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.AdminConfigurationService;
 import com.example.capstoneproject.service.HRService;
 import com.example.capstoneproject.service.TransactionService;
-import com.example.capstoneproject.utils.SecurityUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,8 +73,8 @@ public class HRServiceImpl implements HRService {
     @Override
     public void register(TransactionResponse dto) throws Exception {
         Users users = usersRepository.findUsersById(dto.getUserId()).get();
-        Long expenditure = dto.getExpenditure();
-        Long conversionAmount = dto.getConversionAmount();
+        Double expenditure = dto.getExpenditure();
+        Double conversionAmount = dto.getConversionAmount();
         if (Objects.nonNull(users)) {
             if (users instanceof HR) {
                 HR hr = (HR) users;

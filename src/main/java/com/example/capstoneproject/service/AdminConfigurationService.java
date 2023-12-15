@@ -1,14 +1,12 @@
 package com.example.capstoneproject.service;
 
-import com.example.capstoneproject.Dto.AdminConfigurationDto;
-import com.example.capstoneproject.Dto.AtsDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
-import com.example.capstoneproject.entity.Ats;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface AdminConfigurationService {
-    AdminConfigurationResponse getByAdminId(Integer id);
+    AdminConfigurationResponse getByAdminId(Integer id) throws JsonProcessingException;
 
-    AdminConfigurationResponse update(AdminConfigurationResponse dto);
+    AdminConfigurationResponse update(AdminConfigurationResponse dto) throws JsonProcessingException;
 }

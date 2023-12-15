@@ -24,4 +24,5 @@ public class HRDto extends UsersDto {
 
     private String companyDescription;
 
+
 }

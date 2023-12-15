@@ -10,11 +10,10 @@ import javax.validation.constraints.NotNull;
 @Getter @Setter
 public class TransactionResponse {
     @NotNull
-    private Long expenditure;
+    private Double expenditure;
 
-    private Long conversionAmount;
+    private Double conversionAmount;
 
-    @NotNull
     private Integer userId;
 
     private String sentId;

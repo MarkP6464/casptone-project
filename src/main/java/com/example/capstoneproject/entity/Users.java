@@ -1,17 +1,16 @@
 package com.example.capstoneproject.entity;
 
-import com.example.capstoneproject.constant.PaymentConstant;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.sun.istack.NotNull;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.DiscriminatorFormula;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
         "CASE WHEN price IS NOT NULL THEN 'Expert' " +
                 " WHEN publish IS NOT NULL THEN 'Candidate' " +
                 " WHEN expired_day IS NOT NULL THEN 'HR' " +
-                "ELSE 'Admin' end"
+                "WHEN 'configuration' IS NOT NULL THEN 'Admin' end"
 )
 public class Users implements UserDetails {
     @Id
@@ -72,7 +71,7 @@ public class Users implements UserDetails {
     private String country;
 
     @Column(name = "account_Balance")
-    private Long accountBalance = 0L;
+    private Double accountBalance = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
@@ -139,7 +138,4 @@ public class Users implements UserDetails {
         return true;
     }
 
-    private void callGPTapi(){
-        this.setAccountBalance(this.getAccountBalance() - PaymentConstant.quotaRatio);
-    }
 }

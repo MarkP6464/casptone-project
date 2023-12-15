@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -286,6 +287,20 @@ public class ExpertServiceImpl implements ExpertService {
 //        }else{
 //            throw new BadRequestException("Expert ID not found");
 //        }
+    }
+
+    @Override
+    public String update(HRBankRequest dto){
+        Users users = usersRepository.findUsersById(dto.getId()).get();
+        if (Objects.nonNull(users)){
+            if (users instanceof Expert){
+                Expert expert = (Expert) users;
+                modelMapper.map(dto, expert);
+                expertRepository.save(expert);
+                return "Update succesfully";
+            } else return "Update fail";
+        }
+        throw new BadRequestException("user not found");
     }
 
     private boolean isMatched(Expert expert, String search) {
