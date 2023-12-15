@@ -207,6 +207,9 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
+        if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())){
+            throw new BadRequestException("Please setting your bank account to withdraw!!");
+        }
         transaction.setBankName(expert.getBankName());
         transaction.setBankAccountNumber(expert.getBankAccountNumber());
         transaction = transactionRepository.save(transaction);
