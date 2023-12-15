@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.enums.ApplicationLogStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ public class ApplicationLogResponse {
     LocalDate applyDate;
     String note;
     String email;
+    ApplicationLogStatus status;
 
     HashMap<String, Object> cvs = new HashMap<>();
     HashMap<String, Object> coverLetters = new HashMap<>();

@@ -41,7 +41,7 @@ public class ApplicationLogController {
 
 
     @GetMapping("/application-log/{post-id}")
-    @PreAuthorize("hasAnyAuthority('read:hr')")
+//    @PreAuthorize("hasAnyAuthority('read:hr')")
     public ResponseEntity<List<ApplicationLogResponse>> getAllLog(@PathVariable("post-id") Integer postId){
         return ResponseEntity.ok(applicationLogService.getAll(postId));
     }

@@ -296,7 +296,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         Optional<ApplicationLog> optionalApplicationLog = applicationLogRepository.findById(id);
         if (optionalApplicationLog.isPresent()){
             ApplicationLog entity = optionalApplicationLog.get();
-            entity.setStatus(ApplicationLogStatus.DOWNLOADED);
+            entity.setStatus(ApplicationLogStatus.SEEN);
             entity = applicationLogRepository.save(entity);
             response = modelMapper.map(entity, ApplicationLogResponse.class);
         } else throw new ResourceNotFoundException("Not found the log by id");
