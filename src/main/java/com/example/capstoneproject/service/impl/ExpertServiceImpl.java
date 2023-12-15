@@ -136,6 +136,7 @@ public class ExpertServiceImpl implements ExpertService {
                     Optional<Cv> cvOptional = cvRepository.findById(expert.getCvId());
                     if(cvOptional.isPresent()){
                         Cv cv = cvOptional.get();
+                        expertConfigViewDto.setCvId(cv.getId());
                         expertConfigViewDto.setCv(cv.getResumeName());
                     }
                 }

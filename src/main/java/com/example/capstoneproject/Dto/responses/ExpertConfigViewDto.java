@@ -24,6 +24,8 @@ public class ExpertConfigViewDto {
 
     private Integer experiences;
 
+    private Integer cvId;
+
     private String cv;
 
     private List<PriceOptionDto> price;
