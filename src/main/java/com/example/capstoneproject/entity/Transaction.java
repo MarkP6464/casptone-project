@@ -47,6 +47,12 @@ public class Transaction {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
+    @Column(name = "bank_name", columnDefinition = "NVARCHAR(20)")
+    private String bankName;
+
+    @Column(name = "bank_account_number", columnDefinition = "NVARCHAR(20)")
+    private String bankAccountNumber;
+
     @ManyToOne
     @JoinColumn(name = "receiver_id", referencedColumnName = "id")
     private Users user;
