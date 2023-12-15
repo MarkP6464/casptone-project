@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.NoteDto;
+import com.example.capstoneproject.Dto.responses.ApplicationLogFullResponse;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public interface ApplicationLogService {
 
     List<ApplicationLogResponse> getAll(Integer postId);
 
-    List<ApplicationLogResponse> getAllByHrID(Integer hrId);
+    List<ApplicationLogFullResponse> getAllByHrID(Integer hrId);
 
     List<ApplicationLogResponse> getAllByCandidateId(Integer id);
 

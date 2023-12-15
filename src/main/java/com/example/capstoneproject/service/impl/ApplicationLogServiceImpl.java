@@ -1,8 +1,10 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ApplicationLogFullResponse;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.Dto.responses.HistoryViewDto;
+import com.example.capstoneproject.Dto.responses.JobPostingNameViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ApplicationLogStatus;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -169,8 +171,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     }
 
     @Override
-    public List<ApplicationLogResponse> getAllByHrID(Integer hrId){
-        List<ApplicationLogResponse> newList = Collections.EMPTY_LIST;
+    public List<ApplicationLogFullResponse> getAllByHrID(Integer hrId){
+        List<ApplicationLogFullResponse> newList = Collections.EMPTY_LIST;
         List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
         HashMap<Integer, String> listCvMap = new HashMap<>();
         HashMap<Integer, String> listClMap = new HashMap<>();
@@ -189,8 +191,12 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 if (Objects.nonNull(x.getCoverLetter())){
                     clList.add(x.getCoverLetter());
                 }
-                ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
+                ApplicationLogFullResponse applicationLogResponse = new ApplicationLogFullResponse();
                 applicationLogResponse.setEmail(x.getUser().getEmail());
+                JobPostingNameViewDto jobPosting = new JobPostingNameViewDto();
+                jobPosting.setId(x.getJobPosting().getId());
+                jobPosting.setName(x.getJobPosting().getTitle());
+                applicationLogResponse.setJobPosting(jobPosting);
                 applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());

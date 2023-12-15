@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.NoteDto;
+import com.example.capstoneproject.Dto.responses.ApplicationLogFullResponse;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,8 +49,8 @@ public class ApplicationLogController {
 
     @GetMapping("/application-log/hr/{hr-id}")
     @PreAuthorize("hasAnyAuthority('read:hr')")
-    public List<ApplicationLogResponse> getAllLogByHrId(@PathVariable("hr-id") Integer hrId){
-        List<ApplicationLogResponse> list =  applicationLogService.getAllByHrID(hrId);
+    public List<ApplicationLogFullResponse> getAllLogByHrId(@PathVariable("hr-id") Integer hrId){
+        List<ApplicationLogFullResponse> list =  applicationLogService.getAllByHrID(hrId);
         return list;
     }
 
