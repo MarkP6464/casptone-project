@@ -95,7 +95,7 @@ public class AuthenticationService {
                 candidate.setAvatar(image);
                 candidate.setStatus(BasicStatus.ACTIVE);
                 candidate.setRole(roleOptional);
-                candidate.setAccountBalance((long) 0);
+                candidate.setAccountBalance( 0.0);
                 candidateRepository.save(candidate);
                 userViewLoginDto.setId(candidate.getId());
                 userViewLoginDto.setName(candidate.getName());

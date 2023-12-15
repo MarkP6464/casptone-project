@@ -2,6 +2,7 @@ package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.HRDto;
 import com.example.capstoneproject.Dto.NoteDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.repository.HRRepository;
@@ -14,6 +15,8 @@ public interface HRService {
     HRDto get(Integer id);
 
     HRDto update(HRResponse dto);
+
+    HRDto update(HRBankRequest dto);
 
     void register(TransactionResponse transactionDto) throws Exception;
 }

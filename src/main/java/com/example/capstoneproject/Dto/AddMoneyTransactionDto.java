@@ -15,5 +15,5 @@ import java.time.LocalDateTime;
 public class AddMoneyTransactionDto {
     QueryStatusTransactionResponse momoResponse;
 
-    Long conversionAmount;
+    Double conversionAmount;
 }

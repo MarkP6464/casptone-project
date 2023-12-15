@@ -34,9 +34,9 @@ public class Transaction {
 
     private MoneyType moneyType;
 
-    private Long expenditure;
+    private Double expenditure;
 
-    private Long conversionAmount;
+    private Double conversionAmount;
 
     private Long fee;
 
@@ -51,7 +51,7 @@ public class Transaction {
     @JoinColumn(name = "receiver_id", referencedColumnName = "id")
     private Users user;
 
-    public Transaction(Long id, String sentId, String requestId, String momoId, String responseMessage, TransactionType transactionType, MoneyType moneyType, Long expenditure, Long conversionAmount, Long fee, TransactionStatus status, Users user) {
+    public Transaction(Long id, String sentId, String requestId, String momoId, String responseMessage, TransactionType transactionType, MoneyType moneyType, Double expenditure, Double conversionAmount, Long fee, TransactionStatus status, Users user) {
         this.id = id;
         this.sentId = sentId;
         this.requestId = requestId;

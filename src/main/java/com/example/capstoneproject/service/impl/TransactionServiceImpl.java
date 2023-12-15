@@ -2,8 +2,8 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
-import com.example.capstoneproject.constant.PaymentConstant;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
@@ -16,9 +16,10 @@ import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.mapper.TransactionMapper;
 import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.repository.UsersRepository;
+import com.example.capstoneproject.service.AdminConfigurationService;
 import com.example.capstoneproject.service.TransactionService;
 import com.example.capstoneproject.service.UsersService;
-import com.google.api.gax.rpc.NotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mservice.allinone.models.CaptureMoMoResponse;
@@ -27,13 +28,10 @@ import com.mservice.allinone.processor.allinone.CaptureMoMo;
 import com.mservice.allinone.processor.allinone.QueryStatusTransaction;
 import com.mservice.shared.sharedmodels.Environment;
 import com.mservice.shared.sharedmodels.PartnerInfo;
-import net.bytebuddy.implementation.bytecode.Throw;
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -48,8 +46,6 @@ public class TransactionServiceImpl implements TransactionService {
     private String accessKey;
     @Value("${momo.secretKey}")
     private String secretKey;
-    @Value("${quota.ratio}")
-    private Long ratio;
 
     @Autowired
     UsersService usersService;
@@ -59,6 +55,8 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionMapper transactionMapper;
     @Autowired
     UsersRepository usersRepository;
+    @Autowired
+    AdminConfigurationService adminConfigurationService;
 
     @Override
     public List<TransactionDto> getAll(String id){
@@ -115,6 +113,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
         Environment environment = Environment.selectEnv("dev", Environment.ProcessType.PAY_GATE);
+        AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
+        Double ratio = config.getMoneyRatio();
         environment.setPartnerInfo(partnerInfo);
         CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure()), orderInfo, returnURL, notifyURL, extraData);
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
@@ -141,6 +141,8 @@ public class TransactionServiceImpl implements TransactionService {
         String uid = s.get("uid").getAsString();
         Long expenditure = s.get("expenditure").getAsLong();
         Transaction transaction = transactionRepository.findByRequestId(tid);
+        AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
+        Double ratio = config.getMoneyRatio();
         if (TransactionStatus.PENDING.equals(transaction.getStatus())){
             if (code.equals(0)) {
                 if (Objects.nonNull(transaction)){
@@ -155,9 +157,9 @@ public class TransactionServiceImpl implements TransactionService {
                         if (LocalDate.now().isAfter(hr.getExpiredDay())){
                             hr.setExpiredDay(LocalDate.now());
                         }
-                        if (PaymentConstant.vipAMonthRatio.equals(expenditure)){
+                        if (config.getVipMonthRatio().equals(expenditure)){
                             hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
-                        } else if (PaymentConstant.vipAYearRatio.equals(expenditure)){
+                        } else if (config.getVipMonthRatio().equals(expenditure)){
                             hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
                         }
                         hr.setVip(true);
@@ -187,11 +189,13 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto requestToWithdraw(TransactionResponse dto){
+    public TransactionDto requestToWithdraw(TransactionResponse dto) throws JsonProcessingException {
         Users user = usersService.getUsersById(dto.getUserId());
         if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0){
             throw new BadRequestException("Account balance is not enough!");
         }
+        AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
+        Double ratio = config.getMoneyRatio();
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
@@ -221,12 +225,12 @@ public class TransactionServiceImpl implements TransactionService {
         if (user.getAccountBalance() < amount.longValue()){
             throw new BadRequestException("Account Balance is not enough!!");
         }
-        user.setAccountBalance((long) (user.getAccountBalance() - amount));
+        user.setAccountBalance((user.getAccountBalance() - amount));
         usersRepository.save(user);
 
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, null,
-                TransactionType.TRANSFER, MoneyType.CREDIT, Double.valueOf(amount).longValue(), 0L, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
+                TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0.0, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
         return transactionMapper.toDto(transaction);
@@ -273,9 +277,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDto chargePerRequest(Integer userId){
         Users users = usersService.getUsersById(userId);
-        if (Long.compare(users.getAccountBalance(), 1000L) >= 0 ){
+        if (Double.compare(users.getAccountBalance(), 1000L) >= 0 ){
             String requestId = String.valueOf(System.currentTimeMillis());
-            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, null, TransactionType.SERVICE, MoneyType.CREDIT, 1000L, 1L,null, TransactionStatus.PENDING, usersService.getUsersById(1));
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, null, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.PENDING, usersService.getUsersById(1));
             Transaction transaction1 = transactionRepository.save(transaction);
             users.setAccountBalance(users.getAccountBalance()-1000L);
             usersRepository.save(users);

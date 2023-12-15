@@ -1,6 +1,7 @@
 package com.example.capstoneproject.mapper;
 
 import com.example.capstoneproject.Dto.HRDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.entity.HR;
 import org.modelmapper.ModelMapper;
@@ -20,4 +21,10 @@ public class HRMapper {
         modelMapper.map(dto, entity);
         return entity;
     }
+
+    public HR requestToEntity(HRBankRequest dto, HR entity){
+        modelMapper.map(dto, entity);
+        return entity;
+    }
+
 }

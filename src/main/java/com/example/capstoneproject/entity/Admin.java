@@ -1,5 +1,10 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
+import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,5 +27,11 @@ public class Admin extends Users{
 
     @Type(type = "json")
     @Column(columnDefinition = "json")
-    String configuration;
+    AdminConfigurationResponse configuration;
+
+//    public AdminConfigurationResponse deserialize() throws JsonProcessingException {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        return objectMapper.readValue(this.configuration, AdminConfigurationResponse.class);
+//    }
+
 }

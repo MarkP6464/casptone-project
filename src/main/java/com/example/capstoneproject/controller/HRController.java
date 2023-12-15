@@ -1,18 +1,15 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.HRDto;
-import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
-import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.service.HRService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/hr")
@@ -31,6 +28,13 @@ public class HRController {
     @PutMapping("/{hr-id}/information/config")
     @PreAuthorize("hasAnyAuthority('update:hr')")
     public ResponseEntity<?> update(@PathVariable("hr-id") Integer hrId, @RequestBody HRResponse dto) throws JsonProcessingException {
+        dto.setId(hrId);
+        return ResponseEntity.ok(hrService.update(dto));
+    }
+
+    @PutMapping("/{hr-id}/information/config-bank")
+    @PreAuthorize("hasAnyAuthority('update:hr')")
+    public ResponseEntity<?> update(@PathVariable("hr-id") Integer hrId, @RequestBody HRBankRequest dto) throws JsonProcessingException {
         dto.setId(hrId);
         return ResponseEntity.ok(hrService.update(dto));
     }

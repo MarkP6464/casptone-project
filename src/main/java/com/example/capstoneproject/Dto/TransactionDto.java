@@ -29,9 +29,9 @@ public class TransactionDto {
 
     private MoneyType moneyType;
 
-    private Long expenditure;
+    private Double expenditure;
 
-    private Long conversionAmount;
+    private Double conversionAmount;
 
     private TransactionStatus status;
 

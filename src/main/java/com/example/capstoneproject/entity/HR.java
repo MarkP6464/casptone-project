@@ -37,6 +37,16 @@ public class HR extends Users{
     @Column(name = "vip")
     private Boolean vip;
 
+
+    @Column(name = "bank_name", columnDefinition = "NVARCHAR(20)")
+    private String bankName;
+
+    @Column(name = "bank_account_number", columnDefinition = "NVARCHAR(20)")
+    private String bankAccountNumber;
+
+    @Column(name = "bank_account_name", columnDefinition = "NVARCHAR(50)")
+    private String bankAccountName;
+
     @NonNull
     private LocalDate expiredDay = LocalDate.now();
 
