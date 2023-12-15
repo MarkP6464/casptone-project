@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -95,8 +96,9 @@ public class TransactionServiceImpl implements TransactionService {
         if (!Objects.nonNull(user)){
             throw new ForbiddenException("User not found");
         }
-        String requestId = String.valueOf(System.currentTimeMillis());
-        String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        String requestId = String.valueOf(currentTimestamp);
+        String orderId = String.valueOf(currentTimestamp) + "_InvoiceID";
         String orderInfo = "CvBuilder";
         String domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
 
@@ -116,7 +118,7 @@ public class TransactionServiceImpl implements TransactionService {
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = config.getMoneyRatio();
         environment.setPartnerInfo(partnerInfo);
-        CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure()), orderInfo, returnURL, notifyURL, extraData);
+        CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure().longValue()), orderInfo, returnURL, notifyURL, extraData);
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
             Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / ratio, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);

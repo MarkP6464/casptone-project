@@ -52,7 +52,7 @@ public class TransactionController {
     }
 
     @PostMapping("/input-credit")
-    @PreAuthorize("hasAnyAuthority('create:candidate', 'update:candidate')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate', 'update:candidate')")
     public String addCredit(@RequestBody TransactionResponse dto) throws Exception {
         TransactionDto transactionDto = new TransactionDto();
         transactionDto.setMoneyType(MoneyType.CREDIT);
