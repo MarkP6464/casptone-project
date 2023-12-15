@@ -22,9 +22,4 @@ public class HRMapper {
         return entity;
     }
 
-    public HR requestToEntity(HRBankRequest dto, HR entity){
-        modelMapper.map(dto, entity);
-        return entity;
-    }
-
 }

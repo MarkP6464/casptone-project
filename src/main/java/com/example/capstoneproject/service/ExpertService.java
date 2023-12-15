@@ -1,6 +1,8 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
+import com.example.capstoneproject.Dto.HRDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertReviewViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
@@ -17,6 +19,6 @@ public interface ExpertService {
     ExpertReviewViewDto getDetailExpert(Integer expertId);
     void punishExpert(Integer expertId);
     void unPunishExpert();
-
+    String update(HRBankRequest dto);
 
 }

@@ -24,11 +24,5 @@ public class HRDto extends UsersDto {
 
     private String companyDescription;
 
-    private String bankName;
-
-    private String bankAccountNumber;
-
-    private String bankAccountName;
-
 
 }

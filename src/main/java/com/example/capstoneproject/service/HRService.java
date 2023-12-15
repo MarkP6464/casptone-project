@@ -16,7 +16,5 @@ public interface HRService {
 
     HRDto update(HRResponse dto);
 
-    HRDto update(HRBankRequest dto);
-
     void register(TransactionResponse transactionDto) throws Exception;
 }

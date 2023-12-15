@@ -70,20 +70,6 @@ public class HRServiceImpl implements HRService {
         throw new BadRequestException("user not found");
     }
 
-
-    @Override
-    public HRDto update(HRBankRequest dto){
-        Users users = usersRepository.findUsersById(dto.getId()).get();
-        if (Objects.nonNull(users)){
-            if (users instanceof HR){
-                HR hr = (HR) users;
-                hrMapper.requestToEntity(dto, hr);
-                return hrMapper.toDto(hrRepository.save(hr));
-            }
-        }
-        throw new BadRequestException("user not found");
-    }
-
     @Override
     public void register(TransactionResponse dto) throws Exception {
         Users users = usersRepository.findUsersById(dto.getUserId()).get();

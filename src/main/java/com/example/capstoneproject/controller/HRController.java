@@ -1,7 +1,6 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.HRDto;
-import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.service.HRService;
@@ -28,13 +27,6 @@ public class HRController {
     @PutMapping("/{hr-id}/information/config")
     @PreAuthorize("hasAnyAuthority('update:hr')")
     public ResponseEntity<?> update(@PathVariable("hr-id") Integer hrId, @RequestBody HRResponse dto) throws JsonProcessingException {
-        dto.setId(hrId);
-        return ResponseEntity.ok(hrService.update(dto));
-    }
-
-    @PutMapping("/{hr-id}/information/config-bank")
-    @PreAuthorize("hasAnyAuthority('update:hr')")
-    public ResponseEntity<?> update(@PathVariable("hr-id") Integer hrId, @RequestBody HRBankRequest dto) throws JsonProcessingException {
         dto.setId(hrId);
         return ResponseEntity.ok(hrService.update(dto));
     }

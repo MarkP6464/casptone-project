@@ -14,7 +14,6 @@ public class TransactionResponse {
 
     private Double conversionAmount;
 
-    @NotNull
     private Integer userId;
 
     private String sentId;

@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -58,5 +59,11 @@ public class ExpertController {
         return new ResponseEntity<>(expertService.getExpertConfig(expertId), HttpStatus.OK);
     }
 
+    @PutMapping("/{expert-id}/information/config-bank")
+    @PreAuthorize("hasAnyAuthority('update:expert')")
+    public ResponseEntity<?> update(@PathVariable("expert-id") Integer hrId, @RequestBody HRBankRequest dto) throws JsonProcessingException {
+        dto.setId(hrId);
+        return ResponseEntity.ok(expertService.update(dto));
+    }
 
 }
