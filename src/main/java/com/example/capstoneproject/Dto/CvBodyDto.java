@@ -34,6 +34,18 @@ public class CvBodyDto {
 
     private String templateType = "classical";
 
+    private String name;
+
+    private String email;
+
+    private String phone;
+
+    private String linkin;
+
+    private String personalWebsite;
+
+    private String city;
+
     private CvStyleDto cvStyle = new CvStyleDto();
 
     private List<SkillDto> skills = new ArrayList<>();

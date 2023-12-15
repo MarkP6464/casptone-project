@@ -28,6 +28,7 @@ public class CvAddNewDto {
     private String jobDescription;
     private String experience;
     private String linkin;
+    private String city;
     private Long id;
     private String content;
     private String summary;

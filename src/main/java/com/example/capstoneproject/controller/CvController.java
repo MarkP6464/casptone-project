@@ -2,11 +2,13 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.service.CvService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +44,7 @@ public class CvController {
     }
 
     @PostMapping("/{user-id}/cv")
-    @PreAuthorize("hasAnyAuthority('create:candidate', 'create:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate', 'create:expert')")
     public CvAddNewDto createCv(@PathVariable("user-id") int UsersId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
         return cvService.createCv(UsersId, Dto);
     }
@@ -59,7 +61,7 @@ public class CvController {
     }
 
     @GetMapping("/cv/{cv-id}/finish-up")
-    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public CvAddNewDto getFinishUp(@PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.finishUp(cvId);
     }
@@ -75,10 +77,16 @@ public class CvController {
         }
     }
 
-    @PutMapping("/{user-id}/contact")
-    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
-    public UsersViewDto updateContact1(@PathVariable("user-id") int UsersId, @RequestBody UsersViewDto dto) {
-        return cvService.updateCvContact(UsersId, dto);
+    @PutMapping("/{user-id}/cv/{cv-id}/contact")
+//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    public ResponseEntity<?> updateContact1(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @RequestBody UsersCvViewDto dto) throws JsonProcessingException {
+        return ResponseEntity.ok(cvService.updateCvContact(userId, cvId, dto));
+    }
+
+    @GetMapping("/{user-id}/cv/{cv-id}/contact")
+//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    public ResponseEntity<?> getContactCv(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
+        return ResponseEntity.ok(cvService.getCvContact(userId, cvId));
     }
 
     @PutMapping("/{cv-id}/target")

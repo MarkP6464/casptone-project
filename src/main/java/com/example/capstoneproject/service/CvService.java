@@ -2,6 +2,7 @@ package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.RoleType;
@@ -32,7 +33,8 @@ public interface CvService {
 
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
-    UsersViewDto updateCvContact(int UsersId, UsersViewDto dto);
+    UsersCvViewDto updateCvContact(Integer UsersId, Integer cvId, UsersCvViewDto dto) throws JsonProcessingException;
+    UsersCvViewDto getCvContact(Integer userId, Integer cvId) throws JsonProcessingException;
 
     Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal);
 

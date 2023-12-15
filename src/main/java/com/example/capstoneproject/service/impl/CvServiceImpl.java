@@ -3,6 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
@@ -165,14 +166,12 @@ public class CvServiceImpl implements CvService {
         Cv cv = cvRepository.findById(cvId).get();
         if (cv != null) {
             CvAddNewDto cvDto = cvMapper.cvAddNewDto(cv);
-            UsersViewDto usersViewDto = usersMapper.toView(cv.getUser());
-            modelMapper.map(usersViewDto, cvDto);
-            cvDto.getCertifications().clear();
-            cvDto.getExperiences().clear();
-            cvDto.getInvolvements().clear();
-            cvDto.getEducations().clear();
-            cvDto.getProjects().clear();
-            cvDto.getSkills().clear();
+//            cvDto.getCertifications().clear();
+//            cvDto.getExperiences().clear();
+//            cvDto.getInvolvements().clear();
+//            cvDto.getEducations().clear();
+//            cvDto.getProjects().clear();
+//            cvDto.getSkills().clear();
             modelMapper.map(cv.deserialize(), cvDto);
 
             return cvDto;
@@ -400,17 +399,73 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public UsersViewDto updateCvContact(int UsersId, UsersViewDto dto) {
-        Optional<Users> usersOptional = usersRepository.findById(UsersId);
+    public UsersCvViewDto updateCvContact(Integer userId, Integer cvId, UsersCvViewDto dto) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            CvBodyDto cvBodyDto = cv.deserialize();
+            cvBodyDto.setName(dto.getFullName());
+            cvBodyDto.setEmail(dto.getEmail());
+            cvBodyDto.setPhone(dto.getPhone());
+            cvBodyDto.setLinkin(dto.getLinkin());
+            cvBodyDto.setPersonalWebsite(dto.getPersonalWebsite());
+            cvBodyDto.setCity(dto.getCity());
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(cvBodyDto);
+            cv.setCvBody(json);
+            cvRepository.save(cv);
+            return dto;
+        }else{
+            throw new BadRequestException("User id or cv id incorrect.");
+        }
+    }
 
-        if (usersOptional.isPresent()) {
-            Users user = usersOptional.get();
-            modelMapper.map(dto, user);
-            user = usersRepository.save(user);
-
-            return usersMapper.toView(user);
-        } else {
-            throw new IllegalArgumentException("UsersId not found: " + UsersId);
+    @Override
+    public UsersCvViewDto getCvContact(Integer userId, Integer cvId) throws JsonProcessingException {
+        Optional<Users> usersOptional = usersRepository.findUsersById(userId);
+        if(usersOptional.isPresent()){
+            Users users = usersOptional.get();
+            Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
+            if(cvOptional.isPresent()){
+                Cv cv = cvOptional.get();
+                CvBodyDto cvBodyDto = cv.deserialize();
+                UsersCvViewDto usersCvView = new UsersCvViewDto();
+                if(cvBodyDto.getName()!=null){
+                    usersCvView.setFullName(cvBodyDto.getName());
+                }else{
+                    usersCvView.setFullName(users.getName());
+                }
+                if(cvBodyDto.getEmail()!=null){
+                    usersCvView.setEmail(cvBodyDto.getEmail());
+                }else{
+                    usersCvView.setEmail(users.getEmail());
+                }
+                if(cvBodyDto.getPhone()!=null){
+                    usersCvView.setPhone(cvBodyDto.getPhone());
+                }else{
+                    usersCvView.setPhone(users.getPhone());
+                }
+                if(cvBodyDto.getLinkin()!=null){
+                    usersCvView.setLinkin(cvBodyDto.getLinkin());
+                }else{
+                    usersCvView.setLinkin(users.getLinkin());
+                }
+                if(cvBodyDto.getPersonalWebsite()!=null){
+                    usersCvView.setPersonalWebsite(cvBodyDto.getPersonalWebsite());
+                }else{
+                    usersCvView.setPersonalWebsite(users.getPersonalWebsite());
+                }
+                if(cvBodyDto.getCity()!=null){
+                    usersCvView.setCity(cvBodyDto.getCity());
+                }else{
+                    usersCvView.setCity(users.getCountry());
+                }
+                return usersCvView;
+            }else{
+                throw new BadRequestException("Cv id incorrect.");
+            }
+        }else{
+            throw new BadRequestException("User id not found.");
         }
     }
 
