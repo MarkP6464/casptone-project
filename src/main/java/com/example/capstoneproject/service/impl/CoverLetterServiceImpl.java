@@ -229,23 +229,33 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         if (existingCoverLetterOptional.isPresent()) {
             CoverLetter existingCoverLetter = existingCoverLetterOptional.get();
             List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(existingCoverLetter.getCv().getUser().getId());
-            if(coverLetters!=null){
-                for(CoverLetter coverLetter:coverLetters){
+            if (coverLetters != null) {
+                for (CoverLetter coverLetter : coverLetters) {
+                    if (coverLetter.getId().equals(coverLetterId)) {
+                        // Skip the current cover letter being updated
+                        continue;
+                    }
+
                     if (coverLetter.getTitle().equals(dto.getTitle())) {
                         throw new BadRequestException("Title already exists in another cover letter.");
                     }
                 }
             }
+
+            // Check if the title has changed or not
             if (dto.getTitle() != null && !dto.getTitle().equals(existingCoverLetter.getTitle())) {
                 existingCoverLetter.setTitle(dto.getTitle());
+                coverLetterRepository.save(existingCoverLetter);
+                return true;
+            } else {
+                // Title hasn't changed, no need to save
+                return true;
             }
-
-            coverLetterRepository.save(existingCoverLetter);
-            return true;
         } else {
             throw new IllegalArgumentException("Cover Letter ID not found");
         }
     }
+
 
     @Override
     public boolean deleteCoverLetterById(Integer UsersId, Integer coverLetterId) {
