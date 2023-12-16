@@ -9,6 +9,7 @@ import com.example.capstoneproject.enums.SortOrder;
 import com.example.capstoneproject.service.ReviewRequestService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,14 +33,14 @@ public class ReviewRequestController {
     }
 
     @GetMapping("/candidate/{candidate-id}/review-requests")
-//    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
-    public List<ReviewRequestSecondViewDto> getListCandidateReviewRequest(
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
+    public ResponseEntity<?> getListCandidateReviewRequest(
             @PathVariable("candidate-id") Integer candidateId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
             @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
             @RequestParam(required = false) String searchTerm
     ) {
-        return reviewRequestService.getListReviewRequestCandidate(candidateId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);
+        return ResponseEntity.ok(reviewRequestService.getListReviewRequestCandidate(candidateId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm));
     }
 
     @GetMapping("/expert/{expert-id}/review-requests")
@@ -51,6 +52,17 @@ public class ReviewRequestController {
             @RequestParam(required = false) String searchTerm
     ) {
         return reviewRequestService.getListReviewRequest(expertId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);
+    }
+
+    @GetMapping("/expert/{expert-id}/review-requests/history")
+    @PreAuthorize("hasAuthority('read:expert')")
+    public ResponseEntity<?> getListReviewRequestHistory(
+            @PathVariable("expert-id") Integer expertId,
+            @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
+            @RequestParam(required = false, defaultValue = "asc") SortOrder sortOrder,
+            @RequestParam(required = false) String searchTerm
+    ) {
+        return ResponseEntity.ok(reviewRequestService.getListReviewRequestHistory(expertId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm));
     }
 
     @PutMapping("/expert/{expert-id}/review-request/{review-request-id}/accept")

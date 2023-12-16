@@ -3,10 +3,7 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
 import com.example.capstoneproject.Dto.responses.EvaluateViewDto;
 import com.example.capstoneproject.entity.*;
-import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.enums.RoleType;
-import com.example.capstoneproject.enums.SectionEvaluate;
-import com.example.capstoneproject.enums.SectionLogStatus;
+import com.example.capstoneproject.enums.*;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.AtsMapper;
 import com.example.capstoneproject.repository.*;
@@ -35,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class EvaluateServiceImpl implements EvaluateService {
@@ -566,28 +564,20 @@ public class EvaluateServiceImpl implements EvaluateService {
 
     @Override
     public List<AtsDto> ListAts(int cvId, int jobId, JobDescriptionDto dto, Principal principal) throws JsonProcessingException {
-        String system = "Please input the job description in the text box below. This prompt will identify and extract relevant Application Tracking System (ATS) keywords from the description provided. ATS keywords are crucial for optimizing job applications to ensure they pass through automated tracking systems effectively.";
-        String userMessage = "Job Description:\n" +
-                "“"+dto.getDescription()+"”\n"+
-                "Limit only 15 the most important keywords. Limit only 15 the most important keywords, no need to be formal.\n" +
-                "Keywords Extracted:";
-        List<Map<String, Object>> messagesList = new ArrayList<>();
-        Map<String, Object> systemMessage = new HashMap<>();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", system);
-        messagesList.add(systemMessage);
-        Map<String, Object> userMessageMap = new HashMap<>();
-        userMessageMap.put("role", "user");
-        userMessageMap.put("content", userMessage);
-        messagesList.add(userMessageMap);
-        String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+        List<AtsDto> atsList = null;
+
+        while (atsList == null) {
+            String response = generationAts(dto.getDescription());
+            if (containsAtLeastFiveNumbers(response)) {
+                atsList = extractAtsKeywordsNumber(response);
+            } else {
+                atsList = extractAtsKeywords(response);
+            }
+        }
         transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
-        String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
-        List<AtsDto> atsDtoList = extractAtsKeywords(response);
-        List<AtsDto> atsList = new ArrayList<>();
         Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(jobId);
         if (jobDescription.isPresent()) {
-            for (AtsDto atsDto : atsDtoList) {
+            for (AtsDto atsDto : atsList) {
                 Ats ats = new Ats();
                 ats.setAts(atsDto.getAts());
                 ats.setJobDescription(jobDescription.get());
@@ -641,9 +631,31 @@ public class EvaluateServiceImpl implements EvaluateService {
                 }
             }
         }
-
-
+        atsList = atsList.stream()
+                .filter(atsDto -> atsDto.getStatus() != null)
+                .collect(Collectors.toList());
         return atsList;
+    }
+
+    @Override
+    public String generationAts(String dto) throws JsonProcessingException {
+        String system = "Please input the job description in the text box below. This prompt will identify and extract relevant Application Tracking System (ATS) keywords from the description provided. ATS keywords are crucial for optimizing job applications to ensure they pass through automated tracking systems effectively.";
+        String userMessage = "Job Description:\n" +
+                "“"+dto+"”\n"+
+                "Limit only 15 the most important keywords. Limit only 15 the most important keywords, no need to be formal.\n" +
+                "Keywords Extracted:\n" +
+                "Start with 1. ";
+        List<Map<String, Object>> messagesList = new ArrayList<>();
+        Map<String, Object> systemMessage = new HashMap<>();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", system);
+        messagesList.add(systemMessage);
+        Map<String, Object> userMessageMap = new HashMap<>();
+        userMessageMap.put("role", "user");
+        userMessageMap.put("content", userMessage);
+        messagesList.add(userMessageMap);
+        String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+        return chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
     }
 
     @Override
@@ -965,25 +977,55 @@ public class EvaluateServiceImpl implements EvaluateService {
     }
 
     @Override
-    public List<EvaluateViewDto> viewEvaluate(Integer adminId) {
+    public List<EvaluateViewDto> viewEvaluate(Integer adminId, String search, SortOrder sort) {
         Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
-        if(usersOptional.isPresent()){
+        if (usersOptional.isPresent()) {
             List<EvaluateViewDto> evaluateViews = new ArrayList<>();
-            List<Evaluate> evaluates = evaluateRepository.findAll();
-            for(Evaluate evaluate: evaluates){
+            List<Evaluate> evaluates;
+
+            if (search != null && !search.isEmpty()) {
+                // If search term is provided, perform search by title
+                evaluates = evaluateRepository.findByTitleContainingIgnoreCase(search);
+            } else {
+                // Otherwise, retrieve all evaluates
+                evaluates = evaluateRepository.findAll();
+            }
+
+            // Sort by score
+            if (SortOrder.asc.equals(sort)) {
+                evaluates.sort(Comparator.comparingInt(Evaluate::getScore));
+            } else if (SortOrder.desc.equals(sort)) {
+                evaluates.sort(Comparator.comparingInt(Evaluate::getScore).reversed());
+            }
+
+            for (Evaluate evaluate : evaluates) {
                 EvaluateViewDto evaluateView = new EvaluateViewDto();
                 evaluateView.setId(evaluate.getId());
+
+                if (evaluate.getId() <= 8) {
+                    evaluateView.setType("Content");
+                } else if (evaluate.getId() > 8 && evaluate.getId() <= 14) {
+                    evaluateView.setType("Practice");
+                } else if (evaluate.getId() == 15) {
+                    evaluateView.setType("Optimization");
+                } else {
+                    evaluateView.setType("Format");
+                }
+
                 evaluateView.setCriteria(evaluate.getCritical());
                 evaluateView.setDescription(evaluate.getDescription());
                 evaluateView.setTitle(evaluate.getTitle());
                 evaluateView.setScore(evaluate.getScore());
                 evaluateViews.add(evaluateView);
             }
+
             return evaluateViews;
-        }else{
+        } else {
             throw new BadRequestException("Please login with role Admin.");
         }
     }
+
+
 
     public List<String> splitText(String text) {
         List<String> resultList = new ArrayList<>();
@@ -1204,7 +1246,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             return "";
         }
     }
-    private List<AtsDto> extractAtsKeywords(String input) {
+    private List<AtsDto> extractAtsKeywordsNumber(String input) {
         List<AtsDto> atsList = new ArrayList<>();
 
         // Biểu thức chính quy để tìm các dòng bắt đầu với số và sau đó trích xuất nội dung
@@ -1215,6 +1257,36 @@ public class EvaluateServiceImpl implements EvaluateService {
             String keyword = matcher.group(1);
             AtsDto atsDto = new AtsDto();
             atsDto.setAts(keyword);
+            atsList.add(atsDto);
+        }
+
+        return atsList;
+    }
+    private static boolean containsAtLeastFiveNumbers(String input) {
+        Pattern pattern = Pattern.compile("\\d");
+        Matcher matcher = pattern.matcher(input);
+
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+            if (count >= 5) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<AtsDto> extractAtsKeywords(String input) {
+        List<AtsDto> atsList = new ArrayList<>();
+
+        // Tách từ khóa bằng dấu phẩy
+        String[] keywordsArray = input.split(",\\s*");
+
+        // Tạo các đối tượng AtsDto từ từng từ khóa và thêm vào danh sách
+        for (String keyword : keywordsArray) {
+            AtsDto atsDto = new AtsDto();
+            atsDto.setAts(keyword.trim());
             atsList.add(atsDto);
         }
 

@@ -9,6 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EvaluateViewDto {
     private Integer id;
+    private String type;
     private Boolean criteria;
     private String description;
     private String title;

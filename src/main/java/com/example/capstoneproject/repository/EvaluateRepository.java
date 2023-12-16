@@ -9,5 +9,6 @@ public interface EvaluateRepository extends JpaRepository<Evaluate, Integer> {
 
     Evaluate findById(int Id);
     List<Evaluate> findAll();
+    List<Evaluate> findByTitleContainingIgnoreCase(String search);
 
 }

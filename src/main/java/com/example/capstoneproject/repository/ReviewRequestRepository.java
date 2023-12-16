@@ -22,6 +22,8 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequest, In
             @Param("status") ReviewStatus status
     );
 
+    List<ReviewRequest> findAllByExpertIdAndStatus(Integer expertId, StatusReview status);
+
     Optional<ReviewRequest> findByExpertIdAndId(Integer expertId, Integer requestId);
     List<ReviewRequest> findAllByExpertId(Integer expertId);
     List<ReviewRequest> findAllByCv_User_Id(Integer userId);

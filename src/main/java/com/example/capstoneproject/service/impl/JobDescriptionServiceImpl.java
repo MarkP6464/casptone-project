@@ -119,7 +119,7 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
                         jobDescription.setTitle(dto.getTitle());
                     }
                     if(dto.getDescription()!= null){
-                        if(isSubstringInString(jobDescription.getDescription(),dto.getDescription())){
+                        if(isSubstringInString(jobDescription.getDescription(),dto.getDescription()) && jobDescription.getDescription().length()==dto.getDescription().length()){
                             jobDescription.setDescription(jobDescription.getDescription());
                             atsList = evaluateService.getAts(cvId,jobDescription.getId());
                         }else{
