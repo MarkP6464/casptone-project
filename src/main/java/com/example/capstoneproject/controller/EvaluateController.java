@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.EvaluateCriteriaDto;
 import com.example.capstoneproject.Dto.EvaluateDescriptionDto;
 import com.example.capstoneproject.Dto.EvaluateScoreDto;
 import com.example.capstoneproject.Dto.ScoreDto;
+import com.example.capstoneproject.enums.SortOrder;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EvaluateService;
 import com.example.capstoneproject.service.impl.ChatGPTServiceImpl;
@@ -52,8 +53,13 @@ public class EvaluateController {
 
     @GetMapping("/admin/{admin-id}/evaluates/config")
     @PreAuthorize("hasAuthority('read:admin')")
-    public ResponseEntity<?> getEvaluateConfig(@PathVariable("admin-id") Integer adminId) {
-        return ResponseEntity.ok(evaluateService.viewEvaluate(adminId));
+    public ResponseEntity<?> getEvaluateConfig(
+            @PathVariable("admin-id") Integer adminId,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) SortOrder sort
+    ) {
+        return ResponseEntity.ok(evaluateService.viewEvaluate(adminId, search, sort));
     }
+
 
 }

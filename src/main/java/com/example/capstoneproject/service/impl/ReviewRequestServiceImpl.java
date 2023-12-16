@@ -3,8 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.ReviewRequestAddDto;
 import com.example.capstoneproject.Dto.ReviewRequestDto;
 import com.example.capstoneproject.Dto.TransactionDto;
-import com.example.capstoneproject.Dto.responses.ReviewRequestSecondViewDto;
-import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
+import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
@@ -188,7 +187,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                         }
                     }
                 }else{
-                    reviewRequestViewDto.setStatus(reviewRequest.getStatus());
+                    reviewRequestViewDto.setStatus(StatusReview.Waiting);
                 }
 
                 reviewRequestViewDto.setReceivedDate(reviewRequest.getReceivedDate());
@@ -234,7 +233,66 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
     }
 
     @Override
-    public List<ReviewRequestSecondViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm) {
+    public List<ReviewRequestHistorySecondViewDto> getListReviewRequestHistory(Integer expertId, String sortBy, String sortOrder, String searchTerm) {
+        List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByExpertIdAndStatus(expertId, StatusReview.Done);
+
+        if (reviewRequests != null && !reviewRequests.isEmpty()) {
+            List<ReviewRequestHistoryViewDto> reviewRequestDtos = new ArrayList<>();
+
+            for (ReviewRequest reviewRequest : reviewRequests) {
+                ReviewRequestHistoryViewDto reviewRequestViewDto = new ReviewRequestHistoryViewDto();
+
+                // Set properties from ReviewRequest to ReviewRequestDto
+                reviewRequestViewDto.setId(reviewRequest.getId());
+                reviewRequestViewDto.setResumeName(reviewRequest.getCv().getResumeName());
+                reviewRequestViewDto.setCandidate(reviewRequest.getCv().getUser().getName());
+                reviewRequestViewDto.setPrice(reviewRequest.getPrice());
+                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_Id(reviewRequest.getId());
+                if(reviewResponseOptional.isPresent()){
+                    ReviewResponse response = reviewResponseOptional.get();
+                    reviewRequestViewDto.setStar(response.getScore());
+                    reviewRequestViewDto.setResponse(response.getComment());
+                }
+                reviewRequestViewDto.setReceivedDate(reviewRequest.getReceivedDate());
+                reviewRequestDtos.add(reviewRequestViewDto);
+            }
+
+            // Sort the list based on the specified field and order if provided
+            if (sortBy != null && !sortBy.trim().isEmpty() && sortOrder != null && !sortOrder.trim().isEmpty()) {
+                sortReviewRequestListHistory(reviewRequestDtos, sortBy, sortOrder);
+            }
+
+            // Format dates using PrettyTime after sorting
+            for (ReviewRequestHistoryViewDto dto : reviewRequestDtos) {
+                dto.setReceivedDate(dto.getReceivedDate());
+            }
+
+            // Apply search filter if searchTerm is provided
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                reviewRequestDtos = filterBySearchTermHistory(reviewRequestDtos, searchTerm);
+            }
+
+            List<ReviewRequestHistorySecondViewDto> reviewRequestReturn = new ArrayList<>();
+            for(ReviewRequestHistoryViewDto reviewRequestViewDto: reviewRequestDtos){
+                ReviewRequestHistorySecondViewDto reviewRequestSecondViewDto = new ReviewRequestHistorySecondViewDto();
+                reviewRequestSecondViewDto.setId(reviewRequestViewDto.getId());
+                reviewRequestSecondViewDto.setResumeName(reviewRequestViewDto.getResumeName());
+                reviewRequestSecondViewDto.setCandidate(reviewRequestViewDto.getCandidate());
+                reviewRequestSecondViewDto.setPrice(formatPrice(reviewRequestViewDto.getPrice()));
+                reviewRequestSecondViewDto.setStar(reviewRequestViewDto.getStar());
+                reviewRequestSecondViewDto.setResponse(reviewRequestViewDto.getResponse());
+                reviewRequestSecondViewDto.setReceivedDate(reviewRequestViewDto.getReceivedDate());
+                reviewRequestReturn.add(reviewRequestSecondViewDto);
+            }
+
+            return reviewRequestReturn;
+        } else {
+            throw new BadRequestException("Currently no results were found in your system.");
+        }
+    }
+
+    @Override
+    public List<ReviewRequestCandidateSecondViewDto> getListReviewRequestCandidate(Integer userId, String sortBy, String sortOrder, String searchTerm) {
         List<ReviewRequest> reviewRequests = reviewRequestRepository.findAllByCv_User_Id(userId);
 
         if (reviewRequests != null && !reviewRequests.isEmpty()) {
@@ -247,7 +305,11 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 reviewRequestViewDto.setId(reviewRequest.getId());
                 reviewRequestViewDto.setResumeName(reviewRequest.getCv().getResumeName());
                 reviewRequestViewDto.setAvatar(reviewRequest.getCv().getUser().getAvatar());
-                reviewRequestViewDto.setName(reviewRequest.getCv().getUser().getName());
+                Optional<Users> usersOptional = usersRepository.findUsersById(reviewRequest.getExpertId());
+                if(usersOptional.isPresent()){
+                    Users users = usersOptional.get();
+                    reviewRequestViewDto.setName(users.getName());
+                }
                 reviewRequestViewDto.setNote(reviewRequest.getNote());
                 reviewRequestViewDto.setPrice(reviewRequest.getPrice());
                 reviewRequestViewDto.setStatus(reviewRequest.getStatus());
@@ -272,13 +334,12 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 reviewRequestDtos = filterBySearchTerm(reviewRequestDtos, searchTerm);
             }
 
-            List<ReviewRequestSecondViewDto> reviewRequestReturn = new ArrayList<>();
+            List<ReviewRequestCandidateSecondViewDto> reviewRequestReturn = new ArrayList<>();
             for(ReviewRequestViewDto reviewRequestViewDto: reviewRequestDtos){
-                ReviewRequestSecondViewDto reviewRequestSecondViewDto = new ReviewRequestSecondViewDto();
+                ReviewRequestCandidateSecondViewDto reviewRequestSecondViewDto = new ReviewRequestCandidateSecondViewDto();
                 reviewRequestSecondViewDto.setId(reviewRequestViewDto.getId());
                 reviewRequestSecondViewDto.setResumeName(reviewRequestViewDto.getResumeName());
-                reviewRequestSecondViewDto.setAvatar(reviewRequestViewDto.getAvatar());
-                reviewRequestSecondViewDto.setName(reviewRequestViewDto.getName());
+                reviewRequestSecondViewDto.setExpert(reviewRequestViewDto.getName());
                 reviewRequestSecondViewDto.setNote(reviewRequestViewDto.getNote());
                 reviewRequestSecondViewDto.setPrice(formatPrice(reviewRequestViewDto.getPrice()));
                 reviewRequestSecondViewDto.setStatus(reviewRequestViewDto.getStatus());
@@ -319,6 +380,17 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         return reviewRequestDtos;
     }
 
+    private List<ReviewRequestHistoryViewDto> filterBySearchTermHistory(List<ReviewRequestHistoryViewDto> reviewRequestDtos, String searchTerm) {
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            // Case-insensitive search by ResumeName
+            String searchTermLowerCase = searchTerm.toLowerCase();
+            reviewRequestDtos = reviewRequestDtos.stream()
+                    .filter(dto -> dto.getResumeName().toLowerCase().contains(searchTermLowerCase))
+                    .collect(Collectors.toList());
+        }
+        return reviewRequestDtos;
+    }
+
     private void sortReviewRequestList(List<ReviewRequestViewDto> reviewRequestDtos, String sortBy, String sortOrder) {
         Comparator<ReviewRequestViewDto> comparator = null;
 
@@ -331,6 +403,28 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 break;
             case "deadline":
                 comparator = Comparator.comparing(ReviewRequestViewDto::getDeadline);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sortBy parameter");
+        }
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            comparator = comparator.reversed();
+        }
+
+        // Apply the comparator to the list
+        Collections.sort(reviewRequestDtos, comparator);
+    }
+
+    private void sortReviewRequestListHistory(List<ReviewRequestHistoryViewDto> reviewRequestDtos, String sortBy, String sortOrder) {
+        Comparator<ReviewRequestHistoryViewDto> comparator = null;
+
+        switch (sortBy) {
+            case "price":
+                comparator = Comparator.comparing(ReviewRequestHistoryViewDto::getPrice);
+                break;
+            case "receivedDate":
+                comparator = Comparator.comparing(ReviewRequestHistoryViewDto::getReceivedDate);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid sortBy parameter");

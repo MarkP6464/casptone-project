@@ -87,6 +87,7 @@ public class PriceOptionServiceImpl implements PriceOptionService {
                     newPriceOptions.add(priceOption);
                 }
             }
+            priceOptionRepository.deleteByExpert(expertId);
 
             // Save the new list to the database only if all prices and days are valid
             if (newPriceOptions.size() == dtoList.size()) {
