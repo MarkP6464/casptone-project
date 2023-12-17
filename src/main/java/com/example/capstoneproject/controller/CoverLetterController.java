@@ -111,4 +111,19 @@ public class CoverLetterController {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
 
+    @PostMapping("/user/{user-id}/cover-letter/{cover-letter-id}/duplicate")
+    @PreAuthorize("hasAuthority('create:candidate')")
+    public ResponseEntity<String> duplicateCoverLetter(
+            @PathVariable("user-id") Integer userId,
+            @PathVariable("cover-letter-id") Integer coverLetterId) {
+        try {
+            String message = coverLetterService.duplicateCoverLetter(userId, coverLetterId);
+            return ResponseEntity.ok(message);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Server Error");
+        }
+    }
+
 }
