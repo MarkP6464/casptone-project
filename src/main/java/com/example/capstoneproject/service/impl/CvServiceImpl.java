@@ -927,7 +927,7 @@ public class CvServiceImpl implements CvService {
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+//            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
             String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
             ReviewAiDto reviewAiDto = new ReviewAiDto();
             reviewAiDto.setReview(response);

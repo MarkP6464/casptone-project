@@ -1,6 +1,10 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Config.OpenAIConfig;
+import com.example.capstoneproject.entity.Admin;
+import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.repository.AdminRepository;
+import com.example.capstoneproject.service.UsersService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,9 @@ public class ChatGPTServiceImpl {
     RestTemplate restTemplate;
 
     @Autowired
+    AdminRepository adminRepository;
+
+    @Autowired
     public ChatGPTServiceImpl(OpenAIConfig openAIConfig, RestTemplate restTemplate) {
         this.openAIConfig = openAIConfig;
         this.restTemplate = restTemplate;
@@ -28,7 +35,8 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPT(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(openAIConfig.getApiKey());
+        Admin users = adminRepository.getById(1);
+        headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
@@ -48,7 +56,8 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPTCoverLetter(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(openAIConfig.getApiKey());
+        Admin users = adminRepository.getById(1);
+        headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
@@ -68,7 +77,8 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPTCoverLetterRevise(String message) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(openAIConfig.getApiKey());
+        Admin users = adminRepository.getById(1);
+        headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + "}";
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
