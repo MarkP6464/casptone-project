@@ -324,6 +324,39 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         return chatResponse;
     }
 
+    @Override
+    public String duplicateCoverLetter(Integer userId, Integer coverLetterId) {
+        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndId(userId, coverLetterId);
+
+        if (isCoverLetter) {
+            Optional<CoverLetter> optionalCoverLetter = coverLetterRepository.findById(coverLetterId);
+
+            if (optionalCoverLetter.isPresent()) {
+                CoverLetter originalCoverLetter = optionalCoverLetter.get();
+                List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(userId);
+
+                CoverLetter duplicatedCoverLetter = new CoverLetter();
+                duplicatedCoverLetter.setTitle("Copy of "+originalCoverLetter.getTitle()+coverLetters.size());
+                duplicatedCoverLetter.setCompany(originalCoverLetter.getCompany());
+                duplicatedCoverLetter.setDate(originalCoverLetter.getDate());
+                duplicatedCoverLetter.setDear(originalCoverLetter.getDear());
+                duplicatedCoverLetter.setDescription(originalCoverLetter.getDescription());
+                duplicatedCoverLetter.setCv(originalCoverLetter.getCv());
+                duplicatedCoverLetter.setJobTitle(originalCoverLetter.getJobTitle());
+                duplicatedCoverLetter.setJobDescription(originalCoverLetter.getJobDescription());
+
+                CoverLetter savedCoverLetter = coverLetterRepository.save(duplicatedCoverLetter);
+
+                return "Cover Letter duplicated successfully";
+            } else {
+                throw new RuntimeException("Original Cover Letter not found.");
+            }
+        } else {
+            throw new IllegalArgumentException("Cover Letter with ID " + coverLetterId + " does not belong to User with ID " + userId);
+        }
+    }
+
+
     public String processString(String input) {
         int index = input.indexOf("\n\n");
         if (index != -1) {

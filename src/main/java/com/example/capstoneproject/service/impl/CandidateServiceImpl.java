@@ -129,6 +129,7 @@ public class CandidateServiceImpl implements CandidateService {
                 candidateOverViewDtos = candidates.stream()
                         .map(candidate -> {
                             CandidateOverViewDto candidateOverViewDto = new CandidateOverViewDto();
+                            candidateOverViewDto.setId(candidate.getId());
                             candidateOverViewDto.setName(candidate.getName());
                             candidateOverViewDto.setAvatar(candidate.getAvatar());
                             candidateOverViewDto.setJobTitle(candidate.getJobTitle());
@@ -144,11 +145,12 @@ public class CandidateServiceImpl implements CandidateService {
             if (candidates != null) {
                 candidateOverViewDtos = candidates.stream()
                         .filter(candidate ->
-                                candidate.getName().contains(search) ||
-                                        candidate.getJobTitle().contains(search) ||
-                                        candidate.getCompany().contains(search))
+                                (candidate.getName() != null && candidate.getName().contains(search)) ||
+                                        (candidate.getJobTitle() != null && candidate.getJobTitle().contains(search)) ||
+                                        (candidate.getCompany() != null && candidate.getCompany().contains(search)))
                         .map(candidate -> {
                             CandidateOverViewDto candidateOverViewDto = new CandidateOverViewDto();
+                            candidateOverViewDto.setId(candidate.getId());
                             candidateOverViewDto.setName(candidate.getName());
                             candidateOverViewDto.setAvatar(candidate.getAvatar());
                             candidateOverViewDto.setJobTitle(candidate.getJobTitle());

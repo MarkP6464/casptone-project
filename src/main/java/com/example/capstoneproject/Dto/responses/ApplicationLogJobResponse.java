@@ -11,12 +11,13 @@ import java.util.HashMap;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ApplicationLogCandidateResponse {
-    String company;
+public class ApplicationLogJobResponse {
+    JobPostingNameViewDto jobPosting;
+    String candidateName;
     LocalDate applyDate;
     String note;
+    String email;
     ApplicationLogStatus status;
-    JobPostingNameViewDto jobPosting;
 
     HashMap<String, Object> cvs = new HashMap<>();
     HashMap<String, Object> coverLetters = new HashMap<>();

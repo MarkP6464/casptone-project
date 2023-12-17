@@ -1,5 +1,7 @@
 package com.example.capstoneproject.controller;
 
+import com.example.capstoneproject.Dto.responses.AdminConfigurationApiResponse;
+import com.example.capstoneproject.Dto.responses.AdminConfigurationRatioResponse;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.service.AdminConfigurationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,9 +25,15 @@ public class AdminConfigurationController {
     }
 
     @PutMapping("/information/config")
-//    @PreAuthorize("hasAnyAuthority('update:admin')")
-    public ResponseEntity<?> update(@RequestBody AdminConfigurationResponse dto) throws JsonProcessingException {
+    @PreAuthorize("hasAnyAuthority('update:admin')")
+    public ResponseEntity<?> update(@RequestBody AdminConfigurationRatioResponse dto) throws JsonProcessingException {
         return ResponseEntity.ok(adminConfigurationService.update(dto));
+    }
+
+    @PutMapping("/information/config/api-key")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
+    public ResponseEntity<?> updateApi(@RequestBody AdminConfigurationApiResponse dto) throws JsonProcessingException {
+        return ResponseEntity.ok(adminConfigurationService.updateApi(dto));
     }
 
 }

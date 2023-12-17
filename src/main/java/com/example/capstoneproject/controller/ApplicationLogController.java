@@ -2,6 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.NoteDto;
 import com.example.capstoneproject.Dto.responses.ApplicationLogFullResponse;
+import com.example.capstoneproject.Dto.responses.ApplicationLogJobResponse;
 import com.example.capstoneproject.Dto.responses.ApplicationLogResponse;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,7 +44,7 @@ public class ApplicationLogController {
 
     @GetMapping("/application-log/{post-id}")
     @PreAuthorize("hasAnyAuthority('read:hr')")
-    public ResponseEntity<List<ApplicationLogResponse>> getAllLog(@PathVariable("post-id") Integer postId){
+    public ResponseEntity<List<ApplicationLogJobResponse>> getAllLog(@PathVariable("post-id") Integer postId){
         return ResponseEntity.ok(applicationLogService.getAll(postId));
     }
 

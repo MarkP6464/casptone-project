@@ -457,7 +457,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 }else{
                     throw new BadRequestException("Update fail status review request.");
                 }
-                sendEmail(reviewResponse.getReviewRequest().getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+//                sendEmail(reviewResponse.getReviewRequest().getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
                 return true;
             }else{
                 throw new BadRequestException("This review response had done");
@@ -592,45 +592,45 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         return result.toString();
     }
 
-    private void sendEmail(String toEmail, String subject, String message) {
-        // Cấu hình thông tin SMTP
-        String host = "smtp.gmail.com";
-        String username = "cvbuilder.ai@gmail.com";
-        String password = "cvbtldosldixpkeh";
-
-        // Cấu hình các thuộc tính cho session
-        Properties properties = new Properties();
-        properties.put("mail.smtp.host", host);
-        properties.put("mail.smtp.auth", "true");
-        properties.put("mail.smtp.port", "587");
-        properties.put("mail.smtp.starttls.enable", "true");
-
-        // Tạo một phiên gửi email
-        Session session = Session.getInstance(properties, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
-
-        try {
-            MimeMessage mimeMessage = new MimeMessage(session);
-
-            mimeMessage.setFrom(new InternetAddress(username));
-
-            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-
-            mimeMessage.setSubject(subject);
-
-            mimeMessage.setText(message);
-
-            Transport.send(mimeMessage);
-
-            System.out.println("Email sent successfully.");
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            throw new BadRequestException("Failed to send email.");
-        }
-    }
+//    private void sendEmail(String toEmail, String subject, String message) {
+//        // Cấu hình thông tin SMTP
+//        String host = "smtp.gmail.com";
+//        String username = "cvbuilder.ai@gmail.com";
+//        String password = "cvbtldosldixpkeh";
+//
+//        // Cấu hình các thuộc tính cho session
+//        Properties properties = new Properties();
+//        properties.put("mail.smtp.host", host);
+//        properties.put("mail.smtp.auth", "true");
+//        properties.put("mail.smtp.port", "587");
+//        properties.put("mail.smtp.starttls.enable", "true");
+//
+//        // Tạo một phiên gửi email
+//        Session session = Session.getInstance(properties, new Authenticator() {
+//            @Override
+//            protected PasswordAuthentication getPasswordAuthentication() {
+//                return new PasswordAuthentication(username, password);
+//            }
+//        });
+//
+//        try {
+//            MimeMessage mimeMessage = new MimeMessage(session);
+//
+//            mimeMessage.setFrom(new InternetAddress(username));
+//
+//            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+//
+//            mimeMessage.setSubject(subject);
+//
+//            mimeMessage.setText(message);
+//
+//            Transport.send(mimeMessage);
+//
+//            System.out.println("Email sent successfully.");
+//        } catch (MessagingException e) {
+//            e.printStackTrace();
+//            throw new BadRequestException("Failed to send email.");
+//        }
+//    }
 
 }

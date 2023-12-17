@@ -21,6 +21,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 //    @Query("SELECT t FROM Transaction t WHERE t.user.id = :receiverId AND t.id = :transactionId")
     Optional<Transaction> findByUser_IdAndId(@Param("receiverId") Integer receiverId, @Param("transactionId") Long transactionId);
 
+    @Query("SELECT SUM(t.expenditure) FROM Transaction t " +
+            "WHERE t.user.id = :userId " +
+            "AND t.transactionType = :transactionType " +
+            "AND t.status = :status")
+    Double sumExpenditureByUserIdAndTransactionTypeAndStatus(
+            @Param("userId") Integer userId,
+            @Param("transactionType") TransactionType transactionType,
+            @Param("status") TransactionStatus status
+    );
 
     List<Transaction> findAllByTransactionTypeAndStatus(TransactionType transactionType, TransactionStatus transactionStatus);
 

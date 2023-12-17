@@ -110,7 +110,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             applicationLog.setStatus(ApplicationLogStatus.RECEIVED);
             applicationLog.setNote(dto.getNote());
             applicationLogRepository.save(applicationLog);
-            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+//            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
             return true;
         } else throw new InternalServerException("Not found Job posting");
     }
@@ -157,14 +157,76 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     }
 
     @Override
-    public List<ApplicationLogResponse> getAll(Integer postId){
-        List<ApplicationLogResponse> newList = null;
+    public List<ApplicationLogJobResponse> getAll(Integer postId){
+        List<ApplicationLogJobResponse> newList = null;
         List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_IdOrderByTimestampDesc(postId);
+
+        HashMap<Integer, String> listCvMap = new HashMap<>();
+        HashMap<Integer, String> listClMap = new HashMap<>();
+        List<Integer> cvList = new ArrayList<>();
+        List<Integer> clList = new ArrayList<>();
         if (!list.isEmpty()){
-            ApplicationLogResponse applicationLogResponse = new ApplicationLogResponse();
-             newList = list.stream().map(x -> modelMapper.map(x, ApplicationLogResponse.class)).collect(Collectors.toList());
+            list.stream().map(x -> {
+                return listCvMap.put(x.getCv(), null);
+            });
+            list.stream().map(x -> {
+                return listClMap.put(x.getCoverLetter(), null);
+            });
+
+            newList = list.stream().map(x -> {
+                cvList.add(x.getCv());
+                if (Objects.nonNull(x.getCoverLetter())){
+                    clList.add(x.getCoverLetter());
+                }
+                ApplicationLogJobResponse applicationLogResponse = new ApplicationLogJobResponse();
+                applicationLogResponse.setApplyDate(x.getTimestamp());
+                applicationLogResponse.setNote(x.getNote());
+                applicationLogResponse.setEmail(x.getUser().getEmail());
+                applicationLogResponse.setCandidateName(x.getUser().getName());
+                applicationLogResponse.setStatus(x.getStatus());
+                JobPostingNameViewDto jobPostingNameView = new JobPostingNameViewDto();
+                jobPostingNameView.setId(x.getJobPosting().getId());
+                jobPostingNameView.setName(x.getJobPosting().getTitle());
+                applicationLogResponse.setJobPosting(jobPostingNameView);
+                applicationLogResponse.getCvs().put("historyId", x.getCv());
+                applicationLogResponse.getCvs().put("resumeName", null);
+                applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());
+                applicationLogResponse.getCoverLetters().put("title", null);
+                return applicationLogResponse;
+            }).collect(Collectors.toList());
+
+            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
+            cvHistoryList.stream().forEach(x -> {
+                listCvMap.put(x.getId(), x.getCv().getResumeName());
+            });
+            newList.stream().forEach(x -> {
+                Integer historyID = (Integer) x.getCvs().get("historyId");
+                x.getCvs().put("resumeName", listCvMap.get(historyID));
+            });
+
+            List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
+            clHistoryList.stream().forEach(x -> {
+                listClMap.put(x.getId(), x.getTitle());
+            });
+            newList.stream().forEach(x -> {
+                Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
+                x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
+            });
         }
         return newList;
+
+
+//        if (!list.isEmpty()){
+//            for(ApplicationLog applicationLog: list){
+//                ApplicationLogJobResponse applicationLogResponse = new ApplicationLogJobResponse();
+//                applicationLogResponse.setJobTitle(applicationLogResponse.getJobTitle());
+//                applicationLogResponse.setCandidateName(applicationLogResponse.getCandidateName());
+//                applicationLogResponse.setApplyDate(applicationLogResponse.getApplyDate());
+//                applicationLogResponse.setNote(applicationLogResponse.getNote());
+//                applicationLogResponse.setEmail(applicationLogResponse.getEmail());
+//            }
+//        }
+//        return newList;
     }
 
     @Override
@@ -248,8 +310,6 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                     clList.add(x.getCoverLetter());
                 }
                 ApplicationLogCandidateResponse applicationLogResponse = new ApplicationLogCandidateResponse();
-                applicationLogResponse.setEmail(x.getUser().getEmail());
-                applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
                 applicationLogResponse.setStatus(x.getStatus());

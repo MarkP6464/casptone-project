@@ -33,6 +33,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.util.*;
 
 
@@ -85,7 +86,11 @@ public class AuthenticationService {
                 userViewLoginDto.setEmail(users.getEmail());
                 userViewLoginDto.setLinkin(users.getLinkin());
                 userViewLoginDto.setAccountBalance(users.getAccountBalance());
+                userViewLoginDto.setBanned(users.isBan());
                 userViewLoginDto.setRole(modelMapper.map(users.getRole(), RoleDto.class));
+                LocalDate currentDate = LocalDate.now();
+                users.setLastActive(currentDate);
+                usersRepository.save(users);
                 return  userViewLoginDto;
             }else{
                 Candidate candidate = new Candidate();
@@ -96,6 +101,9 @@ public class AuthenticationService {
                 candidate.setStatus(BasicStatus.ACTIVE);
                 candidate.setRole(roleOptional);
                 candidate.setAccountBalance( 0.0);
+                LocalDate currentDate = LocalDate.now();
+                candidate.setLastActive(currentDate);
+                candidate.setBan(false);
                 candidateRepository.save(candidate);
                 userViewLoginDto.setId(candidate.getId());
                 userViewLoginDto.setName(candidate.getName());
@@ -106,6 +114,7 @@ public class AuthenticationService {
                 userViewLoginDto.setLinkin(candidate.getLinkin());
                 userViewLoginDto.setAccountBalance(candidate.getAccountBalance());
                 userViewLoginDto.setRole(roleDto);
+                userViewLoginDto.setBanned(candidate.isBan());
             }
         }
         return userViewLoginDto;

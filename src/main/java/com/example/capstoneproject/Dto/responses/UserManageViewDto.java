@@ -1,10 +1,11 @@
 package com.example.capstoneproject.Dto.responses;
 
-import com.example.capstoneproject.Dto.RoleDto;
 import com.example.capstoneproject.enums.RoleType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter
@@ -14,13 +15,11 @@ public class UserManageViewDto {
 
     private String name;
 
-    private String avatar;
+    private String status;
 
-    private String phone;
+    private String money;
 
-    private String email;
-
-    private Double accountBalance;
+    private LocalDate lastActive;
 
     private RoleType role;
 }

@@ -116,6 +116,9 @@ public class CvServiceImpl implements CvService {
     @Autowired
     AtsRepository atsRepository;
 
+    @Autowired
+    JobDescriptionService jobDescriptionService;
+
     public CvServiceImpl(CvRepository cvRepository, CvMapper cvMapper) {
         this.cvRepository = cvRepository;
         this.cvMapper = cvMapper;
@@ -286,6 +289,20 @@ public class CvServiceImpl implements CvService {
             CvBodyDto cvBodyDto = savedCv.deserialize();
             response.setCvStyle(cvBodyDto.getCvStyle());
             response.setTemplateType(cvBodyDto.getTemplateType());
+
+            if(dto.getJobTitle()!=null || dto.getJobDescription()!=null){
+                JobDescription jobDescription = new JobDescription();
+                jobDescription.setTitle(dto.getJobTitle());
+                jobDescription.setDescription(dto.getJobDescription());
+                JobDescription saved = jobDescriptionRepository.save(jobDescription);
+                Integer jobId = saved.getId();
+                Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(jobId);
+                if(jobDescriptionOptional.isPresent()){
+                    JobDescription jobDescription1 = jobDescriptionOptional.get();
+                    savedCv.setJobDescription(jobDescription1);
+                    cvRepository.save(savedCv);
+                }
+            }
 
             return response;
         } else {
