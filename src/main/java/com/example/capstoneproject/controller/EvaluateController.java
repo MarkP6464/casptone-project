@@ -51,6 +51,12 @@ public class EvaluateController {
         return ResponseEntity.ok(evaluateService.updateCriteriaEvaluate(adminId,evaluateId,dto));
     }
 
+    @PutMapping("/admin/{admin-id}/evaluate/{evaluate-id}/score-criteria")
+    @PreAuthorize("hasAuthority('update:admin')")
+    public ResponseEntity<?> updateScoreAndCriteria(@PathVariable("admin-id") Integer adminId, @PathVariable("evaluate-id") Integer evaluateId, @RequestBody EvaluateScoreDto dto) {
+        return ResponseEntity.ok(evaluateService.updateScoreAndCriteriaEvaluate(adminId,evaluateId,dto));
+    }
+
     @GetMapping("/admin/{admin-id}/evaluates/config")
     @PreAuthorize("hasAuthority('read:admin')")
     public ResponseEntity<?> getEvaluateConfig(
