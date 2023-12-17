@@ -119,14 +119,14 @@ public class TransactionServiceImpl implements TransactionService {
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
         Environment environment = Environment.selectEnv("dev", Environment.ProcessType.PAY_GATE);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
-        Double ratio = config.getMoneyRatio();
+//        Double ratio = config.getMoneyRatio();
         environment.setPartnerInfo(partnerInfo);
         CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure().longValue()), orderInfo, returnURL, notifyURL, extraData);
         if (Objects.isNull(captureWalletMoMoResponse)){
             throw new InternalServerException("Momo service is not available");
         }
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
-            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / ratio, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
+            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
         }
         String redirectLink = captureWalletMoMoResponse.getPayUrl().toString();
@@ -150,7 +150,7 @@ public class TransactionServiceImpl implements TransactionService {
         Long expenditure = s.get("expenditure").getAsLong();
         Transaction transaction = transactionRepository.findByRequestId(tid);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
-        Double ratio = config.getMoneyRatio();
+        Double ratio = 1.0;
         if (TransactionStatus.PENDING.equals(transaction.getStatus())){
             if (code.equals(0)) {
                 if (Objects.nonNull(transaction)){
@@ -207,7 +207,7 @@ public class TransactionServiceImpl implements TransactionService {
             expert =  (Expert) user;
         }
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
-        Double ratio = config.getMoneyRatio();
+        Double ratio = 1.0;
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
