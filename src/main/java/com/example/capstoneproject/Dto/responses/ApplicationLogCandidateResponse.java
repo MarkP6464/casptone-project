@@ -13,10 +13,8 @@ import java.util.HashMap;
 @Setter
 public class ApplicationLogCandidateResponse {
     String company;
-    String candidateName;
     LocalDate applyDate;
     String note;
-    String email;
     ApplicationLogStatus status;
     JobPostingNameViewDto jobPosting;
 

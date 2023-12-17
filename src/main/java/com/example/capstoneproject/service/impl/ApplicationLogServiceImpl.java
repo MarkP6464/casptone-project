@@ -110,7 +110,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             applicationLog.setStatus(ApplicationLogStatus.RECEIVED);
             applicationLog.setNote(dto.getNote());
             applicationLogRepository.save(applicationLog);
-            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
+//            sendEmail(cv.getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
             return true;
         } else throw new InternalServerException("Not found Job posting");
     }
@@ -248,8 +248,6 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                     clList.add(x.getCoverLetter());
                 }
                 ApplicationLogCandidateResponse applicationLogResponse = new ApplicationLogCandidateResponse();
-                applicationLogResponse.setEmail(x.getUser().getEmail());
-                applicationLogResponse.setCandidateName(x.getUser().getUsername());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
                 applicationLogResponse.setStatus(x.getStatus());

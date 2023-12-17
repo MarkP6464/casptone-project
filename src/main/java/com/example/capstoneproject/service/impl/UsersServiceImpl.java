@@ -10,8 +10,12 @@ import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.enums.TransactionStatus;
+import com.example.capstoneproject.enums.TransactionType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.CvRepository;
+import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.UsersService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,6 +36,9 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
 
     @Autowired
     UsersRepository UsersRepository;
+
+    @Autowired
+    TransactionRepository transactionRepository;
 
     @Autowired
     CvRepository cvRepository;
@@ -108,23 +115,82 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
     }
 
     @Override
-    public List<UserManageViewDto> manageUser() {
-        List<Users> users = UsersRepository.findAll();
+    public List<UserManageViewDto> manageUser(Integer adminId) {
+        List<Users> users = UsersRepository.findAllByStatusAndIdNot(BasicStatus.ACTIVE, adminId);
         List<UserManageViewDto> userManages = new ArrayList<>();
         if(!users.isEmpty()){
             for(Users user: users){
                 UserManageViewDto userManageViewDto = new UserManageViewDto();
                 userManageViewDto.setId(user.getId());
                 userManageViewDto.setName(user.getName());
-                userManageViewDto.setAvatar(user.getAvatar());
-                userManageViewDto.setPhone(user.getPhone());
-                userManageViewDto.setEmail(user.getEmail());
-                userManageViewDto.setAccountBalance(user.getAccountBalance());
+                if(user.isBan()){
+                    userManageViewDto.setStatus("Banned");
+                }else{
+                    userManageViewDto.setStatus("UnBanned");
+                }
+                userManageViewDto.setLastActive(user.getLastActive());
+                Double monney = transactionRepository.sumExpenditureByUserIdAndTransactionTypeAndStatus(user.getId(), TransactionType.ADD, TransactionStatus.SUCCESSFULLY);
+                Long mon = (monney != null) ? monney.longValue() : 0L;
+                userManageViewDto.setMoney(formatPrice(mon));
                 userManageViewDto.setRole(user.getRole().getRoleName());
                 userManages.add(userManageViewDto);
             }
         }
         return userManages;
+    }
+
+    @Override
+    public String banUser(Integer adminId, Integer userId) {
+        Optional<Users> adminOptional = UsersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(adminOptional.isPresent()){
+            Optional<Users> usersOptional = UsersRepository.findUsersById(userId);
+            if(usersOptional.isPresent()){
+                Users users = usersOptional.get();
+                users.setBan(true);
+                UsersRepository.save(users);
+                return "Banned user successful.";
+            }else{
+                throw new BadRequestException("User not exist.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role admin.");
+        }
+    }
+
+    @Override
+    public String unBanUser(Integer adminId, Integer userId) {
+        Optional<Users> adminOptional = UsersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(adminOptional.isPresent()){
+            Optional<Users> usersOptional = UsersRepository.findUsersById(userId);
+            if(usersOptional.isPresent()){
+                Users users = usersOptional.get();
+                users.setBan(false);
+                UsersRepository.save(users);
+                return "Un-Banned user successful.";
+            }else{
+                throw new BadRequestException("User not exist.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role admin.");
+        }
+    }
+
+    public static String formatPrice(long price) {
+        String priceStr = String.valueOf(price);
+
+        int length = priceStr.length();
+        StringBuilder formattedPrice = new StringBuilder();
+
+        for (int i = length - 1; i >= 0; i--) {
+            formattedPrice.insert(0, priceStr.charAt(i));
+
+            // Insert a dot after every 3 digits, but not at the beginning
+            if ((length - i) % 3 == 0 && i != 0) {
+                formattedPrice.insert(0, ".");
+            }
+        }
+
+        return formattedPrice.toString();
     }
 
 }

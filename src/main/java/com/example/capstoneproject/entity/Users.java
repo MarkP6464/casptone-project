@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -72,6 +73,10 @@ public class Users implements UserDetails {
 
     @Column(name = "account_Balance")
     private Double accountBalance = 0.0;
+
+    private LocalDate lastActive;
+
+    private boolean ban;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

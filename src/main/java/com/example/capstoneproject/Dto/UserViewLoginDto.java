@@ -24,5 +24,7 @@ public class UserViewLoginDto {
 
     private Double accountBalance;
 
+    private boolean isBanned;
+
     private RoleDto role;
 }

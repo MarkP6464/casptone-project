@@ -1,5 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
+import com.example.capstoneproject.Dto.responses.AdminConfigurationApiResponse;
+import com.example.capstoneproject.Dto.responses.AdminConfigurationRatioResponse;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.entity.Admin;
 import com.example.capstoneproject.entity.Users;
@@ -40,7 +42,28 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
     }
 
     @Override
-    public AdminConfigurationResponse update(AdminConfigurationResponse dto) throws JsonProcessingException {
+    public AdminConfigurationRatioResponse update(AdminConfigurationRatioResponse dto) throws JsonProcessingException {
+        AdminConfigurationRatioResponse adminConfigurationRatioResponse = new AdminConfigurationRatioResponse();
+        Users user = usersRepository.findUsersById(1).get();
+        if (Objects.nonNull(user)){
+            if (user instanceof Admin) {
+                Admin admin = (Admin) user;
+                AdminConfigurationResponse adminConfigurationResponse = admin.getConfiguration();
+                modelMapper.map(dto, adminConfigurationResponse);
+                admin.setConfiguration(adminConfigurationResponse);
+                Admin admin1 = usersRepository.save(admin);
+                adminConfigurationRatioResponse.setMoneyRatio(admin1.getConfiguration().getMoneyRatio());
+                adminConfigurationRatioResponse.setVipYearRatio(admin1.getConfiguration().getVipYearRatio());
+                adminConfigurationRatioResponse.setVipMonthRatio(admin1.getConfiguration().getVipMonthRatio());
+                return  adminConfigurationRatioResponse;
+            }
+        }
+        throw new BadRequestException("id not valid to token");
+    }
+
+    @Override
+    public AdminConfigurationApiResponse updateApi(AdminConfigurationApiResponse dto) {
+        AdminConfigurationApiResponse adminConfigurationApiResponse = new AdminConfigurationApiResponse();
         Users user = usersRepository.findUsersById(1).get();
         if (Objects.nonNull(user)){
             if (user instanceof Admin) {
@@ -49,9 +72,27 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
                 modelMapper.map(dto, adminConfigurationResponse);
                 admin.setConfiguration(adminConfigurationResponse);
                 usersRepository.save(admin);
-                return  adminConfigurationResponse;
+                Admin admin1 = usersRepository.save(admin);
+                adminConfigurationApiResponse.setApiKey(admin1.getConfiguration().getApiKey());
+                return  adminConfigurationApiResponse;
             }
         }
         throw new BadRequestException("id not valid to token");
     }
+
+//    @Override
+//    public AdminConfigurationRatioResponse update(AdminConfigurationRatioResponse dto) throws JsonProcessingException {
+//        Users user = usersRepository.findUsersById(1).get();
+//        if (Objects.nonNull(user)){
+//            if (user instanceof Admin) {
+//                Admin admin = (Admin) user;
+//                AdminConfigurationResponse adminConfigurationResponse = admin.getConfiguration();
+//                modelMapper.map(dto, adminConfigurationResponse);
+//                admin.setConfiguration(adminConfigurationResponse);
+//                usersRepository.save(admin);
+////                return  adminConfigurationResponse;
+//            }
+//        }
+//        throw new BadRequestException("id not valid to token");
+//    }
 }
