@@ -2,7 +2,9 @@ package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.request.ImageDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
+import com.example.capstoneproject.Dto.responses.TransactionViewDto;
 import com.example.capstoneproject.entity.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mservice.allinone.models.QueryStatusTransactionResponse;
@@ -24,7 +26,9 @@ public interface TransactionService {
 
     TransactionDto approveWithdrawRequest(String id);
 
-    List<TransactionDto> viewWithdrawList();
+    List<TransactionViewDto> viewWithdrawList();
+
+    String uploadImageConfirm(Integer userId, Long transactionId, ImageDto dto);
 
     TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount);
 

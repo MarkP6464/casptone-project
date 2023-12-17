@@ -104,7 +104,7 @@ public class JobPostingController {
     }
 
     @PutMapping("/hr/{hr-id}/job-posting/{posting-id}")
-//    @PreAuthorize("hasAuthority('update:hr')")
+    @PreAuthorize("hasAuthority('update:hr')")
     public ResponseEntity<?> updatePosting(@PathVariable("hr-id") Integer hrId, @PathVariable("posting-id") Integer postingId, @RequestBody JobPostingAddDto dto) {
         if (jobPostingService.update(hrId, postingId, dto)) {
             return ResponseEntity.ok("Update success");
@@ -123,7 +123,7 @@ public class JobPostingController {
         }
     }
     @PostMapping("/hr/{hr-id}/job-posting/public")
-//    @PreAuthorize("hasAuthority('create:hr')")
+    @PreAuthorize("hasAuthority('create:hr')")
     public ResponseEntity<?> createPublicPosting(@PathVariable("hr-id") Integer hrId, @RequestBody JobPostingAddDto dto) {
         if (jobPostingService.createPublic(hrId, dto)) {
             return ResponseEntity.ok("Successfully sent job posting.");

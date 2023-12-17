@@ -2,8 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.request.ImageDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
+import com.example.capstoneproject.Dto.responses.TransactionViewDto;
 import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
@@ -226,10 +228,23 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDto> viewWithdrawList() {
+    public List<TransactionViewDto> viewWithdrawList() {
         List<Transaction> list = transactionRepository.findAllByTransactionTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.PENDING);
-        List<TransactionDto> dtos = list.stream().map(x -> transactionMapper.toDto(x)).collect(Collectors.toList());
+        List<TransactionViewDto> dtos = list.stream().map(x -> transactionMapper.toDtoView(x)).collect(Collectors.toList());
         return dtos;
+    }
+
+    @Override
+    public String uploadImageConfirm(Integer userId, Long transactionId, ImageDto dto) {
+        Optional<Transaction> transactionOptional = transactionRepository.findByUser_IdAndId(userId,transactionId);
+        if(transactionOptional.isPresent()){
+            Transaction transaction = transactionOptional.get();
+            transaction.setProof(dto.getImage());
+            transactionRepository.save(transaction);
+            return "Upload image successful.";
+        }else{
+            throw new BadRequestException("Transaction is not exist.");
+        }
     }
 
     @Override

@@ -2,7 +2,9 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.request.ImageDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
+import com.example.capstoneproject.Dto.responses.TransactionViewDto;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.MoneyType;
@@ -87,11 +89,16 @@ public class TransactionController {
     }
 
     @GetMapping(value = "/view-withdraw-request")
-    @PreAuthorize("hasAnyAuthority('read:admin-messages', 'read:expert')")
     public ResponseEntity viewWithdrawList() throws Exception {
-        List<TransactionDto> list =  transactionService.viewWithdrawList();
+        List<TransactionViewDto> list =  transactionService.viewWithdrawList();
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
+
+    @PutMapping("/{transaction-id}/user/{user-id}/withdraw/image")
+    public ResponseEntity<?> updateImageTransaction(@PathVariable("transaction-id") Long transactionId, @PathVariable("user-id") Integer userId, @RequestBody ImageDto dto) throws Exception {
+        return ResponseEntity.ok(transactionService.uploadImageConfirm(userId, transactionId, dto));
+    }
+
 //
 //    @GetMapping("/create")
 //    public Payment create(@RequestParam String uid){

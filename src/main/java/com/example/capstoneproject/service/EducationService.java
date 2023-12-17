@@ -30,4 +30,6 @@ public interface EducationService extends BaseService<EducationDto, Integer> {
     EducationDto createOfUserInCvBody(int cvId, EducationDto dto) throws JsonProcessingException;
 
     void deleteInCvBody(Integer cvId, Integer educationId) throws JsonProcessingException;
+
+
 }

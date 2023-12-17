@@ -23,4 +23,6 @@ public interface EvaluateService {
     String updateScoreEvaluate(Integer adminId, Integer evaluateId, EvaluateScoreDto dto);
     String updateCriteriaEvaluate(Integer adminId, Integer evaluateId, EvaluateCriteriaDto dto);
     List<EvaluateViewDto> viewEvaluate(Integer adminId, String search, SortOrder sort);
+
+    String updateScoreAndCriteriaEvaluate(Integer adminId, Integer evaluateId, EvaluateScoreDto dto);
 }
