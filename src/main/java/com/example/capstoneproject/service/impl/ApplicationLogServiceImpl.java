@@ -279,7 +279,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 listClMap.put(x.getId(), x.getTitle());
             });
             newList.stream().forEach(x -> {
-                Integer historyCoverLetterId = (Integer) x.getCvs().get("historyCoverLetterId");
+                Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
                 x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
             });
         }

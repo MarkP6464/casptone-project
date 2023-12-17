@@ -11,4 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EvaluateScoreDto {
     private Integer score;
+    private Boolean criteria;
 }

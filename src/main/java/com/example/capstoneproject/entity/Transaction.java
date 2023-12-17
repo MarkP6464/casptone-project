@@ -47,6 +47,9 @@ public class Transaction {
     @UpdateTimestamp
     private LocalDateTime updateDate;
 
+    @Column(columnDefinition = "TEXT")
+    private String proof;
+
     @Column(name = "bank_name", columnDefinition = "NVARCHAR(20)")
     private String bankName;
 

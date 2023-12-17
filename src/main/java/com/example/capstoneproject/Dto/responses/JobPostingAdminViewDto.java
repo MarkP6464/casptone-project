@@ -16,5 +16,6 @@ public class JobPostingAdminViewDto {
     private String jobTitle;
     private String company;
     private String owner;
+    private String status;
     private LocalDateTime createDate;
 }

@@ -1025,7 +1025,30 @@ public class EvaluateServiceImpl implements EvaluateService {
         }
     }
 
-
+    @Override
+    public String updateScoreAndCriteriaEvaluate(Integer adminId, Integer evaluateId, EvaluateScoreDto dto) {
+        Optional<Users> usersOptional = usersRepository.findByIdAndRole_RoleName(adminId, RoleType.ADMIN);
+        if(usersOptional.isPresent()){
+            Optional<Evaluate> evaluateOptional = evaluateRepository.findById(evaluateId);
+            if(evaluateOptional.isPresent()){
+                Evaluate evaluate = evaluateOptional.get();
+                if (dto.getCriteria() != null) {
+                    evaluate.setCritical(dto.getCriteria());
+                } else {
+                    evaluate.setCritical(evaluate.getCritical());
+                }
+                if (dto.getScore() != null && !evaluate.getScore().equals(dto.getScore())) {
+                    evaluate.setScore(dto.getScore()); // Cập nhật với giá trị mới
+                }
+                evaluateRepository.save(evaluate);
+                return "Update criteria successful";
+            }else {
+                throw new BadRequestException("Evaluate not found.");
+            }
+        }else{
+            throw new BadRequestException("Please login with role Admin.");
+        }
+    }
 
     public List<String> splitText(String text) {
         List<String> resultList = new ArrayList<>();
