@@ -32,7 +32,7 @@ public class CapstoneProjectApplication {
     private static void dotEnvSafeCheck() {
         final var dotenv = Dotenv.configure()
                 .ignoreIfMissing()
-                .filename("casptone-project/src/.env")
+                .filename(".env")
                 .load();
 
         stream(DotEnv.values())
