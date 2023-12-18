@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.RoleDto;
 import com.example.capstoneproject.Dto.UserViewLoginDto;
+import com.example.capstoneproject.Dto.responses.AccountBalanceResponse;
 import com.example.capstoneproject.entity.Candidate;
 import com.example.capstoneproject.entity.Role;
 import com.example.capstoneproject.entity.Users;
@@ -115,6 +116,25 @@ public class AuthenticationService {
                 userViewLoginDto.setAccountBalance(candidate.getAccountBalance());
                 userViewLoginDto.setRole(roleDto);
                 userViewLoginDto.setBanned(candidate.isBan());
+            }
+        }
+        return userViewLoginDto;
+    }
+
+    public AccountBalanceResponse getInforUserBalance(String email){
+        Optional<Users> usersOptional = usersRepository.findByEmail(email);
+        Role roleOptional = roleRepository.findByRoleName(RoleType.CANDIDATE);
+        AccountBalanceResponse userViewLoginDto = null;
+        if (Objects.nonNull(roleOptional)){
+            userViewLoginDto = new AccountBalanceResponse();
+            if(usersOptional.isPresent()){
+                Users users = usersOptional.get();
+                userViewLoginDto.setId(users.getId());
+                userViewLoginDto.setAccountBalance(users.getAccountBalance());
+                LocalDate currentDate = LocalDate.now();
+                users.setLastActive(currentDate);
+                usersRepository.save(users);
+                return  userViewLoginDto;
             }
         }
         return userViewLoginDto;

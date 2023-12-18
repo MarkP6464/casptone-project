@@ -50,6 +50,17 @@ public class MessageController {
         }
     }
 
+    @GetMapping("/protected/me")
+    public ResponseEntity<?> getUserEmailBalance(Principal principal) {
+        if (principal instanceof JwtAuthenticationToken) {
+            JwtAuthenticationToken jwt = (JwtAuthenticationToken) principal;
+            String email = jwt.getToken().getClaimAsString("email");
+            return ResponseEntity.ok(authenticationService.getInforUserBalance(email));
+        }else{
+            return ResponseEntity.ok("Token invalid");
+        }
+    }
+
     @GetMapping("/admin")
     @PreAuthorize("hasAuthority('read:admin-messages')")
     public Message getAdmin() {
