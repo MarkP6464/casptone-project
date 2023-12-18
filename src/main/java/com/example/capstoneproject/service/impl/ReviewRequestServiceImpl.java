@@ -187,7 +187,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                         }
                     }
                 }else{
-                    reviewRequestViewDto.setStatus(StatusReview.Waiting);
+                    reviewRequestViewDto.setStatus(reviewRequest.getStatus());
                 }
 
                 reviewRequestViewDto.setReceivedDate(reviewRequest.getReceivedDate());

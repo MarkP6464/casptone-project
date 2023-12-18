@@ -12,6 +12,7 @@ import java.util.HashMap;
 @Getter
 @Setter
 public class ApplicationLogCandidateResponse {
+    String candidateName;
     String company;
     LocalDate applyDate;
     String note;

@@ -82,8 +82,11 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
             //save cover letter history
             HistoryCoverLetter historyCoverLetter = new HistoryCoverLetter();
-            historyCoverLetter = modelMapper.map(coverLetter, HistoryCoverLetter.class);
-            historyCoverLetter.setId(null);
+            historyCoverLetter.setTitle(coverLetter.getTitle());
+            historyCoverLetter.setDear(coverLetter.getDear());
+            historyCoverLetter.setDate(coverLetter.getDate());
+            historyCoverLetter.setCompany(coverLetter.getCompany());
+            historyCoverLetter.setDescription(coverLetter.getDescription());
             historyCoverLetter.setCoverLetter(coverLetter);
             historyCoverLetter = historyCoverLetterRepository.save(historyCoverLetter);
 
@@ -313,6 +316,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
                 applicationLogResponse.setStatus(x.getStatus());
+                applicationLogResponse.setCandidateName(x.getUser().getName());
                 JobPostingNameViewDto jobPostingNameView = new JobPostingNameViewDto();
                 jobPostingNameView.setId(x.getJobPosting().getId());
                 jobPostingNameView.setName(x.getJobPosting().getTitle());
