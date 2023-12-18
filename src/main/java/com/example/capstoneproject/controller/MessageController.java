@@ -51,7 +51,7 @@ public class MessageController {
     }
 
     @GetMapping("/admin")
-    @PreAuthorize("hasAuthority('read:admin-messages')")
+    @PreAuthorize("hasAuthority('read:admin')")
     public Message getAdmin() {
         return messageService.getAdminMessage();
     }
