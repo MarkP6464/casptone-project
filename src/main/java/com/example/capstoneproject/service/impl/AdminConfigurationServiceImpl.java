@@ -52,9 +52,9 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
                 modelMapper.map(dto, adminConfigurationResponse);
                 admin.setConfiguration(adminConfigurationResponse);
                 Admin admin1 = usersRepository.save(admin);
-                adminConfigurationRatioResponse.setMoneyRatio(admin1.getConfiguration().getMoneyRatio());
-                adminConfigurationRatioResponse.setVipYearRatio(admin1.getConfiguration().getVipYearRatio());
-                adminConfigurationRatioResponse.setVipMonthRatio(admin1.getConfiguration().getVipMonthRatio());
+                adminConfigurationRatioResponse.setMoneyRatio(1.0);
+                adminConfigurationRatioResponse.setVipYearRatio(admin1.getConfiguration().getVipYearRatio().longValue());
+                adminConfigurationRatioResponse.setVipMonthRatio(admin1.getConfiguration().getVipMonthRatio().longValue());
                 return  adminConfigurationRatioResponse;
             }
         }
