@@ -13,6 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ChatGPTServiceImpl {
@@ -114,4 +118,40 @@ public class ChatGPTServiceImpl {
         }
         return null;
     }
+
+    public boolean isChatGptApiKeyValid() {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            Admin admin = adminRepository.getById(1);
+            headers.setBearerAuth(admin.getConfiguration().getApiKey());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            List<Map<String, Object>> messagesList = new ArrayList<>();
+            Map<String, Object> systemMessage = new HashMap<>();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", "You are a chatbot");
+            messagesList.add(systemMessage);
+            Map<String, Object> userMessageMap = new HashMap<>();
+            userMessageMap.put("role", "user");
+            userMessageMap.put("content", "Test message");
+            messagesList.add(userMessageMap);
+            String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
+
+            // Tạo JSON payload cho yêu cầu
+            String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + messagesJson + ",\"temperature\":" + "0.2" + "}";
+
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
+            );
+
+            // Kiểm tra nếu có dữ liệu trả về
+            return responseEntity.getBody() != null && !responseEntity.getBody().isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
 }

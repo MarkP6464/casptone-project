@@ -4,6 +4,7 @@ import com.example.capstoneproject.Dto.responses.AdminConfigurationApiResponse;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationRatioResponse;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.service.AdminConfigurationService;
+import com.example.capstoneproject.service.impl.ChatGPTServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ public class AdminConfigurationController {
 
     @Autowired
     AdminConfigurationService adminConfigurationService;
+
+    @Autowired
+    ChatGPTServiceImpl chatGPTService;
 
     @GetMapping("/information/config")
     @PreAuthorize("hasAnyAuthority('read:admin', 'read:hr')")
@@ -34,6 +38,12 @@ public class AdminConfigurationController {
     @PreAuthorize("hasAnyAuthority('update:admin')")
     public ResponseEntity<?> updateApi(@RequestBody AdminConfigurationApiResponse dto) throws JsonProcessingException {
         return ResponseEntity.ok(adminConfigurationService.updateApi(dto));
+    }
+
+    @PostMapping("/config/api-key/check")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
+    public ResponseEntity<?> checkApiKey() {
+        return ResponseEntity.ok(chatGPTService.isChatGptApiKeyValid());
     }
 
 }
