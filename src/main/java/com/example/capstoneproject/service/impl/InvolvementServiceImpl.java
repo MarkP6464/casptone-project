@@ -369,7 +369,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
                     cvBodyDto.getInvolvements().forEach(c -> {
-                        if (c.getTheOrder() > dto.getTheOrder()){
+                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);
                         }
                     });

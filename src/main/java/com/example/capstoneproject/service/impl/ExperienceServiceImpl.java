@@ -296,7 +296,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     ExperienceDto dto = cvBodyDto.getExperiences().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
                     cvBodyDto.getExperiences().forEach(c -> {
-                        if (c.getTheOrder() > dto.getTheOrder()){
+                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);
                         }
                     });
