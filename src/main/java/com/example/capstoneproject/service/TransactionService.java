@@ -14,6 +14,8 @@ import java.util.List;
 public interface TransactionService {
     List<TransactionDto> getAll(String id);
 
+    List<TransactionDto> getAllSuccessfull(String id);
+
     List<TransactionDto> showAll();
 
     List<TransactionDto> getAll(String id, Long receiverId);

@@ -29,4 +29,8 @@ public class ExpertConfigViewDto {
     private String cv;
 
     private List<PriceOptionDto> price;
+
+    private String bankName;
+
+    private String bankAccountNumber;
 }

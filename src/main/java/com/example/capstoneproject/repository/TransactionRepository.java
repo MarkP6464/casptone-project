@@ -37,6 +37,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findBySentIdOrUser_Id(String id, Integer userId);
 
+    List<Transaction> findBySentIdOrUser_IdAndStatus(String id, Integer userId, TransactionStatus transactionStatus);
+
     Transaction findByRequestId(String id);
 
     Optional<Transaction> findById(Long id);

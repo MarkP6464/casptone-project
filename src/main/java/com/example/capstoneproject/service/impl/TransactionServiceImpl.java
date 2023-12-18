@@ -75,6 +75,18 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public List<TransactionDto> getAllSuccessfull(String id){
+        Integer receivedID = Integer.parseInt(id);
+        List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndStatus(id, receivedID, TransactionStatus.SUCCESSFULLY);
+        List<TransactionDto> dtos = list.stream().map(x -> {
+            TransactionDto dto = transactionMapper.toDto(x);
+            dto.setUserId(receivedID);
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Override
     public List<TransactionDto> showAll(){
         List<Transaction> list = transactionRepository.findAll();
         List<TransactionDto> dtos = list.stream().map(x -> {
@@ -103,7 +115,12 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(currentTimestamp);
         String orderId = String.valueOf(currentTimestamp) + "_InvoiceID";
         String orderInfo = "CvBuilder";
-        String domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
+        String domain = null;
+        if(MoneyType.SUBSCRIPTION.equals(transactionDto.getMoneyType())){
+            domain = "https://cvbuilder.monoinfinity.net/paymentcallback/hr";
+        }else {
+            domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
+        }
 
         String returnURL = domain;
         String notifyURL = domain;
@@ -126,7 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new InternalServerException("Momo service is not available");
         }
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
-            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "Deposite money" + transactionDto.getExpenditure() + " VND", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
+            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "Deposite money " + transactionDto.getExpenditure() + " VND", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
         }
         String redirectLink = captureWalletMoMoResponse.getPayUrl().toString();
@@ -308,7 +325,7 @@ public class TransactionServiceImpl implements TransactionService {
         Users users = usersService.getUsersById(userId);
         if (Double.compare(users.getAccountBalance(), 1000L) >= 0 ){
             String requestId = String.valueOf(System.currentTimeMillis());
-            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.PENDING, usersService.getUsersById(1));
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.SUCCESSFULLY, usersService.getUsersById(1));
             Transaction transaction1 = transactionRepository.save(transaction);
             users.setAccountBalance(users.getAccountBalance()-1000L);
             usersRepository.save(users);
