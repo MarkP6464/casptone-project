@@ -21,7 +21,7 @@ public interface UsersService extends BaseService<UsersDto, Integer> {
 
     List<UserJobTitleViewDto> getJobTitleUser(Integer userId) throws JsonProcessingException;
 
-    List<UserManageViewDto> manageUser(Integer adminId);
+    List<UserManageViewDto> manageUser(Integer adminId, String name);
 
     String banUser(Integer adminId, Integer userId);
 

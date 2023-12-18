@@ -49,8 +49,8 @@ public class UsersController {
 
     @GetMapping("admin/{admin-id}/manage/user/information")
     @PreAuthorize("hasAuthority('read:admin')")
-    public ResponseEntity<?> manageUser(@PathVariable("admin-id") Integer adminId) {
-        return ResponseEntity.ok(UsersService.manageUser(adminId));
+    public ResponseEntity<?> manageUser(@PathVariable("admin-id") Integer adminId, @RequestParam(required = false) String name) {
+        return ResponseEntity.ok(UsersService.manageUser(adminId, name));
     }
 
     @PutMapping("admin/{admin-id}/manage/user/{user-id}/ban")

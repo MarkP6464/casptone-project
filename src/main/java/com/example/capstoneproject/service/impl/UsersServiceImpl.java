@@ -115,29 +115,31 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
     }
 
     @Override
-    public List<UserManageViewDto> manageUser(Integer adminId) {
+    public List<UserManageViewDto> manageUser(Integer adminId, String search) {
         List<Users> users = UsersRepository.findAllByStatusAndIdNot(BasicStatus.ACTIVE, adminId);
         List<UserManageViewDto> userManages = new ArrayList<>();
-        if(!users.isEmpty()){
-            for(Users user: users){
-                UserManageViewDto userManageViewDto = new UserManageViewDto();
-                userManageViewDto.setId(user.getId());
-                userManageViewDto.setName(user.getName());
-                if(user.isBan()){
-                    userManageViewDto.setStatus("Banned");
-                }else{
-                    userManageViewDto.setStatus("UnBanned");
-                }
-                userManageViewDto.setLastActive(user.getLastActive());
-                Double monney = transactionRepository.sumExpenditureByUserIdAndTransactionTypeAndStatus(user.getId(), TransactionType.ADD, TransactionStatus.SUCCESSFULLY);
-                Long mon = (monney != null) ? monney.longValue() : 0L;
-                userManageViewDto.setMoney(formatPrice(mon));
-                userManageViewDto.setRole(user.getRole().getRoleName());
-                userManages.add(userManageViewDto);
-            }
+
+        if (users != null && !users.isEmpty()) {
+            userManages = users.stream()
+                    .filter(user -> search == null || user.getName().toLowerCase().contains(search.toLowerCase()))
+                    .map(user -> {
+                        UserManageViewDto userManageViewDto = new UserManageViewDto();
+                        userManageViewDto.setId(user.getId());
+                        userManageViewDto.setName(user.getName());
+                        userManageViewDto.setStatus(user.isBan() ? "Banned" : "UnBanned");
+                        userManageViewDto.setLastActive(user.getLastActive());
+                        Double money = transactionRepository.sumExpenditureByUserIdAndTransactionTypeAndStatus(user.getId(), TransactionType.ADD, TransactionStatus.SUCCESSFULLY);
+                        Long mon = (money != null) ? money.longValue() : 0L;
+                        userManageViewDto.setMoney(formatPrice(mon));
+                        userManageViewDto.setRole(user.getRole().getRoleName());
+                        return userManageViewDto;
+                    })
+                    .collect(Collectors.toList());
         }
+
         return userManages;
     }
+
 
     @Override
     public String banUser(Integer adminId, Integer userId) {

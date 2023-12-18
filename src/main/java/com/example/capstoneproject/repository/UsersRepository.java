@@ -14,6 +14,8 @@ import java.util.Optional;
 
 public interface UsersRepository extends JpaRepository<Users, Integer> {
 
+//    List<Users> findAllByStatusAndIdNotAndNameContainingIgnoreCase(BasicStatus status, Integer adminId, String name);
+
     Optional<Users> findByEmail(String email);
 
     List<Users> findAllByStatusAndIdNot(BasicStatus status, Integer adminId);
