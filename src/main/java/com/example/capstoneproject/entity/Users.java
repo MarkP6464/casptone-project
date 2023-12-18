@@ -23,7 +23,8 @@ import java.util.List;
         "CASE WHEN price IS NOT NULL THEN 'Expert' " +
                 " WHEN publish IS NOT NULL THEN 'Candidate' " +
                 " WHEN expired_day IS NOT NULL THEN 'HR' " +
-                "WHEN 'configuration' IS NOT NULL THEN 'Admin' end"
+                "WHEN configuration IS NOT NULL THEN 'Admin' " +
+                "ELSE 'Users' end"
 )
 public class Users implements UserDetails {
     @Id

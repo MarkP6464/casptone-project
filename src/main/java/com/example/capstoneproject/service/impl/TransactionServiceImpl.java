@@ -6,6 +6,7 @@ import com.example.capstoneproject.Dto.request.ImageDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.Dto.responses.TransactionViewDto;
+import com.example.capstoneproject.entity.Expert;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Transaction;
 import com.example.capstoneproject.entity.Users;
@@ -118,11 +119,14 @@ public class TransactionServiceImpl implements TransactionService {
         PartnerInfo partnerInfo = new PartnerInfo(partnerCode, accessKey, secretKey);
         Environment environment = Environment.selectEnv("dev", Environment.ProcessType.PAY_GATE);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
-        Double ratio = config.getMoneyRatio();
+//        Double ratio = config.getMoneyRatio();
         environment.setPartnerInfo(partnerInfo);
         CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure().longValue()), orderInfo, returnURL, notifyURL, extraData);
+        if (Objects.isNull(captureWalletMoMoResponse)){
+            throw new InternalServerException("Momo service is not available");
+        }
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
-            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / ratio, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
+            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "Deposite money" + transactionDto.getExpenditure() + " VND", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
         }
         String redirectLink = captureWalletMoMoResponse.getPayUrl().toString();
@@ -146,7 +150,7 @@ public class TransactionServiceImpl implements TransactionService {
         Long expenditure = s.get("expenditure").getAsLong();
         Transaction transaction = transactionRepository.findByRequestId(tid);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
-        Double ratio = config.getMoneyRatio();
+        Double ratio = 1.0;
         if (TransactionStatus.PENDING.equals(transaction.getStatus())){
             if (code.equals(0)) {
                 if (Objects.nonNull(transaction)){
@@ -184,7 +188,6 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         transaction.setMomoId(queryStatusTransactionResponse.getTransId());
-        transaction.setResponseMessage(queryStatusTransactionResponse.getLocalMessage());
         transaction = transactionRepository.save(transaction);
         AddMoneyTransactionDto addMoneyTransactionDto = new AddMoneyTransactionDto();
         addMoneyTransactionDto.setMomoResponse(queryStatusTransactionResponse);
@@ -198,11 +201,20 @@ public class TransactionServiceImpl implements TransactionService {
         if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0){
             throw new BadRequestException("Account balance is not enough!");
         }
+        Expert expert = null;
+        if (user instanceof Expert){
+            expert =  (Expert) user;
+        }
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
-        Double ratio = config.getMoneyRatio();
+        Double ratio = 1.0;
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
+        if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())){
+            throw new BadRequestException("Please setting your bank account to withdraw!!");
+        }
+        transaction.setBankName(expert.getBankName());
+        transaction.setBankAccountNumber(expert.getBankAccountNumber());
         transaction = transactionRepository.save(transaction);
         return transactionMapper.toDto(transaction);
     }
@@ -246,7 +258,7 @@ public class TransactionServiceImpl implements TransactionService {
         usersRepository.save(user);
 
         String requestId = String.valueOf(System.currentTimeMillis());
-        Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, null,
+        Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, "Withdraw money",
                 TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0.0, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
@@ -292,11 +304,11 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto chargePerRequest(Integer userId){
+    public TransactionDto chargePerRequest(Integer userId, String message){
         Users users = usersService.getUsersById(userId);
         if (Double.compare(users.getAccountBalance(), 1000L) >= 0 ){
             String requestId = String.valueOf(System.currentTimeMillis());
-            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, null, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.PENDING, usersService.getUsersById(1));
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.PENDING, usersService.getUsersById(1));
             Transaction transaction1 = transactionRepository.save(transaction);
             users.setAccountBalance(users.getAccountBalance()-1000L);
             usersRepository.save(users);

@@ -35,7 +35,6 @@ public class HRController {
     @PreAuthorize("hasAnyAuthority('update:hr')")
     public ResponseEntity<?> registerVip(@PathVariable("hr-id") Integer hrId, @RequestBody TransactionResponse transactionDto) throws Exception {
         transactionDto.setUserId(hrId);
-        hrService.register(transactionDto);
-        return ResponseEntity.ok("Processing");
+        return ResponseEntity.ok(hrService.register(transactionDto));
     }
 }

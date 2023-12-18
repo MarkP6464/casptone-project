@@ -717,7 +717,7 @@ public class CvServiceImpl implements CvService {
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "Generate Summary");
             String response = chatGPTService.chatWithGPT(messagesJson,1);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
@@ -978,7 +978,7 @@ public class CvServiceImpl implements CvService {
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "AI feedback");
             String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
             ReviewAiDto reviewAiDto = new ReviewAiDto();
             reviewAiDto.setReview(response);
@@ -1009,7 +1009,7 @@ public class CvServiceImpl implements CvService {
             userMessageMap.put("content", userMessage);
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+            transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "Improving writing");
             String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
             chatResponse.setReply(splitText(response));
             return chatResponse;

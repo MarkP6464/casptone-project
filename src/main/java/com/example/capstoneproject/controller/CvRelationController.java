@@ -80,7 +80,7 @@ public class CvRelationController {
     }
 
     @PostMapping(value = "/{cvId}/{theRelation}", consumes = "application/json")
-    @PreAuthorize("hasAnyAuthority('create:candidate','update:candidate')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
     public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
 
         switch (theRelation) {
@@ -108,7 +108,7 @@ public class CvRelationController {
     }
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
-//    @PreAuthorize("hasAnyAuthority('create:candidate','update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
     public ResponseEntity<?> update(@PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
         switch (theRelation) {
             case "educations":
