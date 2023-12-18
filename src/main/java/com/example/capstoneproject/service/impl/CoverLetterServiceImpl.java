@@ -129,6 +129,11 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             }
             CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
             coverLetter.setTitle(dto.getTitle());
+            coverLetter.setCompany(cv.getCompanyName());
+            if(cv.getJobDescription()!=null){
+                coverLetter.setJobTitle(cv.getJobDescription().getTitle());
+                coverLetter.setJobDescription(cv.getJobDescription().getDescription());
+            }
             coverLetter.setCv(cv);
             CoverLetter saved = coverLetterRepository.save(coverLetter);
             CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
