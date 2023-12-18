@@ -54,7 +54,7 @@ public class ExpertController {
     }
 
     @GetMapping("/expert/{expert-id}/information/config")
-    @PreAuthorize("hasAuthority('read:expert')")
+//    @PreAuthorize("hasAuthority('read:expert')")
     public ResponseEntity<ExpertConfigViewDto> getExpertConfig(@PathVariable("expert-id") Integer expertId) {
         return new ResponseEntity<>(expertService.getExpertConfig(expertId), HttpStatus.OK);
     }

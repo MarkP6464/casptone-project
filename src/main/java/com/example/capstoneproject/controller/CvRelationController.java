@@ -108,7 +108,7 @@ public class CvRelationController {
     }
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
-    @PreAuthorize("hasAnyAuthority('create:candidate','update:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate','update:expert')")
     public ResponseEntity<?> update(@PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
         switch (theRelation) {
             case "educations":

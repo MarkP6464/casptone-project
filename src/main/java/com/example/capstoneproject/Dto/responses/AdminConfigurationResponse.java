@@ -16,6 +16,5 @@ public class AdminConfigurationResponse {
 
     private Long vipYearRatio;
 
-    private Double moneyRatio;
     private String apiKey;
 }

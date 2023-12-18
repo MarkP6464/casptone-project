@@ -145,3 +145,39 @@ VALUES ('Vo Van Phat', '10000', 'HCM', 0, 'cvbuilderexpert@gmail.com', '07777777
 
 INSERT INTO `capstone`.`users` (`name`, `account_balance`, `address`, `ban`, `email`, `company_description`, `company_location`, `company_logo`, `company_name`, `expired_day`, `subscription`, `vip`, `role_id`)
 VALUES ('Nguyen Tan Hung', '10000', 'Da Nang', 0, 'cvbuilderhr@gmail.com', 'Whether you are working on a new cutting edge app or simply ramping up on new technology, Java documentation has all the information you need to make your project a smashing success. Use the rich set of code samples, tutorials, developer guides, API documentation, and more to quickly develop your prototype and scale it up to a real world application.', '2/7 Hung Tan Phat, HCM', 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngtree.com%2Ffree-logo-png%2Fcompany-logo&psig=AOvVaw3m92Lk5xCrZij1_0zuHtaM&ust=1702950872858000&source=images&cd=vfe&ved=0CBIQjRxqFwoTCIDT3cHwl4MDFQAAAAAdAAAAABAE', 'Google', '2023-10-10', 0, 1, 1);
+
+
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (1, 1, 'Each bullet point should be a full line length.', 5, 'Short Bullet Points');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (2, 1, 'Capitalize the first letter and end with a period for each bullet point.', 5, 'Punctuated Bullet Points');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (3, 1, 'Include 3-6 bullet points for each experience.', 5, 'Number of Bullet Points');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (4, 1, 'Avoid using personal pronoun when you describe your experience.', 5, 'Personal Pronoun');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (5, 1, 'Avoid using filler words when you describe your experience.', 5, 'Filler Words');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (6, 1, 'Add metrics to each bullet point when possible.', 5, 'Quantified Bullet Points');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (7, 1, 'Be careful in using appropriate words.', 5, 'Spelling and grammar');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (8, 1, 'Using passive voice in your resume can make it harder for employers to identify your specific contributions.', 5, 'Passive voice');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (9, 1, 'Add a valid location to be contacted easily.', 5, 'Your location number is missing');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (10, 1, 'Add valid dates for achievements to be validated.', 5, 'Your date number is missing');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (11, 1, 'Add a valid phone number to be contacted easily.', 5, 'Your Phone number is missing');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (12, 1, 'Your Linkedin URL should be abbreviated like in/charles-bloomberg.', 5, 'Your Linkedin url is');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (13, 1, 'Your resume should contain between 400-800 words.', 5, 'Your resume has');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (14, 1, 'Please do not leave summary blank.', 5, 'Your Summary is missing');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (15, 1, 'Add specific keywords from a targeted job description to optimize your resume.', 5, 'Your resume is not tailored for a specific job description');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (16, 1, 'Use templates to make your cv more professional.', 5, 'Template cv');
+INSERT INTO `capstone`.`evaluate` (`id`, `critical`, `description`, `score`, `title`)
+VALUES (17, 1, 'Appropriate font size in your CV makes it easy to see.', 5, 'Font size');
