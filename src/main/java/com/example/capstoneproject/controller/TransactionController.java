@@ -62,6 +62,7 @@ public class TransactionController {
         transactionDto.setConversionAmount(dto.getConversionAmount());
         transactionDto.setUserId(dto.getUserId());
         transactionDto.setTransactionType(TransactionType.ADD);
+        transactionDto.setResponseMessage("Deposite money " + transactionDto.getExpenditure() + " VND");
         String returnUrl = transactionService.create(transactionDto);
         return returnUrl;
     }
@@ -72,7 +73,6 @@ public class TransactionController {
         AddMoneyTransactionDto transaction = transactionService.saveTransactionStatus(orderId, requestId);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
-
 
     @PostMapping(value = "/withdraw")
     @PreAuthorize("hasAnyAuthority('create:expert')")

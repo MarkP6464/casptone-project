@@ -8,6 +8,7 @@ import lombok.Setter;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter
@@ -24,5 +25,5 @@ public class HRDto extends UsersDto {
 
     private String companyDescription;
 
-
+    private LocalDate expiredDay;
 }

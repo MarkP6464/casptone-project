@@ -112,8 +112,8 @@ public class TransactionServiceImpl implements TransactionService {
             throw new ForbiddenException("User not found");
         }
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-        String requestId = String.valueOf(currentTimestamp);
-        String orderId = String.valueOf(currentTimestamp) + "_InvoiceID";
+        String requestId = String.valueOf(System.currentTimeMillis());
+        String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
         String domain = null;
         if(MoneyType.SUBSCRIPTION.equals(transactionDto.getMoneyType())){
@@ -143,7 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new InternalServerException("Momo service is not available");
         }
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
-            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), "Deposite money " + transactionDto.getExpenditure() + " VND", TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
+            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), transactionDto.getResponseMessage(), TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
         }
         String redirectLink = captureWalletMoMoResponse.getPayUrl().toString();
@@ -159,12 +159,14 @@ public class TransactionServiceImpl implements TransactionService {
         environment.setPartnerInfo(partnerInfo);
 
         QueryStatusTransactionResponse queryStatusTransactionResponse = QueryStatusTransaction.process(environment, orderId, requestId);
-
+        if (Objects.isNull(queryStatusTransactionResponse)){
+            throw new InternalServerException("Momo service is not available");
+        }
         JsonObject s  = new Gson().fromJson(new String(queryStatusTransactionResponse.getExtraData()), JsonObject.class);
         Integer code = queryStatusTransactionResponse.getErrorCode();
         String tid = s.get("transactionId").getAsString();
         String uid = s.get("uid").getAsString();
-        Long expenditure = s.get("expenditure").getAsLong();
+        Double expenditure = s.get("expenditure").getAsDouble();
         Transaction transaction = transactionRepository.findByRequestId(tid);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = 1.0;
@@ -184,7 +186,7 @@ public class TransactionServiceImpl implements TransactionService {
                         }
                         if (config.getVipMonthRatio().equals(expenditure)){
                             hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
-                        } else if (config.getVipMonthRatio().equals(expenditure)){
+                        } else if (config.getVipYearRatio().equals(expenditure)){
                             hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
                         }
                         hr.setVip(true);
