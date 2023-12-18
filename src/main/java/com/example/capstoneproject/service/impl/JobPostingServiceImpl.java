@@ -592,9 +592,9 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingAdminView.setJobTitle(jobPosting.getTitle());
                     jobPostingAdminView.setCompany(jobPosting.getCompanyName());
                     if(jobPosting.getBan()){
-                        jobPostingAdminView.setCompany("Ban");
+                        jobPostingAdminView.setStatus("Banned");
                     }else{
-                        jobPostingAdminView.setCompany("Not Ban");
+                        jobPostingAdminView.setStatus("UnBanned");
                     }
                     jobPostingAdminView.setOwner(jobPosting.getUser().getName());
                     jobPostingAdminView.setCreateDate(jobPosting.getCreateDate());
