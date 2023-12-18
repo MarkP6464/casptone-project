@@ -87,6 +87,17 @@ public class ExpertServiceImpl implements ExpertService {
                 if (dto.getExperiences() != null && !dto.getExperiences().equals(expert.getExperiences())) {
                     expert.setExperience(dto.getExperiences());
                 }
+                if (dto.getBankAccountName() != null && !dto.getBankAccountName().equals(expert.getBankAccountName())) {
+                    expert.setBankAccountName(dto.getBankAccountName());
+                }
+
+                if (dto.getBankAccountNumber() != null && !dto.getBankAccountNumber().equals(expert.getBankAccountNumber())) {
+                    expert.setBankAccountNumber(dto.getBankAccountNumber());
+                }
+
+                if (dto.getBankName() != null && !dto.getBankName().equals(expert.getBankName())) {
+                    expert.setBankName(dto.getBankName());
+                }
                 if (dto.getPrice() != null) {
                     priceOptionService.editPriceOption(expert.getId(),dto.getPrice());
                 }

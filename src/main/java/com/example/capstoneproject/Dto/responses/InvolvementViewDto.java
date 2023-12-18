@@ -28,4 +28,6 @@ public class InvolvementViewDto {
     private String Description;
 
     private List<BulletPointDto> bulletPointDtos;
+
+    private Integer theOrder;
 }

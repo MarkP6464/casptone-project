@@ -29,4 +29,5 @@ public class ProjectViewDto {
 
     private List<BulletPointDto> bulletPointDtos;
 
+    private Integer theOrder;
 }
