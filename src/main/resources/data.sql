@@ -129,3 +129,19 @@ INSERT INTO users (`name`,`about`,`account_balance`,`address`,`avatar`,`company`
 VALUES ('Quang minh',NULL,29301,NULL,'https://lh3.googleusercontent.com/a/ACg8ocLtCeoIr87xpX3qRJ9PsIKRKFfmNCK04pSNRy4Jovw=s96-c',NULL,NULL,'quangminhphamtran@gmail.com',NULL,NULL,NULL,NULL,NULL,'ACTIVE',NULL,0,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 INSERT INTO users (`name`,`about`,`account_balance`,`address`,`avatar`,`company`,`country`,`email`,`job_title`,`linkin`,`password`,`personal_website`,`phone`,`status`,`vip`,`publish`,`experience`,`number_review`,`price`,`punish`,`punish_date`,`role_id`,`company_description`,`company_location`,`company_logo`,`company_name`,`subscription`,`cv_id`,`expired_day`)
 VALUES ('Chi',NULL,0,NULL,'https://lh3.googleusercontent.com/a/ACg8ocICsT6j75NrikCZzVVeJgmJ1SAWbmeebjhY57SXpKzF=s96-c',NULL,NULL,'vinhnhan1002.sub@gmail.com',NULL,NULL,NULL,NULL,NULL,'ACTIVE',NULL,0,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+
+
+
+SELECT * FROM capstone.users;
+
+INSERT INTO `capstone`.`users` (`name`, `account_balance`, `address`, `ban`, `email`, `phone`, `status`, `role_id`)
+VALUES ('Admin', '10000', '27/5 le chi tam', 0, 'cvbuilder.ai@gmail.com', '0999999999', 'ACTIVE', 4);
+
+INSERT INTO `capstone`.`users` (`name`, `account_balance`, `address`, `ban`, `email`, `phone`, `status`, `publish`, `role_id`)
+VALUES ('Le Van Cuong', '10000', 'Ha Noi', 0, 'cvbuildercandidate@gmail.com', '0888888888', 'ACTIVE', 1, 2);
+
+INSERT INTO `capstone`.`users` (`name`, `account_balance`, `address`, `ban`, `email`, `phone`, `status`, `experience`, `price`, `punish`, `role_id`)
+VALUES ('Vo Van Phat', '10000', 'HCM', 0, 'cvbuilderexpert@gmail.com', '0777777777', 'ACTIVE', 1, '0.0', 0, 3);
+
+INSERT INTO `capstone`.`users` (`name`, `account_balance`, `address`, `ban`, `email`, `company_description`, `company_location`, `company_logo`, `company_name`, `expired_day`, `subscription`, `vip`, `role_id`)
+VALUES ('Nguyen Tan Hung', '10000', 'Da Nang', 0, 'cvbuilderhr@gmail.com', 'Whether you are working on a new cutting edge app or simply ramping up on new technology, Java documentation has all the information you need to make your project a smashing success. Use the rich set of code samples, tutorials, developer guides, API documentation, and more to quickly develop your prototype and scale it up to a real world application.', '2/7 Hung Tan Phat, HCM', 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngtree.com%2Ffree-logo-png%2Fcompany-logo&psig=AOvVaw3m92Lk5xCrZij1_0zuHtaM&ust=1702950872858000&source=images&cd=vfe&ved=0CBIQjRxqFwoTCIDT3cHwl4MDFQAAAAAdAAAAABAE', 'Google', '2023-10-10', 0, 1, 1);
