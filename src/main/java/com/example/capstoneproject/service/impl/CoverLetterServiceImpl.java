@@ -91,7 +91,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 userMessageMap.put("content", userMessage);
                 messagesList.add(userMessageMap);
                 String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-                transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+                transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "Generate Cover Letter");
                 String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,dto.getTemperature());
                 coverLetter.setId(coverLetter.getId());
                 coverLetter.setDescription(processString(response));
@@ -318,7 +318,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         userMessageMap.put("content", userMessage);
         messagesList.add(userMessageMap);
         String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
-        transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId());
+//        transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), );
         String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
         chatResponse.setReply(response);
         return chatResponse;

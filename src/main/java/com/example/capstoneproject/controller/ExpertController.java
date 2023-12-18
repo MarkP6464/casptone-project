@@ -27,7 +27,7 @@ public class ExpertController {
     }
 
     @PutMapping("/expert/{expert-id}/cv/information/config")
-//    @PreAuthorize("hasAuthority('update:expert')")
+    @PreAuthorize("hasAuthority('update:expert')")
     public ResponseEntity<?> updateExpert(@PathVariable("expert-id") Integer expertId, @RequestBody ExpertUpdateDto dto) {
         if (expertService.updateExpert(expertId, dto)) {
             return ResponseEntity.ok("Update success");

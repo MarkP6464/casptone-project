@@ -81,12 +81,12 @@ public class HRServiceImpl implements HRService {
                 AdminConfigurationResponse adminConfigurationDto = adminConfigurationService.getByAdminId(1);
                 if (adminConfigurationDto.getVipMonthRatio().equals(expenditure) || adminConfigurationDto.getVipYearRatio().equals(expenditure)) {
                     if (adminConfigurationDto.getVipMonthRatio().equals(expenditure)) {
-                            transactionDto.setResponseMessage("extend 1 month subscription");
+                            transactionDto.setResponseMessage("Extend 1 month subscription");
                             transactionDto.setExpenditure(expenditure);
                             transactionDto.setTransactionType(TransactionType.ADD);
                             transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);
                     }else if (adminConfigurationDto.getVipYearRatio().equals(expenditure)) {
-                            transactionDto.setResponseMessage("extend 1 year subscription");
+                            transactionDto.setResponseMessage("Extend 1 year subscription");
                             transactionDto.setExpenditure(expenditure);
                             transactionDto.setTransactionType(TransactionType.ADD);
                             transactionDto.setMoneyType(MoneyType.SUBSCRIPTION);

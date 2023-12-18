@@ -37,5 +37,5 @@ public interface TransactionService {
     TransactionDto requestToReviewFail(String requestId);
 
     TransactionDto requestToReviewSuccessFul(String requestId);
-    TransactionDto chargePerRequest(Integer userId);
+    TransactionDto chargePerRequest(Integer userId, String message);
 }
