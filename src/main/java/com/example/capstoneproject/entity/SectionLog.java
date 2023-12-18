@@ -14,6 +14,7 @@ public class SectionLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "TEXT")
     private String Bullet;
 
     private Integer count;
