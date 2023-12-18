@@ -61,7 +61,7 @@ public class CvController {
     }
 
     @GetMapping("/cv/{cv-id}/finish-up")
-//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public CvAddNewDto getFinishUp(@PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.finishUp(cvId);
     }
@@ -78,19 +78,19 @@ public class CvController {
     }
 
     @PutMapping("/{user-id}/cv/{cv-id}/contact")
-//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public ResponseEntity<?> updateContact1(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @RequestBody UsersCvViewDto dto) throws JsonProcessingException {
         return ResponseEntity.ok(cvService.updateCvContact(userId, cvId, dto));
     }
 
     @GetMapping("/{user-id}/cv/{cv-id}/contact")
-//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public ResponseEntity<?> getContactCv(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
         return ResponseEntity.ok(cvService.getCvContact(userId, cvId));
     }
 
     @PutMapping("/{cv-id}/target")
-    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public String updateContact(@PathVariable("cv-id") int id, @RequestBody CvUpdateDto dto, Principal principal) {
         if (cvService.updateCvTarget(id, dto, principal)){
             return "Update success";
@@ -138,5 +138,11 @@ public class CvController {
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public Cv findByUserIdAndId(@PathVariable("userId") Integer userId, @PathVariable("cvId") Integer cvId) throws JsonProcessingException {
         return cvService.findByUser_IdAndId(userId, cvId);
+    }
+
+    @GetMapping("/{user-id}/cv/detail/cover-letter")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+    public ResponseEntity<?> getCvsDetail(@PathVariable("user-id") Integer userId) {
+        return ResponseEntity.ok(cvService.listCvDetail(userId));
     }
 }

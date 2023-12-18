@@ -60,4 +60,8 @@ public interface CvRepository extends JpaRepository<Cv, Integer> {
     List<Cv> findAllByIdIn(Collection<Integer> id);
 
     List<Cv> findAllByUser_Id(Integer userId);
+
+    List<Cv> findAllByUser_IdAndIdIsNot(Integer userId, Integer cvId);
+
+    List<Cv> findAllByUser_IdAndStatus(Integer userId, BasicStatus status);
 }

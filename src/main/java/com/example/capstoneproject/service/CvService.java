@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.CvResponse;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
@@ -56,5 +57,7 @@ public interface CvService {
     ChatResponse reviewCV(float temperature, Integer cvId, Principal principal) throws JsonProcessingException;
 
     ChatResponseArray rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException;
+
+    List<CvResponse> listCvDetail(Integer userId);
 
 }

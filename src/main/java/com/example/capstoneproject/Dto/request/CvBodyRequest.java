@@ -1,21 +1,17 @@
-package com.example.capstoneproject.Dto;
+package com.example.capstoneproject.Dto.request;
 
+import com.example.capstoneproject.Dto.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-@NoArgsConstructor
-
 @Getter
 @Setter
 @ToString
-public class CvBodyDto {
-
+public class CvBodyRequest {
     private Boolean sharable = false;
 
     private Boolean searchable = false;

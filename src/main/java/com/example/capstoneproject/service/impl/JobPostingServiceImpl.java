@@ -494,7 +494,9 @@ public class JobPostingServiceImpl implements JobPostingService {
                         matching.setCvId(cv.getId());
                         matching.setName(cv.getUser().getName());
                         matching.setAvatar(cv.getUser().getAvatar());
-                        matching.setJobTitle(cv.getJobTitle());
+                        if(cv.getJobDescription()!=null){
+                            matching.setJobTitle(cv.getJobDescription().getTitle());
+                        }
                         matching.setCompany(cv.getCompanyName());
                         matching.setAbout(cv.getUser().getAbout());
                         matching.setScore(findSimilarityRatio(cvSkill,requirement));

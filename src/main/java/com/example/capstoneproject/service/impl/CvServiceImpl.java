@@ -2,6 +2,7 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
+import com.example.capstoneproject.Dto.responses.CvResponse;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.*;
@@ -134,8 +135,8 @@ public class CvServiceImpl implements CvService {
                     CvViewDto cvDto = new CvViewDto();
                     cvDto.setId(cv.getId());
                     cvDto.setResumeName(cv.getResumeName());
-                    cvDto.setExperience(cv.getExperience());
-                    cvDto.setFieldOrDomain(cv.getFieldOrDomain());
+//                    cvDto.setExperience(cv.getExperience());
+//                    cvDto.setFieldOrDomain(cv.getFieldOrDomain());
                     cvDto.setSummary(cv.getSummary());
                     try {
                         cvDto.setCvBody(cv.deserialize());
@@ -218,6 +219,7 @@ public class CvServiceImpl implements CvService {
             }
             Cv cv = new Cv();
             cv.setStatus(BasicStatus.ACTIVE);
+            cv.setCompanyName(dto.getCompanyName());
 
             Users users = user.get();
             UsersViewDto usersViewDto = modelMapper.map(users, UsersViewDto.class);
@@ -278,9 +280,9 @@ public class CvServiceImpl implements CvService {
             dto.setSkills(skillDtos);
 
             cv.setCvBody(cv.toCvBody(dto));
-            cv.setFieldOrDomain(dto.getFieldOrDomain());
+//            cv.setFieldOrDomain(dto.getFieldOrDomain());
             cv.setResumeName(dto.getResumeName());
-            cv.setExperience(dto.getExperience());
+//            cv.setExperience(dto.getExperience());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
             Cv savedCv = cvRepository.save(cv);
@@ -321,8 +323,8 @@ public class CvServiceImpl implements CvService {
                 Cv cv = cvOptional.get();
                 CvDupDto cvDupDto = new CvDupDto();
                 cvDupDto.setResumeName("Copy of " + cv.getResumeName());
-                cvDupDto.setExperience(cv.getExperience());
-                cvDupDto.setFieldOrDomain(cv.getFieldOrDomain());
+//                cvDupDto.setExperience(cv.getExperience());
+//                cvDupDto.setFieldOrDomain(cv.getFieldOrDomain());
                 cvDupDto.setStatus(BasicStatus.ACTIVE);
                 cvDupDto.setSummary(cv.getSummary());
                 cvDupDto.setCvBody(cv.getCvBody());
@@ -353,8 +355,8 @@ public class CvServiceImpl implements CvService {
                 Cv cvReturn = cvRepository.save(modelMapper.map(cvDupDto, Cv.class));
                 cvDto.setId(cvReturn.getId());
                 cvDto.setResumeName(cvReturn.getResumeName());
-                cvDto.setExperience(cvReturn.getExperience());
-                cvDto.setFieldOrDomain(cvReturn.getFieldOrDomain());
+//                cvDto.setExperience(cvReturn.getExperience());
+//                cvDto.setFieldOrDomain(cvReturn.getFieldOrDomain());
                 cvDto.setStatus(cvReturn.getStatus());
                 cvDto.setSummary(cvReturn.getSummary());
                 cvDto.setCvBody(cvReturn.deserialize());
@@ -487,32 +489,64 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal){
-        UserViewLoginDto user = securityUtil.getLoginUser(principal);
+    public Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal) {
         Optional<Cv> cvOptional = cvRepository.findById(id);
 
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
-//            modelMapper.map(dto, cv);
-            List<Cv> cvs = cvRepository.findAllByUser_Id(cv.getUser().getId());
-            if(cvs!=null){
-                for(Cv cv1:cvs){
-                    if(cv1.getResumeName().equals(dto.getResumeName())){
+
+            List<Cv> cvs = cvRepository.findAllByUser_IdAndIdIsNot(cv.getUser().getId(), cv.getId());
+            if (cvs != null) {
+                for (Cv cv1 : cvs) {
+                    if (cv1.getResumeName().equals(dto.getResumeName())) {
                         throw new BadRequestException("Resume name already exists in another cv.");
                     }
                 }
             }
-            cv.setResumeName(dto.getResumeName());
-            cv.setJobTitle(dto.getJobTitle());
-            cv.setCompanyName(dto.getCompanyName());
-            cv.setJobDescriptionTarget(dto.getJobDescriptionTarget());
 
-            cvRepository.save(cv);
-            return true;
+            cv.setResumeName(dto.getResumeName());
+            cv.setCompanyName(dto.getCompanyName());
+
+            if ((dto.getJobTitle() != null && dto.getJobDescriptionTarget() != null) ||
+                    (dto.getJobTitle() == null && dto.getJobDescriptionTarget() == null)) {
+
+                if (dto.getJobTitle() != null && dto.getJobDescriptionTarget() != null) {
+                    if (countWords(dto.getJobDescriptionTarget()) >= 30) {
+                        if (cv.getJobDescription() != null) {
+                            Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
+                            if (jobDescriptionOptional.isPresent()) {
+                                JobDescription jobDescription = jobDescriptionOptional.get();
+                                jobDescription.setTitle(dto.getJobTitle());
+                                jobDescription.setDescription(dto.getJobDescriptionTarget());
+                                jobDescriptionRepository.save(jobDescription);
+                            }
+                        } else {
+                            JobDescription jobDescription = new JobDescription();
+                            jobDescription.setTitle(dto.getJobTitle());
+                            jobDescription.setDescription(dto.getJobDescriptionTarget());
+                            jobDescriptionRepository.save(jobDescription);
+                            cv.setJobDescription(jobDescription);
+                        }
+                    } else {
+                        throw new BadRequestException("Job description must be at least 30 words.");
+                    }
+                } else {
+                    // Nếu không có bất kỳ trường nào được nhập, tiếp tục mà không có lỗi
+                    // Có thể thêm logic xử lý khác ở đây nếu cần
+                }
+
+                cvRepository.save(cv);
+
+                return true;
+            } else {
+                throw new BadRequestException("You must provide either both Job Title and Job Description Target or provide none.");
+            }
         } else {
             throw new IllegalArgumentException("CvId not found: " + id);
         }
     }
+
+
 
     @Override
     public CvBodyDto getCvBody(int cvId) throws JsonProcessingException {
@@ -592,7 +626,7 @@ public class CvServiceImpl implements CvService {
     public List<CvAddNewDto> getListSearchable(String field) {
         List<Cv> cvs = cvRepository.findAllByStatusAndSearchable(BasicStatus.ACTIVE,true);
         return cvs.stream()
-                .filter(cv -> field == null || cv.getFieldOrDomain().contains(field))
+                .filter(cv -> field == null)
                 .map(cv -> modelMapper.map(cv, CvAddNewDto.class))
                 .collect(Collectors.toList());
     }
@@ -984,6 +1018,26 @@ public class CvServiceImpl implements CvService {
         }
     }
 
+    @Override
+    public List<CvResponse> listCvDetail(Integer userId) {
+        List<Cv> cvs = cvRepository.findAllByUser_IdAndStatus(userId, BasicStatus.ACTIVE);
+        List<CvResponse> list = new ArrayList<>();
+        if(cvs!=null){
+            for(Cv cv:cvs){
+                CvResponse cvResponse = new CvResponse();
+                cvResponse.setId(cv.getId());
+                cvResponse.setResume(cv.getResumeName());
+                cvResponse.setCompany(cv.getCompanyName());
+                if (cv.getJobDescription() != null) {
+                    cvResponse.setJobTitle(cv.getJobDescription().getTitle());
+                    cvResponse.setJobDescription(cv.getJobDescription().getDescription());
+                }
+                list.add(cvResponse);
+            }
+        }
+        return list;
+    }
+
     public static String[] splitText(String text) {
         // Use positive lookahead to include "• " in the split result
         String[] splitValues = text.split("(?=[•\\-])");
@@ -994,5 +1048,17 @@ public class CvServiceImpl implements CvService {
                 .filter(value -> !value.isEmpty())
                 .map(value -> value.replace("-", "•"))
                 .toArray(String[]::new);
+    }
+
+    public static int countWords(String input) {
+        if (input == null || input.isEmpty()) {
+            return 0;
+        }
+
+        // Sử dụng biểu thức chính quy để tách các từ
+        String[] words = input.split("\\s+");
+
+        // Trả về số lượng từ
+        return words.length;
     }
 }
