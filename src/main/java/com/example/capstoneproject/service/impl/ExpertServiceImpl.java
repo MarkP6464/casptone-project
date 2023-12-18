@@ -133,6 +133,9 @@ public class ExpertServiceImpl implements ExpertService {
                 expertConfigViewDto.setCompany(expert.getCompany());
                 expertConfigViewDto.setAbout(expert.getAbout());
                 expertConfigViewDto.setExperiences(expert.getExperience());
+                expertConfigViewDto.setBankAccountName(expert.getBankAccountName());
+                expertConfigViewDto.setBankName(expert.getBankName());
+                expertConfigViewDto.setBankAccountNumber(expert.getBankAccountNumber());
                 List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
                 if(!priceOptions.isEmpty()){
                     List<PriceOptionDto> priceOptionDtos = new ArrayList<>();

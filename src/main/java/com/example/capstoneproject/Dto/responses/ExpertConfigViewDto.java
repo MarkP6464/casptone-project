@@ -33,4 +33,6 @@ public class ExpertConfigViewDto {
     private String bankName;
 
     private String bankAccountNumber;
+
+    private String bankAccountName;
 }

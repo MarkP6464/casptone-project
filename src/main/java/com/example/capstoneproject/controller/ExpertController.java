@@ -1,11 +1,13 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.ExpertUpdateDto;
+import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.service.ExpertService;
+import com.example.capstoneproject.service.TransactionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 public class ExpertController {
+    @Autowired
+    TransactionService transactionService;
 
     @Autowired
     ExpertService expertService;
@@ -64,6 +68,13 @@ public class ExpertController {
     public ResponseEntity<?> update(@PathVariable("expert-id") Integer hrId, @RequestBody HRBankRequest dto) throws JsonProcessingException {
         dto.setId(hrId);
         return ResponseEntity.ok(expertService.update(dto));
+    }
+
+    @GetMapping("expert/get-all/{user-id}")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
+    public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
+        List<TransactionDto> list = transactionService.getAll(sentId);
+        return list;
     }
 
 }
