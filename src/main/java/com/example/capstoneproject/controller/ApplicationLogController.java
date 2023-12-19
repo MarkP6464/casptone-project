@@ -49,7 +49,7 @@ public class ApplicationLogController {
     }
 
     @GetMapping("/application-log/hr/{hr-id}")
-    @PreAuthorize("hasAnyAuthority('read:hr')")
+//    @PreAuthorize("hasAnyAuthority('read:hr')")
     public List<ApplicationLogFullResponse> getAllLogByHrId(@PathVariable("hr-id") Integer hrId){
         List<ApplicationLogFullResponse> list =  applicationLogService.getAllByHrID(hrId);
         return list;

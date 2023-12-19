@@ -281,10 +281,10 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
             List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
             clHistoryList.stream().forEach(x -> {
-                listClMap.put(x.getId(), x.getTitle());
+                listClMap.put(x.getId(), x.getCoverLetter().getTitle());
             });
             newList.stream().forEach(x -> {
-                Integer historyCoverLetterId = (Integer) x.getCvs().get("historyCoverLetterId");
+                Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
                 x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
             });
         }
