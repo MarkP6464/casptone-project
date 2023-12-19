@@ -42,7 +42,7 @@ public class TransactionController {
 
     @GetMapping("/get-all/{user-id}")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
-    public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
+    public List<TransactionDto> getAll(@PathVariable("user-id") String sentId){
         List<TransactionDto> list = transactionService.getAllSuccessfull(sentId);
         return list;
     }

@@ -72,7 +72,7 @@ public class ExpertController {
 
     @GetMapping("expert/get-all/{user-id}")
     @PreAuthorize("hasAnyAuthority( 'read:expert', 'read:admin')")
-    public List<TransactionDto> getTypeWithdraw(@RequestParam("user-id") String sentId){
+    public List<TransactionDto> getTypeWithdraw(@PathVariable("user-id") String sentId){
         List<TransactionDto> list = transactionService.getAllTransactionType(sentId);
         return list;
     }
