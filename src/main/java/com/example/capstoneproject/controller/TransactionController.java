@@ -3,6 +3,7 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.request.ImageDto;
+import com.example.capstoneproject.Dto.request.WithdrawRequest;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.Dto.responses.TransactionViewDto;
 import com.example.capstoneproject.entity.Transaction;
@@ -76,8 +77,11 @@ public class TransactionController {
 
     @PostMapping(value = "/withdraw")
     @PreAuthorize("hasAnyAuthority('create:expert')")
-    public ResponseEntity withdraw(@RequestBody TransactionResponse transactionDto) throws Exception {
-        TransactionDto transaction = transactionService.requestToWithdraw(transactionDto);
+    public ResponseEntity withdraw(@RequestBody WithdrawRequest request) throws Exception {
+        TransactionResponse dto = new TransactionResponse();
+        dto.setUserId(request.getReceiverId());
+        dto.setExpenditure(request.getExpenditure());
+        TransactionDto transaction = transactionService.requestToWithdraw(dto);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
 

@@ -9,6 +9,7 @@ import com.example.capstoneproject.entity.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mservice.allinone.models.QueryStatusTransactionResponse;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public interface TransactionService {
@@ -28,7 +29,7 @@ public interface TransactionService {
 
     TransactionDto requestToWithdraw(TransactionResponse dto) throws JsonProcessingException;
 
-    TransactionDto approveWithdrawRequest(String id);
+    TransactionDto approveWithdrawRequest(String id) throws FileNotFoundException;
 
     List<TransactionViewDto> viewWithdrawList();
 

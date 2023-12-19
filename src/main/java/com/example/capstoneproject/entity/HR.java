@@ -35,7 +35,7 @@ public class HR extends Users{
     private String companyDescription;
 
     @Column(name = "vip")
-    private Boolean vip;
+    private Boolean vip = false;
 
     @NonNull
     private LocalDate expiredDay = LocalDate.now();

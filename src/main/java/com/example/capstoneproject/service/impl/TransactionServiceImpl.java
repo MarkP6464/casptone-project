@@ -16,6 +16,7 @@ import com.example.capstoneproject.enums.TransactionType;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ForbiddenException;
 import com.example.capstoneproject.exception.InternalServerException;
+import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.TransactionMapper;
 import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.repository.UsersRepository;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
@@ -89,7 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public List<TransactionDto> getAllSuccessfull(String id){
         Integer receivedID = Integer.parseInt(id);
-        List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndStatusIsAndTransactionTypeNot(id, receivedID, TransactionStatus.SUCCESSFULLY, TransactionType.WITHDRAW);
+        List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndStatusIsAndTransactionTypeNot(id, receivedID, TransactionStatus.SUCCESSFUL, TransactionType.WITHDRAW);
         List<TransactionDto> dtos = list.stream().map(x -> {
             TransactionDto dto = transactionMapper.toDto(x);
             dto.setUserId(receivedID);
@@ -155,7 +157,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new InternalServerException("Momo service is not available");
         }
         if (captureWalletMoMoResponse.getMessage().equals("Success")){
-            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), transactionDto.getResponseMessage(), TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PENDING, usersService.getUsersById(transactionDto.getUserId()));
+            Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), transactionDto.getResponseMessage(), TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PROCESSING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
         }
         String redirectLink = captureWalletMoMoResponse.getPayUrl().toString();
@@ -182,10 +184,10 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findByRequestId(tid);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = 1.0;
-        if (TransactionStatus.PENDING.equals(transaction.getStatus())){
+        if (TransactionStatus.PROCESSING.equals(transaction.getStatus())){
             if (code.equals(0)) {
                 if (Objects.nonNull(transaction)){
-                    transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+                    transaction.setStatus(TransactionStatus.SUCCESSFUL);
                 }else {
                     throw new InternalServerException("Cannot find transaction status");
                 }
@@ -235,31 +237,38 @@ public class TransactionServiceImpl implements TransactionService {
         Expert expert = null;
         if (user instanceof Expert){
             expert =  (Expert) user;
+
+        }
+        if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())){
+            throw new BadRequestException("Please setting your bank account to withdraw!!");
         }
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = 1.0;
         String requestId = String.valueOf(System.currentTimeMillis());
-        Transaction transaction = new Transaction(null, dto.getSentId(), requestId,  null, null,
-            TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getConversionAmount() * ratio, dto.getConversionAmount(), 0L, TransactionStatus.PENDING, usersService.getUsersById(dto.getUserId()));
-        if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())){
-            throw new BadRequestException("Please setting your bank account to withdraw!!");
-        }
+        Transaction transaction = new Transaction(null, "1", requestId,  null, null,
+            TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getExpenditure(), dto.getExpenditure() , 0L, TransactionStatus.PROCESSING, usersService.getUsersById(dto.getUserId()));
+
         transaction.setBankName(expert.getBankName());
         transaction.setBankAccountNumber(expert.getBankAccountNumber());
         transaction = transactionRepository.save(transaction);
+        expert.setAccountBalance(expert.getAccountBalance() - dto.getExpenditure());
+        usersRepository.save(expert);
         return transactionMapper.toDto(transaction);
     }
 
     @Override
-    public TransactionDto approveWithdrawRequest(String id){
+    public TransactionDto approveWithdrawRequest(String id) throws FileNotFoundException {
         Transaction transaction = transactionRepository.findByRequestId(id);
-        transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+        if (Objects.nonNull(transaction)){
+            transaction.setStatus(TransactionStatus.SUCCESSFUL);
+            transactionRepository.save(transaction);
+        } else throw new ResourceNotFoundException("transaction id not found!!");
         return transactionMapper.toDto(transaction);
     }
 
     @Override
     public List<TransactionViewDto> viewWithdrawList() {
-        List<Transaction> list = transactionRepository.findAllByTransactionTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.PENDING);
+        List<Transaction> list = transactionRepository.findAllByTransactionTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.PROCESSING);
         List<TransactionViewDto> dtos = list.stream().map(x -> transactionMapper.toDtoView(x)).collect(Collectors.toList());
         return dtos;
     }
@@ -290,7 +299,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, "Withdraw money",
-                TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0.0, 0L, TransactionStatus.PENDING, usersService.getUsersById(receiveId));
+                TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0.0, 0L, TransactionStatus.PROCESSING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
         return transactionMapper.toDto(transaction);
@@ -307,7 +316,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDto requestToReviewFail(String requestId){
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
-        if (TransactionStatus.PENDING.equals(transaction.getStatus())) {
+        if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
             transaction.setStatus(TransactionStatus.FAIL);
             transaction = transactionRepository.save(transaction);
 
@@ -322,8 +331,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDto requestToReviewSuccessFul(String requestId){
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
-        if (TransactionStatus.PENDING.equals(transaction.getStatus())) {
-            transaction.setStatus(TransactionStatus.SUCCESSFULLY);
+        if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
+            transaction.setStatus(TransactionStatus.SUCCESSFUL);
             transaction = transactionRepository.save(transaction);
 
             //cong tien cho expert
@@ -339,7 +348,7 @@ public class TransactionServiceImpl implements TransactionService {
         Users users = usersService.getUsersById(userId);
         if (Double.compare(users.getAccountBalance(), 1000L) >= 0 ){
             String requestId = String.valueOf(System.currentTimeMillis());
-            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.SUCCESSFULLY, usersService.getUsersById(1));
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.SUCCESSFUL, usersService.getUsersById(1));
             Transaction transaction1 = transactionRepository.save(transaction);
             users.setAccountBalance(users.getAccountBalance()-1000L);
             usersRepository.save(users);

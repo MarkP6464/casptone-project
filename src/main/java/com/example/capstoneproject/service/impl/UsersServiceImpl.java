@@ -128,7 +128,7 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
                         userManageViewDto.setName(user.getName());
                         userManageViewDto.setStatus(user.isBan() ? "Banned" : "UnBanned");
                         userManageViewDto.setLastActive(user.getLastActive());
-                        Double money = transactionRepository.sumExpenditureByUserIdAndTransactionTypeAndStatus(user.getId(), TransactionType.ADD, TransactionStatus.SUCCESSFULLY);
+                        Double money = transactionRepository.sumExpenditureByUserIdAndTransactionTypeAndStatus(user.getId(), TransactionType.ADD, TransactionStatus.SUCCESSFUL);
                         Long mon = (money != null) ? money.longValue() : 0L;
                         userManageViewDto.setMoney(formatPrice(mon));
                         userManageViewDto.setRole(user.getRole().getRoleName());
