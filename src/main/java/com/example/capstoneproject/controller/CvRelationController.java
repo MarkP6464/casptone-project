@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -34,6 +35,94 @@ public class CvRelationController {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @PutMapping(value = "/{cvId}/{theRelation}/update-all", consumes = "application/json")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
+    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody List<Object> list) throws Exception {
+
+        switch (theRelation) {
+            case "educations":
+                List<EducationDto> dtoList = list.stream().map(obj -> {
+                    EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
+                    return educationDto;
+                }).collect(Collectors.toList());
+                dtoList.stream().forEach(x -> {
+                    try {
+                        educationService.updateInCvBody(cvId, x.getId(), x);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                });
+                return ResponseEntity.ok("Update the orders successfully");
+            case "certifications":
+                List<CertificationDto> certList = list.stream().map(obj -> {
+                    CertificationDto educationDto = objectMapper.convertValue(obj, CertificationDto.class);
+                    return educationDto;
+                }).collect(Collectors.toList());
+                certList.stream().forEach(x -> {
+                    try {
+                        certificationService.updateInCvBody(cvId, x.getId(), x);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                });
+                return ResponseEntity.ok("Update the orders successfully");
+            case "skills":
+                List<SkillDto> skillDtoList = list.stream().map(obj -> {
+                    SkillDto educationDto = objectMapper.convertValue(obj, SkillDto.class);
+                    return educationDto;
+                }).collect(Collectors.toList());
+                skillDtoList.stream().forEach(x -> {
+                    try {
+                        skillService.updateInCvBody(cvId, x.getId(), x);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                });
+                return ResponseEntity.ok("Update the orders successfully");
+            case "involvements":
+                List<InvolvementDto> involList = list.stream().map(obj -> {
+                    InvolvementDto educationDto = objectMapper.convertValue(obj, InvolvementDto.class);
+                    return educationDto;
+                }).collect(Collectors.toList());
+                involList.stream().forEach(x -> {
+                    try {
+                        involvementService.updateInCvBody(cvId, x.getId(), x);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                });
+                return ResponseEntity.ok("Update the orders successfully");
+            case "projects":
+                List<ProjectDto> projectDtos = list.stream().map(obj -> {
+                    ProjectDto educationDto = objectMapper.convertValue(obj, ProjectDto.class);
+                    return educationDto;
+                }).collect(Collectors.toList());
+                projectDtos.stream().forEach(x -> {
+                    try {
+                        projectService.updateInCvBody(cvId, x.getId(), x);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                });
+                return ResponseEntity.ok("Update the orders successfully");
+            case "experiences":
+                List<ExperienceDto> experienceDtos = list.stream().map(obj -> {
+                    ExperienceDto educationDto = objectMapper.convertValue(obj, ExperienceDto.class);
+                    return educationDto;
+                }).collect(Collectors.toList());
+                experienceDtos.stream().forEach(x -> {
+                    try {
+                        experienceService.updateInCvBody(cvId, x.getId(), x);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                });
+                return ResponseEntity.ok("Update the orders successfully");
+            default:
+                throw new Exception("Invalid request!!");
+        }
+    }
 
     @GetMapping("/{cvId}/{theRelation}")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")

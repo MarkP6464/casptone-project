@@ -228,6 +228,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             Project saved = projectRepository.save(project);
             ProjectDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db

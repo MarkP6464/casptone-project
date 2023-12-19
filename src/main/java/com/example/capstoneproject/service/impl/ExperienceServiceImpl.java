@@ -223,6 +223,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             Experience saved = experienceRepository.save(experience);
             ExperienceDto experienceDto = relationDto.get();
             experienceDto.setIsDisplay(dto.getIsDisplay());
+            experienceDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
 

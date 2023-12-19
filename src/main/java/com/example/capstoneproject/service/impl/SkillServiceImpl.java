@@ -173,6 +173,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             skillRepository.save(education);
             SkillDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {

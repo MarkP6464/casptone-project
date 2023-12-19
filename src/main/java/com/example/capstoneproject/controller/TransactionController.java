@@ -40,14 +40,14 @@ public class TransactionController {
     TransactionService transactionService;
 
     @GetMapping("/get-all/{user-id}")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
     public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
         List<TransactionDto> list = transactionService.getAllSuccessfull(sentId);
         return list;
     }
 
     @GetMapping("/show-all")
-    @PreAuthorize("hasAnyAuthority('read:admin-messages')")
+    @PreAuthorize("hasAnyAuthority('read:admin')")
     public List<TransactionDto> showAll(){
         List<TransactionDto> list = transactionService.showAll();
         return list;

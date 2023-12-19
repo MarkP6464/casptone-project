@@ -188,6 +188,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             certificationRepository.save(certification);
             CertificationDto CertificationDto = relationDto.get();
             CertificationDto.setIsDisplay(dto.getIsDisplay());
+            CertificationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {

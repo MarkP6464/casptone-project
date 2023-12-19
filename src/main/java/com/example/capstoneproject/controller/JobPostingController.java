@@ -8,6 +8,7 @@ import com.example.capstoneproject.Dto.responses.JobPostingViewDto;
 import com.example.capstoneproject.Dto.responses.JobPostingViewUserDetailDto;
 import com.example.capstoneproject.enums.SortByJob;
 import com.example.capstoneproject.enums.SortOrder;
+import com.example.capstoneproject.service.HRService;
 import com.example.capstoneproject.service.JobPostingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 public class JobPostingController {
+    @Autowired
+    HRService hrService;
 
     @Autowired
     JobPostingService jobPostingService;
@@ -36,7 +39,6 @@ public class JobPostingController {
             @RequestParam(name = "sortOrder", required = false, defaultValue = "asc") SortOrder sortOrder,
             @RequestParam(name = "searchTerm", required = false) String searchTerm
     ) {
-
         return jobPostingService.getListByHr(hrId, String.valueOf(sortBy), String.valueOf(sortOrder), searchTerm);
     }
 

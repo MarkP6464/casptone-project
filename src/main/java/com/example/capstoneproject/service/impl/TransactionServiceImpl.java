@@ -75,9 +75,21 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    public List<TransactionDto> getAllTransactionType(String id){
+        Integer receivedID = Integer.parseInt(id);
+        List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndTransactionType(id, receivedID, TransactionType.WITHDRAW);
+        List<TransactionDto> dtos = list.stream().map(x -> {
+            TransactionDto dto = transactionMapper.toDto(x);
+            dto.setUserId(receivedID);
+            return dto;
+        }).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Override
     public List<TransactionDto> getAllSuccessfull(String id){
         Integer receivedID = Integer.parseInt(id);
-        List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndStatus(id, receivedID, TransactionStatus.SUCCESSFULLY);
+        List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndStatusIsAndTransactionTypeNot(id, receivedID, TransactionStatus.SUCCESSFULLY, TransactionType.WITHDRAW);
         List<TransactionDto> dtos = list.stream().map(x -> {
             TransactionDto dto = transactionMapper.toDto(x);
             dto.setUserId(receivedID);

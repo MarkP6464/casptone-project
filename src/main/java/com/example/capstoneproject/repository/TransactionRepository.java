@@ -31,13 +31,25 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("status") TransactionStatus status
     );
 
+    @Query("SELECT t FROM Transaction t " +
+            "WHERE t.status = :transactionStatus " +
+            "AND t.transactionType = :transactionType")
     List<Transaction> findAllByTransactionTypeAndStatus(TransactionType transactionType, TransactionStatus transactionStatus);
 
     List<Transaction> findBySentIdAndUser_Id(String id, Long receiveId);
 
     List<Transaction> findBySentIdOrUser_Id(String id, Integer userId);
 
-    List<Transaction> findBySentIdOrUser_IdAndStatus(String id, Integer userId, TransactionStatus transactionStatus);
+    @Query("SELECT t FROM Transaction t " +
+            "WHERE (t.sentId = :id  OR t.user.id = :userId)" +
+            "AND t.status = :transactionStatus " +
+            "AND t.transactionType <> :type")
+    List<Transaction> findBySentIdOrUser_IdAndStatusIsAndTransactionTypeNot(String id, Integer userId, TransactionStatus transactionStatus, TransactionType type);
+
+    @Query("SELECT t FROM Transaction t " +
+            "WHERE (t.sentId = :id  OR t.user.id = :userId)" +
+            "AND t.transactionType = :transactionType")
+    List<Transaction> findBySentIdOrUser_IdAndTransactionType(String id, Integer userId, TransactionType transactionType);
 
     Transaction findByRequestId(String id);
 

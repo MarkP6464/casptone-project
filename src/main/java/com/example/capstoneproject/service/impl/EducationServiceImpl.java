@@ -207,6 +207,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             educationRepository.save(education);
             EducationDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
