@@ -245,7 +245,7 @@ public class TransactionServiceImpl implements TransactionService {
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = 1.0;
         String requestId = String.valueOf(System.currentTimeMillis());
-        Transaction transaction = new Transaction(null, "1", requestId,  null, null,
+        Transaction transaction = new Transaction(null, "1", requestId,  null, "Withdraw request",
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getExpenditure(), dto.getExpenditure() , 0L, TransactionStatus.PROCESSING, usersService.getUsersById(dto.getUserId()));
 
         transaction.setBankName(expert.getBankName());
@@ -298,7 +298,7 @@ public class TransactionServiceImpl implements TransactionService {
         usersRepository.save(user);
 
         String requestId = String.valueOf(System.currentTimeMillis());
-        Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, "Withdraw money",
+        Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, "Review request",
                 TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0.0, 0L, TransactionStatus.PROCESSING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
