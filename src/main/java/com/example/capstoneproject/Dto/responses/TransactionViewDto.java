@@ -1,5 +1,7 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.Dto.UsersDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.enums.MoneyType;
 import com.example.capstoneproject.enums.TransactionStatus;
 import com.example.capstoneproject.enums.TransactionType;
@@ -35,7 +37,9 @@ public class TransactionViewDto {
 
     private TransactionStatus status;
 
-    private Integer userId;
+    private UsersDto receiver;
 
     private LocalDateTime createdDate;
+
+    private HRBankRequest bank;
 }

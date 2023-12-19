@@ -32,7 +32,7 @@ public interface TransactionService {
 
     List<TransactionViewDto> viewWithdrawList();
 
-    String uploadImageConfirm(Integer userId, Long transactionId, ImageDto dto);
+    String uploadImageConfirm(Long transactionId, ImageDto dto);
 
     TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount);
 

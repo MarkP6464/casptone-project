@@ -68,7 +68,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     );
 
 
-
+    Optional<Transaction> findById(Integer transactionId);
 
 
 

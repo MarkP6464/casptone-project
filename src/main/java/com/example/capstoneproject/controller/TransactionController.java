@@ -94,9 +94,10 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 
-    @PutMapping("/{transaction-id}/user/{user-id}/withdraw/image")
-    public ResponseEntity<?> updateImageTransaction(@PathVariable("transaction-id") Long transactionId, @PathVariable("user-id") Integer userId, @RequestBody ImageDto dto) throws Exception {
-        return ResponseEntity.ok(transactionService.uploadImageConfirm(userId, transactionId, dto));
+    @PutMapping("/{transaction-id}/admin/withdraw/image")
+    @PreAuthorize("hasAnyAuthority('update:admin')")
+    public ResponseEntity<?> updateImageTransaction(@PathVariable("transaction-id") Long transactionId, @RequestBody ImageDto dto) throws Exception {
+        return ResponseEntity.ok(transactionService.uploadImageConfirm(transactionId, dto));
     }
 
 //
