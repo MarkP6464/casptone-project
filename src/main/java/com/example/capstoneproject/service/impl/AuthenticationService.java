@@ -3,10 +3,12 @@ import com.example.capstoneproject.Dto.RoleDto;
 import com.example.capstoneproject.Dto.UserViewLoginDto;
 import com.example.capstoneproject.Dto.responses.AccountBalanceResponse;
 import com.example.capstoneproject.entity.Candidate;
+import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.Role;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.RoleType;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.CandidateRepository;
 import com.example.capstoneproject.repository.RoleRepository;
@@ -88,6 +90,16 @@ public class AuthenticationService {
                 userViewLoginDto.setLinkin(users.getLinkin());
                 userViewLoginDto.setAccountBalance(users.getAccountBalance());
                 userViewLoginDto.setBanned(users.isBan());
+                if(users.getRole().getRoleName().equals(RoleType.HR)){
+                    Users userHr = usersOptional.get();
+                    if (userHr instanceof HR){
+                        HR hr = (HR) userHr;
+                        if (Objects.nonNull(hr)){
+                            userViewLoginDto.setSubscription(hr.getSubscription());
+                            userViewLoginDto.setVip(hr.getVip());
+                        }
+                    }
+                }
                 userViewLoginDto.setRole(modelMapper.map(users.getRole(), RoleDto.class));
                 LocalDate currentDate = LocalDate.now();
                 users.setLastActive(currentDate);
@@ -104,6 +116,7 @@ public class AuthenticationService {
                 candidate.setAccountBalance( 0.0);
                 LocalDate currentDate = LocalDate.now();
                 candidate.setLastActive(currentDate);
+                candidate.setCreateDate(currentDate);
                 candidate.setBan(false);
                 candidateRepository.save(candidate);
                 userViewLoginDto.setId(candidate.getId());

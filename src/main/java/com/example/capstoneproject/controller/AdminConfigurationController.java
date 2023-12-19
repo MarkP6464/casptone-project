@@ -3,6 +3,8 @@ package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationApiResponse;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationRatioResponse;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
+import com.example.capstoneproject.Dto.responses.AdminDateChartResponse;
+import com.example.capstoneproject.enums.TypeChart;
 import com.example.capstoneproject.service.AdminConfigurationService;
 import com.example.capstoneproject.service.impl.ChatGPTServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,5 +47,17 @@ public class AdminConfigurationController {
     public ResponseEntity<?> checkApiKey() {
         return ResponseEntity.ok(chatGPTService.isChatGptApiKeyValid());
     }
+
+    @PostMapping("/admin/{admin-id}/dashboard/chart")
+    @PreAuthorize("hasAnyAuthority('read:admin')")
+    public ResponseEntity<?> getChart(@PathVariable("admin-id") Integer adminId, @RequestBody AdminDateChartResponse dto, @RequestParam(name = "chart", required = false) TypeChart chart) {
+        if (chart == null) {
+            chart = TypeChart.Account;
+        }
+
+        return ResponseEntity.ok(adminConfigurationService.getChart(adminId, dto, chart));
+    }
+
+
 
 }

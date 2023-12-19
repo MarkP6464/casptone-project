@@ -1,11 +1,14 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.responses.AdminConfigurationApiResponse;
-import com.example.capstoneproject.Dto.responses.AdminConfigurationRatioResponse;
-import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
+import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.Admin;
 import com.example.capstoneproject.entity.Users;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.TransactionStatus;
+import com.example.capstoneproject.enums.TransactionType;
+import com.example.capstoneproject.enums.TypeChart;
 import com.example.capstoneproject.exception.BadRequestException;
+import com.example.capstoneproject.repository.TransactionRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.AdminConfigurationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,12 +16,23 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
+import static com.example.capstoneproject.service.impl.ReviewRequestServiceImpl.formatPrice;
 
 @Service
 public class AdminConfigurationServiceImpl implements AdminConfigurationService {
     @Autowired
     UsersRepository usersRepository;
+
+    @Autowired
+    TransactionRepository transactionRepository;
+
     @Autowired
     ModelMapper modelMapper;
 
@@ -79,6 +93,80 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
         }
         throw new BadRequestException("id not valid to token");
     }
+
+    @Override
+    public AdminConfigDashResponse getChart(Integer adminId, AdminDateChartResponse dto, TypeChart chart) {
+        AdminConfigDashResponse adminConfigDashResponse = new AdminConfigDashResponse();
+        List<Users> users = usersRepository.findAllByStatusAndIdNot(BasicStatus.ACTIVE, adminId);
+        LocalDate current = LocalDate.now();
+        List<Users> users1 = usersRepository.findAllByStatusAndIdNotAndLastActive(BasicStatus.ACTIVE, adminId, current);
+        Double income = transactionRepository.sumExpenditureByTransactionTypeAndStatus(TransactionType.ADD, TransactionStatus.SUCCESSFULLY);
+        long transformIncome = income.longValue();
+        adminConfigDashResponse.setTotalUser(users.size());
+        adminConfigDashResponse.setUserLogin(users1.size());
+        adminConfigDashResponse.setIncome(formatPrice(transformIncome));
+        List<AdminChartResponse> chartResponses = new ArrayList<>();
+
+        LocalDate startDate, endDate;
+
+        // Kiểm tra và gán giá trị cho startDate và endDate
+        if (dto.getStart() != null && dto.getEnd() != null) {
+            if (dto.getStart().isAfter(dto.getEnd())) {
+                throw new BadRequestException("startDate is after endDate");
+            }
+            startDate = dto.getStart();
+            endDate = dto.getEnd();
+        } else {
+            // Xử lý trường hợp startDate hoặc endDate là null
+            startDate = current.minusDays(7);
+            endDate = current;
+        }
+
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+
+        // Kiểm tra khoảng thời gian hợp lệ
+        if (daysBetween < 7 || daysBetween > 30) {
+            throw new BadRequestException("Range must be between 7 and 30 days");
+        }
+
+        if (chart.equals(TypeChart.Account)) {
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                // Kiểm tra ngày không ở tương lai và từ năm 2023 trở đi
+                if (!date.isAfter(current) && date.getYear() >= 2023) {
+                    List<Users> entities = usersRepository.findAllByCreateDate(date);
+                    AdminChartResponse adminChartResponse = new AdminChartResponse();
+                    adminChartResponse.setDate(date);
+                    int value = entities.size();
+                    Long value1 = (long) value;
+                    adminChartResponse.setAmount(value1);
+                    chartResponses.add(adminChartResponse);
+                }
+            }
+        } else {
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                // Kiểm tra ngày không ở tương lai và từ năm 2023 trở đi
+                if (!date.isAfter(current) && date.getYear() >= 2023) {
+                    Double entities = transactionRepository.sumExpenditureByTransactionTypeAndStatusAndDate(
+                            TransactionType.ADD,
+                            TransactionStatus.SUCCESSFULLY,
+                            date.toString()
+                    );
+                    AdminChartResponse adminChartResponse = new AdminChartResponse();
+                    adminChartResponse.setDate(date);
+                    Long value = entities.longValue();
+                    adminChartResponse.setAmount(value);
+                    chartResponses.add(adminChartResponse);
+                }
+            }
+        }
+
+        adminConfigDashResponse.setChart(chartResponses);
+
+        return adminConfigDashResponse;
+    }
+
+
+
 
 //    @Override
 //    public AdminConfigurationRatioResponse update(AdminConfigurationRatioResponse dto) throws JsonProcessingException {

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +24,11 @@ public interface UsersRepository extends JpaRepository<Users, Integer> {
     Optional<Users> findUsersById(Integer Id);
 
     Optional<Users> findByIdAndRole_RoleName(Integer userId, RoleType roleType);
+
+    List<Users> findAllByStatusAndIdNotAndLastActive(BasicStatus status, Integer adminId, LocalDate date);
+
+    List<Users> findAllByCreateDate(LocalDate date);
+
+    List<Users> findAllByStatus(BasicStatus status);
 
 }

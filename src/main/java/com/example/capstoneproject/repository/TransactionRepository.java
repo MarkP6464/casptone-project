@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +42,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     Transaction findByRequestId(String id);
 
     Optional<Transaction> findById(Long id);
+
+    @Query("SELECT COALESCE(SUM(t.expenditure), 0) FROM Transaction t WHERE t.transactionType = :transactionType AND t.status = :status")
+    Double sumExpenditureByTransactionTypeAndStatus(@Param("transactionType") TransactionType transactionType, @Param("status") TransactionStatus status);
+
+    @Query("SELECT COALESCE(SUM(t.expenditure), 0) FROM Transaction t WHERE t.transactionType = :transactionType AND t.status = :status AND DATE_FORMAT(t.createdDate, '%Y-%m-%d') = :targetDate")
+    Double sumExpenditureByTransactionTypeAndStatusAndDate(
+            @Param("transactionType") TransactionType transactionType,
+            @Param("status") TransactionStatus status,
+            @Param("targetDate") String targetDate
+    );
+
+
+
+
+
+
+
+
 }

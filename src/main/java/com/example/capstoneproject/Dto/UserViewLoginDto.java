@@ -26,5 +26,9 @@ public class UserViewLoginDto {
 
     private boolean isBanned;
 
+    private Boolean subscription;
+
+    private Boolean vip;
+
     private RoleDto role;
 }
