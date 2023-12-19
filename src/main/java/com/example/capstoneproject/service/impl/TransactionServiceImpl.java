@@ -272,7 +272,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionViewDto> viewWithdrawList() {
-        List<Transaction> transactions = transactionRepository.findAllByTransactionTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.PROCESSING);
+        List<Transaction> transactions = transactionRepository.findBySentIdOrUser_IdAndTransactionType("1", 1, TransactionType.WITHDRAW);
         List<TransactionViewDto> transactionViews = new ArrayList<>();
         for(Transaction transaction: transactions){
             TransactionViewDto transactionView = new TransactionViewDto();
@@ -283,7 +283,7 @@ public class TransactionServiceImpl implements TransactionService {
             transactionView.setResponseMessage(transaction.getResponseMessage());
             transactionView.setTransactionType(transaction.getTransactionType());
             transactionView.setMoneyType(transaction.getMoneyType());
-            transactionView.setExpenditure(transactionView.getExpenditure());
+            transactionView.setExpenditure(transaction.getExpenditure());
             transactionView.setConversionAmount(transaction.getConversionAmount());
             transactionView.setProof(transaction.getProof());
             transactionView.setStatus(transaction.getStatus());
