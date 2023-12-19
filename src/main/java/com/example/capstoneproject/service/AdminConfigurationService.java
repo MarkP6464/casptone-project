@@ -1,8 +1,7 @@
 package com.example.capstoneproject.service;
 
-import com.example.capstoneproject.Dto.responses.AdminConfigurationApiResponse;
-import com.example.capstoneproject.Dto.responses.AdminConfigurationRatioResponse;
-import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
+import com.example.capstoneproject.Dto.responses.*;
+import com.example.capstoneproject.enums.TypeChart;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
@@ -13,4 +12,6 @@ public interface AdminConfigurationService {
     AdminConfigurationRatioResponse update(AdminConfigurationRatioResponse dto) throws JsonProcessingException;
 
     AdminConfigurationApiResponse updateApi(AdminConfigurationApiResponse dto);
+
+    AdminConfigDashResponse getChart(Integer adminId,AdminDateChartResponse dto, TypeChart chart);
 }

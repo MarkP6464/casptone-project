@@ -75,6 +75,8 @@ public class Users implements UserDetails {
     @Column(name = "account_Balance")
     private Double accountBalance = 0.0;
 
+    private LocalDate createDate;
+
     private LocalDate lastActive;
 
     private boolean ban;

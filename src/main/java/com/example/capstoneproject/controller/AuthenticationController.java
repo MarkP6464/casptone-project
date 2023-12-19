@@ -117,7 +117,6 @@ public class AuthenticationController {
 
     @ApiOperation(value = "Upload a file", response = ResponseEntity.class)
     @PostMapping(value = "/upload/image", consumes = "multipart/form-data")
-//    @PreAuthorize("hasRole('ROLE_CANDIDATE')")
     public ResponseEntity<String> uploadFile(
             @RequestPart("file") MultipartFile file) {
         try {

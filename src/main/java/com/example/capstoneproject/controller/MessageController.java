@@ -7,16 +7,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.nimbusds.jose.shaded.json.JSONObject;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
@@ -33,6 +33,19 @@ public class MessageController {
     @GetMapping("/public")
     public Message getPublic() {
         return messageService.getPublicMessage();
+    }
+
+    @ApiOperation(value = "Upload a file", response = ResponseEntity.class)
+    @PostMapping(value = "/public/upload/image", consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadFileImage(
+            @RequestPart("file") MultipartFile file) {
+        try {
+            String fileName = authenticationService.saveTest(file);
+            return ResponseEntity.ok(fileName);
+        } catch (Exception e) {
+            //  throw internal error;
+        }
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/protected")
