@@ -1,21 +1,25 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.HRDto;
+import com.example.capstoneproject.Dto.PublicDto;
 import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.entity.HR;
+import com.example.capstoneproject.entity.JobPosting;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.MoneyType;
+import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.enums.TransactionType;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ForbiddenException;
 import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.mapper.HRMapper;
 import com.example.capstoneproject.repository.HRRepository;
+import com.example.capstoneproject.repository.JobPostingRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.AdminConfigurationService;
 import com.example.capstoneproject.service.HRService;
@@ -26,13 +30,19 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HRServiceImpl implements HRService {
     @Autowired
     UsersRepository usersRepository;
+
+    @Autowired
+    JobPostingRepository jobPostingRepository;
 
     @Autowired
     HRRepository hrRepository;
@@ -52,8 +62,41 @@ public class HRServiceImpl implements HRService {
                 HR hr = (HR) user;
                 if (Objects.nonNull(hr.getVip())){
                     if (hr.getVip() == Boolean.TRUE){
+                        List<PublicDto> publicDtos = new ArrayList<>();
+                        String publish = hr.getUnJob(); // Chuỗi "1, 3, 4"
+                        String[] idsArray = publish.split(", ");
+
+                        for (String id1 : idsArray) {
+                            PublicDto publicDto = new PublicDto();
+                            publicDto.setId(Integer.parseInt(id1.trim()));
+                            publicDtos.add(publicDto);
+                        }
+                        for(PublicDto public1: publicDtos){
+                            Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(public1.getId(), BasicStatus.ACTIVE, StatusReview.Unpublish);
+                            if(jobPostingOptional.isPresent()){
+                                JobPosting jobPosting = jobPostingOptional.get();
+                                jobPosting.setShare(StatusReview.Published);
+                                jobPostingRepository.save(jobPosting);
+                            }
+                        }
+                        hr.setUnJob(null);
+                        hrRepository.save(hr);
                         return true;
-                    } throw new BadRequestException("Please buy subscription to buy this feature!");
+                    }else{
+                        List<JobPosting> jobPostings = jobPostingRepository.findAllByUser_IdAndStatusAndShare(hr.getId(),BasicStatus.ACTIVE, StatusReview.Published);
+                        if(jobPostings!=null){
+                            for(JobPosting jobPosting: jobPostings){
+                                jobPosting.setShare(StatusReview.Unpublish);
+                                jobPostingRepository.save(jobPosting);
+                            }
+                            String concatenatedIds = jobPostings.stream()
+                                    .map(jobPosting -> String.valueOf(jobPosting.getId()))
+                                    .collect(Collectors.joining(", "));
+                            hr.setUnJob(concatenatedIds);
+                        }
+                        hrRepository.save(hr);
+                        throw new BadRequestException("Please buy subscription to buy this feature!");
+                    }
                 } else throw new InternalServerException("Vip is null");
             }
         }

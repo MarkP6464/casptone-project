@@ -20,4 +20,6 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Integer>
     Optional<JobPosting> findByIdAndStatusAndShare(Integer postingId, BasicStatus status, StatusReview share);
     List<JobPosting> findAllByDeadline(LocalDate deadline);
     List<JobPosting> findByStatusAndShareOrStatusAndBanIsTrue(BasicStatus status1, StatusReview share1, BasicStatus status2);
+
+    List<JobPosting> findAllByUser_IdAndStatusAndShare(Integer hrId, BasicStatus status, StatusReview revieww);
 }

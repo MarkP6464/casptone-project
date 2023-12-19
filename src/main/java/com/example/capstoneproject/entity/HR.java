@@ -34,6 +34,9 @@ public class HR extends Users{
     @Column(name = "company_description", columnDefinition = "TEXT")
     private String companyDescription;
 
+    @Column(columnDefinition = "TEXT")
+    private String unJob;
+
     @Column(name = "vip")
     private Boolean vip = false;
 
