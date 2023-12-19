@@ -94,7 +94,7 @@ public class TransactionController {
 
     @GetMapping(value = "/view-withdraw-request")
     public ResponseEntity viewWithdrawList() throws Exception {
-        List<TransactionViewDto> list =  transactionService.viewWithdrawList();
+        List<TransactionDto> list =  transactionService.getAllTransactionType("1");
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 

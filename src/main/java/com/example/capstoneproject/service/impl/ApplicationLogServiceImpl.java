@@ -209,7 +209,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
             List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
             clHistoryList.stream().forEach(x -> {
-                listClMap.put(x.getId(), x.getTitle());
+                listClMap.put(x.getId(), x.getCoverLetter().getTitle());
             });
             newList.stream().forEach(x -> {
                 Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
@@ -259,7 +259,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 jobPosting.setId(x.getJobPosting().getId());
                 jobPosting.setName(x.getJobPosting().getTitle());
                 applicationLogResponse.setJobPosting(jobPosting);
-                applicationLogResponse.setCandidateName(x.getUser().getUsername());
+                applicationLogResponse.setCandidateName(x.getUser().getName());
                 applicationLogResponse.setApplyDate(x.getTimestamp());
                 applicationLogResponse.setNote(x.getNote());
                 applicationLogResponse.setStatus(x.getStatus());
