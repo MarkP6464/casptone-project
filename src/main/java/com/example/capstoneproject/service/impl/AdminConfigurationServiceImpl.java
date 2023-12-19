@@ -100,7 +100,7 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
         List<Users> users = usersRepository.findAllByStatusAndIdNot(BasicStatus.ACTIVE, adminId);
         LocalDate current = LocalDate.now();
         List<Users> users1 = usersRepository.findAllByStatusAndIdNotAndLastActive(BasicStatus.ACTIVE, adminId, current);
-        Double income = transactionRepository.sumExpenditureByTransactionTypeAndStatus(TransactionType.ADD, TransactionStatus.SUCCESSFULLY);
+        Double income = transactionRepository.sumExpenditureByTransactionTypeAndStatus(TransactionType.ADD, TransactionStatus.SUCCESSFUL);
         long transformIncome = income.longValue();
         adminConfigDashResponse.setTotalUser(users.size());
         adminConfigDashResponse.setUserLogin(users1.size());
@@ -148,7 +148,7 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
                 if (!date.isAfter(current) && date.getYear() >= 2023) {
                     Double entities = transactionRepository.sumExpenditureByTransactionTypeAndStatusAndDate(
                             TransactionType.ADD,
-                            TransactionStatus.SUCCESSFULLY,
+                            TransactionStatus.SUCCESSFUL,
                             date.toString()
                     );
                     AdminChartResponse adminChartResponse = new AdminChartResponse();
