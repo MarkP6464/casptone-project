@@ -574,7 +574,7 @@ public class EvaluateServiceImpl implements EvaluateService {
                 atsList = extractAtsKeywords(response);
             }
         }
-        transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "ATS keywords");
+//        transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "ATS keywords");
         Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(jobId);
         if (jobDescription.isPresent()) {
             for (AtsDto atsDto : atsList) {

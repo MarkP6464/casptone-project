@@ -122,6 +122,9 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
                         if(isSubstringInString(jobDescription.getDescription(),dto.getDescription()) && jobDescription.getDescription().length()==dto.getDescription().length()){
                             jobDescription.setDescription(jobDescription.getDescription());
                             atsList = evaluateService.getAts(cvId,jobDescription.getId());
+                            if(atsList==null){
+                                atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto,principal);
+                            }
                         }else{
                             jobDescription.setDescription(dto.getDescription());
                             atsRepository.deleteByJobDescriptionId(jobDescription.getId());
@@ -148,6 +151,9 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     }
 
     public static boolean isSubstringInString(String fullString, String substring) {
+        if (fullString == null || substring == null) {
+            return false;
+        }
         int fullLength = fullString.length();
         int subLength = substring.length();
 
