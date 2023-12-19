@@ -173,6 +173,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             skillRepository.save(education);
             SkillDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
@@ -224,7 +225,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     SkillDto dto = cvBodyDto.getSkills().stream().filter(e-> e.getId().equals(id)).findFirst().get();
                     cvBodyDto.getCertifications().forEach(c -> {
-                        if (c.getTheOrder() > dto.getTheOrder()){
+                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);
                         }
                     });

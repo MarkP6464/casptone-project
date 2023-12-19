@@ -40,14 +40,14 @@ public class TransactionController {
     TransactionService transactionService;
 
     @GetMapping("/get-all/{user-id}")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin-messages')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert', 'read:hr', 'read:admin')")
     public List<TransactionDto> getAll(@RequestParam("user-id") String sentId){
-        List<TransactionDto> list = transactionService.getAll(sentId);
+        List<TransactionDto> list = transactionService.getAllSuccessfull(sentId);
         return list;
     }
 
     @GetMapping("/show-all")
-    @PreAuthorize("hasAnyAuthority('read:admin-messages')")
+    @PreAuthorize("hasAnyAuthority('read:admin')")
     public List<TransactionDto> showAll(){
         List<TransactionDto> list = transactionService.showAll();
         return list;
@@ -62,6 +62,7 @@ public class TransactionController {
         transactionDto.setConversionAmount(dto.getConversionAmount());
         transactionDto.setUserId(dto.getUserId());
         transactionDto.setTransactionType(TransactionType.ADD);
+        transactionDto.setResponseMessage("Deposite money " + transactionDto.getExpenditure() + " VND");
         String returnUrl = transactionService.create(transactionDto);
         return returnUrl;
     }
@@ -72,7 +73,6 @@ public class TransactionController {
         AddMoneyTransactionDto transaction = transactionService.saveTransactionStatus(orderId, requestId);
         return ResponseEntity.status(HttpStatus.OK).body(transaction);
     }
-
 
     @PostMapping(value = "/withdraw")
     @PreAuthorize("hasAnyAuthority('create:expert')")

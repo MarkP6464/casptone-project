@@ -87,6 +87,17 @@ public class ExpertServiceImpl implements ExpertService {
                 if (dto.getExperiences() != null && !dto.getExperiences().equals(expert.getExperiences())) {
                     expert.setExperience(dto.getExperiences());
                 }
+                if (dto.getBankAccountName() != null && !dto.getBankAccountName().equals(expert.getBankAccountName())) {
+                    expert.setBankAccountName(dto.getBankAccountName());
+                }
+
+                if (dto.getBankAccountNumber() != null && !dto.getBankAccountNumber().equals(expert.getBankAccountNumber())) {
+                    expert.setBankAccountNumber(dto.getBankAccountNumber());
+                }
+
+                if (dto.getBankName() != null && !dto.getBankName().equals(expert.getBankName())) {
+                    expert.setBankName(dto.getBankName());
+                }
                 if (dto.getPrice() != null) {
                     priceOptionService.editPriceOption(expert.getId(),dto.getPrice());
                 }
@@ -122,6 +133,9 @@ public class ExpertServiceImpl implements ExpertService {
                 expertConfigViewDto.setCompany(expert.getCompany());
                 expertConfigViewDto.setAbout(expert.getAbout());
                 expertConfigViewDto.setExperiences(expert.getExperience());
+                expertConfigViewDto.setBankAccountName(expert.getBankAccountName());
+                expertConfigViewDto.setBankName(expert.getBankName());
+                expertConfigViewDto.setBankAccountNumber(expert.getBankAccountNumber());
                 List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
                 if(!priceOptions.isEmpty()){
                     List<PriceOptionDto> priceOptionDtos = new ArrayList<>();

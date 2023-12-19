@@ -229,6 +229,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             Involvement saved = involvementRepository.save(involvement);
             InvolvementDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db
@@ -369,7 +370,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
                     cvBodyDto.getInvolvements().forEach(c -> {
-                        if (c.getTheOrder() > dto.getTheOrder()){
+                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);
                         }
                     });

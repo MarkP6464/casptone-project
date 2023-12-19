@@ -207,6 +207,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             educationRepository.save(education);
             EducationDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
@@ -258,7 +259,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     EducationDto dto = cvBodyDto.getEducations().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
                     cvBodyDto.getEducations().forEach(c -> {
-                        if (c.getTheOrder() > dto.getTheOrder()){
+                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);
                         }
                     });

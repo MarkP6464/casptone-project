@@ -27,4 +27,6 @@ public class ExperienceViewDto {
     private String Description;
 
     private List<BulletPointDto> bulletPointDtos;
+
+    private Integer theOrder;
 }

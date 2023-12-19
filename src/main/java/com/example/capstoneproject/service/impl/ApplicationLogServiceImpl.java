@@ -121,8 +121,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     public static void sendEmail(String toEmail, String subject, String message) {
         // Cấu hình thông tin SMTP
         String host = "smtp.gmail.com";
-        String username = "cvbuilder.ai@gmail.com";
-        String password = "cvbtldosldixpkeh";
+        String username = "acc3cuaminh@gmail.com";
+        String password = "jwkspmuznvxbikcx";
 
         // Cấu hình các thuộc tính cho session
         Properties properties = new Properties();

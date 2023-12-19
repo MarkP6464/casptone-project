@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 public interface HRService {
 
+    Boolean checkVip(Integer id);
+
     HRDto get(Integer id);
 
     HRDto update(HRResponse dto);

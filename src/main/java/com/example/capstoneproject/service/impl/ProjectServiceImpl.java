@@ -228,6 +228,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             Project saved = projectRepository.save(project);
             ProjectDto educationDto = relationDto.get();
             educationDto.setIsDisplay(dto.getIsDisplay());
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db
@@ -369,7 +370,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
                     ProjectDto dto = cvBodyDto.getProjects().stream().filter(e-> e.getId().equals(id)).findFirst().get();
                     cvBodyDto.getProjects().forEach(c -> {
-                        if (c.getTheOrder() > dto.getTheOrder()){
+                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);
                         }
                     });

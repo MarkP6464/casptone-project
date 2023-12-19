@@ -25,4 +25,10 @@ public class ExpertUpdateDto {
     private List<PriceOptionDto> price;
 
     private Integer cvId;
+
+    private String bankName;
+
+    private String bankAccountNumber;
+
+    private String bankAccountName;
 }
