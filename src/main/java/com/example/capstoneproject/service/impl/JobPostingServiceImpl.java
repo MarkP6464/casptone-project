@@ -612,8 +612,8 @@ public class JobPostingServiceImpl implements JobPostingService {
         HashMap<String, Integer> firstSentenceMap = new HashMap<>();
         HashMap<String, Integer> secondSentenceMap = new HashMap<>();
 
-        String[] firstSentenceWords = sentence1.split(" ");
-        String[] secondSentenceWords = sentence2.split(" ");
+        String[] firstSentenceWords = sentence1.split("\\W+"); // Sử dụng regex để tách các từ
+        String[] secondSentenceWords = sentence2.split("\\W+"); // Sử dụng regex để tách các từ
 
         for (String word : firstSentenceWords) {
             if (firstSentenceMap.containsKey(word)) {

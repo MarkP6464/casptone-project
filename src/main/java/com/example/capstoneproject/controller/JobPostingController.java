@@ -55,7 +55,7 @@ public class JobPostingController {
     }
 
     @GetMapping("/hr/job-posting/{job-posting-id}/match/skills")
-    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert','read:hr')")
+    @PreAuthorize("hasAnyAuthority('read:hr')")
     public ResponseEntity<?> getJobPostingsByCandidateMatching(
             @PathVariable("job-posting-id") Integer postingId) throws JsonProcessingException {
         List<CandidateOverViewDto> jobPostings = jobPostingService.getAllCandidateFilterCV(postingId);
