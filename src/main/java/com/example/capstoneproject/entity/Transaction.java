@@ -53,6 +53,9 @@ public class Transaction {
     @Column(name = "bank_name", columnDefinition = "NVARCHAR(20)")
     private String bankName;
 
+    @Column(name = "bank_account_name", columnDefinition = "NVARCHAR(20)")
+    private String bankAccountName;
+
     @Column(name = "bank_account_number", columnDefinition = "NVARCHAR(20)")
     private String bankAccountNumber;
 

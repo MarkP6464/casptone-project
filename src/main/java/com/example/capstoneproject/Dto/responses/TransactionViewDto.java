@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -38,4 +39,10 @@ public class TransactionViewDto {
     private Integer userId;
 
     private LocalDateTime createdDate;
+
+    private String bankAccountName;
+
+    private String bankName;
+
+    private String bankAccountNumber;
 }

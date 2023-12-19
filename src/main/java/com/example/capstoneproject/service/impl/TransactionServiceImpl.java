@@ -247,7 +247,7 @@ public class TransactionServiceImpl implements TransactionService {
         String requestId = String.valueOf(System.currentTimeMillis());
         Transaction transaction = new Transaction(null, "1", requestId,  null, "Withdraw request",
             TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getExpenditure(), dto.getExpenditure() , 0L, TransactionStatus.PROCESSING, usersService.getUsersById(dto.getUserId()));
-
+        transaction.setBankAccountName(expert.getBankAccountName());
         transaction.setBankName(expert.getBankName());
         transaction.setBankAccountNumber(expert.getBankAccountNumber());
         transaction = transactionRepository.save(transaction);
