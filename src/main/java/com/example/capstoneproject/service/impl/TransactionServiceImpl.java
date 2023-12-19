@@ -2,8 +2,11 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.AddMoneyTransactionDto;
 import com.example.capstoneproject.Dto.TransactionDto;
+import com.example.capstoneproject.Dto.UsersDto;
+import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.request.ImageDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
+import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.Dto.responses.TransactionViewDto;
 import com.example.capstoneproject.entity.Expert;
@@ -39,6 +42,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -268,14 +272,45 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionViewDto> viewWithdrawList() {
-        List<Transaction> list = transactionRepository.findAllByTransactionTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.PROCESSING);
-        List<TransactionViewDto> dtos = list.stream().map(x -> transactionMapper.toDtoView(x)).collect(Collectors.toList());
-        return dtos;
+        List<Transaction> transactions = transactionRepository.findAllByTransactionTypeAndStatus(TransactionType.WITHDRAW, TransactionStatus.PROCESSING);
+        List<TransactionViewDto> transactionViews = new ArrayList<>();
+        for(Transaction transaction: transactions){
+            TransactionViewDto transactionView = new TransactionViewDto();
+            transactionView.setId(transaction.getId());
+            transactionView.setSentId(transaction.getSentId());
+            transactionView.setRequestId(transaction.getRequestId());
+            transactionView.setMomoId(transaction.getMomoId());
+            transactionView.setResponseMessage(transaction.getResponseMessage());
+            transactionView.setTransactionType(transaction.getTransactionType());
+            transactionView.setMoneyType(transaction.getMoneyType());
+            transactionView.setExpenditure(transactionView.getExpenditure());
+            transactionView.setConversionAmount(transaction.getConversionAmount());
+            transactionView.setProof(transaction.getProof());
+            transactionView.setStatus(transaction.getStatus());
+            transactionView.setCreatedDate(transaction.getCreatedDate());
+            UsersDto usersDto = new UsersDto();
+            usersDto.setId(transaction.getUser().getId());
+            usersDto.setName(transaction.getUser().getName());
+            transactionView.setReceiver(usersDto);
+            HRBankRequest bank = new HRBankRequest();
+            Users users = transaction.getUser();
+            if (Objects.nonNull(users)) {
+                if (users instanceof Expert expert) {
+                    bank.setId(expert.getId());
+                    bank.setBankName(expert.getBankName());
+                    bank.setBankAccountName(expert.getBankAccountName());
+                    bank.setBankAccountNumber(expert.getBankAccountNumber());
+                    transactionView.setBank(bank);
+                }
+            }
+            transactionViews.add(transactionView);
+        }
+        return transactionViews;
     }
 
     @Override
-    public String uploadImageConfirm(Integer userId, Long transactionId, ImageDto dto) {
-        Optional<Transaction> transactionOptional = transactionRepository.findByUser_IdAndId(userId,transactionId);
+    public String uploadImageConfirm(Long transactionId, ImageDto dto) {
+        Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
         if(transactionOptional.isPresent()){
             Transaction transaction = transactionOptional.get();
             transaction.setProof(dto.getImage());

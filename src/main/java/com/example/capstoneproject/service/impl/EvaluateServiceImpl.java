@@ -1130,12 +1130,9 @@ public class EvaluateServiceImpl implements EvaluateService {
     }
 
     private String checkFiller(List<String> sentences1) {
-        StringBuilder result = new StringBuilder();
-        StringBuilder bullet = new StringBuilder();
-        boolean hasError = false;
-        boolean firstMatch = true;
+        List<String> errors = new ArrayList<>();
+        List<String> bullets = new ArrayList<>();
 
-        // Lặp để kiểm tra filter words
         for (int i = 0; i < sentences1.size(); i++) {
             String sentenceText = sentences1.get(i);
             Annotation document = new Annotation(sentenceText);
@@ -1149,65 +1146,34 @@ public class EvaluateServiceImpl implements EvaluateService {
                     String word = token.get(CoreAnnotations.TextAnnotation.class);
                     String pos = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
 
-                    // Kiểm tra nếu từ là filler word
                     if (pos.equals("RB") || pos.equals("RB$")) {
                         hasPersonalPronoun = true;
-
-                        // Thêm từ vào chuỗi tạm thời
                         filterWords.append(word).append(" ");
                     }
                 }
             }
 
-            // Nếu câu chứa ít nhất một lỗi
             if (hasPersonalPronoun) {
                 if (filterWords.length() > 0) {
-                    if (hasError) {
-                        result.append(", ");
-                    }
-                    // Kiểm tra nếu chưa có filter word nào, thêm "This is filter words: "
-                    if (!hasError) {
-                        result.append("This is filter words: ");
-                        hasError = true;
-                    }
-                    result.append(filterWords.toString().trim());
+                    errors.add(filterWords.toString().trim());
+                    bullets.add(Integer.toString(i + 1));
                 }
             }
         }
 
-        // Lặp để kiểm tra bullets
-        for (int i = 0; i < sentences1.size(); i++) {
-            String sentenceText = sentences1.get(i);
-            Annotation document = new Annotation(sentenceText);
-            pipeline.annotate(document);
-            List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
-            boolean hasPersonalPronoun = false;
-            for (CoreMap sentence : sentences) {
-                for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-                    //String word = token.get(CoreAnnotations.TextAnnotation.class);
-                    String pos = token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
-                    if (pos.equals("RB") || pos.equals("RB$")) {
-                        hasPersonalPronoun = true;
-                        break;
-                    }
-                }
-            }
-            if (hasPersonalPronoun) {
-                if (!firstMatch) {
-                    bullet.append(", ");
-                }
-                bullet.append(i + 1);
-                firstMatch = false;
-            }
-        }
-        String a = "Take a look at bullet: " + bullet;
-
-        if (!hasError) {
+        if (errors.isEmpty()) {
             return "There are currently no bullets found.";
         }
 
-        return result.toString() + "\n" + a;
+        StringBuilder result = new StringBuilder("This is filter words: ");
+        result.append(String.join(", ", errors));
+
+        StringBuilder bulletResult = new StringBuilder("Take a look at bullet: ");
+        bulletResult.append(String.join(", ", bullets));
+
+        return result.toString() + "\n" + bulletResult.toString();
     }
+
 
     private String checkPassiveVoice(List<String> sentences1) {
         StringBuilder result = new StringBuilder();
