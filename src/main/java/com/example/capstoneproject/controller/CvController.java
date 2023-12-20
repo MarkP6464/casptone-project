@@ -44,7 +44,7 @@ public class CvController {
     }
 
     @PostMapping("/{user-id}/cv")
-//    @PreAuthorize("hasAnyAuthority('create:candidate', 'create:expert')")
+    @PreAuthorize("hasAnyAuthority('create:candidate', 'create:expert')")
     public CvAddNewDto createCv(@PathVariable("user-id") int UsersId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
         return cvService.createCv(UsersId, Dto);
     }
@@ -90,7 +90,7 @@ public class CvController {
     }
 
     @PutMapping("/{cv-id}/target")
-//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public String updateContact(@PathVariable("cv-id") int id, @RequestBody CvUpdateDto dto, Principal principal) {
         if (cvService.updateCvTarget(id, dto, principal)){
             return "Update success";

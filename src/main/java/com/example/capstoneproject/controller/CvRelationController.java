@@ -125,7 +125,7 @@ public class CvRelationController {
     }
 
     @GetMapping("/{cvId}/{theRelation}")
-//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public List<?> getAllARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation) throws Exception {
 
         switch (theRelation) {
@@ -224,7 +224,7 @@ public class CvRelationController {
     }
 
     @DeleteMapping("/{cvId}/{theRelation}/{id}")
-//    @PreAuthorize("hasAnyAuthority('delete:candidate','delete:expert')")
+    @PreAuthorize("hasAnyAuthority('delete:candidate','delete:expert')")
     public String deleteARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
         switch (theRelation) {
             case "educations":
