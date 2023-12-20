@@ -76,7 +76,7 @@ public class TransactionController {
     }
 
     @PostMapping(value = "/withdraw")
-    @PreAuthorize("hasAnyAuthority('create:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:expert')")
     public ResponseEntity withdraw(@RequestBody WithdrawRequest request) throws Exception {
         TransactionResponse dto = new TransactionResponse();
         dto.setUserId(request.getReceiverId());

@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -241,7 +242,6 @@ public class TransactionServiceImpl implements TransactionService {
         Expert expert = null;
         if (user instanceof Expert){
             expert =  (Expert) user;
-
         }
         if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())){
             throw new BadRequestException("Please setting your bank account to withdraw!!");
@@ -265,6 +265,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findByRequestId(id);
         if (Objects.nonNull(transaction)){
             transaction.setStatus(TransactionStatus.SUCCESSFUL);
+            transaction.setUpdateDate(LocalDateTime.now());
             transactionRepository.save(transaction);
         } else throw new ResourceNotFoundException("transaction id not found!!");
         return transactionMapper.toDto(transaction);

@@ -25,7 +25,7 @@ public class ApplicationLogController {
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/job-posting/{posting-id}/apply")
-//    @PreAuthorize("hasAuthority('create:candidate')")
+    @PreAuthorize("hasAuthority('create:candidate')")
     public ResponseEntity<?> createApplication(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId, @PathVariable("posting-id") Integer postingId, @RequestParam(required = false) Integer cover_letter_id, NoteDto dto) throws JsonProcessingException {
         if (cover_letter_id == null) {
             if (applicationLogService.applyCvToPost(userId, cvId, null, postingId, dto)) {
@@ -49,14 +49,14 @@ public class ApplicationLogController {
     }
 
     @GetMapping("/application-log/hr/{hr-id}")
-//    @PreAuthorize("hasAnyAuthority('read:hr')")
+    @PreAuthorize("hasAnyAuthority('read:hr')")
     public List<ApplicationLogFullResponse> getAllLogByHrId(@PathVariable("hr-id") Integer hrId){
         List<ApplicationLogFullResponse> list =  applicationLogService.getAllByHrID(hrId);
         return list;
     }
 
     @GetMapping("/application-log/candidate/{candidate-id}")
-//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:hr')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:hr')")
     public ResponseEntity<?> getAllLogByCandidateId(@PathVariable("candidate-id") Integer id){
         return ResponseEntity.ok(applicationLogService.getAllByCandidateId(id));
     }

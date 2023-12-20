@@ -44,7 +44,7 @@ public class ReviewRequestController {
     }
 
     @GetMapping("/expert/{expert-id}/review-requests")
-//    @PreAuthorize("hasAuthority('read:expert')")
+    @PreAuthorize("hasAuthority('read:expert')")
     public List<ReviewRequestSecondViewDto> getListReviewRequest(
             @PathVariable("expert-id") Integer expertId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
@@ -55,7 +55,7 @@ public class ReviewRequestController {
     }
 
     @GetMapping("/expert/{expert-id}/review-requests/history")
-//    @PreAuthorize("hasAuthority('read:expert')")
+    @PreAuthorize("hasAuthority('read:expert')")
     public ResponseEntity<?> getListReviewRequestHistory(
             @PathVariable("expert-id") Integer expertId,
             @RequestParam(required = false, defaultValue = "price") SortBy sortBy,
