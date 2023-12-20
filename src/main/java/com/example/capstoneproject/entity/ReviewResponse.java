@@ -12,6 +12,7 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
 import javax.validation.constraints.Null;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -43,6 +44,8 @@ public class ReviewResponse {
 
     @Enumerated(EnumType.STRING)
     private StatusReview status;
+
+    private LocalDateTime dateDone;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "review_request_id")
