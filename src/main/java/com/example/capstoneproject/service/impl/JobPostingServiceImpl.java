@@ -286,6 +286,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingViewDto.setDeadline(jobPosting.getDeadline());
                     jobPostingViewDto.setStatus(jobPosting.getStatus());
                     jobPostingViewDto.setShare(jobPosting.getShare());
+                    jobPostingViewDto.setApply(jobPosting.getApplyAgain());
                     return jobPostingViewDto;
                 }else {
                     throw new BadRequestException("User ID Capstone and User ID Posting mismatched.");

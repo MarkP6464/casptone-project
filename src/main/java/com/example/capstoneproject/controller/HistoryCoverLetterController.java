@@ -25,7 +25,7 @@ public class HistoryCoverLetterController {
     private HistoryCoverLetterService historyCoverLetterService;
 
     @GetMapping("/user/cv/{letter-id}/history-cover-letter")
-    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
+//    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public ResponseEntity<HistoryCoverLetterDto> getHistoryCoverLetters(@PathVariable("letter-id") Integer letterId) {
         HistoryCoverLetterDto historyCoverLetter = historyCoverLetterService.get(letterId);
         return ResponseEntity.status(HttpStatus.OK).body(historyCoverLetter);

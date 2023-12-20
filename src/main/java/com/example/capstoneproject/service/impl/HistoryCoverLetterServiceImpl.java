@@ -6,6 +6,7 @@ import com.example.capstoneproject.Dto.TransactionDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
 import com.example.capstoneproject.Dto.responses.HRResponse;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
+import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.HR;
 import com.example.capstoneproject.entity.HistoryCoverLetter;
 import com.example.capstoneproject.entity.Users;
@@ -40,12 +41,35 @@ public class HistoryCoverLetterServiceImpl implements HistoryCoverLetterService 
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    UsersRepository usersRepository;
+
     @Override
     public HistoryCoverLetterDto get(Integer id){
          Optional<HistoryCoverLetter> coverLetter = historyCoverLetterRepository.findById(id);
          if (coverLetter.isPresent()){
              HistoryCoverLetter historyCoverLetter = coverLetter.get();
-             return modelMapper.map(historyCoverLetter, HistoryCoverLetterDto.class);
+             HistoryCoverLetterDto historyCoverLetterDto = new HistoryCoverLetterDto();
+             historyCoverLetterDto.setId(historyCoverLetter.getId());
+             historyCoverLetterDto.setTitle(historyCoverLetter.getTitle());
+             historyCoverLetterDto.setDear(historyCoverLetter.getDear());
+             historyCoverLetterDto.setDate(historyCoverLetter.getDate());
+             historyCoverLetterDto.setCompany(historyCoverLetter.getCompany());
+             historyCoverLetterDto.setDescription(historyCoverLetter.getDescription());
+             Integer us = historyCoverLetter.getCoverLetter().getCv().getUser().getId();
+             Optional<Users> usersOptional = usersRepository.findUsersById(historyCoverLetter.getCoverLetter().getCv().getUser().getId());
+             if(usersOptional.isPresent()){
+                 Users users = usersOptional.get();
+                 UsersCvViewDto usersCvViewDto = new UsersCvViewDto();
+                 usersCvViewDto.setFullName(users.getName());
+                 usersCvViewDto.setEmail(users.getEmail());
+                 usersCvViewDto.setPersonalWebsite(users.getPersonalWebsite());
+                 usersCvViewDto.setPhone(users.getPhone());
+                 usersCvViewDto.setLinkin(users.getLinkin());
+                 usersCvViewDto.setCity(users.getCountry());
+                 historyCoverLetterDto.setContact(usersCvViewDto);
+             }
+             return historyCoverLetterDto;
          } else throw new BadRequestException("not found History of the cover letter");
     }
 }
