@@ -1162,7 +1162,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         }
 
         if (errors.isEmpty()) {
-            return null;
+            return "";
         }
 
         StringBuilder result = new StringBuilder("This is filter words: ");
