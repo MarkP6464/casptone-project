@@ -32,6 +32,7 @@ public class CvAddNewDto {
     private Long id;
     private String content;
     private String summary;
+    private String TheOrder;
     private BasicStatus status;
     private String templateType;
     private CvStyleDto cvStyle;
