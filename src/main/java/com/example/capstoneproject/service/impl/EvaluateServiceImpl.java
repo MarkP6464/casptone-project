@@ -1148,14 +1148,14 @@ public class EvaluateServiceImpl implements EvaluateService {
 
                     if (pos.equals("RB") || pos.equals("RB$")) {
                         hasPersonalPronoun = true;
-                        filterWords.append(word).append(" ");
+                        filterWords.append("'").append(word).append("', ");
                     }
                 }
             }
 
             if (hasPersonalPronoun) {
                 if (filterWords.length() > 0) {
-                    errors.add(filterWords.toString().trim());
+                    errors.add(filterWords.substring(0, filterWords.length() - 2)); // Loại bỏ dấu ',' cuối cùng
                     bullets.add(Integer.toString(i + 1));
                 }
             }
@@ -1167,9 +1167,11 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         StringBuilder result = new StringBuilder("This is filter words: ");
         result.append(String.join(", ", errors));
+        result.append(".");
 
         StringBuilder bulletResult = new StringBuilder("Take a look at bullet: ");
         bulletResult.append(String.join(", ", bullets));
+        bulletResult.append(".");
 
         return result.toString() + "\n" + bulletResult.toString();
     }
