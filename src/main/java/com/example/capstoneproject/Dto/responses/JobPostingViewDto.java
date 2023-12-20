@@ -48,5 +48,7 @@ public class JobPostingViewDto {
 
     private BasicStatus status;
 
+    private Integer apply;
+
     private StatusReview share;
 }
