@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,4 +21,5 @@ public class HistoryCoverLetterDto {
     private LocalDate date;
     private String company;
     private String description;
+    private UsersCvViewDto contact;
 }
