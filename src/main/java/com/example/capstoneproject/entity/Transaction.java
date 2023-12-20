@@ -45,9 +45,9 @@ public class Transaction {
 
     private TransactionStatus status;
 
-    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDateTime createdDate = LocalDateTime.now().plusHours(7);
 
-    private LocalDateTime updateDate = LocalDateTime.now();
+    private LocalDateTime updateDate = LocalDateTime.now().plusHours(7);
 
     @Column(columnDefinition = "TEXT")
     private String proof;

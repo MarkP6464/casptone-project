@@ -354,7 +354,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
         if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
             transaction.setStatus(TransactionStatus.FAIL);
-            transaction.setUpdateDate(LocalDateTime.now());
+            transaction.setUpdateDate(LocalDateTime.now().plusHours(7));
             transaction = transactionRepository.save(transaction);
 
             //tra tien cho candidate
@@ -370,7 +370,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
         if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
             transaction.setStatus(TransactionStatus.SUCCESSFUL);
-            transaction.setUpdateDate(LocalDateTime.now());
+            transaction.setUpdateDate(LocalDateTime.now().plusHours(7));
             transaction = transactionRepository.save(transaction);
 
             //cong tien cho expert
