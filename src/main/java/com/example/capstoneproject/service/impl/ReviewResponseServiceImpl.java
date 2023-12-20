@@ -3,6 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
 import com.example.capstoneproject.Dto.responses.ReviewResponseViewDto;
+import com.example.capstoneproject.Dto.responses.UsersResponseViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.RoleType;
@@ -77,7 +78,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
         Optional<History> historyOptional = historyRepository.findById(historyId);
         if(historyOptional.isPresent()){
             History history = historyOptional.get();
-            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Processing);
+            Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Waiting);
             if (reviewRequestOptional.isPresent()) {
                 // Lấy CvBody từ CV
                 ReviewRequest reviewRequest = reviewRequestOptional.get();
@@ -491,7 +492,13 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     if(reviewResponse.getScore()!=null){
                         reviewResponseDto.setScore(reviewResponse.getScore());
                     }
+                    reviewResponseDto.setDateComment(reviewResponse.getDateComment());
                     reviewResponseDto.setComment(reviewResponse.getComment());
+                    UsersResponseViewDto usersDto = new UsersResponseViewDto();
+                    usersDto.setId(reviewResponse.getReviewRequest().getCv().getUser().getId());
+                    usersDto.setName(reviewResponse.getReviewRequest().getCv().getUser().getName());
+                    usersDto.setAvatar(reviewResponse.getReviewRequest().getCv().getUser().getAvatar());
+                    reviewResponseDto.setUser(usersDto);
                     ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
                     reviewResponseDto.setRequest(reviewRequestViewDto);
                     return reviewResponseDto;
@@ -539,6 +546,12 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     }
                     reviewResponseDto.setFeedbackDetail(reviewResponse.deserialize());
                     reviewResponseDto.setComment(reviewResponse.getComment());
+                    reviewResponseDto.setDateComment(reviewResponse.getDateComment());
+                    UsersResponseViewDto usersResponseViewDto = new UsersResponseViewDto();
+                    usersResponseViewDto.setId(reviewResponse.getReviewRequest().getCv().getUser().getId());
+                    usersResponseViewDto.setName(reviewResponse.getReviewRequest().getCv().getUser().getName());
+                    usersResponseViewDto.setAvatar(reviewResponse.getReviewRequest().getCv().getUser().getAvatar());
+                    reviewResponseDto.setUser(usersResponseViewDto);
                     ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
                     reviewResponseDto.setRequest(reviewRequestViewDto);
                 }

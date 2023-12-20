@@ -1,9 +1,12 @@
 package com.example.capstoneproject.Dto.responses;
 
 import com.example.capstoneproject.Dto.CvBodyReviewDto;
+import com.example.capstoneproject.Dto.UsersDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter
@@ -19,5 +22,9 @@ public class ReviewResponseViewDto {
 
     private String comment;
 
+    private LocalDate dateComment;
+
     private ReviewRequestViewDto request;
+
+    private UsersResponseViewDto user;
 }

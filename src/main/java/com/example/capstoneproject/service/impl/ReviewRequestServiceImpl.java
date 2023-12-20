@@ -148,6 +148,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             if(reviewRequest.getStatus()==StatusReview.Waiting){
                 reviewRequest.setStatus(StatusReview.Accept);
                 reviewRequestRepository.save(reviewRequest);
+
                 Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_Id(reviewRequest.getId());
                 if(reviewResponseOptional.isPresent()){
                     ReviewResponse response = reviewResponseOptional.get();
