@@ -6,6 +6,7 @@ import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertReviewViewDto;
 import com.example.capstoneproject.Dto.responses.ExpertViewChooseDto;
+import com.example.capstoneproject.entity.Expert;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
@@ -20,5 +21,7 @@ public interface ExpertService {
     void punishExpert(Integer expertId);
     void unPunishExpert();
     String update(HRBankRequest dto);
+
+    Expert create(Expert dto);
 
 }

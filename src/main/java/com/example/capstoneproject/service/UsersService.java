@@ -27,4 +27,6 @@ public interface UsersService extends BaseService<UsersDto, Integer> {
 
     String unBanUser(Integer adminId, Integer userId);
 
+    boolean checkEmail(String email);
+
 }

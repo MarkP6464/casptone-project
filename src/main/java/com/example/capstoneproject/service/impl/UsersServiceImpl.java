@@ -177,6 +177,16 @@ public class UsersServiceImpl extends AbstractBaseService<Users, UsersDto, Integ
         }
     }
 
+    @Override
+    public boolean checkEmail(String email) {
+        Optional<Users> usersOptional = UsersRepository.findByEmail(email);
+        if(usersOptional.isPresent()){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public static String formatPrice(long price) {
         String priceStr = String.valueOf(price);
 

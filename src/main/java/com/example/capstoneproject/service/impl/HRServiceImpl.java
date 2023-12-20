@@ -133,6 +133,23 @@ public class HRServiceImpl implements HRService {
     }
 
     @Override
+    public HR create(HR dto) {
+        HR hr = new HR();
+        hr.setName(dto.getName());
+        hr.setEmail(dto.getEmail());
+        hr.setAvatar(dto.getAvatar());
+        hr.setRole(dto.getRole());
+        hr.setCreateDate(dto.getCreateDate());
+        hr.setSubscription(false);
+        hr.setCompanyName("ABC Company");
+        hr.setCompanyLocation("ABC Location");
+        hr.setCompanyDescription("ABC Description");
+        hr.setCompanyLogo(dto.getCompanyLogo());
+        hr.setVip(false);
+        return hrRepository.save(hr);
+    }
+
+    @Override
     public String register(TransactionResponse dto) throws Exception {
         Users users = usersRepository.findUsersById(dto.getUserId()).get();
         Double expenditure = dto.getExpenditure();
