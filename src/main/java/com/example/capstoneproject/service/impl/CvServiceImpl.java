@@ -158,6 +158,7 @@ public class CvServiceImpl implements CvService {
             CvBodyDto cvBodyDto = cv.deserialize();
             cvDto.setCvStyle(cvBodyDto.getCvStyle());
             cvDto.setTemplateType(cvBodyDto.getTemplateType());
+            cvDto.setTheOrder(cvBodyDto.getTheOrder());
             modelMapper.map(usersViewDto, cvDto);
 
             return cvDto;
@@ -293,6 +294,7 @@ public class CvServiceImpl implements CvService {
             CvBodyDto cvBodyDto = savedCv.deserialize();
             response.setCvStyle(cvBodyDto.getCvStyle());
             response.setTemplateType(cvBodyDto.getTemplateType());
+            response.setTheOrder(cvBodyDto.getTheOrder());
 
             if(dto.getJobTitle()!=null || dto.getJobDescription()!=null){
                 JobDescription jobDescription = new JobDescription();

@@ -237,6 +237,7 @@ public class AuthenticationService {
                     expert.setEmail(email);
                     expert.setPrice(0.0);
                     expert.setAvatar(image);
+                    expert.setPunish(false);
                     expert.setRole(roleExpertOptional);
                     LocalDate localDate = LocalDate.now();
                     expert.setCreateDate(localDate);

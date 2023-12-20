@@ -54,6 +54,7 @@ public class HistoryServiceImpl implements HistoryService {
             CvBodyReviewDto cvBodyReviewDto = new CvBodyReviewDto();
             cvBodyReviewDto.setCvStyle(cvBodyDto.getCvStyle());
             cvBodyReviewDto.setTemplateType(cvBodyDto.getTemplateType());
+            cvBodyReviewDto.setTheOrder(cvBodyDto.getTheOrder());
             cvBodyReviewDto.setSkills(cvBodyDto.getSkills());
             cvBodyReviewDto.setCertifications(cvBodyDto.getCertifications());
             cvBodyReviewDto.setExperiences(cvBodyDto.getExperiences());

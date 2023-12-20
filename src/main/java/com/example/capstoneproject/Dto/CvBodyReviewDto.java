@@ -15,6 +15,8 @@ public class CvBodyReviewDto {
 
     private CvStyleDto cvStyle = new CvStyleDto();
 
+    private TheOrder theOrder;
+
     private String name;
 
     private String address;
