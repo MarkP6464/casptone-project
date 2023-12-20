@@ -48,6 +48,8 @@ public class CvBodyDto {
 
     private CvStyleDto cvStyle = new CvStyleDto();
 
+    private TheOrder theOrder = new TheOrder();
+
     private List<SkillDto> skills = new ArrayList<>();
 
     private List<CertificationDto> certifications = new ArrayList<>();
