@@ -42,7 +42,6 @@ public class Transaction {
 
     private TransactionStatus status;
 
-    @CreationTimestamp
     private LocalDateTime createdDate;
     @UpdateTimestamp
     private LocalDateTime updateDate;

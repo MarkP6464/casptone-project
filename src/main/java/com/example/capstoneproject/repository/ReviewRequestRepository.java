@@ -33,4 +33,6 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequest, In
     Optional<ReviewRequest> findByIdAndStatus(Integer requestId, StatusReview reviewStatus);
 
     int countByExpertIdAndStatus(Integer expertId, StatusReview status);
+
+    Optional<ReviewRequest> findByIdAndStatusNot(Integer id, StatusReview status);
 }

@@ -763,63 +763,39 @@ public class CvServiceImpl implements CvService {
 
             List<ExperienceDto> displayExperiences = cvBodyDto.getExperiences().stream()
                     .filter(ExperienceDto::getIsDisplay)
-                    .sorted(Comparator.comparingInt(ExperienceDto::getTheOrder))
                     .collect(Collectors.toList());
 
             displayItems.addAll(displayExperiences);
 
             List<ProjectDto> displayProjects = cvBodyDto.getProjects().stream()
                     .filter(ProjectDto::getIsDisplay)
-                    .sorted(Comparator.comparingInt(ProjectDto::getTheOrder))
                     .collect(Collectors.toList());
 
             displayItems.addAll(displayProjects);
 
             List<InvolvementDto> displayInvolvements = cvBodyDto.getInvolvements().stream()
                     .filter(InvolvementDto::getIsDisplay)
-                    .sorted(Comparator.comparingInt(InvolvementDto::getTheOrder))
                     .collect(Collectors.toList());
 
             displayItems.addAll(displayInvolvements);
 
             List<EducationDto> displayEducations = cvBodyDto.getEducations().stream()
                     .filter(EducationDto::getIsDisplay)
-                    .sorted(Comparator.comparingInt(EducationDto::getTheOrder))
                     .collect(Collectors.toList());
 
             displayItems.addAll(displayEducations);
 
             List<CertificationDto> displayCertifications = cvBodyDto.getCertifications().stream()
                     .filter(CertificationDto::getIsDisplay)
-                    .sorted(Comparator.comparingInt(CertificationDto::getTheOrder))
                     .collect(Collectors.toList());
 
             displayItems.addAll(displayCertifications);
 
             List<SkillDto> displaySkills = cvBodyDto.getSkills().stream()
                     .filter(SkillDto::getIsDisplay)
-                    .sorted(Comparator.comparingInt(SkillDto::getTheOrder))
                     .collect(Collectors.toList());
 
             displayItems.addAll(displaySkills);
-
-            // Sắp xếp danh sách chung displayItems theo theOrder1 từ thấp đến cao
-            displayItems.sort(Comparator.comparingInt(item -> {
-                if (item instanceof ExperienceDto) {
-                    return ((ExperienceDto) item).getTheOrder();
-                } else if (item instanceof ProjectDto) {
-                    return ((ProjectDto) item).getTheOrder();
-                } else if (item instanceof InvolvementDto) {
-                    return ((InvolvementDto) item).getTheOrder();
-                } else if (item instanceof EducationDto) {
-                    return ((EducationDto) item).getTheOrder();
-                } else if (item instanceof CertificationDto) {
-                    return ((CertificationDto) item).getTheOrder();
-                } else if (item instanceof SkillDto) {
-                    return ((SkillDto) item).getTheOrder();
-                }
-                return 0;
-            }));
 
             // Lặp qua danh sách đã sắp xếp và xử lý theo cách bạn muốn
             displayItems.forEach(item -> {
