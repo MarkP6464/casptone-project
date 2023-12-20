@@ -24,6 +24,7 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -456,6 +457,8 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             ReviewResponse reviewResponse = reviewResponseOptional.get();
             if(reviewResponse.getStatus()!=StatusReview.Done){
                 reviewResponse.setStatus(StatusReview.Done);
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                reviewResponse.setDateDone(currentDateTime);
                 reviewResponseRepository.save(reviewResponse);
 
                 Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findById(reviewResponse.getReviewRequest().getId());

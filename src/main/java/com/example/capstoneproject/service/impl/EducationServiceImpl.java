@@ -253,7 +253,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             education.setStatus(BasicStatus.DELETED);
             educationRepository.delete(education);
 
-            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

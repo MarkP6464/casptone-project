@@ -90,7 +90,7 @@ public class CvController {
     }
 
     @PutMapping("/{cv-id}/target")
-//    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public String updateContact(@PathVariable("cv-id") int id, @RequestBody CvUpdateDto dto, Principal principal) {
         if (cvService.updateCvTarget(id, dto, principal)){
             return "Update success";

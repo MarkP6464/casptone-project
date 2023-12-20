@@ -364,7 +364,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             Involvement education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             involvementRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

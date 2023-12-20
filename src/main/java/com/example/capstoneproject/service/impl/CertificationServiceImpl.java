@@ -234,7 +234,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             certification.setStatus(BasicStatus.DELETED);
             certificationRepository.delete(certification);
 
-            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(certification.getUser().getId(), BasicStatus.ACTIVE);
+            List<Cv> list = cvRepository.findAllByUser_Id(certification.getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
