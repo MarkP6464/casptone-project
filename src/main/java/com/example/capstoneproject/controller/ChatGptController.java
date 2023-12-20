@@ -51,7 +51,7 @@ public class ChatGptController {
     }
 
     @PostMapping("/cv/{cv-id}/review")
-//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> reviewCv(
             @RequestParam float temperature,
             @PathVariable("cv-id") Integer cvId,
