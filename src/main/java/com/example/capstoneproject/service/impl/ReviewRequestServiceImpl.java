@@ -120,6 +120,7 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                                 TransactionDto dto1 = transactionService.requestToReview(cv.getUser().getId(), reviewRequest.getExpertId(), Double.valueOf(reviewRequest.getPrice()));
                                 reviewRequest.setTransaction(transactionService.getById(dto1.getId()));
                                 reviewRequestRepository.save(reviewRequest);
+                                reviewResponseService.createReviewResponse(reviewRequest.getHistoryId(), reviewRequest.getId());
 //                                sendEmail(users.getEmail(), "Review Request Created", "Your review request has been created successfully.");
                                 return "Send request successful.";
                             } else {
@@ -145,9 +146,14 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             if(reviewRequest.getStatus()==StatusReview.Waiting){
-                reviewRequest.setStatus(StatusReview.Processing);
+                reviewRequest.setStatus(StatusReview.Accept);
                 reviewRequestRepository.save(reviewRequest);
-                reviewResponseService.createReviewResponse(reviewRequest.getHistoryId(), reviewRequest.getId());
+                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_Id(reviewRequest.getId());
+                if(reviewResponseOptional.isPresent()){
+                    ReviewResponse response = reviewResponseOptional.get();
+                    response.setStatus(StatusReview.Accept);
+                    reviewResponseRepository.save(response);
+                }
 //                sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
                 return "Accept successful";
             }else{
@@ -176,16 +182,8 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
                 reviewRequestViewDto.setNote(reviewRequest.getNote());
                 reviewRequestViewDto.setPrice(reviewRequest.getPrice());
 
-                if (reviewRequest.getStatus() == StatusReview.Waiting) {
-                    Optional<ReviewResponse> reviewResponse = reviewResponseRepository.findByReviewRequest_Id(reviewRequest.getId());
-                    if (reviewResponse.isPresent()) {
-                        ReviewResponse response = reviewResponse.get();
-                        if (response.getStatus() == StatusReview.Draft) {
-                            reviewRequestViewDto.setStatus(StatusReview.Draft);
-                        } else {
-                            reviewRequestViewDto.setStatus(StatusReview.Waiting);
-                        }
-                    }
+                if (reviewRequest.getStatus() == StatusReview.Processing) {
+                    reviewRequestViewDto.setStatus(StatusReview.Draft);
                 }else{
                     reviewRequestViewDto.setStatus(reviewRequest.getStatus());
                 }
@@ -361,6 +359,13 @@ public class ReviewRequestServiceImpl extends AbstractBaseService<ReviewRequest,
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             reviewRequest.setStatus(StatusReview.Reject);
             reviewRequestRepository.save(reviewRequest);
+
+            Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_Id(reviewRequest.getId());
+            if(reviewResponseOptional.isPresent()){
+                ReviewResponse response = reviewResponseOptional.get();
+                response.setStatus(StatusReview.Reject);
+                reviewResponseRepository.save(response);
+            }
 //            sendEmail(reviewRequest.getCv().getUser().getEmail(), "Review Request Created", "Your review request has been created successfully.");
             transactionService.requestToReviewFail(reviewRequest.getTransaction().getId().toString());
             return "Reject successful";

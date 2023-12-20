@@ -237,7 +237,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             Evaluate evaluate = evaluateRepository.findById(5);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
-            errorBulletFillers.setResult("Take a look at bullet " + fillerWord + ".");
+            errorBulletFillers.setResult(fillerWord);
             errorBulletFillers.setCount(countNumbers(fillerWord));
             // Check if evaluate.getCritical() is true or false
             if (evaluate.getCritical()) {
@@ -1162,7 +1162,7 @@ public class EvaluateServiceImpl implements EvaluateService {
         }
 
         if (errors.isEmpty()) {
-            return "There are currently no bullets found.";
+            return null;
         }
 
         StringBuilder result = new StringBuilder("This is filter words: ");

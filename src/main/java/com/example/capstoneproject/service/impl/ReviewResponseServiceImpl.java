@@ -109,6 +109,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 ReviewResponse reviewResponse = new ReviewResponse();
                 reviewResponse.setFeedbackDetail(cvBodyReviewJson);
                 reviewResponse.setReviewRequest(reviewRequest);
+                reviewResponse.setStatus(StatusReview.Waiting);
 
                 // Lưu ReviewResponse để có ID
                 reviewResponse = reviewResponseRepository.save(reviewResponse);
@@ -430,8 +431,15 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 if(dto.getCv()!=null){
                     reviewResponse.toCvBodyReview(dto.getCv());
                 }
-                reviewResponse.setStatus(StatusReview.Draft);
+                reviewResponse.setStatus(StatusReview.Processing);
                 reviewResponseRepository.save(reviewResponse);
+
+                Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByExpertIdAndId(reviewResponse.getReviewRequest().getExpertId(),reviewResponse.getReviewRequest().getId());
+                if(reviewRequestOptional.isPresent()){
+                    ReviewRequest reviewRequest = reviewRequestOptional.get();
+                    reviewRequest.setStatus(StatusReview.Processing);
+                    reviewRequestRepository.save(reviewRequest);
+                }
                 return true;
             }else{
                 throw new BadRequestException("You dont cant edit this cv.");
@@ -448,6 +456,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
             if(reviewResponse.getStatus()!=StatusReview.Done){
                 reviewResponse.setStatus(StatusReview.Done);
                 reviewResponseRepository.save(reviewResponse);
+
                 Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findById(reviewResponse.getReviewRequest().getId());
                 if(reviewRequestOptional.isPresent()){
                     ReviewRequest reviewRequest = reviewRequestOptional.get();
@@ -468,12 +477,12 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
 
     @Override
     public ReviewResponseViewDto receiveReviewResponse(Integer userId, Integer requestId) throws JsonProcessingException {
-        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatus(requestId, StatusReview.Done);
+        Optional<ReviewRequest> reviewRequestOptional = reviewRequestRepository.findByIdAndStatusNot(requestId, StatusReview.Processing);
         ReviewResponseViewDto reviewResponseDto = new ReviewResponseViewDto();
         if (reviewRequestOptional.isPresent()) {
             ReviewRequest reviewRequest = reviewRequestOptional.get();
             if (Objects.equals(userId, reviewRequest.getCv().getUser().getId())) {
-                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_IdAndStatus(reviewRequest.getId(), StatusReview.Done);
+                Optional<ReviewResponse> reviewResponseOptional = reviewResponseRepository.findByReviewRequest_IdAndStatusNot(reviewRequest.getId(), StatusReview.Processing);
                 if (reviewResponseOptional.isPresent()) {
                     ReviewResponse reviewResponse = reviewResponseOptional.get();
                     reviewResponseDto.setId(reviewResponse.getId());
