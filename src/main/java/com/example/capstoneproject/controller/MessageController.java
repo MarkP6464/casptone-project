@@ -1,6 +1,13 @@
 package com.example.capstoneproject.controller;
 import com.example.capstoneproject.Dto.UserViewLoginDto;
+import com.example.capstoneproject.entity.Expert;
+import com.example.capstoneproject.entity.HR;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.Message;
+import com.example.capstoneproject.service.ExpertService;
+import com.example.capstoneproject.service.HRService;
+import com.example.capstoneproject.service.RoleService;
+import com.example.capstoneproject.service.UsersService;
 import com.example.capstoneproject.service.impl.AuthenticationService;
 import com.example.capstoneproject.service.impl.MessageService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +37,18 @@ public class MessageController {
 
     @Autowired
     AuthenticationService authenticationService;
+
+    @Autowired
+    UsersService usersService;
+
+    @Autowired
+    ExpertService expertService;
+
+    @Autowired
+    HRService hrService;
+
+    @Autowired
+    RoleService roleService;
 
     @GetMapping("/public")
     public Message getPublic() {
@@ -58,6 +78,87 @@ public class MessageController {
             String picture = userInfoJson.get("picture").toString();
 
             return ResponseEntity.ok(authenticationService.getInforUser(email,givenName,picture));
+        }else{
+            return ResponseEntity.ok("Token invalid");
+        }
+    }
+
+    @GetMapping("/protected/expert")
+    public ResponseEntity<?> getExpertEmail(Principal principal) {
+        if (principal instanceof JwtAuthenticationToken) {
+            String role = "";
+            JwtAuthenticationToken jwt = (JwtAuthenticationToken) principal;
+            JSONObject roleObject = jwt.getToken().getClaim("event");
+            String email = jwt.getToken().getClaimAsString("email");
+            JSONObject userInfoJson = jwt.getToken().getClaim("user_info");
+            String givenName = userInfoJson.get("given_name").toString();
+            String picture = userInfoJson.get("picture").toString();
+            Object roleName = roleObject.get("request");
+            if(roleName instanceof JSONObject){
+                JSONObject json = (JSONObject) roleName;
+                Object query = json.get("query");
+                if(query instanceof  JSONObject){
+                    JSONObject metadata = (JSONObject) query;
+                    role = (String) metadata.get("metadata");
+                }
+            }
+            if(!usersService.checkEmail(email)){
+                Expert expert = new Expert();
+                expert.setName(givenName);
+                expert.setEmail(email);
+                expert.setPrice(0.0);
+                expert.setAvatar(picture);
+                expert.setRole(roleService.findRole(3));
+                LocalDate localDate = LocalDate.now();
+                expert.setCreateDate(localDate);
+                Expert e = expertService.create(expert);
+                return ResponseEntity.ok(e);
+            }else{
+                throw new BadRequestException("You do not have permission to perform this operation.");
+            }
+        }else{
+            return ResponseEntity.ok("Token invalid");
+        }
+    }
+
+    @GetMapping("/protected/hr/principal")
+    public ResponseEntity<?> getHrEmail(Principal principal) {
+        if (principal instanceof JwtAuthenticationToken) {
+            String role = "";
+            JwtAuthenticationToken jwt = (JwtAuthenticationToken) principal;
+            JSONObject roleObject = jwt.getToken().getClaim("event");
+            String email = jwt.getToken().getClaimAsString("email");
+            JSONObject userInfoJson = jwt.getToken().getClaim("user_info");
+            String givenName = userInfoJson.get("given_name").toString();
+            String picture = userInfoJson.get("picture").toString();
+            Object roleName = roleObject.get("request");
+            if(roleName instanceof JSONObject){
+                JSONObject json = (JSONObject) roleName;
+                Object query = json.get("query");
+                if(query instanceof  JSONObject){
+                    JSONObject metadata = (JSONObject) query;
+                    role = (String) metadata.get("metadata");
+                }
+            }
+            if(!usersService.checkEmail(email)){
+                HR hr = new HR();
+                hr.setName(givenName);
+                hr.setEmail(email);
+                hr.setAvatar(picture);
+                hr.setRole(roleService.findRole(1));
+                LocalDate localDate = LocalDate.now();
+                hr.setCreateDate(localDate);
+                hr.setSubscription(false);
+                hr.setCompanyName("ABC Company");
+                hr.setCompanyLocation("ABC Location");
+                hr.setCompanyDescription("ABC Description");
+                hr.setCompanyLogo(picture);
+                hr.setVip(false);
+                HR e = hrService.create(hr);
+                return ResponseEntity.ok(e);
+            }else{
+                throw new BadRequestException("You do not have permission to perform this operation.");
+            }
         }else{
             return ResponseEntity.ok("Token invalid");
         }

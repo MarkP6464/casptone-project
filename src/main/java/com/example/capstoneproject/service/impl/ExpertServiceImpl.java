@@ -317,6 +317,19 @@ public class ExpertServiceImpl implements ExpertService {
         throw new BadRequestException("user not found");
     }
 
+    @Override
+    public Expert create(Expert dto) {
+        Expert expert = new Expert();
+        expert.setName(dto.getName());
+        expert.setEmail(dto.getEmail());
+        expert.setPrice(0.0);
+        expert.setAvatar(dto.getAvatar());
+        expert.setRole(dto.getRole());
+        expert.setCreateDate(dto.getCreateDate());
+        return expertRepository.save(expert);
+
+    }
+
     private boolean isMatched(Expert expert, String search) {
         return (expert.getName().toLowerCase().contains(search.toLowerCase()) ||
                         expert.getCompany().toLowerCase().contains(search.toLowerCase()));
