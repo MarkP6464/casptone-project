@@ -252,6 +252,9 @@ public class AuthenticationService {
                     userViewLoginDto.setRole(roleExpertDto);
                     userViewLoginDto.setBanned(e.isBan());
                 }
+        else if (roleName.equals(RoleType.ADMIN.toString())){
+            throw new BadRequestException("You are have permission to create admin account");
+        }
         return userViewLoginDto;
     }
     public RoleType getRole(String email, String name, String image){
