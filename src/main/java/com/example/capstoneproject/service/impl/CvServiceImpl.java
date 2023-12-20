@@ -178,7 +178,7 @@ public class CvServiceImpl implements CvService {
 //            cvDto.getProjects().clear();
 //            cvDto.getSkills().clear();
             modelMapper.map(cv.deserialize(), cvDto);
-
+            cvDto.setTheOrder(cv.deserialize().getTheOrder());
             return cvDto;
         } else {
             throw new IllegalArgumentException("CV not found with cvId: " + cvId);
