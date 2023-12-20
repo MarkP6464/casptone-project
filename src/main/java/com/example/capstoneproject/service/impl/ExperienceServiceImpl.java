@@ -291,11 +291,12 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             Experience education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             experienceRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUsersIdAndStatus(education.getUser().getId(), BasicStatus.ACTIVE);
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    ExperienceDto dto = cvBodyDto.getExperiences().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                    ExperienceDto dto = cvBodyDto.getExperiences()
+                            .stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
                     cvBodyDto.getExperiences().forEach(c -> {
                         if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
                             c.setTheOrder(c.getTheOrder() - 1);

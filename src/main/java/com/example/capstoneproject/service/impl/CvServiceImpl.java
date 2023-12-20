@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class CvServiceImpl implements CvService {
@@ -226,13 +227,14 @@ public class CvServiceImpl implements CvService {
             cv.setUser(users);
 
             dto.setCertifications(usersViewDto.getCertifications());
-            List<CertificationDto> list = dto.getCertifications().stream().map(x -> {
-                CertificationDto theDto = new CertificationDto();
-                theDto.setIsDisplay(false);
-                theDto.setId(x.getId());
-                return theDto;
-            }).collect(Collectors.toList());
-            dto.setCertifications(list);
+//            List<CertificationDto> certs = dto.getCertifications();
+//            List<CertificationDto> list =IntStream.range(1, certs.size()).mapToObj(index -> {
+//                CertificationDto theDto = new CertificationDto();
+//                theDto.setTheOrder(index);
+//                theDto.setIsDisplay(false);
+//                theDto.setId(certs.get(index).getId());
+//                return theDto;}).collect(Collectors.toList());
+//            dto.setCertifications(list);
 
             dto.setEducations(usersViewDto.getEducations());
             List<EducationDto> educationDtoList = dto.getEducations().stream().map(x -> {
