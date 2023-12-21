@@ -39,6 +39,8 @@ public class TransactionDto {
 
     private LocalDateTime createdDate;
 
+    private LocalDateTime updateDate;
+
     private String bankName;
 
     private String bankAccountNumber;

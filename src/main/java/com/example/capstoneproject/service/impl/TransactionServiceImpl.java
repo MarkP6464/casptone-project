@@ -266,6 +266,8 @@ public class TransactionServiceImpl implements TransactionService {
         if (Objects.nonNull(transaction)){
             transaction.setStatus(TransactionStatus.SUCCESSFUL);
             transaction.setUpdateDate(LocalDateTime.now());
+            ApplicationLogServiceImpl.sendEmail(transaction.getUser().getEmail(), "Withdraw request approved.",
+                    "Your withdraw request was approved! Thank you.");
             transactionRepository.save(transaction);
         } else throw new ResourceNotFoundException("transaction id not found!!");
         return transactionMapper.toDto(transaction);

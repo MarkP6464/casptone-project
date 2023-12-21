@@ -216,6 +216,7 @@ public class AuthenticationService {
             hr.setCompanyLocation("ABC Location");
             hr.setCompanyDescription("ABC Description");
             hr.setCompanyLogo(image);
+            hr.setBan(false);
             hr.setVip(false);
             HR e = hrService.create(hr);
             userViewLoginDto.setId(e.getId());
