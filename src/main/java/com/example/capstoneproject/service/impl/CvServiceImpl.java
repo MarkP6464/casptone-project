@@ -561,15 +561,15 @@ public class CvServiceImpl implements CvService {
     public CvDto synchUp(int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.getById(cvId);
         if (Objects.nonNull(cv)) {
-            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
-            if(scoreOptional.isPresent()){
-                Score score = scoreOptional.get();
-                //Delete score in db
-                scoreLogRepository.deleteAllByScore_Id(score.getId());
-
-                //Delete score in db
-                scoreRepository.deleteScoreById(score.getId());
-            }
+//            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+//            if(scoreOptional.isPresent()){
+//                Score score = scoreOptional.get();
+//                //Delete score in db
+//                scoreLogRepository.deleteAllByScore_Id(score.getId());
+//
+//                //Delete score in db
+//                scoreRepository.deleteScoreById(score.getId());
+//            }
 
             cv.setOverview(null);
             cvRepository.save(cv);

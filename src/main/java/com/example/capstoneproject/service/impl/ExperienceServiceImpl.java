@@ -230,15 +230,15 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, experience.getId());
 
-            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
-            if(scoreOptional.isPresent()){
-                Score score = scoreOptional.get();
-                //Delete score in db
-                scoreLogRepository.deleteAllByScore_Id(score.getId());
-
-                //Delete score in db
-                scoreRepository.deleteScoreById(score.getId());
-            }
+//            Optional<Score> scoreOptional = scoreRepository.findByCv_Id(cvId);
+//            if(scoreOptional.isPresent()){
+//                Score score = scoreOptional.get();
+//                //Delete score in db
+//                scoreLogRepository.deleteAllByScore_Id(score.getId());
+//
+//                //Delete score in db
+//                scoreRepository.deleteScoreById(score.getId());
+//            }
 
             if(section!=null){
                 sectionLogRepository.deleteBySection_Id(section.getId());
