@@ -608,6 +608,34 @@ public class JobPostingServiceImpl implements JobPostingService {
         }
     }
 
+    @Override
+    public List<JobPostingResponse> getListGeneration(String search) {
+        List<JobPosting> allJobPostings = jobPostingRepository.findByShareAndStatusAndBanIsFalse(StatusReview.Published, ACTIVE);
+
+        // Apply a filter condition based on your requirements
+
+        return allJobPostings.stream()
+                .filter(jobPosting -> !shouldExclude(jobPosting, search))
+                .map(this::mapToJobPostingResponse)
+                .collect(Collectors.toList());
+    }
+
+    private boolean shouldExclude(JobPosting jobPosting, String search) {
+        return search != null && !jobPosting.getTitle().toLowerCase().contains(search.toLowerCase());
+    }
+
+    private JobPostingResponse mapToJobPostingResponse(JobPosting jobPosting) {
+        JobPostingResponse response = new JobPostingResponse();
+        response.setId(jobPosting.getId());
+        response.setTitle(jobPosting.getTitle());
+        response.setCompanyName(jobPosting.getCompanyName());
+        response.setDescription(jobPosting.getDescription());
+        return response;
+    }
+
+
+
+
     public double findSimilarityRatio(String sentence1, String sentence2) {
 
         HashMap<String, Integer> firstSentenceMap = new HashMap<>();

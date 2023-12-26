@@ -89,6 +89,12 @@ public class CvController {
         return ResponseEntity.ok(cvService.getCvContact(userId, cvId));
     }
 
+    @GetMapping("/cv/{cv-id}/resume/title")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+    public ResponseEntity<?> getTitleResume(@PathVariable("cv-id") Integer cvId) {
+        return ResponseEntity.ok(cvService.getTitleResume(cvId));
+    }
+
     @PutMapping("/{cv-id}/target")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public String updateContact(@PathVariable("cv-id") int id, @RequestBody CvUpdateDto dto, Principal principal) {

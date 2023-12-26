@@ -2,10 +2,7 @@ package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.JobPostingAddDto;
 import com.example.capstoneproject.Dto.JobPostingViewOverCandidateLikeDto;
-import com.example.capstoneproject.Dto.responses.CandidateOverViewDto;
-import com.example.capstoneproject.Dto.responses.JobPostingViewDetailDto;
-import com.example.capstoneproject.Dto.responses.JobPostingViewDto;
-import com.example.capstoneproject.Dto.responses.JobPostingViewUserDetailDto;
+import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.enums.SortByJob;
 import com.example.capstoneproject.enums.SortOrder;
 import com.example.capstoneproject.service.HRService;
@@ -150,6 +147,12 @@ public class JobPostingController {
     @PreAuthorize("hasAuthority('read:admin')")
     public ResponseEntity<?> getListAdminPosting(@PathVariable("admin-id") Integer adminId) {
         return ResponseEntity.ok(jobPostingService.getListAdminPosting(adminId));
+    }
+
+    @GetMapping("job-postings/generation/description")
+    public ResponseEntity<?> getJobPostings(@RequestParam(required = false) String search) {
+        List<JobPostingResponse> jobPostings = jobPostingService.getListGeneration(search);
+        return ResponseEntity.ok(jobPostings);
     }
 
 }

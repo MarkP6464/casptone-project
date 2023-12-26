@@ -39,6 +39,8 @@ public interface CvService {
 
     Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal);
 
+    CvUpdateDto getTitleResume(Integer cvId);
+
     CvBodyDto getCvBody(int usersId) throws JsonProcessingException;
 
     CvDto synchUp(int cvId) throws JsonProcessingException;

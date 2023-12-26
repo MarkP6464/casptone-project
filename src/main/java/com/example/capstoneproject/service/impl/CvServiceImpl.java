@@ -509,47 +509,26 @@ public class CvServiceImpl implements CvService {
             }
 
             cv.setResumeName(dto.getResumeName());
-            cv.setCompanyName(dto.getCompanyName());
-
-            if ((dto.getJobTitle() != null && dto.getJobDescriptionTarget() != null) ||
-                    (dto.getJobTitle() == null && dto.getJobDescriptionTarget() == null)) {
-
-                if (dto.getJobTitle() != null && dto.getJobDescriptionTarget() != null) {
-                    if (countWords(dto.getJobDescriptionTarget()) >= 30) {
-                        if (cv.getJobDescription() != null) {
-                            Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
-                            if (jobDescriptionOptional.isPresent()) {
-                                JobDescription jobDescription = jobDescriptionOptional.get();
-                                jobDescription.setTitle(dto.getJobTitle());
-                                jobDescription.setDescription(dto.getJobDescriptionTarget());
-                                jobDescriptionRepository.save(jobDescription);
-                            }
-                        } else {
-                            JobDescription jobDescription = new JobDescription();
-                            jobDescription.setTitle(dto.getJobTitle());
-                            jobDescription.setDescription(dto.getJobDescriptionTarget());
-                            jobDescriptionRepository.save(jobDescription);
-                            cv.setJobDescription(jobDescription);
-                        }
-                    } else {
-                        throw new BadRequestException("Job description must be at least 30 words.");
-                    }
-                } else {
-                    // Nếu không có bất kỳ trường nào được nhập, tiếp tục mà không có lỗi
-                    // Có thể thêm logic xử lý khác ở đây nếu cần
-                }
-
-                cvRepository.save(cv);
-
-                return true;
-            } else {
-                throw new BadRequestException("You must provide either both Job Title and Job Description Target or provide none.");
-            }
+            cvRepository.save(cv);
+            return true;
         } else {
             throw new IllegalArgumentException("CvId not found: " + id);
         }
     }
 
+    @Override
+    public CvUpdateDto getTitleResume(Integer cvId) {
+        Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        CvUpdateDto cvUpdateDto = new CvUpdateDto();
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            cvUpdateDto.setResumeName(cv.getResumeName());
+            return cvUpdateDto;
+        }else {
+            throw new BadRequestException("Cv id not found.");
+        }
+
+    }
 
 
     @Override

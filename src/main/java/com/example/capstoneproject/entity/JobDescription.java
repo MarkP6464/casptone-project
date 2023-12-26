@@ -1,15 +1,11 @@
 package com.example.capstoneproject.entity;
 
-import com.example.capstoneproject.enums.SectionLogStatus;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -27,4 +23,8 @@ public class JobDescription {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "ats")
     private List<Ats> ats;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_posting_id")  // Assuming you have a corresponding column in your JobDescription table
+    private JobPosting jobPosting;
 }

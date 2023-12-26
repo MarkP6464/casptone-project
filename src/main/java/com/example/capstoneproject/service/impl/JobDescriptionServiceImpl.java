@@ -3,13 +3,17 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.AtsDto;
 import com.example.capstoneproject.Dto.JobDescriptionDto;
 import com.example.capstoneproject.Dto.JobDescriptionViewDto;
+import com.example.capstoneproject.Dto.request.JobDescriptionRequest;
 import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.AtsMapper;
 import com.example.capstoneproject.mapper.JobDescriptionMapper;
 import com.example.capstoneproject.repository.AtsRepository;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.JobDescriptionRepository;
+import com.example.capstoneproject.repository.JobPostingRepository;
 import com.example.capstoneproject.service.EvaluateService;
 import com.example.capstoneproject.service.JobDescriptionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +31,9 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
 
     @Autowired
     JobDescriptionRepository jobDescriptionRepository;
+
+    @Autowired
+    JobPostingRepository jobPostingRepository;
 
     @Autowired
     JobDescriptionMapper jobDescriptionMapper;
@@ -53,16 +60,21 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     }
 
     @Override
-    public JobDescriptionViewDto createJobDescription(Integer cvId, JobDescriptionDto dto, Principal principal) throws JsonProcessingException {
+    public JobDescriptionViewDto createJobDescription(Integer cvId, JobDescriptionRequest dto, Principal principal) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
-            if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<500){
+            if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<1000){
                 JobDescription jobDescription = modelMapper.map(dto, JobDescription.class);
                 jobDescription.setTitle(dto.getTitle());
                 jobDescription.setDescription(dto.getDescription());
+                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(dto.getJobPostingId(), BasicStatus.ACTIVE, StatusReview.Published);
+                if(jobPostingOptional.isPresent()){
+                    JobPosting jobPosting = jobPostingOptional.get();
+                    jobDescription.setJobPosting(jobPosting);
+                }
                 JobDescription saved = jobDescriptionRepository.save(jobDescription);
                 Integer jobId = saved.getId();
-                List<AtsDto> atsList = evaluateService.ListAts(cvId,jobId,dto,principal);
+                List<AtsDto> atsList = evaluateService.ListAts(cvId,jobId,modelMapper.map(dto, JobDescriptionDto.class),principal);
                 JobDescriptionViewDto jobDescriptionViewDto = jobDescriptionMapper.mapEntityToDto(jobDescription);
                 jobDescriptionViewDto.setAts(atsList);
                 Cv cv = cvOptional.get();
@@ -71,6 +83,7 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
                     JobDescription jobDescription1 = jobDescriptionOptional.get();
                     cv.setJobDescription(jobDescription1);
                 }
+                cv.setCompanyName(dto.getCompany());
                 cvRepository.save(cv);
                 return jobDescriptionViewDto;
             }else{
@@ -102,11 +115,13 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     }
 
     @Override
-    public JobDescriptionViewDto updateJobDescription(Integer cvId, JobDescriptionDto dto, Principal principal) throws Exception {
+    public JobDescriptionViewDto updateJobDescription(Integer cvId, JobDescriptionRequest dto, Principal principal) throws Exception {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
-            if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<500){
+            cv.setCompanyName(dto.getCompany());
+            cvRepository.save(cv);
+            if(countWords(dto.getDescription())>30 && countWords(dto.getDescription())<1000){
                 Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(cv.getJobDescription().getId());
                 List<AtsDto> atsList;
                 JobDescriptionViewDto jobDescriptionViewDto = new JobDescriptionViewDto();
@@ -123,15 +138,22 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
                             jobDescription.setDescription(jobDescription.getDescription());
                             atsList = evaluateService.getAts(cvId,jobDescription.getId());
                             if(atsList==null){
-                                atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto,principal);
+                                atsList = evaluateService.ListAts(cvId,jobDescription.getId(),modelMapper.map(dto,JobDescriptionDto.class),principal);
                             }
                         }else{
                             jobDescription.setDescription(dto.getDescription());
                             atsRepository.deleteByJobDescriptionId(jobDescription.getId());
-                            atsList = evaluateService.ListAts(cvId,jobDescription.getId(),dto,principal);
+                            atsList = evaluateService.ListAts(cvId,jobDescription.getId(),modelMapper.map(dto,JobDescriptionDto.class),principal);
                         }
                     }else{
                         atsList = evaluateService.getAts(cvId,jobDescription.getId());
+                    }
+                    if(dto.getJobPostingId()!=null){
+                        Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(dto.getJobPostingId(), BasicStatus.ACTIVE, StatusReview.Published);
+                        if(jobPostingOptional.isPresent()){
+                            JobPosting jobPosting = jobPostingOptional.get();
+                            jobDescription.setJobPosting(jobPosting);
+                        }
                     }
                     JobDescription updatedJobDescription = jobDescriptionRepository.save(jobDescription);
                     jobDescriptionViewDto.setTitle(updatedJobDescription.getTitle());

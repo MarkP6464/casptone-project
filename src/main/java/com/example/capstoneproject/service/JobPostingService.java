@@ -27,5 +27,6 @@ public interface JobPostingService {
     String updateBan(Integer adminId, Integer postingId);
     String updateUnBan(Integer adminId, Integer postingId);
     List<JobPostingAdminViewDto> getListAdminPosting(Integer adminId);
+    List<JobPostingResponse> getListGeneration(String search);
 
 }
