@@ -29,20 +29,8 @@ public class Cv {
     @Column(columnDefinition = "NVARCHAR(100)")
     private String resumeName;
 
-//    @Column(columnDefinition = "NVARCHAR(100)")
-//    private String fieldOrDomain;
-
-//    @Column(columnDefinition = "NVARCHAR(100)")
-//    private String experience;
-
-//    @Column(columnDefinition = "NVARCHAR(50)")
-//    private String jobTitle;
-
     @Column(columnDefinition = "NVARCHAR(50)")
     private String companyName;
-
-//    @Column(columnDefinition = "NVARCHAR(200)")
-//    private String jobDescriptionTarget;
 
     private Boolean sharable;
 
@@ -73,6 +61,15 @@ public class Cv {
 
     @OneToOne(mappedBy = "cv")
     private Score score;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Experience> experiences;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Project> projects;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Involvement> involvements;
 
     public String toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();

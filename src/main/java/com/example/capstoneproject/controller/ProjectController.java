@@ -23,9 +23,9 @@ public class ProjectController {
         return projectService.getAllProject(UsersId);
     }
 
-    @PostMapping("/{UsersId}/projects")
-    public ProjectDto postProject(@PathVariable("UsersId") int UsersId,@RequestBody ProjectDto Dto) {
-        return projectService.createProject(UsersId,Dto);
+    @PostMapping("/cv/{cv-id}/projects")
+    public ProjectDto postProject(@PathVariable("cv-id") int cvId,@RequestBody ProjectDto Dto) {
+        return projectService.createProject(cvId,Dto);
     }
 
     @PutMapping("/{UsersId}/projects/{projectId}")

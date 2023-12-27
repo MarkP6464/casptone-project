@@ -95,15 +95,6 @@ public class Users implements UserDetails {
     private List<Education> educations;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Experience> experiences;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Involvement> involvements;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<Project> projects;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Cv> cvs;
 
 //    @OneToOne(mappedBy = "expert")

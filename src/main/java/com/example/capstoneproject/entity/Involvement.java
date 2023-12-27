@@ -36,7 +36,7 @@ public class Involvement {
     private BasicStatus Status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @JoinColumn(name = "cv_id")
+    private Cv cv;
 
 }
