@@ -18,9 +18,9 @@ public class InvolvementController {
         return involvementService.getAllInvolvement(UsersId);
     }
 
-    @PostMapping("/{UsersId}/involvements")
-    public InvolvementDto postInvolvement(@PathVariable("UsersId") int UsersId,@RequestBody InvolvementDto Dto) {
-        return involvementService.createInvolvement(UsersId,Dto);
+    @PostMapping("/cv/{cv-id}/involvements")
+    public InvolvementDto postInvolvement(@PathVariable("cv-id") int cvId,@RequestBody InvolvementDto Dto) {
+        return involvementService.createInvolvement(cvId,Dto);
     }
 
     @PutMapping("/{UsersId}/involvements/{involvementId}")

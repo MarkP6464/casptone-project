@@ -11,9 +11,9 @@ import java.util.List;
 public interface ExperienceService extends BaseService<ExperienceDto, Integer> {
     ExperienceDto update(Integer id, ExperienceDto dto);
 
-    boolean updateExperience(int UsersId, int experienceId, ExperienceDto dto);
+    boolean updateExperience(Integer cvId, Integer experienceId, ExperienceDto dto);
 
-    List<ExperienceDto> getAllExperience(int UsersId);
+    List<ExperienceDto> getAllExperience(Integer cvId);
     ExperienceViewDto createExperience(Integer id, ExperienceDto dto);
     void deleteExperienceById(Integer UsersId,Integer experienceId);
 

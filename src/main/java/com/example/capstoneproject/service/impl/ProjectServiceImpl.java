@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.responses.ProjectViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ProjectMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
@@ -77,8 +78,12 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
-        Cv cv = cvRepository.findCvById(id, BasicStatus.ACTIVE);
-        project.setCv(cv);
+        Cv cv = cvService.getCvById(id);
+        if(cv!=null){
+            project.setCv(cv);
+        }else{
+            throw new BadRequestException("Cv id not found.");
+        }
         project.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(project);
         return projectMapper.mapEntityToDto(saved);
@@ -89,7 +94,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         Optional<Project> existingProjectOptional = projectRepository.findById(projectId);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
-            if (existingProject.getCv().getId() != UsersId) {
+            if (existingProject.getCv().getUser().getId() != UsersId) {
                 throw new IllegalArgumentException("Project does not belong to Users with id " + UsersId);
             }
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
@@ -146,7 +151,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
     @Override
     public void deleteProjectById(Integer UsersId, Integer projectId) {
-        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCv_Id(projectId, UsersId);
+        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCv_User_Id(projectId, UsersId);
 
         if (isProjectBelongsToCv) {
             Optional<Project> Optional = projectRepository.findById(projectId);
@@ -288,14 +293,18 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
     @Override
     public ProjectViewDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
-        Project education = projectMapper.mapDtoToEntity(dto);
-        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-        education.setCv(cv);
-        education.setStatus(BasicStatus.ACTIVE);
-        Project saved = projectRepository.save(education);
+        Project project = projectMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(cvId);
+        if(cv!=null){
+            project.setCv(cv);
+        }else{
+            throw new BadRequestException("Cv id not found.");
+        }
+        project.setStatus(BasicStatus.ACTIVE);
+        Project saved = projectRepository.save(project);
         ProjectDto projectDto = new ProjectDto();
         projectDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 projectDto.setIsDisplay(true);
@@ -314,7 +323,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
-        List<Project> projects = projectRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getId(), BasicStatus.ACTIVE);
+        List<Project> projects = projectRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getUser().getId(), BasicStatus.ACTIVE);
         if (!projects.isEmpty()) {
             sectionDto.setTypeId(projects.get(0).getId());
         }
@@ -360,10 +369,10 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
         Optional<Project> Optional = projectRepository.findById(id);
         if (Optional.isPresent()) {
-            Project education = Optional.get();
-            education.setStatus(BasicStatus.DELETED);
-            projectRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
+            Project project = Optional.get();
+            project.setStatus(BasicStatus.DELETED);
+            projectRepository.delete(project);
+            List<Cv> list = cvRepository.findAllByUser_Id(project.getCv().getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

@@ -5,6 +5,7 @@ import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.ExperienceMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
@@ -80,7 +81,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public boolean updateExperience(int UsersId, int experienceId, ExperienceDto dto) {
+    public boolean updateExperience(Integer UsersId, Integer experienceId, ExperienceDto dto) {
         Optional<Experience> existingExperienceOptional = experienceRepository.findById(experienceId);
         if (existingExperienceOptional.isPresent()) {
             Experience existingExperience = existingExperienceOptional.get();
@@ -122,8 +123,8 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     }
 
     @Override
-    public List<ExperienceDto> getAllExperience(int UsersId) {
-        List<Experience> experiences = experienceRepository.findExperiencesByStatus(UsersId, BasicStatus.ACTIVE);
+    public List<ExperienceDto> getAllExperience(Integer cvId) {
+        List<Experience> experiences = experienceRepository.findExperiencesByStatus(cvId, BasicStatus.ACTIVE);
         return experiences.stream()
                 .filter(experience -> experience.getStatus() == BasicStatus.ACTIVE)
                 .map(experience -> {
@@ -141,7 +142,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public void deleteExperienceById(Integer UsersId, Integer experienceId) {
-        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCv_Id(experienceId, UsersId);
+        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCv_User_Id(experienceId, UsersId);
 
         if (isExperienceBelongsToCv) {
             Optional<Experience> Optional = experienceRepository.findById(experienceId);
@@ -287,10 +288,10 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
         Optional<Experience> Optional = experienceRepository.findById(educationId);
         if (Optional.isPresent()) {
-            Experience education = Optional.get();
-            education.setStatus(BasicStatus.DELETED);
-            experienceRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
+            Experience experience = Optional.get();
+            experience.setStatus(BasicStatus.DELETED);
+            experienceRepository.delete(experience);
+            List<Cv> list = cvRepository.findAllByUser_Id(experience.getCv().getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
@@ -313,15 +314,19 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public ExperienceViewDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException {
-        Experience education = experienceMapper.mapDtoToEntity(dto);
-        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-        education.setCv(cv);
-        education.setStatus(BasicStatus.ACTIVE);
-        Experience saved = experienceRepository.save(education);
+        Experience experience = experienceMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(cvId);
+        if(cv!=null){
+            experience.setCv(cv);
+        }else{
+            throw new BadRequestException("Cv id not found.");
+        }
+        experience.setStatus(BasicStatus.ACTIVE);
+        Experience saved = experienceRepository.save(experience);
         ExperienceDto educationViewDto = new ExperienceDto();
         educationViewDto.setId(saved.getId());
 
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 educationViewDto.setIsDisplay(true);

@@ -10,12 +10,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface InvolvementRepository extends JpaRepository<Involvement, Integer> {
-    @Query("SELECT c FROM Involvement c WHERE c.cv.id = :cvId AND c.Status = :status")
+    @Query("SELECT c FROM Involvement c WHERE c.cv.user.id = :cvId AND c.Status = :status")
     List<Involvement> findInvolvementsByStatus(@Param("cvId") int id, @Param("status") BasicStatus status);
 
-    boolean existsByIdAndCv_Id(Integer educationId, Integer cvId);
+    boolean existsByIdAndCv_User_Id(Integer involvementId, Integer UserId);
 
-    @Query("SELECT c FROM Involvement c WHERE c.cv.id = :userId AND c.Status = :status ORDER BY c.id DESC")
+    @Query("SELECT c FROM Involvement c WHERE c.cv.user.id = :userId AND c.Status = :status ORDER BY c.id DESC")
     List<Involvement> findExperiencesByStatusOrderedByStartDateDesc(@Param("userId") Integer userId, @Param("status") BasicStatus status);
 
 }

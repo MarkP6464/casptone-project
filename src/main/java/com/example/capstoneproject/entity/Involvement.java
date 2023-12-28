@@ -35,9 +35,8 @@ public class Involvement {
     @Enumerated(EnumType.STRING)
     private BasicStatus Status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cv_id")
     private Cv cv;
-
 
 }

@@ -5,6 +5,8 @@ import com.example.capstoneproject.Dto.responses.InvolvementViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
+import com.example.capstoneproject.exception.BadRequestException;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.InvolvementMapper;
 import com.example.capstoneproject.mapper.SectionMapper;
@@ -77,8 +79,12 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementDto createInvolvement(Integer id, InvolvementDto dto) {
         Involvement involvement = involvementMapper.mapDtoToEntity(dto);
-        Cv entity = cvRepository.getById(id);
-        involvement.setCv(entity);
+        Cv cv = cvService.getCvById(id);
+        if(cv!=null){
+            involvement.setCv(cv);
+        }else {
+            throw new BadRequestException("Cv id not found.");
+        }
         involvement.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(involvement);
         return involvementMapper.mapEntityToDto(saved);
@@ -89,7 +95,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         Optional<Involvement> existingInvolvementOptional = involvementRepository.findById(involvementId);
         if (existingInvolvementOptional.isPresent()) {
             Involvement existingInvolvement = existingInvolvementOptional.get();
-            if (existingInvolvement.getCv().getId() != UsersId) {
+            if (existingInvolvement.getCv().getUser().getId() != UsersId) {
                 throw new IllegalArgumentException("Involvement does not belong to Users with id " + UsersId);
             }
             if (dto.getOrganizationRole() != null && !existingInvolvement.getOrganizationRole().equals(dto.getOrganizationRole())) {
@@ -146,7 +152,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
     @Override
     public void deleteInvolvementById(Integer UsersId, Integer involvementId) {
-        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndCv_Id(involvementId, UsersId);
+        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndCv_User_Id(involvementId, UsersId);
 
         if (isInvolvementBelongsToCv) {
             Optional<Involvement> Optional = involvementRepository.findById(involvementId);
@@ -289,14 +295,18 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
     @Override
     public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
-        Involvement education = involvementMapper.mapDtoToEntity(dto);
-        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-        education.setCv(cv);
-        education.setStatus(BasicStatus.ACTIVE);
-        Involvement saved = involvementRepository.save(education);
+        Involvement involvement = involvementMapper.mapDtoToEntity(dto);
+        Cv cv = cvService.getCvById(cvId);
+        if(cv!=null){
+            involvement.setCv(cv);
+        }else{
+            throw new BadRequestException("Cv id not found.");
+        }
+        involvement.setStatus(BasicStatus.ACTIVE);
+        Involvement saved = involvementRepository.save(involvement);
         InvolvementDto involvementDto = new InvolvementDto();
         involvementDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 involvementDto.setIsDisplay(true);
@@ -314,7 +324,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         });
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
-        List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getId(), BasicStatus.ACTIVE);
+        List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getUser().getId(), BasicStatus.ACTIVE);
         if (!projects.isEmpty()) {
             sectionDto.setTypeId(projects.get(0).getId());
         }
@@ -360,10 +370,10 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
         Optional<Involvement> Optional = involvementRepository.findById(id);
         if (Optional.isPresent()) {
-            Involvement education = Optional.get();
-            education.setStatus(BasicStatus.DELETED);
-            involvementRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
+            Involvement involvement = Optional.get();
+            involvement.setStatus(BasicStatus.DELETED);
+            involvementRepository.delete(involvement);
+            List<Cv> list = cvRepository.findAllByUser_Id(involvement.getCv() .getUser().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

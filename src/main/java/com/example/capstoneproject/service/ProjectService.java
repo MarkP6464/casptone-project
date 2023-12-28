@@ -13,7 +13,7 @@ public interface ProjectService extends BaseService<ProjectDto, Integer> {
 
     List<ProjectViewDto> getAllProject(int UsersId);
 
-    ProjectDto createProject(Integer id, ProjectDto dto);
+    ProjectDto createProject(Integer cvId, ProjectDto dto);
 
     void deleteProjectById(Integer UsersId, Integer projectId);
 

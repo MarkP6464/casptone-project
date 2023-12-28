@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/Users")
+@RequestMapping("/api/v1/user")
 public class ExperienceController {
     @Autowired
     ExperienceService experienceService;
@@ -18,9 +18,9 @@ public class ExperienceController {
         this.experienceService = experienceService;
     }
 
-    @GetMapping("/{UsersId}/experiences")
-    public List<ExperienceDto> getAllExperience(@PathVariable("UsersId") int UsersId) {
-        return experienceService.getAllExperience(UsersId);
+    @GetMapping("/cv/{cv-id}/experiences")
+    public List<ExperienceDto> getAllExperience(@PathVariable("cv-id") int cvId) {
+        return experienceService.getAllExperience(cvId);
     }
 
     @PostMapping("/{UsersId}/experiences")
@@ -28,9 +28,9 @@ public class ExperienceController {
         return experienceService.createExperience(UsersId,Dto);
     }
 
-    @PutMapping("/{UsersId}/experiences/{experienceId}")
-    public String updateExperience(@PathVariable("UsersId") int UsersId,@PathVariable("experienceId") int experienceId, @RequestBody ExperienceDto Dto) {
-        boolean check = experienceService.updateExperience(UsersId,experienceId, Dto);
+    @PutMapping("/cv/{cv-id}/experiences/{experience-id}")
+    public String updateExperience(@PathVariable("cv-id") int cvId,@PathVariable("experience-id") int experienceId, @RequestBody ExperienceDto Dto) {
+        boolean check = experienceService.updateExperience(cvId,experienceId, Dto);
         if(check){
             return "Changes saved";
         }else {
