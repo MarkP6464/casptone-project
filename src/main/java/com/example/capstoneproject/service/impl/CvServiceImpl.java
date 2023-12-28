@@ -211,7 +211,7 @@ public class CvServiceImpl implements CvService {
         Optional<Users> user = usersRepository.findById(UsersId);
 
         if (user.isPresent()) {
-            List<Cv> cvs = cvRepository.findAllByUser_Id(UsersId);
+            List<Cv> cvs = cvRepository.findAllByUser_IdAndStatus(UsersId, BasicStatus.ACTIVE);
             if(cvs!=null){
                 for(Cv cv:cvs){
                     if(cv.getResumeName().equals(dto.getResumeName())){
@@ -227,7 +227,7 @@ public class CvServiceImpl implements CvService {
             UsersViewDto usersViewDto = modelMapper.map(users, UsersViewDto.class);
             cv.setUser(users);
 
-            dto.setCertifications(usersViewDto.getCertifications());
+//            dto.setCertifications(usersViewDto.getCertifications());
 //            List<CertificationDto> certs = dto.getCertifications();
 //            List<CertificationDto> list =IntStream.range(1, certs.size()).mapToObj(index -> {
 //                CertificationDto theDto = new CertificationDto();
@@ -237,55 +237,54 @@ public class CvServiceImpl implements CvService {
 //                return theDto;}).collect(Collectors.toList());
 //            dto.setCertifications(list);
 
-            dto.setEducations(usersViewDto.getEducations());
-            List<EducationDto> educationDtoList = dto.getEducations().stream().map(x -> {
-                EducationDto educationDto = new EducationDto();
-                educationDto.setIsDisplay(false);
-                educationDto.setId(x.getId());
-                return educationDto;
-            }).collect(Collectors.toList());
-            dto.setEducations(educationDtoList);
-
-            dto.setInvolvements(usersViewDto.getInvolvements());
-            List<InvolvementDto> involvementDtos = dto.getInvolvements().stream().map(x -> {
-                InvolvementDto theDto = new InvolvementDto();
-                theDto.setIsDisplay(false);
-                theDto.setId(x.getId());
-                return theDto;
-            }).collect(Collectors.toList());
-            dto.setInvolvements(involvementDtos);
-
-            dto.setExperiences(usersViewDto.getExperiences());
-            List<ExperienceDto> experienceDtos = dto.getExperiences().stream().map(x -> {
-                ExperienceDto theDto = new ExperienceDto();
-                theDto.setIsDisplay(false);
-                theDto.setId(x.getId());
-                return theDto;
-            }).collect(Collectors.toList());
-            dto.setExperiences(experienceDtos);
-
-            dto.setProjects(usersViewDto.getProjects());
-            List<ProjectDto> projectDtos = dto.getProjects().stream().map(x -> {
-                ProjectDto theDto = new ProjectDto();
-                theDto.setIsDisplay(false);
-                theDto.setId(x.getId());
-                return theDto;
-            }).collect(Collectors.toList());
-            dto.setProjects(projectDtos);
-
-            dto.setSkills(usersViewDto.getSkills());
-            List<SkillDto> skillDtos = dto.getSkills().stream().map(x -> {
-                SkillDto theDto = new SkillDto();
-                theDto.setIsDisplay(false);
-                theDto.setId(x.getId());
-                return theDto;
-            }).collect(Collectors.toList());
-            dto.setSkills(skillDtos);
-
-            cv.setCvBody(cv.toCvBody(dto));
+//            dto.setEducations(usersViewDto.getEducations());
+//            List<EducationDto> educationDtoList = dto.getEducations().stream().map(x -> {
+//                EducationDto educationDto = new EducationDto();
+//                educationDto.setIsDisplay(false);
+//                educationDto.setId(x.getId());
+//                return educationDto;
+//            }).collect(Collectors.toList());
+//            dto.setEducations(educationDtoList);
+//
+//            dto.setInvolvements(usersViewDto.getInvolvements());
+//            List<InvolvementDto> involvementDtos = dto.getInvolvements().stream().map(x -> {
+//                InvolvementDto theDto = new InvolvementDto();
+//                theDto.setIsDisplay(false);
+//                theDto.setId(x.getId());
+//                return theDto;
+//            }).collect(Collectors.toList());
+//            dto.setInvolvements(involvementDtos);
+//
+//            dto.setExperiences(usersViewDto.getExperiences());
+//            List<ExperienceDto> experienceDtos = dto.getExperiences().stream().map(x -> {
+//                ExperienceDto theDto = new ExperienceDto();
+//                theDto.setIsDisplay(false);
+//                theDto.setId(x.getId());
+//                return theDto;
+//            }).collect(Collectors.toList());
+//            dto.setExperiences(experienceDtos);
+//
+//            dto.setProjects(usersViewDto.getProjects());
+//            List<ProjectDto> projectDtos = dto.getProjects().stream().map(x -> {
+//                ProjectDto theDto = new ProjectDto();
+//                theDto.setIsDisplay(false);
+//                theDto.setId(x.getId());
+//                return theDto;
+//            }).collect(Collectors.toList());
+//            dto.setProjects(projectDtos);
+//
+//            dto.setSkills(usersViewDto.getSkills());
+//            List<SkillDto> skillDtos = dto.getSkills().stream().map(x -> {
+//                SkillDto theDto = new SkillDto();
+//                theDto.setIsDisplay(false);
+//                theDto.setId(x.getId());
+//                return theDto;
+//            }).collect(Collectors.toList());
+//            dto.setSkills(skillDtos);
 //            cv.setFieldOrDomain(dto.getFieldOrDomain());
-            cv.setResumeName(dto.getResumeName());
 //            cv.setExperience(dto.getExperience());
+            cv.setCvBody(cv.toCvBody(dto));
+            cv.setResumeName(dto.getResumeName());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
             Cv savedCv = cvRepository.save(cv);
