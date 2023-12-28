@@ -84,7 +84,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         Optional<Experience> existingExperienceOptional = experienceRepository.findById(experienceId);
         if (existingExperienceOptional.isPresent()) {
             Experience existingExperience = existingExperienceOptional.get();
-            if (existingExperience.getUser().getId() != UsersId) {
+            if (existingExperience.getCv().getId() != UsersId) {
                 throw new IllegalArgumentException("Experience does not belong to Users with id " + UsersId);
             }
             if (dto.getRole() != null && !existingExperience.getRole().equals(dto.getRole())) {
@@ -141,7 +141,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 
     @Override
     public void deleteExperienceById(Integer UsersId, Integer experienceId) {
-        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndUser_Id(experienceId, UsersId);
+        boolean isExperienceBelongsToCv = experienceRepository.existsByIdAndCv_Id(experienceId, UsersId);
 
         if (isExperienceBelongsToCv) {
             Optional<Experience> Optional = experienceRepository.findById(experienceId);
@@ -222,8 +222,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             modelMapper.map(dto, experience);
             Experience saved = experienceRepository.save(experience);
             ExperienceDto experienceDto = relationDto.get();
-            experienceDto.setIsDisplay(dto.getIsDisplay());
-            experienceDto.setTheOrder(dto.getTheOrder());
+            modelMapper.map(dto, experienceDto);
             cvService.updateCvBody(cvId, cvBodyDto);
 
 
@@ -291,7 +290,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             Experience education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             experienceRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
@@ -315,14 +314,14 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     @Override
     public ExperienceViewDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException {
         Experience education = experienceMapper.mapDtoToEntity(dto);
-        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(user);
+        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        education.setCv(cv);
         education.setStatus(BasicStatus.ACTIVE);
         Experience saved = experienceRepository.save(education);
         ExperienceDto educationViewDto = new ExperienceDto();
         educationViewDto.setId(saved.getId());
 
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 educationViewDto.setIsDisplay(true);
@@ -340,7 +339,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         });
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
-        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(user.getId(), BasicStatus.ACTIVE);
+        List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getId(), BasicStatus.ACTIVE);
         if (!experiences.isEmpty()) {
             sectionDto.setTypeId(experiences.get(0).getId());
         }

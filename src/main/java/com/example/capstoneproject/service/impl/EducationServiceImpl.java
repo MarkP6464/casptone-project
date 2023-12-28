@@ -54,20 +54,20 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     @Override
     public EducationDto createEducation(Integer id, EducationDto dto) {
         Education education = educationMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(id);
-        education.setUser(Users);
+        Cv entity = cvRepository.getById(id);
+        education.setCv(entity);
         education.setStatus(BasicStatus.ACTIVE);
         Education saved = educationRepository.save(education);
         return educationMapper.mapEntityToDto(saved);
     }
 
     @Override
-    public boolean updateEducation(int UsersId, int educationId, EducationDto dto) {
+    public boolean updateEducation(int cvId, int educationId, EducationDto dto) {
         Optional<Education> existingEducationOptional = educationRepository.findById(educationId);
         if (existingEducationOptional.isPresent()) {
             Education existingEducation = existingEducationOptional.get();
-            if (existingEducation.getUser().getId() != UsersId) {
-                throw new IllegalArgumentException("Education does not belong to Users with id " + UsersId);
+            if (existingEducation.getCv().getId() != cvId) {
+                throw new IllegalArgumentException("Education does not belong to Cv with id " + cvId);
             }
             if (dto.getDegree() != null && !existingEducation.getDegree().equals(dto.getDegree())) {
                 existingEducation.setDegree(dto.getDegree());
@@ -113,8 +113,8 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public List<EducationDto> getAllEducation(int UsersId) {
-        List<Education> educations = educationRepository.findEducationsByStatus(UsersId, BasicStatus.ACTIVE);
+    public List<EducationDto> getAllEducation(int cvId) {
+        List<Education> educations = educationRepository.findEducationsByStatus(cvId, BasicStatus.ACTIVE);
         return educations.stream()
                 .filter(education -> education.getStatus() == BasicStatus.ACTIVE)
                 .map(education -> {
@@ -134,7 +134,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
     @Override
     public void deleteEducationById(Integer UsersId, Integer educationId) {
-        boolean isEducationBelongsToCv = educationRepository.existsByIdAndUser_Id(educationId, UsersId);
+        boolean isEducationBelongsToCv = educationRepository.existsByIdAndCv_Id(educationId, UsersId);
 
         if (isEducationBelongsToCv) {
             Optional<Education> Optional = educationRepository.findById(educationId);
@@ -206,8 +206,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             modelMapper.map(dto, education);
             educationRepository.save(education);
             EducationDto educationDto = relationDto.get();
-            educationDto.setIsDisplay(dto.getIsDisplay());
-            educationDto.setTheOrder(dto.getTheOrder());
+            modelMapper.map(dto, educationDto);
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
@@ -219,14 +218,14 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     @Override
     public EducationDto createOfUserInCvBody(int cvId, EducationDto dto) throws JsonProcessingException {
         Education education = educationMapper.mapDtoToEntity(dto);
-        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(user);
+        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        education.setCv(cv);
         education.setStatus(BasicStatus.ACTIVE);
         Education saved = educationRepository.save(education);
         EducationDto educationDto = new EducationDto();
         educationDto.setId(saved.getId());
 
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 educationDto.setIsDisplay(true);
@@ -253,7 +252,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             education.setStatus(BasicStatus.DELETED);
             educationRepository.delete(education);
 
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

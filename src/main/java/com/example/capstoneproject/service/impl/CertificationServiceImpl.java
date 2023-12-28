@@ -71,8 +71,8 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     @Override
     public CertificationDto createCertification(Integer id, CertificationDto dto) {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(id);
-        certification.setUser(Users);
+        Cv entity = cvRepository.getById(id);
+        certification.setCv(entity);
         certification.setStatus(BasicStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
         return certificationMapper.mapEntityToDto(saved);
@@ -83,7 +83,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
         Optional<Certification> existingCertificationOptional = certificationRepository.findById(certificationId);
         if (existingCertificationOptional.isPresent()) {
             Certification existingCertification = existingCertificationOptional.get();
-            if (existingCertification.getUser().getId() != UsersId) {
+            if (existingCertification.getCv().getId() != UsersId) {
                 throw new IllegalArgumentException("Certification does not belong to Users with id " + UsersId);
             }
             if (dto.getName() != null && !existingCertification.getName().equals(dto.getName())) {
@@ -116,7 +116,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
 
     @Override
     public void deleteCertificationById(Integer UsersId, Integer certificationId) {
-        boolean isCertificationBelongsToCv = certificationRepository.existsByIdAndUser_Id(certificationId, UsersId);
+        boolean isCertificationBelongsToCv = certificationRepository.existsByIdAndCv_Id(certificationId, UsersId);
 
         if (isCertificationBelongsToCv) {
             Optional<Certification> Optional = certificationRepository.findById(certificationId);
@@ -200,13 +200,13 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     @Override
     public CertificationDto createOfUserInCvBody(int cvId, CertificationDto dto) throws JsonProcessingException {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
-        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        certification.setUser(user);
+        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        certification.setCv(cv);
         certification.setStatus(BasicStatus.ACTIVE);
         Certification saved = certificationRepository.save(certification);
         CertificationDto certificationDto = new CertificationDto();
         certificationDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 certificationDto.setIsDisplay(true);
@@ -234,7 +234,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             certification.setStatus(BasicStatus.DELETED);
             certificationRepository.delete(certification);
 
-            List<Cv> list = cvRepository.findAllByUser_Id(certification.getUser().getId());
+            List<Cv> list = cvRepository.findAllByUser_Id(certification.getCv().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

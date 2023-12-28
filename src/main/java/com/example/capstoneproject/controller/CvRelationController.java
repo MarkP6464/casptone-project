@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,7 +126,7 @@ public class CvRelationController {
     }
 
     @GetMapping("/{cvId}/{theRelation}")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public List<?> getAllARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation) throws Exception {
 
         switch (theRelation) {
@@ -147,7 +148,7 @@ public class CvRelationController {
     }
 
     @GetMapping("/{cvId}/{theRelation}/{id}")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public ResponseEntity<?> getARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
 
         switch (theRelation) {
@@ -169,8 +170,8 @@ public class CvRelationController {
     }
 
     @PostMapping(value = "/{cvId}/{theRelation}", consumes = "application/json")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
-    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
+//    @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
+    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation,@Valid @RequestBody Object obj) throws Exception {
 
         switch (theRelation) {
             case "educations":
@@ -197,7 +198,7 @@ public class CvRelationController {
     }
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
-    @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
+//    @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
     public ResponseEntity<?> update(@PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
         switch (theRelation) {
             case "educations":
@@ -224,7 +225,7 @@ public class CvRelationController {
     }
 
     @DeleteMapping("/{cvId}/{theRelation}/{id}")
-    @PreAuthorize("hasAnyAuthority('delete:candidate','delete:expert')")
+//    @PreAuthorize("hasAnyAuthority('delete:candidate','delete:expert')")
     public String deleteARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
         switch (theRelation) {
             case "educations":

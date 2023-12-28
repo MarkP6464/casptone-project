@@ -74,6 +74,24 @@ public class Cv {
     @OneToOne(mappedBy = "cv")
     private Score score;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Skill> skills;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Certification> certifications;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Education> educations;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Experience> experiences;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Involvement> involvements;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "cv")
+    private List<Project> projects;
+
     public String toCvBody(CvBodyDto dto) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String map = objectMapper.writeValueAsString(dto);

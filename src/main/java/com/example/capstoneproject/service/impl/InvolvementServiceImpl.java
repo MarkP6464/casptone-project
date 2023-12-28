@@ -77,8 +77,8 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementDto createInvolvement(Integer id, InvolvementDto dto) {
         Involvement involvement = involvementMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(id);
-        involvement.setUser(Users);
+        Cv entity = cvRepository.getById(id);
+        involvement.setCv(entity);
         involvement.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(involvement);
         return involvementMapper.mapEntityToDto(saved);
@@ -89,7 +89,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         Optional<Involvement> existingInvolvementOptional = involvementRepository.findById(involvementId);
         if (existingInvolvementOptional.isPresent()) {
             Involvement existingInvolvement = existingInvolvementOptional.get();
-            if (existingInvolvement.getUser().getId() != UsersId) {
+            if (existingInvolvement.getCv().getId() != UsersId) {
                 throw new IllegalArgumentException("Involvement does not belong to Users with id " + UsersId);
             }
             if (dto.getOrganizationRole() != null && !existingInvolvement.getOrganizationRole().equals(dto.getOrganizationRole())) {
@@ -146,7 +146,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 
     @Override
     public void deleteInvolvementById(Integer UsersId, Integer involvementId) {
-        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndUser_Id(involvementId, UsersId);
+        boolean isInvolvementBelongsToCv = involvementRepository.existsByIdAndCv_Id(involvementId, UsersId);
 
         if (isInvolvementBelongsToCv) {
             Optional<Involvement> Optional = involvementRepository.findById(involvementId);
@@ -228,8 +228,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             modelMapper.map(dto, involvement);
             Involvement saved = involvementRepository.save(involvement);
             InvolvementDto educationDto = relationDto.get();
-            educationDto.setIsDisplay(dto.getIsDisplay());
-            educationDto.setTheOrder(dto.getTheOrder());
+            modelMapper.map(dto, educationDto);
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db
@@ -291,13 +290,13 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     @Override
     public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
         Involvement education = involvementMapper.mapDtoToEntity(dto);
-        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(user);
+        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        education.setCv(cv);
         education.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(education);
         InvolvementDto involvementDto = new InvolvementDto();
         involvementDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 involvementDto.setIsDisplay(true);
@@ -315,7 +314,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         });
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
-        List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(user.getId(), BasicStatus.ACTIVE);
+        List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getId(), BasicStatus.ACTIVE);
         if (!projects.isEmpty()) {
             sectionDto.setTypeId(projects.get(0).getId());
         }
@@ -364,7 +363,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             Involvement education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             involvementRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

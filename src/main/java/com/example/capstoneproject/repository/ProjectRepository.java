@@ -10,12 +10,13 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
-    @Query("SELECT c FROM Project c WHERE c.user.id = :cvId AND c.Status = :status")
+    @Query("SELECT c FROM Project c WHERE c.cv.id = :cvId AND c.Status = :status")
     List<Project> findProjectsByStatus(@Param("cvId") int id, @Param("status") BasicStatus status);
 
-    boolean existsByIdAndUser_Id(Integer projectId, Integer UserId);
+    boolean existsByIdAndCv_Id(Integer educationId, Integer cvId);
 
-    @Query("SELECT c FROM Project c WHERE c.user.id = :userId AND c.Status = :status ORDER BY c.id DESC")
+
+    @Query("SELECT c FROM Project c WHERE c.cv.id = :userId AND c.Status = :status ORDER BY c.id DESC")
     List<Project> findExperiencesByStatusOrderedByStartDateDesc(@Param("userId") Integer userId, @Param("status") BasicStatus status);
 
 

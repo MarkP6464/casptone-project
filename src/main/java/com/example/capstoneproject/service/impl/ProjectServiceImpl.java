@@ -77,8 +77,8 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(id);
-        project.setUser(Users);
+        Cv cv = cvRepository.findCvById(id, BasicStatus.ACTIVE);
+        project.setCv(cv);
         project.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(project);
         return projectMapper.mapEntityToDto(saved);
@@ -89,7 +89,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         Optional<Project> existingProjectOptional = projectRepository.findById(projectId);
         if (existingProjectOptional.isPresent()) {
             Project existingProject = existingProjectOptional.get();
-            if (existingProject.getUser().getId() != UsersId) {
+            if (existingProject.getCv().getId() != UsersId) {
                 throw new IllegalArgumentException("Project does not belong to Users with id " + UsersId);
             }
             if (dto.getTitle() != null && !existingProject.getTitle().equals(dto.getTitle())) {
@@ -146,7 +146,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
     @Override
     public void deleteProjectById(Integer UsersId, Integer projectId) {
-        boolean isProjectBelongsToCv = projectRepository.existsByIdAndUser_Id(projectId, UsersId);
+        boolean isProjectBelongsToCv = projectRepository.existsByIdAndCv_Id(projectId, UsersId);
 
         if (isProjectBelongsToCv) {
             Optional<Project> Optional = projectRepository.findById(projectId);
@@ -227,8 +227,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             modelMapper.map(dto, project);
             Project saved = projectRepository.save(project);
             ProjectDto educationDto = relationDto.get();
-            educationDto.setIsDisplay(dto.getIsDisplay());
-            educationDto.setTheOrder(dto.getTheOrder());
+            modelMapper.map(dto, educationDto);
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db
@@ -290,13 +289,13 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     @Override
     public ProjectViewDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
         Project education = projectMapper.mapDtoToEntity(dto);
-        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(user);
+        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        education.setCv(cv);
         education.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(education);
         ProjectDto projectDto = new ProjectDto();
         projectDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 projectDto.setIsDisplay(true);
@@ -315,7 +314,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
-        List<Project> projects = projectRepository.findExperiencesByStatusOrderedByStartDateDesc(user.getId(), BasicStatus.ACTIVE);
+        List<Project> projects = projectRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getId(), BasicStatus.ACTIVE);
         if (!projects.isEmpty()) {
             sectionDto.setTypeId(projects.get(0).getId());
         }
@@ -364,7 +363,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             Project education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             projectRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

@@ -9,9 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface CertificationRepository extends JpaRepository<Certification, Integer> {
-    @Query("SELECT c FROM Certification c WHERE c.user.id = :UsersId AND c.Status = :status")
+    @Query("SELECT c FROM Certification c WHERE c.cv.id = :UsersId AND c.Status = :status")
     List<Certification> findCertificationsByStatus(@Param("UsersId") int UsersId,@Param("status") BasicStatus status);
 
-    boolean existsByIdAndUser_Id(Integer certificationId, Integer UserId);
+    boolean existsByIdAndCv_Id(Integer educationId, Integer cvId);
 
 }

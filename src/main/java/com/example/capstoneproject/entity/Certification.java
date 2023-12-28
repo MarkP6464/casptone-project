@@ -36,6 +36,7 @@ public class Certification {
     private BasicStatus Status;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @JoinColumn(name = "cv_id")
+    private Cv cv;
+
 }

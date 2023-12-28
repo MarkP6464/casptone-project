@@ -53,8 +53,8 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     @Override
     public SkillDto createSkill(Integer id, SkillDto dto) {
         Skill skill = skillMapper.mapDtoToEntity(dto);
-        Users Users = usersService.getUsersById(id);
-        skill.setUser(Users);
+        Cv entity = cvRepository.getById(id);
+        skill.setCv(entity);
         skill.setStatus(BasicStatus.ACTIVE);
         Skill saved = skillRepository.save(skill);
         return skillMapper.mapEntityToDto(saved);
@@ -66,7 +66,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         Optional<Skill> existingSkillOptional = skillRepository.findById(skillId);
         if (existingSkillOptional.isPresent()) {
             Skill existingSkill = existingSkillOptional.get();
-            if (existingSkill.getUser().getId() != UsersId) {
+            if (existingSkill.getCv().getId() != UsersId) {
                 throw new IllegalArgumentException("Skill does not belong to Users with id " + UsersId);
             }
             if (dto.getDescription() != null && !existingSkill.getDescription().equals(dto.getDescription())) {
@@ -100,7 +100,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
 
     @Override
     public void deleteSkillById(Integer UsersId, Integer skillId) {
-        boolean isSkillBelongsToCv = skillRepository.existsByIdAndUser_Id(skillId, UsersId);
+        boolean isSkillBelongsToCv = skillRepository.existsByIdAndCv_Id(skillId, UsersId);
 
         if (isSkillBelongsToCv) {
             Optional<Skill> Optional = skillRepository.findById(skillId);
@@ -172,8 +172,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             modelMapper.map(dto, education);
             skillRepository.save(education);
             SkillDto educationDto = relationDto.get();
-            educationDto.setIsDisplay(dto.getIsDisplay());
-            educationDto.setTheOrder(dto.getTheOrder());
+            modelMapper.map(dto, educationDto);
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
@@ -185,14 +184,14 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     @Override
     public SkillDto createOfUserInCvBody(int cvId, SkillDto dto) throws JsonProcessingException {
         Skill education = skillMapper.mapDtoToEntity(dto);
-        Users user = usersService.getUsersById(cvService.getCvById(cvId).getUser().getId());
-        education.setUser(user);
+        Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        education.setCv(cv);
         education.setStatus(BasicStatus.ACTIVE);
         Skill saved = skillRepository.save(education);
         SkillDto educationViewDto = new SkillDto();
         educationViewDto.setId(saved.getId());
 
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(user.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 educationViewDto.setIsDisplay(true);
@@ -219,7 +218,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             Skill education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             skillRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getUser().getId());
+            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
             list.stream().forEach(x -> {
                 try {
                     CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());

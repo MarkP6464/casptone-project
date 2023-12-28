@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 
 @NoArgsConstructor
 
@@ -18,6 +20,7 @@ public class EducationDto {
 
     private String Degree;
 
+    @NotNull
     private String CollegeName;
     private String Location;
 

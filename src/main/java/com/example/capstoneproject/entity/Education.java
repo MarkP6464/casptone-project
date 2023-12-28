@@ -23,7 +23,6 @@ public class Education {
     private String Degree;
 
     @Column(columnDefinition = "NVARCHAR(100)")
-    @NotNull
     private String CollegeName;
 
     @Column(columnDefinition = "NVARCHAR(100)")
@@ -45,6 +44,6 @@ public class Education {
     private BasicStatus Status;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @JoinColumn(name = "cv_id")
+    private Cv cv;
 }

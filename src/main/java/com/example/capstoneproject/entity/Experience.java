@@ -37,7 +37,8 @@ public class Experience {
     @Enumerated(EnumType.STRING)
     private BasicStatus Status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @ManyToOne
+    @JoinColumn(name = "cv_id")
+    private Cv cv;
+
 }
