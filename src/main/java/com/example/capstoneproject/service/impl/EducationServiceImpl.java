@@ -225,7 +225,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
         EducationDto educationDto = new EducationDto();
         educationDto.setId(saved.getId());
 
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 educationDto.setIsDisplay(true);

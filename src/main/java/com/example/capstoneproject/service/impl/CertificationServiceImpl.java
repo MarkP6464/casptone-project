@@ -206,7 +206,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
         Certification saved = certificationRepository.save(certification);
         CertificationDto certificationDto = new CertificationDto();
         certificationDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 certificationDto.setIsDisplay(true);

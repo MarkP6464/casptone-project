@@ -43,5 +43,7 @@ public class TransactionViewDto {
 
     private LocalDateTime createdDate;
 
+    private LocalDateTime updateDate;
+
     private HRBankRequest bank;
 }

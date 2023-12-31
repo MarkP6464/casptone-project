@@ -191,7 +191,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         SkillDto educationViewDto = new SkillDto();
         educationViewDto.setId(saved.getId());
 
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
+        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
         list.stream().forEach(x -> {
             if (x.getId().equals(cvId)) {
                 educationViewDto.setIsDisplay(true);
