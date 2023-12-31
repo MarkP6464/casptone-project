@@ -31,7 +31,7 @@ public class JobDescriptionController {
     }
 
     @PutMapping("cv/{cv-id}/job-description/ats")
-//    @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
+    @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
     public JobDescriptionViewDto putJobDescription(@PathVariable("cv-id") Integer cvId, @RequestBody JobDescriptionRequest Dto, Principal principal) throws Exception {
         return jobDescriptionService.updateJobDescription(cvId,Dto,principal);
     }

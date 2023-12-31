@@ -27,7 +27,7 @@ public class ReviewRequestController {
 
 
     @PostMapping("/{cv-id}/expert/{expert-id}/request-review/option/{option-id}")
-//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public String postReviewRequest(@PathVariable("cv-id") Integer cvId, @PathVariable("expert-id") Integer expertId, @PathVariable("option-id") Integer optionId, @RequestBody ReviewRequestAddDto Dto) throws JsonProcessingException {
         return reviewRequestService.createReviewRequest(cvId,expertId,optionId,Dto);
     }
