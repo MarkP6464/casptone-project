@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .cors().configurationSource(request -> {
                         CorsConfiguration cors = new CorsConfiguration();
-                        cors.setAllowedOrigins(Arrays.asList("https://api-cvbuilder.monoinfinity.net","https://cvbuilder.monoinfinity.net","http://localhost:3000"));
+                        cors.setAllowedOrigins(Arrays.asList("https://api-cvbuilder.monoinfinity.net","https://cvbuilder.monoinfinity.net","https://cvbuilder-chi.vercel.app","http://localhost:3000"));
                         cors.setAllowedMethods(Arrays.asList("*"));
                         cors.setAllowedHeaders(Arrays.asList("*"));
                         cors.setAllowCredentials(true);
