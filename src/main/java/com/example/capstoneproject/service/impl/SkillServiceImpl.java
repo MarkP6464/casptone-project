@@ -212,29 +212,25 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
 
     @Override
     public void deleteInCvBody(Integer cvId, Integer id) throws JsonProcessingException {
-
         Optional<Skill> Optional = skillRepository.findById(id);
         if (Optional.isPresent()) {
             Skill education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             skillRepository.delete(education);
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
-            list.stream().forEach(x -> {
-                try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    SkillDto dto = cvBodyDto.getSkills().stream().filter(e-> e.getId().equals(id)).findFirst().get();
-                    cvBodyDto.getCertifications().forEach(c -> {
-                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                            c.setTheOrder(c.getTheOrder() - 1);
-                        }
-                    });
-                    cvBodyDto.getSkills().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(x.getId(), cvBodyDto);
+            try {
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                SkillDto dto = cvBodyDto.getSkills().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                cvBodyDto.getSkills().forEach(c -> {
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                        c.setTheOrder(c.getTheOrder() - 1);
+                    }
+                });
+                cvBodyDto.getSkills().removeIf(e -> e.getId() == id);
+                cvService.updateCvBody(cvId, cvBodyDto);
 
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

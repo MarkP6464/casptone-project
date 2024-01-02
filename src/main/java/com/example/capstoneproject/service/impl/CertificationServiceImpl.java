@@ -233,24 +233,20 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             Certification certification = Optional.get();
             certification.setStatus(BasicStatus.DELETED);
             certificationRepository.delete(certification);
+            try {
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                CertificationDto dto = cvBodyDto.getCertifications().stream().filter(e-> e.getId().equals(CertificationId)).findFirst().get();
+                cvBodyDto.getCertifications().forEach(c -> {
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                        c.setTheOrder(c.getTheOrder() - 1);
+                    }
+                });
+                cvBodyDto.getCertifications().removeIf(e -> e.getId() == CertificationId);
+                cvService.updateCvBody(cvId, cvBodyDto);
 
-            List<Cv> list = cvRepository.findAllByUser_Id(certification.getCv().getId());
-            list.stream().forEach(x -> {
-                try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    CertificationDto dto = cvBodyDto.getCertifications().stream().filter(e-> e.getId().equals(CertificationId)).findFirst().get();
-                    cvBodyDto.getCertifications().forEach(c -> {
-                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                            c.setTheOrder(c.getTheOrder() - 1);
-                        }
-                    });
-                    cvBodyDto.getCertifications().removeIf(e -> e.getId() == CertificationId);
-                    cvService.updateCvBody(x.getId(), cvBodyDto);
-
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

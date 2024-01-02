@@ -291,24 +291,21 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             Experience experience = Optional.get();
             experience.setStatus(BasicStatus.DELETED);
             experienceRepository.delete(experience);
-            List<Cv> list = cvRepository.findAllByUser_Id(experience.getCv().getUser().getId());
-            list.stream().forEach(x -> {
-                try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    ExperienceDto dto = cvBodyDto.getExperiences()
-                            .stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
-                    cvBodyDto.getExperiences().forEach(c -> {
-                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                            c.setTheOrder(c.getTheOrder() - 1);
-                        }
-                    });
-                    cvBodyDto.getExperiences().removeIf(e -> e.getId() == educationId);
-                    cvService.updateCvBody(x.getId(), cvBodyDto);
+            try {
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                ExperienceDto dto = cvBodyDto.getExperiences()
+                        .stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                cvBodyDto.getExperiences().forEach(c -> {
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                        c.setTheOrder(c.getTheOrder() - 1);
+                    }
+                });
+                cvBodyDto.getExperiences().removeIf(e -> e.getId() == educationId);
+                cvService.updateCvBody(cvId, cvBodyDto);
 
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

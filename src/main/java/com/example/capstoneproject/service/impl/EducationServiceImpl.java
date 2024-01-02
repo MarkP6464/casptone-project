@@ -251,24 +251,20 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             Education education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
             educationRepository.delete(education);
+            try {
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                EducationDto dto = cvBodyDto.getEducations().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                cvBodyDto.getEducations().forEach(c -> {
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                        c.setTheOrder(c.getTheOrder() - 1);
+                    }
+                });
+                cvBodyDto.getEducations().removeIf(e -> e.getId() == educationId);
+                cvService.updateCvBody(cvId, cvBodyDto);
 
-            List<Cv> list = cvRepository.findAllByUser_Id(education.getCv().getId());
-            list.stream().forEach(x -> {
-                try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    EducationDto dto = cvBodyDto.getEducations().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
-                    cvBodyDto.getEducations().forEach(c -> {
-                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                            c.setTheOrder(c.getTheOrder() - 1);
-                        }
-                    });
-                    cvBodyDto.getEducations().removeIf(e -> e.getId() == educationId);
-                    cvService.updateCvBody(x.getId(), cvBodyDto);
-
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

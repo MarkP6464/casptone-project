@@ -373,23 +373,20 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             Involvement involvement = Optional.get();
             involvement.setStatus(BasicStatus.DELETED);
             involvementRepository.delete(involvement);
-            List<Cv> list = cvRepository.findAllByUser_Id(involvement.getCv() .getUser().getId());
-            list.stream().forEach(x -> {
-                try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
-                    cvBodyDto.getInvolvements().forEach(c -> {
-                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                            c.setTheOrder(c.getTheOrder() - 1);
-                        }
-                    });
-                    cvBodyDto.getInvolvements().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(x.getId(), cvBodyDto);
+            try {
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                cvBodyDto.getInvolvements().forEach(c -> {
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                        c.setTheOrder(c.getTheOrder() - 1);
+                    }
+                });
+                cvBodyDto.getInvolvements().removeIf(e -> e.getId() == id);
+                cvService.updateCvBody(cvId, cvBodyDto);
 
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

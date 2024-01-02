@@ -372,25 +372,20 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             Project project = Optional.get();
             project.setStatus(BasicStatus.DELETED);
             projectRepository.delete(project);
-            List<Cv> list = cvRepository.findAllByUser_Id(project.getCv().getUser().getId());
-            list.stream().forEach(x -> {
-                try {
-                    CvBodyDto cvBodyDto = cvService.getCvBody(x.getId());
-                    ProjectDto dto = cvBodyDto.getProjects().stream().filter(e-> e.getId().equals(id)).findFirst().get();
-                    cvBodyDto.getProjects().forEach(c -> {
-                        if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                            c.setTheOrder(c.getTheOrder() - 1);
-                        }
-                    });
-                    cvBodyDto.getProjects().removeIf(e -> e.getId() == id);
-                    cvService.updateCvBody(x.getId(), cvBodyDto);
+            try {
+                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+                ProjectDto dto = cvBodyDto.getProjects().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                cvBodyDto.getProjects().forEach(c -> {
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                        c.setTheOrder(c.getTheOrder() - 1);
+                    }
+                });
+                cvBodyDto.getProjects().removeIf(e -> e.getId() == id);
+                cvService.updateCvBody(cvId, cvBodyDto);
 
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
-
-
 }
