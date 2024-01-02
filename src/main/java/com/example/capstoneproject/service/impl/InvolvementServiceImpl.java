@@ -315,7 +315,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             }
             try {
                 CvBodyDto cvBodyDto = x.deserialize();
-                involvementDto.setTheOrder(cvBodyDto.getSkills().size() + 1);
+                involvementDto.setTheOrder(cvBodyDto.getInvolvements().size() + 1);
                 cvBodyDto.getInvolvements().add(involvementDto);
                 cvService.updateCvBody(x.getId(), cvBodyDto);
             } catch (JsonProcessingException e) {
