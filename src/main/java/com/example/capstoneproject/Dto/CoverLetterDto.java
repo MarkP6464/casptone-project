@@ -2,12 +2,7 @@ package com.example.capstoneproject.Dto;
 import lombok.*;
 
 import java.time.LocalDate;
-
-
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class CoverLetterDto {

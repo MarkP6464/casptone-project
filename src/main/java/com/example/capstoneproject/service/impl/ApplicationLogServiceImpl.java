@@ -73,7 +73,11 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         if(cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             HistoryViewDto hisCvId = historyService.create(userId, cvId);
-            applicationLog.setCv(hisCvId.getId());
+            Optional<History> historyOptional = historyRepository.findById(hisCvId.getId());
+            if(historyOptional.isPresent()){
+                History history = historyOptional.get();
+                applicationLog.setCv(history);
+            }
         }else throw new InternalServerException("Not found cv");
         Cv cv = cvOptional.get();
         Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndId(userId, coverLetterId);
@@ -90,7 +94,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             historyCoverLetter.setCoverLetter(coverLetter);
             historyCoverLetter = historyCoverLetterRepository.save(historyCoverLetter);
 
-            applicationLog.setCoverLetter(historyCoverLetter.getId());
+            applicationLog.setCoverLetter(historyCoverLetter);
         }
         applicationLog.setNote(dto.getNote());
         applicationLog.setTimestamp(LocalDate.now());
@@ -170,16 +174,16 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         List<Integer> clList = new ArrayList<>();
         if (!list.isEmpty()){
             list.stream().map(x -> {
-                return listCvMap.put(x.getCv(), null);
+                return listCvMap.put(x.getCv().getId(), null);
             });
             list.stream().map(x -> {
-                return listClMap.put(x.getCoverLetter(), null);
+                return listClMap.put(x.getCoverLetter().getId(), null);
             });
 
             newList = list.stream().map(x -> {
-                cvList.add(x.getCv());
+                cvList.add(x.getCv().getId());
                 if (Objects.nonNull(x.getCoverLetter())){
-                    clList.add(x.getCoverLetter());
+                    clList.add(x.getCoverLetter().getId());
                 }
                 ApplicationLogJobResponse applicationLogResponse = new ApplicationLogJobResponse();
                 applicationLogResponse.setApplyDate(x.getTimestamp());
@@ -242,16 +246,16 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         List<Integer> clList = new ArrayList<>();
         if (!list.isEmpty()){
             list.stream().map(x -> {
-                return listCvMap.put(x.getCv(), null);
+                return listCvMap.put(x.getCv().getId(), null);
             });
             list.stream().map(x -> {
-                return listClMap.put(x.getCoverLetter(), null);
+                return listClMap.put(x.getCoverLetter().getId(), null);
             });
 
             newList = list.stream().map(x -> {
-                cvList.add(x.getCv());
+                cvList.add(x.getCv().getId());
                 if (Objects.nonNull(x.getCoverLetter())){
-                    clList.add(x.getCoverLetter());
+                    clList.add(x.getCoverLetter().getId());
                 }
                 ApplicationLogFullResponse applicationLogResponse = new ApplicationLogFullResponse();
                 applicationLogResponse.setEmail(x.getUser().getEmail());
@@ -301,16 +305,16 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         List<Integer> clList = new ArrayList<>();
         if (!list.isEmpty()){
             list.stream().map(x -> {
-                return listCvMap.put(x.getCv(), null);
+                return listCvMap.put(x.getCv().getId(), null);
             });
             list.stream().map(x -> {
-                return listClMap.put(x.getCoverLetter(), null);
+                return listClMap.put(x.getCoverLetter().getId(), null);
             });
 
             newList = list.stream().map(x -> {
-                cvList.add(x.getCv());
+                cvList.add(x.getCv().getId());
                 if (Objects.nonNull(x.getCoverLetter())){
-                    clList.add(x.getCoverLetter());
+                    clList.add(x.getCoverLetter().getId());
                 }
                 ApplicationLogCandidateResponse applicationLogResponse = new ApplicationLogCandidateResponse();
                 applicationLogResponse.setApplyDate(x.getTimestamp());

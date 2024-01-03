@@ -1,10 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
-import com.example.capstoneproject.Dto.responses.CvResponse;
-import com.example.capstoneproject.Dto.responses.CvViewDto;
-import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
+import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
@@ -994,6 +991,19 @@ public class CvServiceImpl implements CvService {
             }
         }
         return list;
+    }
+
+    @Override
+    public ResumeTitleResponse getResumeName(Integer cvId) {
+        Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId,BasicStatus.ACTIVE);
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            ResumeTitleResponse response = new ResumeTitleResponse();
+            response.setResume(cv.getResumeName());
+            return response;
+        }else{
+            throw new BadRequestException("Cv id not found.");
+        }
     }
 
     public static String[] splitText(String text) {

@@ -1,12 +1,11 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.Dto.responses.JobPostingApplyResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 
 @NoArgsConstructor
 @Getter
@@ -19,4 +18,8 @@ public class HistoryDto {
     private Timestamp timestamp;
 
     private Integer cvId;
+
+    private JobPostingApplyResponse jobPosting;
+
+
 }

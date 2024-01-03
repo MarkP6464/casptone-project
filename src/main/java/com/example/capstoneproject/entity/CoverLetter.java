@@ -34,9 +34,14 @@ public class CoverLetter {
 
     @Column(columnDefinition = "TEXT")
     private String jobDescription;
+
     @ManyToOne
     @JoinColumn(name = "cv_id")
     private Cv cv;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "job_posting_id")
+    private JobPosting jobPosting;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "coverLetter")
     private List<HistoryCoverLetter> historyCoverLetter;

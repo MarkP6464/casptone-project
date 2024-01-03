@@ -4,10 +4,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class CoverLetterUpdateDto {
@@ -18,4 +15,5 @@ public class CoverLetterUpdateDto {
     private String jobTitle;
     private String jobDescription;
     private Integer cvId;
+    private Integer jobPostingId;
 }

@@ -3,6 +3,7 @@ package com.example.capstoneproject.service;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvResponse;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.Dto.responses.ResumeTitleResponse;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
@@ -61,5 +62,7 @@ public interface CvService {
     ChatResponseArray rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException;
 
     List<CvResponse> listCvDetail(Integer userId);
+
+    ResumeTitleResponse getResumeName(Integer cvId);
 
 }

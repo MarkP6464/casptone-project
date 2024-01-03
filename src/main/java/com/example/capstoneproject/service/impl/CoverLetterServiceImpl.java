@@ -4,12 +4,15 @@ import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.entity.JobPosting;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.enums.StatusReview;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.mapper.CoverLetterMapper;
 import com.example.capstoneproject.repository.CoverLetterRepository;
 import com.example.capstoneproject.repository.CvRepository;
+import com.example.capstoneproject.repository.JobPostingRepository;
 import com.example.capstoneproject.repository.UsersRepository;
 import com.example.capstoneproject.service.CoverLetterService;
 import com.example.capstoneproject.service.HistorySummaryService;
@@ -31,6 +34,9 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Autowired
     ChatGPTServiceImpl chatGPTService;
+
+    @Autowired
+    JobPostingRepository jobPostingRepository;
 
     @Autowired
     SecurityUtil securityUtil;
@@ -101,6 +107,11 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetter.setJobTitle(dto.getJob_title());
                 coverLetter.setJobDescription(dto.getJob_description());
                 coverLetter.setCv(cv);
+                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(dto.getJobPostingId());
+                if(jobPostingOptional.isPresent()){
+                    JobPosting jobPosting = jobPostingOptional.get();
+                    coverLetter.setJobPosting(jobPosting);
+                }
                 coverLetterRepository.save(coverLetter);
                 ChatResponse chatResponse = new ChatResponse();
                 chatResponse.setReply(processString(response));
@@ -218,6 +229,15 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                     existingCoverLetter.setCv(cv);
                 }else{
                     throw new BadRequestException("This cv id not exist.");
+                }
+            }
+            if(dto.getJobPostingId() !=null){
+                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndShareAndStatusAndBanIsFalse(dto.getCvId(), StatusReview.Published, BasicStatus.ACTIVE);
+                if(jobPostingOptional.isPresent()){
+                    JobPosting jobPosting = jobPostingOptional.get();
+                    existingCoverLetter.setJobPosting(jobPosting);
+                }else{
+                    throw new BadRequestException("This job posting id not exist.");
                 }
             }
 
