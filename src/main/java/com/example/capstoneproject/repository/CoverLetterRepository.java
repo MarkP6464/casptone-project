@@ -14,4 +14,6 @@ public interface CoverLetterRepository extends JpaRepository<CoverLetter, Intege
     boolean existsByCv_User_IdAndId(Integer UserId, Integer coverLetterId);
 
     Optional<CoverLetter> findByCv_User_IdAndId(Integer UserId, Integer coverLetterId);
+
+    List<CoverLetter> findByCv_User_IdAndCv_Id(Integer userId, Integer cvId);
 }

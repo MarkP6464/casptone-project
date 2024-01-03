@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.request.CoverLetterCvRequest;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.example.capstoneproject.entity.Cv;
@@ -157,19 +158,21 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     }
 
     @Override
-    public List<CoverLetterViewDto> getAllCoverLetter(Integer userId) {
-        List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(userId);
-        List<CoverLetterViewDto> coverLetterViewDtos = new ArrayList<>();
-        if (coverLetters != null && !coverLetters.isEmpty()) {
-            for (CoverLetter coverLetter : coverLetters) {
-                CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
-                coverLetterViewDto.setId(coverLetter.getId());
-                coverLetterViewDto.setTitle(coverLetter.getTitle());
-                coverLetterViewDtos.add(coverLetterViewDto);
-            }
-        }
-        return coverLetterViewDtos;
+    public List<CoverLetterViewDto> getAllCoverLetter(Integer userId, CoverLetterCvRequest dto) {
+        List<CoverLetter> coverLetters = Optional.ofNullable(dto.getCvId())
+                .map(cvId -> coverLetterRepository.findByCv_User_IdAndCv_Id(userId, cvId))
+                .orElseGet(() -> coverLetterRepository.findByCv_User_Id(userId));
+
+        return coverLetters.stream()
+                .map(coverLetter -> {
+                    CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
+                    coverLetterViewDto.setId(coverLetter.getId());
+                    coverLetterViewDto.setTitle(coverLetter.getTitle());
+                    return coverLetterViewDto;
+                })
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public boolean updateCoverLetter(Integer cvId, Integer coverLetterId, CoverLetterUpdateDto dto) {
