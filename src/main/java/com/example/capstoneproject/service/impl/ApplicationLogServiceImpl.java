@@ -80,7 +80,7 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             }
         }else throw new InternalServerException("Not found cv");
         Cv cv = cvOptional.get();
-        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndId(userId, coverLetterId);
+        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndIdAndStatus(userId, coverLetterId,BasicStatus.ACTIVE);
         if(coverLetterOptional.isPresent()){
             CoverLetter coverLetter = coverLetterOptional.get();
 
