@@ -131,7 +131,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
-            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(userId);
+            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_IdAndStatus(userId, BasicStatus.ACTIVE);
             if(coverLetters!=null){
                 for(CoverLetter coverLetter:coverLetters){
                     if (coverLetter.getTitle().equals(dto.getTitle())) {
@@ -142,6 +142,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             CoverLetter coverLetter = modelMapper.map(dto, CoverLetter.class);
             coverLetter.setTitle(dto.getTitle());
             coverLetter.setCompany(cv.getCompanyName());
+            coverLetter.setStatus(BasicStatus.ACTIVE);
             if(cv.getJobDescription()!=null){
                 coverLetter.setJobTitle(cv.getJobDescription().getTitle());
                 coverLetter.setJobDescription(cv.getJobDescription().getDescription());
@@ -160,8 +161,8 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
     @Override
     public List<CoverLetterViewDto> getAllCoverLetter(Integer userId, CoverLetterCvRequest dto) {
         List<CoverLetter> coverLetters = Optional.ofNullable(dto.getCvId())
-                .map(cvId -> coverLetterRepository.findByCv_User_IdAndCv_Id(userId, cvId))
-                .orElseGet(() -> coverLetterRepository.findByCv_User_Id(userId));
+                .map(cvId -> coverLetterRepository.findByCv_User_IdAndCv_IdAndStatus(userId, cvId, BasicStatus.ACTIVE))
+                .orElseGet(() -> coverLetterRepository.findByCv_User_IdAndStatus(userId, BasicStatus.ACTIVE));
 
         return coverLetters.stream()
                 .map(coverLetter -> {
@@ -256,7 +257,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         Optional<CoverLetter> existingCoverLetterOptional = coverLetterRepository.findById(coverLetterId);
         if (existingCoverLetterOptional.isPresent()) {
             CoverLetter existingCoverLetter = existingCoverLetterOptional.get();
-            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(existingCoverLetter.getCv().getUser().getId());
+            List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_IdAndStatus(existingCoverLetter.getCv().getUser().getId(), BasicStatus.ACTIVE);
             if (coverLetters != null) {
                 for (CoverLetter coverLetter : coverLetters) {
                     if (coverLetter.getId().equals(coverLetterId)) {
@@ -287,13 +288,14 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Override
     public boolean deleteCoverLetterById(Integer UsersId, Integer coverLetterId) {
-        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndId(UsersId, coverLetterId);
+        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndIdAndStatus(UsersId, coverLetterId, BasicStatus.ACTIVE);
 
         if (isCoverLetter) {
             Optional<CoverLetter> Optional = coverLetterRepository.findById(coverLetterId);
             if (Optional.isPresent()) {
                 CoverLetter coverLetter = Optional.get();
-                coverLetterRepository.delete(coverLetter);
+                coverLetter.setStatus(BasicStatus.DELETED);
+                coverLetterRepository.save(coverLetter);
                 return true;
             }else {
                 return false;
@@ -305,7 +307,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Override
     public CoverLetterDto getCoverLetter(Integer userId, Integer coverLetterId) {
-        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndId(userId, coverLetterId);
+        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndIdAndStatus(userId, coverLetterId, BasicStatus.ACTIVE);
         CoverLetterDto coverLetterDto = new CoverLetterDto();
         if (isCoverLetter){
             Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findById(coverLetterId);
@@ -354,14 +356,14 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
 
     @Override
     public String duplicateCoverLetter(Integer userId, Integer coverLetterId) {
-        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndId(userId, coverLetterId);
+        boolean isCoverLetter = coverLetterRepository.existsByCv_User_IdAndIdAndStatus(userId, coverLetterId, BasicStatus.ACTIVE);
 
         if (isCoverLetter) {
             Optional<CoverLetter> optionalCoverLetter = coverLetterRepository.findById(coverLetterId);
 
             if (optionalCoverLetter.isPresent()) {
                 CoverLetter originalCoverLetter = optionalCoverLetter.get();
-                List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_Id(userId);
+                List<CoverLetter> coverLetters = coverLetterRepository.findByCv_User_IdAndStatus(userId, BasicStatus.ACTIVE);
 
                 CoverLetter duplicatedCoverLetter = new CoverLetter();
                 duplicatedCoverLetter.setTitle("Copy of "+originalCoverLetter.getTitle()+coverLetters.size());

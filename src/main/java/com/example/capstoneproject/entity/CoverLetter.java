@@ -1,5 +1,6 @@
 package com.example.capstoneproject.entity;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
@@ -34,6 +35,9 @@ public class CoverLetter {
 
     @Column(columnDefinition = "TEXT")
     private String jobDescription;
+
+    @Enumerated(EnumType.STRING)
+    private BasicStatus status;
 
     @ManyToOne
     @JoinColumn(name = "cv_id")
