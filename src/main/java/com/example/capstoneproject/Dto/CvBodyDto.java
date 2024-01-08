@@ -64,5 +64,5 @@ public class CvBodyDto {
 
     private List<SourceWorkDto> sourceWorks = new ArrayList<>();
 
-    private List<CustomizeSectionDto> customizeSections = new ArrayList<>();
+    private List<CustomizeSectionDto> customSections = new ArrayList<>();
 }
