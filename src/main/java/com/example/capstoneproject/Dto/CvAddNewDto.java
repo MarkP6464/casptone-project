@@ -44,7 +44,6 @@ public class CvAddNewDto {
     private List<InvolvementDto> involvements;
     private List<ProjectDto> projects;
     private List<CustomizeSectionDto> customSections;
-    private List<CustomizeSectionDto> customizeSections = new ArrayList<>();
 
     private List<SourceWorkDto> sourceWorks;
 

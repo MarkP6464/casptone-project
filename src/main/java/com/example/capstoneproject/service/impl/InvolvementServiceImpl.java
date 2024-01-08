@@ -181,6 +181,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                 InvolvementViewDto involvementViewDto = new InvolvementViewDto();
                 involvementViewDto.setId(involvement.getId());
                 involvementViewDto.setIsDisplay(involvementDto.getIsDisplay());
+                involvementViewDto.setTheOrder(involvementDto.getTheOrder());
                 involvementViewDto.setOrganizationRole(involvement.getOrganizationRole());
                 involvementViewDto.setOrganizationName(involvement.getOrganizationName());
                 involvementViewDto.setDuration(involvement.getDuration());

@@ -44,7 +44,7 @@ public class CvBodyReviewDto {
 
     private List<ProjectDto> projects;
 
-    private List<CustomizeSectionDto> customizeSections;
+    private List<CustomizeSectionDto> customSections;
 
     private List<SourceWorkDto> sourceWorks;
 }

@@ -171,6 +171,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 experienceViewDto.setId(experience.getId());
                 experienceViewDto.setIsDisplay(experienceDto.getIsDisplay());
                 experienceViewDto.setRole(experience.getRole());
+                experienceViewDto.setTheOrder(experienceDto.getTheOrder());
                 experienceViewDto.setCompanyName(experience.getCompanyName());
                 experienceViewDto.setDuration(experience.getDuration());
                 experienceViewDto.setLocation(experience.getLocation());

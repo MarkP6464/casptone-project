@@ -149,7 +149,7 @@ public class CustomSectionServiceImpl implements CustomSectionService {
     public CustomizeSectionDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
-            Optional<CustomizeSectionDto> dto = cvBodyDto.getCustomizeSections().stream().filter(x -> x.getId() == id).findFirst();
+            Optional<CustomizeSectionDto> dto = cvBodyDto.getCustomSections().stream().filter(x -> x.getId() == id).findFirst();
             if (dto.isPresent()) {
                 return dto.get();
             } else {
@@ -205,14 +205,14 @@ public class CustomSectionServiceImpl implements CustomSectionService {
             throw new BadRequestException("Can not find the cv");
         }
 //        CvBodyDto cvBodyDto = cv.deserialize();
-//        Integer activeEdus = cvBodyDto.getCustomizeSections().stream()
+//        Integer activeEdus = cvBodyDto.getCustomSections().stream()
 //                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
 //        dto.setTheOrder(activeEdus + 1);
 //        dto.setId(saved.getId());
 //        dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
-        dto.setId(cvBodyDto.getCustomizeSections().size() + 1);
-        cvBodyDto.getCustomizeSections().add(dto);
+        dto.setId(cvBodyDto.getCustomSections().size() + 1);
+        cvBodyDto.getCustomSections().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
 
         return dto;
@@ -222,8 +222,8 @@ public class CustomSectionServiceImpl implements CustomSectionService {
     public void deleteInCvBody(Integer cvId, Integer educationId) throws JsonProcessingException {
         try {
             CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-            CustomizeSectionDto dto = cvBodyDto.getCustomizeSections().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
-            cvBodyDto.getCustomizeSections().forEach(c -> {
+            CustomizeSectionDto dto = cvBodyDto.getCustomSections().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+            cvBodyDto.getCustomSections().forEach(c -> {
 //                if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
 //                    c.setTheOrder(c.getTheOrder() - 1);
 //                }

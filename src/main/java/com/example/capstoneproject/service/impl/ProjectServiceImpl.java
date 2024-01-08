@@ -178,6 +178,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                 ProjectViewDto projectViewDto = new ProjectViewDto();
                 projectViewDto.setId(project.getId());
                 projectViewDto.setIsDisplay(projectDto.getIsDisplay());
+                projectViewDto.setTheOrder(projectDto.getTheOrder());
                 projectViewDto.setTitle(project.getTitle());
                 projectViewDto.setOrganization(project.getOrganization());
                 projectViewDto.setDuration(project.getDuration());

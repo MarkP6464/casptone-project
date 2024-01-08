@@ -167,12 +167,6 @@ public class CvServiceImpl implements CvService {
         Cv cv = cvRepository.findById(cvId).get();
         if (cv != null) {
             CvBodyDto cvBodyDto = cv.deserialize();
-            cvBodyDto.getEducations().removeIf(x->x.getIsDisplay().equals(false));
-            cvBodyDto.getSkills().removeIf(x->x.getIsDisplay().equals(false));
-            cvBodyDto.getCertifications().removeIf(x->x.getIsDisplay().equals(false));
-            cvBodyDto.getExperiences().removeIf(x->x.getIsDisplay().equals(false));
-            cvBodyDto.getInvolvements().removeIf(x->x.getIsDisplay().equals(false));
-            cvBodyDto.getProjects().removeIf(x->x.getIsDisplay().equals(false));
             return cvBodyDto;
         } else {
             throw new IllegalArgumentException("CV not found with cvId: " + cvId);
