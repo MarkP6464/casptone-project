@@ -3,6 +3,7 @@ package com.example.capstoneproject.service;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvResponse;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.Dto.responses.ResumeTitleResponse;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Users;
@@ -63,4 +64,6 @@ public interface CvService {
     List<CvResponse> listCvDetail(Integer userId);
 
     CvBodyDto parse(Integer cvId, Integer historyId) throws JsonProcessingException;
+    ResumeTitleResponse getResumeName(Integer cvId);
+
 }

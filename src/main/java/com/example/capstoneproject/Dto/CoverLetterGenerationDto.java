@@ -22,4 +22,6 @@ public class CoverLetterGenerationDto {
 
     private LocalDate date;
 
+    private Integer jobPostingId;
+
 }

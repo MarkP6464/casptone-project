@@ -25,9 +25,13 @@ public class ApplicationLog {
     @Column(columnDefinition = "TEXT")
     private String Note;
 
-    private Integer cv;
+    @ManyToOne
+    @JoinColumn(name = "history_cv_id")
+    private History cv;
 
-    private Integer coverLetter;
+    @ManyToOne
+    @JoinColumn(name = "history_cover_letter_id")
+    private HistoryCoverLetter coverLetter;
 
     @Enumerated(EnumType.STRING)
     private ApplicationLogStatus status;

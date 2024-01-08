@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.request.CoverLetterCvRequest;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
 import com.example.capstoneproject.service.CoverLetterService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,9 +67,9 @@ public class CoverLetterController {
     }
 
     @GetMapping("/user/{user-id}/cv/cover-letters")
-    @PreAuthorize("hasAuthority('read:candidate')")
-    public List<CoverLetterViewDto> getCoverLetters(@PathVariable("user-id") Integer userId) {
-        return coverLetterService.getAllCoverLetter(userId);
+//    @PreAuthorize("hasAuthority('read:candidate')")
+    public List<CoverLetterViewDto> getCoverLetters(@PathVariable("user-id") Integer userId, CoverLetterCvRequest dto) {
+        return coverLetterService.getAllCoverLetter(userId,dto);
     }
 
     @PutMapping("/user/cv/{cv-id}/cover-letter/{cover-letter-id}/content")
