@@ -219,7 +219,8 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                     }
                 }
         );
-        return set;
+        List<ProjectViewDto> list = set.stream().filter(x -> x.getStatus().equals(BasicStatus.ACTIVE)).collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -233,6 +234,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             Project saved = projectRepository.save(project);
             ProjectDto educationDto = relationDto.get();
             modelMapper.map(dto, educationDto);
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db
@@ -302,24 +304,14 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         }
         project.setStatus(BasicStatus.ACTIVE);
         Project saved = projectRepository.save(project);
-        ProjectDto projectDto = new ProjectDto();
-        projectDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
-        list.stream().forEach(x -> {
-            if (x.getId().equals(cvId)) {
-                projectDto.setIsDisplay(true);
-            } else {
-                projectDto.setIsDisplay(false);
-            }
-            try {
-                CvBodyDto cvBodyDto = x.deserialize();
-                projectDto.setTheOrder(cvBodyDto.getProjects().size() + 1);
-                cvBodyDto.getProjects().add(projectDto);
-                cvService.updateCvBody(x.getId(), cvBodyDto);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        dto.setId(saved.getId());
+        dto.setStatus(BasicStatus.ACTIVE);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Integer activeEdus = cvBodyDto.getProjects().stream()
+                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+        dto.setTheOrder(activeEdus + 1);
+        cvBodyDto.getProjects().add(dto);
+        cvService.updateCvBody(cv.getId(), cvBodyDto);
 
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
@@ -371,7 +363,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         if (Optional.isPresent()) {
             Project project = Optional.get();
             project.setStatus(BasicStatus.DELETED);
-            projectRepository.delete(project);
+            projectRepository.save(project);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                 ProjectDto dto = cvBodyDto.getProjects().stream().filter(e-> e.getId().equals(id)).findFirst().get();
@@ -380,7 +372,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });
-                cvBodyDto.getProjects().removeIf(e -> e.getId() == id);
+                dto.setIsDisplay(false);
+                dto.setTheOrder(null);
+                dto.setStatus(BasicStatus.DELETED);
                 cvService.updateCvBody(cvId, cvBodyDto);
 
             } catch (JsonProcessingException e) {

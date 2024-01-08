@@ -72,6 +72,8 @@ public class HistoryServiceImpl implements HistoryService {
             ObjectMapper objectMapper = new ObjectMapper();
             String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);
             history.setCvBody(cvBodyReviewJson);
+            String cvBodyString = objectMapper.writeValueAsString(cvBodyDto);
+            history.setOldCvBody(cvBodyString);
             history.setTimestamp(timestamp);
             history.setCv(cv);
             return modelMapper.map(historyRepository.save(history), HistoryViewDto.class);

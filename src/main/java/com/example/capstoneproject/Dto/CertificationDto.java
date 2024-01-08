@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,4 +22,5 @@ public class CertificationDto {
     private Integer EndYear;
 
     private String CertificateRelevance;
+    private BasicStatus Status;
 }

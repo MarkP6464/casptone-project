@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,4 +24,5 @@ public class InvolvementDto {
     private String College;
 
     private String Description;
+    private BasicStatus Status;
 }

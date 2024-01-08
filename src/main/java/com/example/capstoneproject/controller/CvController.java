@@ -62,7 +62,7 @@ public class CvController {
 
     @GetMapping("/cv/{cv-id}/finish-up")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
-    public CvAddNewDto getFinishUp(@PathVariable("cv-id") int cvId) throws JsonProcessingException {
+    public CvBodyDto getFinishUp(@PathVariable("cv-id") int cvId) throws JsonProcessingException {
         return cvService.finishUp(cvId);
     }
 

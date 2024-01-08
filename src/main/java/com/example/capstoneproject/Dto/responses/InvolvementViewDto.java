@@ -1,6 +1,7 @@
 package com.example.capstoneproject.Dto.responses;
 
 import com.example.capstoneproject.Dto.BulletPointDto;
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,4 +31,6 @@ public class InvolvementViewDto {
     private List<BulletPointDto> bulletPointDtos;
 
     private Integer theOrder;
+
+    private BasicStatus Status;
 }

@@ -2,6 +2,7 @@ package com.example.capstoneproject.Dto;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 @Builder
@@ -42,6 +43,8 @@ public class CvBodyReviewDto {
     private List<InvolvementDto> involvements;
 
     private List<ProjectDto> projects;
+
+    private List<CustomizeSectionDto> customizeSections;
 
     private List<SourceWorkDto> sourceWorks;
 }

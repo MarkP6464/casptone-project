@@ -1,15 +1,13 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.AnalyzeScoreDto;
 import com.example.capstoneproject.Dto.responses.CvResponse;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.enums.SectionEvaluate;
-import com.example.capstoneproject.enums.SectionLogStatus;
 import com.example.capstoneproject.exception.BadRequestException;
+import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.mapper.CvMapper;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.*;
@@ -24,11 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class CvServiceImpl implements CvService {
@@ -168,19 +162,17 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public CvAddNewDto finishUp(int cvId) throws JsonProcessingException {
+    public CvBodyDto finishUp(int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.findById(cvId).get();
         if (cv != null) {
-            CvAddNewDto cvDto = cvMapper.cvAddNewDto(cv);
-//            cvDto.getCertifications().clear();
-//            cvDto.getExperiences().clear();
-//            cvDto.getInvolvements().clear();
-//            cvDto.getEducations().clear();
-//            cvDto.getProjects().clear();
-//            cvDto.getSkills().clear();
-            modelMapper.map(cv.deserialize(), cvDto);
-            cvDto.setTheOrder(cv.deserialize().getTheOrder());
-            return cvDto;
+            CvBodyDto cvBodyDto = cv.deserialize();
+            cvBodyDto.getEducations().removeIf(x->x.getIsDisplay().equals(false));
+            cvBodyDto.getSkills().removeIf(x->x.getIsDisplay().equals(false));
+            cvBodyDto.getCertifications().removeIf(x->x.getIsDisplay().equals(false));
+            cvBodyDto.getExperiences().removeIf(x->x.getIsDisplay().equals(false));
+            cvBodyDto.getInvolvements().removeIf(x->x.getIsDisplay().equals(false));
+            cvBodyDto.getProjects().removeIf(x->x.getIsDisplay().equals(false));
+            return cvBodyDto;
         } else {
             throw new IllegalArgumentException("CV not found with cvId: " + cvId);
         }
@@ -1018,5 +1010,88 @@ public class CvServiceImpl implements CvService {
 
         // Trả về số lượng từ
         return words.length;
+    }
+
+
+    @Override
+    public CvBodyDto parse(Integer cvId, Integer historyId) throws JsonProcessingException {
+        Cv cv = cvRepository.getById(cvId);
+        if (Objects.isNull(cv)) {
+            throw new BadRequestException("Not found the Cv");
+        }
+        HistoryDto history = historyService.getHistoryById(historyId);
+        if (Objects.isNull(history)) {
+            throw new BadRequestException("Not found the cv history");
+        }
+        cv.setCvBody(history.getOldCvBody());
+        CvBodyDto cvBodyDto = history.deserialize();
+
+        //parse educations
+        List<Integer> eduIds = cvBodyDto.getEducations().stream().map(EducationDto::getId).collect(Collectors.toList());
+        eduIds.forEach(x -> {
+            Education entity = educationRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<EducationDto> fromDto = cvBodyDto.getEducations().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            educationRepository.save(entity);
+        });
+        //parse skills
+        List<Integer> skills = cvBodyDto.getSkills().stream().map(SkillDto::getId).collect(Collectors.toList());
+        skills.forEach(x -> {
+            Skill entity = skillRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<SkillDto> fromDto = cvBodyDto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            skillRepository.save(entity);
+        });
+        //parse experiences
+        List<Integer> experiences = cvBodyDto.getExperiences().stream().map(ExperienceDto::getId).collect(Collectors.toList());
+        experiences.forEach(x -> {
+            Experience entity = experienceRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<ExperienceDto> fromDto = cvBodyDto.getExperiences().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            experienceRepository.save(entity);
+        });
+        //parse certificates
+        List<Integer> certificates = cvBodyDto.getCertifications().stream().map(CertificationDto::getId).collect(Collectors.toList());
+        certificates.forEach(x -> {
+            Certification entity = certificationRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<CertificationDto> fromDto = cvBodyDto.getCertifications().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            certificationRepository.save(entity);
+        });
+        //parse involvements
+        List<Integer> involvements = cvBodyDto.getInvolvements().stream().map(InvolvementDto::getId).collect(Collectors.toList());
+        certificates.forEach(x -> {
+            Involvement entity = involvementRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<InvolvementDto> fromDto = cvBodyDto.getInvolvements().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            involvementRepository.save(entity);
+        });
+        //parse projects
+        List<Integer> project = cvBodyDto.getProjects().stream().map(ProjectDto::getId).collect(Collectors.toList());
+        certificates.forEach(x -> {
+            Project entity = projectRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<ProjectDto> fromDto = cvBodyDto.getProjects().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            projectRepository.save(entity);
+        });
+        return cv.deserialize();
     }
 }

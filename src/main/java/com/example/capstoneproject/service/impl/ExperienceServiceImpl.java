@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.EducationViewDto;
 import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -175,6 +176,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                 experienceViewDto.setLocation(experience.getLocation());
                 experienceViewDto.setDescription(experience.getDescription());
                 experienceViewDto.setBulletPointDtos(bulletPointDtos);
+                experienceViewDto.setStatus(experience.getStatus());
                 return experienceViewDto;
             } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
@@ -210,7 +212,8 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                     }
                 }
         );
-        return set;
+        List<ExperienceViewDto> list = set.stream().filter(x -> x.getStatus().equals(BasicStatus.ACTIVE)).collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -224,6 +227,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             Experience saved = experienceRepository.save(experience);
             ExperienceDto experienceDto = relationDto.get();
             modelMapper.map(dto, experienceDto);
+            experienceDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
 
@@ -290,7 +294,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         if (Optional.isPresent()) {
             Experience experience = Optional.get();
             experience.setStatus(BasicStatus.DELETED);
-            experienceRepository.delete(experience);
+            experienceRepository.save(experience);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                 ExperienceDto dto = cvBodyDto.getExperiences()
@@ -300,7 +304,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });
-                cvBodyDto.getExperiences().removeIf(e -> e.getId() == educationId);
+                dto.setIsDisplay(false);
+                dto.setTheOrder(null);
+                dto.setStatus(BasicStatus.DELETED);
                 cvService.updateCvBody(cvId, cvBodyDto);
 
             } catch (JsonProcessingException e) {
@@ -320,25 +326,14 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         }
         experience.setStatus(BasicStatus.ACTIVE);
         Experience saved = experienceRepository.save(experience);
-        ExperienceDto educationViewDto = new ExperienceDto();
-        educationViewDto.setId(saved.getId());
-
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
-        list.stream().forEach(x -> {
-            if (x.getId().equals(cvId)) {
-                educationViewDto.setIsDisplay(true);
-            } else {
-                educationViewDto.setIsDisplay(false);
-            }
-            try {
-                CvBodyDto cvBodyDto = x.deserialize();
-                educationViewDto.setTheOrder(cvBodyDto.getExperiences().size() + 1);
-                cvBodyDto.getExperiences().add(educationViewDto);
-                cvService.updateCvBody(x.getId(), cvBodyDto);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        dto.setId(saved.getId());
+        dto.setStatus(BasicStatus.ACTIVE);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Integer activeEdus = cvBodyDto.getExperiences().stream()
+                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+        dto.setTheOrder(activeEdus + 1);
+        cvBodyDto.getExperiences().add(dto);
+        cvService.updateCvBody(cv.getId(), cvBodyDto);
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
         List<Experience> experiences = experienceRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getId(), BasicStatus.ACTIVE);

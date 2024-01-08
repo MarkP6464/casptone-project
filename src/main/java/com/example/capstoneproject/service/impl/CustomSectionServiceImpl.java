@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
+import com.example.capstoneproject.Dto.CustomizeSectionDto;
 import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.entity.Cv;
@@ -12,6 +13,7 @@ import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.EducationMapper;
 import com.example.capstoneproject.repository.CvRepository;
 import com.example.capstoneproject.repository.EducationRepository;
+import com.example.capstoneproject.service.CustomSectionService;
 import com.example.capstoneproject.service.CvService;
 import com.example.capstoneproject.service.EducationService;
 import com.example.capstoneproject.service.UsersService;
@@ -27,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class EducationServiceImpl extends AbstractBaseService<Education, EducationDto, Integer> implements EducationService {
+public class CustomSectionServiceImpl implements CustomSectionService {
     @Autowired
     EducationRepository educationRepository;
 
@@ -45,12 +47,6 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
     @Autowired
     CvRepository cvRepository;
-
-    public EducationServiceImpl(EducationRepository educationRepository, EducationMapper educationMapper) {
-        super(educationRepository, educationMapper, educationRepository::findById);
-        this.educationRepository = educationRepository;
-        this.educationMapper = educationMapper;
-    }
 
     @Override
     public EducationDto createEducation(Integer id, EducationDto dto) {
@@ -150,21 +146,15 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     }
 
     @Override
-    public EducationDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
-        Education education = educationRepository.getById(id);
-        if (Objects.nonNull(education)) {
+    public CustomizeSectionDto getAndIsDisplay(int cvId, int id) throws JsonProcessingException {
             Cv cv = cvService.getCvById(cvId);
             CvBodyDto cvBodyDto = cv.deserialize();
-            Optional<EducationDto> dto = cvBodyDto.getEducations().stream().filter(x -> x.getId() == id).findFirst();
+            Optional<CustomizeSectionDto> dto = cvBodyDto.getCustomizeSections().stream().filter(x -> x.getId() == id).findFirst();
             if (dto.isPresent()) {
-                modelMapper.map(education, dto.get());
                 return dto.get();
             } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
             }
-        } else {
-            throw new ResourceNotFoundException("Not found that id in cvBody");
-        }
     }
 
     @Override
@@ -209,50 +199,39 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
 
 
     @Override
-    public EducationDto createOfUserInCvBody(int cvId, EducationDto dto) throws JsonProcessingException {
-        Education education = educationMapper.mapDtoToEntity(dto);
+    public CustomizeSectionDto createOfUserInCvBody(int cvId, CustomizeSectionDto dto) throws JsonProcessingException {
         Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
         if (Objects.isNull(cv)){
             throw new BadRequestException("Can not find the cv");
         }
-        education.setCv(cv);
-        education.setStatus(BasicStatus.ACTIVE);
-        Education saved = educationRepository.save(education);
-        dto.setId(saved.getId());
-        dto.setStatus(BasicStatus.ACTIVE);
+//        CvBodyDto cvBodyDto = cv.deserialize();
+//        Integer activeEdus = cvBodyDto.getCustomizeSections().stream()
+//                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+//        dto.setTheOrder(activeEdus + 1);
+//        dto.setId(saved.getId());
+//        dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
-        Integer activeEdus = cvBodyDto.getEducations().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
-        dto.setTheOrder(activeEdus + 1);
-        cvBodyDto.getEducations().add(dto);
+        dto.setId(cvBodyDto.getCustomizeSections().size() + 1);
+        cvBodyDto.getCustomizeSections().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
 
-        return educationMapper.mapEntityToDto(saved);
+        return dto;
     }
 
     @Override
     public void deleteInCvBody(Integer cvId, Integer educationId) throws JsonProcessingException {
-        Optional<Education> Optional = educationRepository.findById(educationId);
-        if (Optional.isPresent()) {
-            Education education = Optional.get();
-            education.setStatus(BasicStatus.DELETED);
-            educationRepository.save(education);
-            try {
-                CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-                EducationDto dto = cvBodyDto.getEducations().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
-                cvBodyDto.getEducations().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
-                        c.setTheOrder(c.getTheOrder() - 1);
-                    }
-                });
-                dto.setIsDisplay(false);
-                dto.setTheOrder(null);
-                dto.setStatus(BasicStatus.DELETED);
-                cvService.updateCvBody(cvId, cvBodyDto);
+        try {
+            CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
+            CustomizeSectionDto dto = cvBodyDto.getCustomizeSections().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+            cvBodyDto.getCustomizeSections().forEach(c -> {
+//                if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+//                    c.setTheOrder(c.getTheOrder() - 1);
+//                }
+            });
+            cvService.updateCvBody(cvId, cvBodyDto);
 
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 }

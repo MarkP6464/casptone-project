@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.enums.BasicStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,4 +17,5 @@ public class SkillViewDto {
 
     private Boolean isDisplay;
 
+    private BasicStatus Status;
 }

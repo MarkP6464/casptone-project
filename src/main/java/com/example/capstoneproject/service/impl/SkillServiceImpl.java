@@ -1,12 +1,14 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CvBodyDto;
+import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.Dto.SkillDto;
 import com.example.capstoneproject.Dto.responses.SkillViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Skill;
 import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.SkillMapper;
 import com.example.capstoneproject.repository.CvRepository;
@@ -149,17 +151,8 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     public List<SkillDto> getAllARelationInCvBody(int cvId) throws JsonProcessingException {
         Cv cv = cvService.getCvById(cvId);
         CvBodyDto cvBodyDto = cv.deserialize();
-        List<SkillDto> set = new ArrayList<>();
-        cvBodyDto.getSkills().stream().forEach(
-                e -> {
-                    try {
-                        set.add(getAndIsDisplay(cvId, e.getId()));
-                    } catch (JsonProcessingException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-        );
-        return set;
+        List<SkillDto> list = cvBodyDto.getSkills().stream().filter(x -> x.getStatus().equals(BasicStatus.ACTIVE)).collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -173,6 +166,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             skillRepository.save(education);
             SkillDto educationDto = relationDto.get();
             modelMapper.map(dto, educationDto);
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
             return true;
         } else {
@@ -185,28 +179,20 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     public SkillDto createOfUserInCvBody(int cvId, SkillDto dto) throws JsonProcessingException {
         Skill education = skillMapper.mapDtoToEntity(dto);
         Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
+        if (Objects.isNull(cv)){
+            throw new BadRequestException("Can not find the cv");
+        }
         education.setCv(cv);
         education.setStatus(BasicStatus.ACTIVE);
         Skill saved = skillRepository.save(education);
-        SkillDto educationViewDto = new SkillDto();
-        educationViewDto.setId(saved.getId());
-
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
-        list.stream().forEach(x -> {
-            if (x.getId().equals(cvId)) {
-                educationViewDto.setIsDisplay(true);
-            } else {
-                educationViewDto.setIsDisplay(false);
-            }
-            try {
-                CvBodyDto cvBodyDto = x.deserialize();
-                educationViewDto.setTheOrder(cvBodyDto.getSkills().size() + 1);
-                cvBodyDto.getSkills().add(educationViewDto);
-                cvService.updateCvBody(x.getId(), cvBodyDto);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        dto.setId(saved.getId());
+        dto.setStatus(BasicStatus.ACTIVE);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Integer activeEdus = cvBodyDto.getSkills().stream()
+                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+        dto.setTheOrder(activeEdus + 1);
+        cvBodyDto.getSkills().add(dto);
+        cvService.updateCvBody(cv.getId(), cvBodyDto);
         return skillMapper.mapEntityToDto(saved);
     }
 
@@ -216,7 +202,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         if (Optional.isPresent()) {
             Skill education = Optional.get();
             education.setStatus(BasicStatus.DELETED);
-            skillRepository.delete(education);
+            skillRepository.save(education);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                 SkillDto dto = cvBodyDto.getSkills().stream().filter(e-> e.getId().equals(id)).findFirst().get();
@@ -225,7 +211,9 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });
-                cvBodyDto.getSkills().removeIf(e -> e.getId() == id);
+                dto.setIsDisplay(false);
+                dto.setTheOrder(null);
+                dto.setStatus(BasicStatus.DELETED);
                 cvService.updateCvBody(cvId, cvBodyDto);
 
             } catch (JsonProcessingException e) {

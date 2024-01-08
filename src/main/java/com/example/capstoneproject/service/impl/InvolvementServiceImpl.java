@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.Dto.responses.InvolvementViewDto;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
@@ -221,7 +222,8 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                     }
                 }
         );
-        return set;
+        List<InvolvementViewDto> list = set.stream().filter(x -> x.getStatus().equals(BasicStatus.ACTIVE)).collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -235,6 +237,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             Involvement saved = involvementRepository.save(involvement);
             InvolvementDto educationDto = relationDto.get();
             modelMapper.map(dto, educationDto);
+            educationDto.setTheOrder(dto.getTheOrder());
             cvService.updateCvBody(cvId, cvBodyDto);
 
             //Delete section_log in db
@@ -304,24 +307,14 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         }
         involvement.setStatus(BasicStatus.ACTIVE);
         Involvement saved = involvementRepository.save(involvement);
-        InvolvementDto involvementDto = new InvolvementDto();
-        involvementDto.setId(saved.getId());
-        List<Cv> list = cvRepository.findAllByUsersIdAndStatus(cv.getUser().getId(), BasicStatus.ACTIVE);
-        list.stream().forEach(x -> {
-            if (x.getId().equals(cvId)) {
-                involvementDto.setIsDisplay(true);
-            } else {
-                involvementDto.setIsDisplay(false);
-            }
-            try {
-                CvBodyDto cvBodyDto = x.deserialize();
-                involvementDto.setTheOrder(cvBodyDto.getInvolvements().size() + 1);
-                cvBodyDto.getInvolvements().add(involvementDto);
-                cvService.updateCvBody(x.getId(), cvBodyDto);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        dto.setId(saved.getId());
+        dto.setStatus(BasicStatus.ACTIVE);
+        CvBodyDto cvBodyDto = cv.deserialize();
+        Integer activeEdus = cvBodyDto.getInvolvements().stream()
+                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+        dto.setTheOrder(activeEdus + 1);
+        cvBodyDto.getInvolvements().add(dto);
+        cvService.updateCvBody(cv.getId(), cvBodyDto);
         //Save evaluate db
         SectionDto sectionDto = new SectionDto();
         List<Involvement> projects = involvementRepository.findExperiencesByStatusOrderedByStartDateDesc(cv.getUser().getId(), BasicStatus.ACTIVE);
@@ -372,7 +365,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         if (Optional.isPresent()) {
             Involvement involvement = Optional.get();
             involvement.setStatus(BasicStatus.DELETED);
-            involvementRepository.delete(involvement);
+            involvementRepository.save(involvement);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                 InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
@@ -381,7 +374,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });
-                cvBodyDto.getInvolvements().removeIf(e -> e.getId() == id);
+                dto.setIsDisplay(false);
+                dto.setTheOrder(null);
+                dto.setStatus(BasicStatus.DELETED);
                 cvService.updateCvBody(cvId, cvBodyDto);
 
             } catch (JsonProcessingException e) {

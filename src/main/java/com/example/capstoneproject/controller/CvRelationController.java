@@ -33,6 +33,8 @@ public class CvRelationController {
 
     @Autowired
     CertificationService certificationService;
+    @Autowired
+    CustomSectionService customSectionService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -164,6 +166,8 @@ public class CvRelationController {
                 return ResponseEntity.ok(projectService.getAndIsDisplay(cvId, id));
             case "certifications":
                 return ResponseEntity.ok(certificationService.getAndIsDisplay(cvId, id));
+            case "customSections":
+                return ResponseEntity.ok(customSectionService.getAndIsDisplay(cvId, id));
             default:
                 throw new Exception("Invalid request!!");
         }
@@ -192,6 +196,9 @@ public class CvRelationController {
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
                 return ResponseEntity.ok(certificationService.createOfUserInCvBody(cvId, certificationDto));
+            case "customSections":
+                CustomizeSectionDto customizeSectionDto = objectMapper.convertValue(obj, CustomizeSectionDto.class);
+                return ResponseEntity.ok(customSectionService.createOfUserInCvBody(cvId, customizeSectionDto));
             default:
                 throw new Exception("Invalid request!!");
         }
@@ -257,4 +264,10 @@ public class CvRelationController {
         return cvService.synchUp(cvId);
     }
 
+
+    @PostMapping("/{cv-id}/parse/{history-id}")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+    public ResponseEntity<?> parse(@PathVariable("cv-id") int cvId, @PathVariable("history-id") int historyId) throws Exception {
+        return ResponseEntity.ok(cvService.parse(cvId, historyId));
+    }
 }

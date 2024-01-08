@@ -26,7 +26,7 @@ public interface CvService {
 
     Cv getCvById(int cvId);
 
-    CvAddNewDto finishUp(int cvId) throws JsonProcessingException;
+    CvBodyDto finishUp(int cvId) throws JsonProcessingException;
 
     void deleteCvById(Integer Users, Integer id);
 
@@ -62,4 +62,5 @@ public interface CvService {
 
     List<CvResponse> listCvDetail(Integer userId);
 
+    CvBodyDto parse(Integer cvId, Integer historyId) throws JsonProcessingException;
 }

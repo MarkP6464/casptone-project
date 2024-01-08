@@ -27,6 +27,11 @@ public class History {
     @Column(columnDefinition = "json")
     private String cvBody;
 
+
+    @Type(type = "json")
+    @Column(columnDefinition = "json")
+    private String oldCvBody;
+
     private Timestamp timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
