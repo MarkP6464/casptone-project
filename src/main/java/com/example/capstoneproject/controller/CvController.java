@@ -68,7 +68,7 @@ public class CvController {
 
     @PutMapping("/{user-id}/cv/{cv-id}/summary")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
-    public String updateSummary(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @RequestBody CvUpdateSumDto Dto) {
+    public String updateSummary(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @RequestBody CvUpdateSumDto Dto) throws JsonProcessingException {
         boolean check = cvService.updateCvSummary(UsersId, cvId, Dto);
         if (check) {
             return "Changes saved";

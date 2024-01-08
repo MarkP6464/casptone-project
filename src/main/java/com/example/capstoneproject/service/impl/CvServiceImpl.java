@@ -373,7 +373,7 @@ public class CvServiceImpl implements CvService {
     }
 
     @Override
-    public boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto) {
+    public boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto) throws JsonProcessingException {
         Optional<Users> UsersOptional = usersRepository.findById(UsersId);
 
         if (UsersOptional.isPresent()) {
@@ -382,7 +382,9 @@ public class CvServiceImpl implements CvService {
             if (cvOptional.isPresent()) {
                 Cv cv = cvOptional.get();
                 cv.setSummary(dto.getSummary());
-
+                CvBodyDto cvBodyDto = cv.deserialize();
+                cvBodyDto.setSummary(dto.getSummary());
+                cv.toCvBody(cvBodyDto);
                 cvRepository.save(cv);
 
                 return true;
@@ -401,6 +403,7 @@ public class CvServiceImpl implements CvService {
             Cv cv = cvOptional.get();
             cv.toCvBody(dto);
             cvRepository.save(cv);
+            historyService.create(cv.getUser().getId(), cvId);
             return true;
         } else {
             throw new IllegalArgumentException("CvId not found: " + cvId);
@@ -1080,7 +1083,7 @@ public class CvServiceImpl implements CvService {
         });
         //parse involvements
         List<Integer> involvements = cvBodyDto.getInvolvements().stream().map(InvolvementDto::getId).collect(Collectors.toList());
-        certificates.forEach(x -> {
+        involvements.forEach(x -> {
             Involvement entity = involvementRepository.getById(x);
             if (Objects.isNull(entity)){
                 throw new InternalServerException("Not found education with id: " + x);
@@ -1091,7 +1094,7 @@ public class CvServiceImpl implements CvService {
         });
         //parse projects
         List<Integer> project = cvBodyDto.getProjects().stream().map(ProjectDto::getId).collect(Collectors.toList());
-        certificates.forEach(x -> {
+        project.forEach(x -> {
             Project entity = projectRepository.getById(x);
             if (Objects.isNull(entity)){
                 throw new InternalServerException("Not found education with id: " + x);

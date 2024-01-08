@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.Column;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,8 @@ public class CvBodyDto {
     private String jobDescription;
 
     private String companyName;
+
+    private String summary;
 
 //    private String fieldOrDomain;
 

@@ -148,25 +148,27 @@ public class HistoryServiceImpl implements HistoryService {
                     if(applicationLogs!=null){
                         for(ApplicationLog applicationLog1: applicationLogs){
                             HistoryCoverLetterResponse coverLetterDto = new HistoryCoverLetterResponse();
-                            Optional<HistoryCoverLetter> historyCoverLetterOptional = historyCoverLetterRepository.findById(applicationLog1.getCoverLetter().getId());
-                            if(historyCoverLetterOptional.isPresent()){
-                                HistoryCoverLetter historyCoverLetter = historyCoverLetterOptional.get();
-                                coverLetterDto.setId(historyCoverLetter.getId());
-                                coverLetterDto.setTitle(historyCoverLetter.getTitle());
-                                coverLetterDto.setDear(historyCoverLetter.getDear());
-                                coverLetterDto.setDate(historyCoverLetter.getDate());
-                                coverLetterDto.setDescription(historyCoverLetter.getDescription());
-                                UserCoverLetterDto userCoverLetterDto = new UserCoverLetterDto();
-                                userCoverLetterDto.setName(historyCoverLetter.getCoverLetter().getCv().getUser().getName());
-                                userCoverLetterDto.setAddress(historyCoverLetter.getCoverLetter().getCv().getUser().getAddress());
-                                userCoverLetterDto.setPhone(historyCoverLetter.getCoverLetter().getCv().getUser().getPhone());
-                                userCoverLetterDto.setEmail(historyCoverLetter.getCoverLetter().getCv().getUser().getEmail());
-                                coverLetterDto.setUser(userCoverLetterDto);
-                                CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
-                                coverLetterViewDto.setId(historyCoverLetter.getCoverLetter().getId());
-                                coverLetterViewDto.setTitle(historyCoverLetter.getCoverLetter().getTitle());
-                                coverLetterDto.setCoverLetter(coverLetterViewDto);
-                                historyCoverLetterResponses.add(coverLetterDto);
+                            if(applicationLog1.getCoverLetter()!=null){
+                                Optional<HistoryCoverLetter> historyCoverLetterOptional = historyCoverLetterRepository.findById(applicationLog1.getCoverLetter().getId());
+                                if(historyCoverLetterOptional.isPresent()){
+                                    HistoryCoverLetter historyCoverLetter = historyCoverLetterOptional.get();
+                                    coverLetterDto.setId(historyCoverLetter.getId());
+                                    coverLetterDto.setTitle(historyCoverLetter.getTitle());
+                                    coverLetterDto.setDear(historyCoverLetter.getDear());
+                                    coverLetterDto.setDate(historyCoverLetter.getDate());
+                                    coverLetterDto.setDescription(historyCoverLetter.getDescription());
+                                    UserCoverLetterDto userCoverLetterDto = new UserCoverLetterDto();
+                                    userCoverLetterDto.setName(historyCoverLetter.getCoverLetter().getCv().getUser().getName());
+                                    userCoverLetterDto.setAddress(historyCoverLetter.getCoverLetter().getCv().getUser().getAddress());
+                                    userCoverLetterDto.setPhone(historyCoverLetter.getCoverLetter().getCv().getUser().getPhone());
+                                    userCoverLetterDto.setEmail(historyCoverLetter.getCoverLetter().getCv().getUser().getEmail());
+                                    coverLetterDto.setUser(userCoverLetterDto);
+                                    CoverLetterViewDto coverLetterViewDto = new CoverLetterViewDto();
+                                    coverLetterViewDto.setId(historyCoverLetter.getCoverLetter().getId());
+                                    coverLetterViewDto.setTitle(historyCoverLetter.getCoverLetter().getTitle());
+                                    coverLetterDto.setCoverLetter(coverLetterViewDto);
+                                    historyCoverLetterResponses.add(coverLetterDto);
+                                }
                             }
                         }
                     }

@@ -31,7 +31,7 @@ public interface CvService {
 
     void deleteCvById(Integer Users, Integer id);
 
-    boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto);
+    boolean updateCvSummary(int UsersId, int cvId, CvUpdateSumDto dto) throws JsonProcessingException;
 
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
