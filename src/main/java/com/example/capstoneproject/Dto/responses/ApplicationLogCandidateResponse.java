@@ -1,5 +1,6 @@
 package com.example.capstoneproject.Dto.responses;
 
+import com.example.capstoneproject.Dto.CvResumeDto;
 import com.example.capstoneproject.enums.ApplicationLogStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class ApplicationLogCandidateResponse {
     ApplicationLogStatus status;
     JobPostingNameViewDto jobPosting;
 
-    HashMap<String, Object> cvs = new HashMap<>();
-    HashMap<String, Object> coverLetters = new HashMap<>();
+    CvResumeDto cvs;
+    CoverLetterViewDto coverLetters;
 }
+

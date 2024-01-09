@@ -13,4 +13,5 @@ public class HistoryDateViewDto {
     private Integer id;
 
     private String timestamp;
+    private JobPostingNameViewDto jobPosting;
 }

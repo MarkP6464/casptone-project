@@ -97,6 +97,14 @@ public class HistoryServiceImpl implements HistoryService {
                     .map(history -> {
                         HistoryDateViewDto dto = modelMapper.map(history, HistoryDateViewDto.class);
                         dto.setTimestamp(prettyTime.format(history.getTimestamp()));
+                        Optional<ApplicationLog> jobPostingOptional = applicationLogRepository.findByCv_Id(history.getId());
+                        if(jobPostingOptional.isPresent()){
+                            ApplicationLog applicationLog = jobPostingOptional.get();
+                            JobPostingNameViewDto jobPostingName = new JobPostingNameViewDto();
+                            jobPostingName.setId(applicationLog.getJobPosting().getId());
+                            jobPostingName.setName(applicationLog.getJobPosting().getTitle());
+                            dto.setJobPosting(jobPostingName);
+                        }
                         return dto;
                     })
                     .collect(Collectors.toList());

@@ -298,58 +298,20 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     @Override
     public List<ApplicationLogCandidateResponse> getAllByCandidateId(Integer id){
         List<ApplicationLogCandidateResponse> newList = Collections.EMPTY_LIST;
-        List<ApplicationLog> list = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
-        HashMap<Integer, String> listCvMap = new HashMap<>();
-        HashMap<Integer, String> listClMap = new HashMap<>();
-        List<Integer> cvList = new ArrayList<>();
-        List<Integer> clList = new ArrayList<>();
-        if (!list.isEmpty()){
-            list.stream().map(x -> {
-                return listCvMap.put(x.getCv().getId(), null);
-            });
-            list.stream().map(x -> {
-                return listClMap.put(x.getCoverLetter().getId(), null);
-            });
-
-            newList = list.stream().map(x -> {
-                cvList.add(x.getCv().getId());
-                if (Objects.nonNull(x.getCoverLetter())){
-                    clList.add(x.getCoverLetter().getId());
-                }
-                ApplicationLogCandidateResponse applicationLogResponse = new ApplicationLogCandidateResponse();
-                applicationLogResponse.setApplyDate(x.getTimestamp());
-                applicationLogResponse.setNote(x.getNote());
-                applicationLogResponse.setStatus(x.getStatus());
-                applicationLogResponse.setCandidateName(x.getUser().getName());
-                JobPostingNameViewDto jobPostingNameView = new JobPostingNameViewDto();
-                jobPostingNameView.setId(x.getJobPosting().getId());
-                jobPostingNameView.setName(x.getJobPosting().getTitle());
-                applicationLogResponse.setJobPosting(jobPostingNameView);
-                applicationLogResponse.setCompany(x.getJobPosting().getCompanyName());
-                applicationLogResponse.getCvs().put("historyId", x.getCv());
-                applicationLogResponse.getCvs().put("resumeName", null);
-                applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());
-                applicationLogResponse.getCoverLetters().put("title", null);
-                return applicationLogResponse;
-            }).collect(Collectors.toList());
-
-            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
-            cvHistoryList.stream().forEach(x -> {
-                listCvMap.put(x.getId(), x.getCv().getResumeName());
-            });
-            newList.stream().forEach(x -> {
-                Integer historyID = (Integer) x.getCvs().get("historyId");
-                x.getCvs().put("resumeName", listCvMap.get(historyID));
-            });
-
-            List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
-            clHistoryList.stream().forEach(x -> {
-                listClMap.put(x.getId(), x.getTitle());
-            });
-            newList.stream().forEach(x -> {
-                Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
-                x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
-            });
+        List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
+        if(applicationLogs!=null){
+            for(ApplicationLog applicationLog: applicationLogs){
+                ApplicationLogCandidateResponse response = new ApplicationLogCandidateResponse();
+                response.setCandidateName(applicationLog.getUser().getName());
+                response.setCompany(applicationLog.getJobPosting().getCompanyName());
+                response.setApplyDate(applicationLog.getTimestamp());
+                response.setNote(applicationLog.getNote());
+                response.setStatus(applicationLog.getStatus());
+                JobPostingNameViewDto jobPosting = new JobPostingNameViewDto();
+                jobPosting.setId(applicationLog.getJobPosting().getId());
+                jobPosting.setName(applicationLog.getJobPosting().getTitle());
+                response.setJobPosting(jobPosting);
+            }
         }
         return newList;
     }
