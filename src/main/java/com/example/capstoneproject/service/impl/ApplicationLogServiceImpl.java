@@ -238,66 +238,42 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
     @Override
     public List<ApplicationLogFullResponse> getAllByHrID(Integer hrId){
-        List<ApplicationLogFullResponse> newList = Collections.EMPTY_LIST;
-        List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
-        HashMap<Integer, String> listCvMap = new HashMap<>();
-        HashMap<Integer, String> listClMap = new HashMap<>();
-        List<Integer> cvList = new ArrayList<>();
-        List<Integer> clList = new ArrayList<>();
-        if (!list.isEmpty()){
-            list.stream().map(x -> {
-                return listCvMap.put(x.getCv().getId(), null);
-            });
-            list.stream().map(x -> {
-                return listClMap.put(x.getCoverLetter().getId(), null);
-            });
-
-            newList = list.stream().map(x -> {
-                cvList.add(x.getCv().getId());
-                if (Objects.nonNull(x.getCoverLetter())){
-                    clList.add(x.getCoverLetter().getId());
-                }
-                ApplicationLogFullResponse applicationLogResponse = new ApplicationLogFullResponse();
-                applicationLogResponse.setEmail(x.getUser().getEmail());
+        List<ApplicationLogFullResponse> newList = new ArrayList<>();
+        List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
+        if(applicationLogs!=null){
+            for(ApplicationLog applicationLog: applicationLogs){
+                ApplicationLogFullResponse response = new ApplicationLogFullResponse();
+                response.setCandidateName(applicationLog.getUser().getName());
+                response.setApplyDate(applicationLog.getTimestamp());
+                response.setNote(applicationLog.getNote());
+                response.setEmail(applicationLog.getUser().getEmail());
+                response.setStatus(applicationLog.getStatus());
                 JobPostingNameViewDto jobPosting = new JobPostingNameViewDto();
-                jobPosting.setId(x.getJobPosting().getId());
-                jobPosting.setName(x.getJobPosting().getTitle());
-                applicationLogResponse.setJobPosting(jobPosting);
-                applicationLogResponse.setCandidateName(x.getUser().getName());
-                applicationLogResponse.setApplyDate(x.getTimestamp());
-                applicationLogResponse.setNote(x.getNote());
-                applicationLogResponse.setStatus(x.getStatus());
-                applicationLogResponse.getCvs().put("historyId", x.getCv());
-                applicationLogResponse.getCvs().put("resumeName", null);
-                applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());
-                applicationLogResponse.getCoverLetters().put("title", null);
-                return applicationLogResponse;
-            }).collect(Collectors.toList());
+                jobPosting.setId(applicationLog.getJobPosting().getId());
+                jobPosting.setName(applicationLog.getJobPosting().getTitle());
+                response.setJobPosting(jobPosting);
+                if(applicationLog.getCv()!=null){
+                    CvResumeDto resume = new CvResumeDto();
+                    resume.setId(applicationLog.getCv().getId());
+                    resume.setResumeName(applicationLog.getCv().getCv().getResumeName());
+                    response.setCvs(resume);
+                }
+                if(applicationLog.getCoverLetter()!=null){
+                    CoverLetterViewDto coverLetter = new CoverLetterViewDto();
+                    coverLetter.setId(applicationLog.getCoverLetter().getId());
+                    coverLetter.setTitle(applicationLog.getCoverLetter().getTitle());
+                    response.setCoverLetters(coverLetter);
+                }
+                newList.add(response);
 
-            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
-            cvHistoryList.stream().forEach(x -> {
-                listCvMap.put(x.getId(), x.getCv().getResumeName());
-            });
-            newList.stream().forEach(x -> {
-                Integer historyID = (Integer) x.getCvs().get("historyId");
-                x.getCvs().put("resumeName", listCvMap.get(historyID));
-            });
-
-            List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
-            clHistoryList.stream().forEach(x -> {
-                listClMap.put(x.getId(), x.getCoverLetter().getTitle());
-            });
-            newList.stream().forEach(x -> {
-                Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
-                x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
-            });
+            }
         }
         return newList;
     }
 
     @Override
     public List<ApplicationLogCandidateResponse> getAllByCandidateId(Integer id){
-        List<ApplicationLogCandidateResponse> newList = Collections.EMPTY_LIST;
+        List<ApplicationLogCandidateResponse> newList = new ArrayList<>();
         List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
         if(applicationLogs!=null){
             for(ApplicationLog applicationLog: applicationLogs){
@@ -311,6 +287,20 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 jobPosting.setId(applicationLog.getJobPosting().getId());
                 jobPosting.setName(applicationLog.getJobPosting().getTitle());
                 response.setJobPosting(jobPosting);
+                if(applicationLog.getCv()!=null){
+                    CvResumeDto resume = new CvResumeDto();
+                    resume.setId(applicationLog.getCv().getId());
+                    resume.setResumeName(applicationLog.getCv().getCv().getResumeName());
+                    response.setCvs(resume);
+                }
+                if(applicationLog.getCoverLetter()!=null){
+                    CoverLetterViewDto coverLetter = new CoverLetterViewDto();
+                    coverLetter.setId(applicationLog.getCoverLetter().getId());
+                    coverLetter.setTitle(applicationLog.getCoverLetter().getTitle());
+                    response.setCoverLetters(coverLetter);
+                }
+                newList.add(response);
+
             }
         }
         return newList;

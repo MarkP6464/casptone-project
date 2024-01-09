@@ -27,4 +27,6 @@ public class ReviewResponseViewDto {
     private ReviewRequestViewDto request;
 
     private UsersResponseViewDto user;
+
+    private Integer cvId;
 }

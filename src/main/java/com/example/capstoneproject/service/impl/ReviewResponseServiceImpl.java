@@ -505,6 +505,11 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                     reviewResponseDto.setUser(usersDto);
                     ReviewRequestViewDto reviewRequestViewDto = getReviewRequestViewDto(reviewResponse);
                     reviewResponseDto.setRequest(reviewRequestViewDto);
+                    Optional<History> historyOptional = historyRepository.findById(reviewResponse.getReviewRequest().getHistoryId());
+                    if(historyOptional.isPresent()){
+                        History history = historyOptional.get();
+                        reviewResponseDto.setCvId(history.getCv().getId());
+                    }
                     return reviewResponseDto;
                 }
             } else {

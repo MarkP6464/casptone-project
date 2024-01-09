@@ -101,7 +101,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "Generate Cover Letter");
                 String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,dto.getTemperature());
                 coverLetter.setId(coverLetter.getId());
-                coverLetter.setDescription(processString(response));
+                coverLetter.setDescription(response);
                 coverLetter.setDate(dto.getDate());
                 coverLetter.setCompany(dto.getCompany());
                 coverLetter.setDear(dto.getDear());
@@ -115,7 +115,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 }
                 coverLetterRepository.save(coverLetter);
                 ChatResponse chatResponse = new ChatResponse();
-                chatResponse.setReply(processString(response));
+                chatResponse.setReply(response);
                 return chatResponse;
             }else{
                 throw new BadRequestException("Cover Letter ID not found.");
@@ -384,14 +384,5 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
         } else {
             throw new IllegalArgumentException("Cover Letter with ID " + coverLetterId + " does not belong to User with ID " + userId);
         }
-    }
-
-
-    public String processString(String input) {
-        int index = input.indexOf("\n\n");
-        if (index != -1) {
-            return input.substring(index + 2);
-        }
-        return input;
     }
 }

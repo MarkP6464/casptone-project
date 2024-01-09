@@ -31,6 +31,9 @@ public class CvServiceImpl implements CvService {
     CvRepository cvRepository;
 
     @Autowired
+    HistoryService historyService;
+
+    @Autowired
     ReviewAiService reviewAiService;
 
     @Autowired
@@ -73,9 +76,6 @@ public class CvServiceImpl implements CvService {
     @Autowired
     @Lazy
     ProjectService projectService;
-
-    @Autowired
-    HistoryService historyService;
 
     @Autowired
     EducationRepository educationRepository;
@@ -1103,6 +1103,7 @@ public class CvServiceImpl implements CvService {
             modelMapper.map(fromDto.get(), entity);
             projectRepository.save(entity);
         });
+        historyService.create(cv.getUser().getId(), cv.getId());
         return cv.deserialize();
     }
 }
