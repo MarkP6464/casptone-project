@@ -403,6 +403,20 @@ public class CvServiceImpl implements CvService {
             Cv cv = cvOptional.get();
             cv.toCvBody(dto);
             cvRepository.save(cv);
+            return true;
+        } else {
+            throw new IllegalArgumentException("CvId not found: " + cvId);
+        }
+    }
+
+
+    @Override
+    public boolean updateCvBodyAndHistory(int cvId, CvBodyDto dto) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        if (cvOptional.isPresent()) {
+            Cv cv = cvOptional.get();
+            cv.toCvBody(dto);
+            cvRepository.save(cv);
             historyService.create(cv.getUser().getId(), cvId);
             return true;
         } else {
@@ -566,8 +580,7 @@ public class CvServiceImpl implements CvService {
                 Project e = projectRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
             });
-            updateCvBody(cvId, cvBodyDto);
-            historyService.create(cv.getUser().getId(),cvId);
+            updateCvBodyAndHistory(cvId, cvBodyDto);
         }
         return cvMapper.mapEntityToDto(cv);
     }

@@ -35,6 +35,8 @@ public interface CvService {
 
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
+    boolean updateCvBodyAndHistory(int cvId, CvBodyDto dto) throws JsonProcessingException;
+
     UsersCvViewDto updateCvContact(Integer UsersId, Integer cvId, UsersCvViewDto dto) throws JsonProcessingException;
     UsersCvViewDto getCvContact(Integer userId, Integer cvId) throws JsonProcessingException;
 

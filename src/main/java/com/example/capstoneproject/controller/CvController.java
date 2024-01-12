@@ -6,6 +6,7 @@ import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.exception.InternalServerException;
 import com.example.capstoneproject.service.CvService;
+import com.example.capstoneproject.utils.Debouncer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -28,6 +30,14 @@ public class CvController {
     @GetMapping("/{user-id}/cvs")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public List<CvViewDto> getCvsById(@PathVariable("user-id") Integer UsersId, @RequestParam(required = false) String content) {
+
+        Debouncer debouncer = new Debouncer();
+
+        // Example function to be debounced
+        Runnable myFunction = () -> System.out.println("Function debounced!");
+
+        // This will execute the function after 1000 milliseconds (1 second) of the last invocation.
+        debouncer.debounce(myFunction, 5000);
         return cvService.GetCvsById(UsersId, content);
     }
 
@@ -52,7 +62,7 @@ public class CvController {
     @PutMapping("/{user-id}/cv/{cv-id}/cv-body")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public String updateCvBody(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
-        boolean check = cvService.updateCvBody(cvId, Dto);
+        boolean check = cvService.updateCvBodyAndHistory(cvId, Dto);
         if (check) {
             return "Changes saved";
         } else {
