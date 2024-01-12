@@ -66,6 +66,10 @@ public interface CvService {
     List<CvResponse> listCvDetail(Integer userId);
 
     CvBodyDto parse(Integer cvId, Integer historyId) throws JsonProcessingException;
+
+    boolean createParse(Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException;
+
+    boolean createOldParse(Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException;
     ResumeTitleResponse getResumeName(Integer cvId);
 
 }

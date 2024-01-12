@@ -12,6 +12,6 @@ import java.sql.Timestamp;
 public class HistoryDateViewDto {
     private Integer id;
 
-    private String timestamp;
+    private Timestamp timestamp;
     private JobPostingNameViewDto jobPosting;
 }

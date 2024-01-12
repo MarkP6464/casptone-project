@@ -96,7 +96,6 @@ public class HistoryServiceImpl implements HistoryService {
             return histories.stream()
                     .map(history -> {
                         HistoryDateViewDto dto = modelMapper.map(history, HistoryDateViewDto.class);
-                        dto.setTimestamp(prettyTime.format(history.getTimestamp()));
                         Optional<ApplicationLog> jobPostingOptional = applicationLogRepository.findByCv_Id(history.getId());
                         if(jobPostingOptional.isPresent()){
                             ApplicationLog applicationLog = jobPostingOptional.get();
@@ -201,6 +200,28 @@ public class HistoryServiceImpl implements HistoryService {
             historyDto.setCvId(history.getCv().getId());
             return historyDto;
         } else throw new ResourceNotFoundException("Not found history of the cover letter id!");
+    }
+
+    @Override
+    public boolean saveHistory(Integer userId, Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
+        History history = new History();
+        Instant currentInstant = Instant.now();
+        Timestamp timestamp = Timestamp.from(currentInstant);
+        if(cvOptional.isPresent()){
+            Cv cv = cvOptional.get();
+            // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String cvBodyReviewJson = objectMapper.writeValueAsString(dto);
+            history.setCvBody(cvBodyReviewJson);
+            String cvBodyString = objectMapper.writeValueAsString(dto);
+            history.setOldCvBody(cvBodyString);
+            history.setTimestamp(timestamp);
+            history.setCv(cv);
+            return true;
+        }else {
+            throw new BadRequestException("UserID not exist this CvID");
+        }
     }
 
 }
