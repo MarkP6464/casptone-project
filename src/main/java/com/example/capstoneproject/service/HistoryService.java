@@ -1,5 +1,6 @@
 package com.example.capstoneproject.service;
 
+import com.example.capstoneproject.Dto.CvBodyReviewDto;
 import com.example.capstoneproject.Dto.HistoryDto;
 import com.example.capstoneproject.Dto.responses.HistoryDateViewDto;
 import com.example.capstoneproject.Dto.responses.HistoryViewDto;
@@ -17,4 +18,6 @@ public interface HistoryService {
     HistoryDto getHistory(Integer historyId) throws JsonProcessingException;
 
     HistoryDto getHistoryById(Integer historyId);
+
+    boolean saveHistory(Integer userId, Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException;
 }

@@ -151,4 +151,18 @@ public class CvController {
     public ResponseEntity<?> getCvsDetail(@PathVariable("user-id") Integer userId) {
         return ResponseEntity.ok(cvService.listCvDetail(userId));
     }
+
+    @PostMapping("/cv/{cv-id}/parse/new")
+    public ResponseEntity<String> createParse(
+            @PathVariable("cv-id") Integer cvId,
+            @RequestBody CvBodyReviewDto dto) throws JsonProcessingException {
+
+        boolean result = cvService.createParse(cvId, dto);
+
+        if (result) {
+            return ResponseEntity.ok("Parse successful");
+        } else {
+            return ResponseEntity.badRequest().body("Parse failed");
+        }
+    }
 }
