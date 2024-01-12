@@ -2,7 +2,10 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.ProjectViewDto;
-import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.entity.Evaluate;
+import com.example.capstoneproject.entity.Project;
+import com.example.capstoneproject.entity.Section;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -79,9 +82,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     public ProjectDto createProject(Integer id, ProjectDto dto) {
         Project project = projectMapper.mapDtoToEntity(dto);
         Cv cv = cvService.getCvById(id);
-        if(cv!=null){
+        if (cv != null) {
             project.setCv(cv);
-        }else{
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
         project.setStatus(BasicStatus.ACTIVE);
@@ -176,15 +179,15 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             if (dto.isPresent()) {
                 ProjectDto projectDto = dto.get();
                 ProjectViewDto projectViewDto = new ProjectViewDto();
-                projectViewDto.setId(project.getId());
+                projectViewDto.setId(projectDto.getId());
                 projectViewDto.setIsDisplay(projectDto.getIsDisplay());
                 projectViewDto.setTheOrder(projectDto.getTheOrder());
                 projectViewDto.setStatus(projectDto.getStatus());
-                projectViewDto.setTitle(project.getTitle());
-                projectViewDto.setOrganization(project.getOrganization());
-                projectViewDto.setDuration(project.getDuration());
-                projectViewDto.setProjectUrl(project.getProjectUrl());
-                projectViewDto.setDescription(project.getDescription());
+                projectViewDto.setTitle(projectDto.getTitle());
+                projectViewDto.setOrganization(projectDto.getOrganization());
+                projectViewDto.setDuration(projectDto.getDuration());
+                projectViewDto.setProjectUrl(projectDto.getProjectUrl());
+                projectViewDto.setDescription(projectDto.getDescription());
                 projectViewDto.setBulletPointDtos(bulletPointDtos);
                 return projectViewDto;
             } else {
@@ -252,7 +255,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
 //                scoreRepository.deleteScoreById(score.getId());
 //            }
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -299,9 +302,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
     public ProjectViewDto createOfUserInCvBody(int cvId, ProjectDto dto) throws JsonProcessingException {
         Project project = projectMapper.mapDtoToEntity(dto);
         Cv cv = cvService.getCvById(cvId);
-        if(cv!=null){
+        if (cv != null) {
             project.setCv(cv);
-        }else{
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
         project.setStatus(BasicStatus.ACTIVE);
@@ -310,7 +313,7 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
         dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
         Integer activeEdus = cvBodyDto.getProjects().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+                .filter(x -> Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
         dto.setTheOrder(activeEdus + 1);
         cvBodyDto.getProjects().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
@@ -368,9 +371,9 @@ public class ProjectServiceImpl extends AbstractBaseService<Project, ProjectDto,
             projectRepository.save(project);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-                ProjectDto dto = cvBodyDto.getProjects().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                ProjectDto dto = cvBodyDto.getProjects().stream().filter(e -> e.getId().equals(id)).findFirst().get();
                 cvBodyDto.getProjects().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()) {
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });

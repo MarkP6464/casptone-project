@@ -1,11 +1,9 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.CvBodyDto;
 import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Education;
-import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
@@ -20,7 +18,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -157,7 +154,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             CvBodyDto cvBodyDto = cv.deserialize();
             Optional<EducationDto> dto = cvBodyDto.getEducations().stream().filter(x -> x.getId() == id).findFirst();
             if (dto.isPresent()) {
-                modelMapper.map(education, dto.get());
+//                modelMapper.map(education, dto.get());
                 return dto.get();
             } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
@@ -212,7 +209,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
     public EducationDto createOfUserInCvBody(int cvId, EducationDto dto) throws JsonProcessingException {
         Education education = educationMapper.mapDtoToEntity(dto);
         Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-        if (Objects.isNull(cv)){
+        if (Objects.isNull(cv)) {
             throw new BadRequestException("Can not find the cv");
         }
         education.setCv(cv);
@@ -222,7 +219,7 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
         dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
         Integer activeEdus = cvBodyDto.getEducations().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+                .filter(x -> Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
         dto.setTheOrder(activeEdus + 1);
         cvBodyDto.getEducations().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
@@ -239,9 +236,9 @@ public class EducationServiceImpl extends AbstractBaseService<Education, Educati
             educationRepository.save(education);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-                EducationDto dto = cvBodyDto.getEducations().stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                EducationDto dto = cvBodyDto.getEducations().stream().filter(e -> e.getId().equals(educationId)).findFirst().get();
                 cvBodyDto.getEducations().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()) {
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });

@@ -1,9 +1,11 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.EducationViewDto;
 import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
-import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.entity.Evaluate;
+import com.example.capstoneproject.entity.Experience;
+import com.example.capstoneproject.entity.Section;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
 import com.example.capstoneproject.exception.BadRequestException;
@@ -168,16 +170,16 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             if (dto.isPresent()) {
                 ExperienceDto experienceDto = dto.get();
                 ExperienceViewDto experienceViewDto = new ExperienceViewDto();
-                experienceViewDto.setId(experience.getId());
+                experienceViewDto.setId(experienceDto.getId());
                 experienceViewDto.setIsDisplay(experienceDto.getIsDisplay());
-                experienceViewDto.setRole(experience.getRole());
+                experienceViewDto.setRole(experienceDto.getRole());
                 experienceViewDto.setTheOrder(experienceDto.getTheOrder());
-                experienceViewDto.setCompanyName(experience.getCompanyName());
-                experienceViewDto.setDuration(experience.getDuration());
-                experienceViewDto.setLocation(experience.getLocation());
-                experienceViewDto.setDescription(experience.getDescription());
+                experienceViewDto.setCompanyName(experienceDto.getCompanyName());
+                experienceViewDto.setDuration(experienceDto.getDuration());
+                experienceViewDto.setLocation(experienceDto.getLocation());
+                experienceViewDto.setDescription(experienceDto.getDescription());
                 experienceViewDto.setBulletPointDtos(bulletPointDtos);
-                experienceViewDto.setStatus(experience.getStatus());
+                experienceViewDto.setStatus(experienceDto.getStatus());
                 return experienceViewDto;
             } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
@@ -245,7 +247,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
 //                scoreRepository.deleteScoreById(score.getId());
 //            }
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -299,9 +301,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
                 ExperienceDto dto = cvBodyDto.getExperiences()
-                        .stream().filter(e-> e.getId().equals(educationId)).findFirst().get();
+                        .stream().filter(e -> e.getId().equals(educationId)).findFirst().get();
                 cvBodyDto.getExperiences().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()) {
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });
@@ -320,9 +322,9 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
     public ExperienceViewDto createOfUserInCvBody(int cvId, ExperienceDto dto) throws JsonProcessingException {
         Experience experience = experienceMapper.mapDtoToEntity(dto);
         Cv cv = cvService.getCvById(cvId);
-        if(cv!=null){
+        if (cv != null) {
             experience.setCv(cv);
-        }else{
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
         experience.setStatus(BasicStatus.ACTIVE);
@@ -331,7 +333,7 @@ public class ExperienceServiceImpl extends AbstractBaseService<Experience, Exper
         dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
         Integer activeEdus = cvBodyDto.getExperiences().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+                .filter(x -> Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
         dto.setTheOrder(activeEdus + 1);
         cvBodyDto.getExperiences().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);

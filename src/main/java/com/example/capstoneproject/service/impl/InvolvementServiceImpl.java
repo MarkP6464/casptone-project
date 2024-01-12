@@ -1,12 +1,13 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.*;
-import com.example.capstoneproject.Dto.responses.ExperienceViewDto;
 import com.example.capstoneproject.Dto.responses.InvolvementViewDto;
-import com.example.capstoneproject.entity.*;
+import com.example.capstoneproject.entity.Cv;
+import com.example.capstoneproject.entity.Evaluate;
+import com.example.capstoneproject.entity.Involvement;
+import com.example.capstoneproject.entity.Section;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
-import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
 import com.example.capstoneproject.mapper.InvolvementMapper;
@@ -81,9 +82,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     public InvolvementDto createInvolvement(Integer id, InvolvementDto dto) {
         Involvement involvement = involvementMapper.mapDtoToEntity(dto);
         Cv cv = cvService.getCvById(id);
-        if(cv!=null){
+        if (cv != null) {
             involvement.setCv(cv);
-        }else {
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
         involvement.setStatus(BasicStatus.ACTIVE);
@@ -179,15 +180,15 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             if (dto.isPresent()) {
                 InvolvementDto involvementDto = dto.get();
                 InvolvementViewDto involvementViewDto = new InvolvementViewDto();
-                involvementViewDto.setId(involvement.getId());
+                involvementViewDto.setId(involvementDto.getId());
                 involvementViewDto.setIsDisplay(involvementDto.getIsDisplay());
                 involvementViewDto.setTheOrder(involvementDto.getTheOrder());
                 involvementViewDto.setStatus(involvementDto.getStatus());
-                involvementViewDto.setOrganizationRole(involvement.getOrganizationRole());
-                involvementViewDto.setOrganizationName(involvement.getOrganizationName());
-                involvementViewDto.setDuration(involvement.getDuration());
-                involvementViewDto.setCollege(involvement.getCollege());
-                involvementViewDto.setDescription(involvement.getDescription());
+                involvementViewDto.setOrganizationRole(involvementDto.getOrganizationRole());
+                involvementViewDto.setOrganizationName(involvementDto.getOrganizationName());
+                involvementViewDto.setDuration(involvementDto.getDuration());
+                involvementViewDto.setCollege(involvementDto.getCollege());
+                involvementViewDto.setDescription(involvementDto.getDescription());
                 involvementViewDto.setBulletPointDtos(bulletPointDtos);
                 return involvementViewDto;
             } else {
@@ -255,7 +256,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
 //                scoreRepository.deleteScoreById(score.getId());
 //            }
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -302,9 +303,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
     public InvolvementViewDto createOfUserInCvBody(int cvId, InvolvementDto dto) throws JsonProcessingException {
         Involvement involvement = involvementMapper.mapDtoToEntity(dto);
         Cv cv = cvService.getCvById(cvId);
-        if(cv!=null){
+        if (cv != null) {
             involvement.setCv(cv);
-        }else{
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
         involvement.setStatus(BasicStatus.ACTIVE);
@@ -313,7 +314,7 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
         dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
         Integer activeEdus = cvBodyDto.getInvolvements().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+                .filter(x -> Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
         dto.setTheOrder(activeEdus + 1);
         cvBodyDto.getInvolvements().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
@@ -370,9 +371,9 @@ public class InvolvementServiceImpl extends AbstractBaseService<Involvement, Inv
             involvementRepository.save(involvement);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-                InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                InvolvementDto dto = cvBodyDto.getInvolvements().stream().filter(e -> e.getId().equals(id)).findFirst().get();
                 cvBodyDto.getInvolvements().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()) {
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });

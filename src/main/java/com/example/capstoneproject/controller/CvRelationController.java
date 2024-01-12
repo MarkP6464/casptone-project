@@ -1,6 +1,7 @@
 package com.example.capstoneproject.controller;
 
 import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +43,7 @@ public class CvRelationController {
 
     @PutMapping(value = "/{cvId}/{theRelation}/update-all", consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
-    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody List<Object> list) throws Exception {
+    public ResponseEntity<?> post(HttpServletRequest request, @PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @RequestBody List<Object> list) throws Exception {
 
         switch (theRelation) {
             case "educations":
@@ -56,7 +58,7 @@ public class CvRelationController {
                         e.printStackTrace();
                     }
                 });
-                return ResponseEntity.ok("Update the orders successfully");
+                break;
             case "certifications":
                 List<CertificationDto> certList = list.stream().map(obj -> {
                     CertificationDto educationDto = objectMapper.convertValue(obj, CertificationDto.class);
@@ -69,7 +71,7 @@ public class CvRelationController {
                         e.printStackTrace();
                     }
                 });
-                return ResponseEntity.ok("Update the orders successfully");
+                break;
             case "skills":
                 List<SkillDto> skillDtoList = list.stream().map(obj -> {
                     SkillDto educationDto = objectMapper.convertValue(obj, SkillDto.class);
@@ -82,7 +84,7 @@ public class CvRelationController {
                         e.printStackTrace();
                     }
                 });
-                return ResponseEntity.ok("Update the orders successfully");
+                break;
             case "involvements":
                 List<InvolvementDto> involList = list.stream().map(obj -> {
                     InvolvementDto educationDto = objectMapper.convertValue(obj, InvolvementDto.class);
@@ -95,7 +97,7 @@ public class CvRelationController {
                         e.printStackTrace();
                     }
                 });
-                return ResponseEntity.ok("Update the orders successfully");
+                break;
             case "projects":
                 List<ProjectDto> projectDtos = list.stream().map(obj -> {
                     ProjectDto educationDto = objectMapper.convertValue(obj, ProjectDto.class);
@@ -108,7 +110,7 @@ public class CvRelationController {
                         e.printStackTrace();
                     }
                 });
-                return ResponseEntity.ok("Update the orders successfully");
+                break;
             case "experiences":
                 List<ExperienceDto> experienceDtos = list.stream().map(obj -> {
                     ExperienceDto educationDto = objectMapper.convertValue(obj, ExperienceDto.class);
@@ -121,10 +123,13 @@ public class CvRelationController {
                         e.printStackTrace();
                     }
                 });
-                return ResponseEntity.ok("Update the orders successfully");
+                break;
             default:
                 throw new Exception("Invalid request!!");
         }
+        Cv cv = cvService.getCvById(cvId);
+        cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
+        return ResponseEntity.ok("Update the orders successfully");
     }
 
     @GetMapping("/{cvId}/{theRelation}")
@@ -173,7 +178,7 @@ public class CvRelationController {
 
     @PostMapping(value = "/{cvId}/{theRelation}", consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
-    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation,@Valid @RequestBody Object obj) throws Exception {
+    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @Valid @RequestBody Object obj) throws Exception {
 
         switch (theRelation) {
             case "educations":
@@ -201,25 +206,32 @@ public class CvRelationController {
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
     @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
-    public ResponseEntity<?> update(@PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
+    public ResponseEntity<?> update(HttpServletRequest request, @PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
+        Cv cv = cvService.getCvById(cvId);
         switch (theRelation) {
             case "educations":
                 EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
+                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
                 return ResponseEntity.ok(educationService.updateInCvBody(cvId, id, educationDto));
             case "skills":
                 SkillDto skillDto = objectMapper.convertValue(obj, SkillDto.class);
+                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
                 return ResponseEntity.ok(skillService.updateInCvBody(cvId, id, skillDto));
             case "experiences":
                 ExperienceDto experienceDto = objectMapper.convertValue(obj, ExperienceDto.class);
+                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
                 return ResponseEntity.ok(experienceService.updateInCvBody(cvId, id, experienceDto));
             case "involvements":
                 InvolvementDto involvementDto = objectMapper.convertValue(obj, InvolvementDto.class);
+                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
                 return ResponseEntity.ok(involvementService.updateInCvBody(cvId, id, involvementDto));
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
+                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
                 return ResponseEntity.ok(projectService.updateInCvBody(cvId, id, projectDto));
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
+                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
                 return ResponseEntity.ok(certificationService.updateInCvBody(cvId, id, certificationDto));
             default:
                 throw new Exception("Invalid request!!");

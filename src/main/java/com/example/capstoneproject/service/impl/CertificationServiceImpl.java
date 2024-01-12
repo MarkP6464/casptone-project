@@ -2,11 +2,9 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CertificationDto;
 import com.example.capstoneproject.Dto.CvBodyDto;
-import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.Dto.responses.CertificationViewDto;
 import com.example.capstoneproject.entity.Certification;
 import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
@@ -21,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -140,7 +137,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             CvBodyDto cvBodyDto = cv.deserialize();
             Optional<CertificationDto> dto = cvBodyDto.getCertifications().stream().filter(x -> x.getId() == id).findFirst();
             if (dto.isPresent()) {
-                modelMapper.map(certification, dto.get());
+//                modelMapper.map(certification, dto.get());
                 return dto.get();
             } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
@@ -194,7 +191,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
     public CertificationDto createOfUserInCvBody(int cvId, CertificationDto dto) throws JsonProcessingException {
         Certification certification = certificationMapper.mapDtoToEntity(dto);
         Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-        if (Objects.isNull(cv)){
+        if (Objects.isNull(cv)) {
             throw new BadRequestException("Can not find the cv");
         }
         certification.setCv(cv);
@@ -204,7 +201,7 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
         dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
         Integer activeEdus = cvBodyDto.getCertifications().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+                .filter(x -> Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
         dto.setTheOrder(activeEdus + 1);
         cvBodyDto.getCertifications().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
@@ -221,9 +218,9 @@ public class CertificationServiceImpl extends AbstractBaseService<Certification,
             certificationRepository.save(certification);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-                CertificationDto dto = cvBodyDto.getCertifications().stream().filter(e-> e.getId().equals(CertificationId)).findFirst().get();
+                CertificationDto dto = cvBodyDto.getCertifications().stream().filter(e -> e.getId().equals(CertificationId)).findFirst().get();
                 cvBodyDto.getCertifications().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()) {
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });
