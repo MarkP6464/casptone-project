@@ -1137,7 +1137,6 @@ public class CvServiceImpl implements CvService {
             }
         });
         return cv.deserialize();
-//        return new CvBodyDto();
     }
 
     @Override
@@ -1436,5 +1435,173 @@ public class CvServiceImpl implements CvService {
             throw new BadRequestException("Cv id not found.");
         }
 
+    }
+
+    @Override
+    public boolean createOldParse(Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException {
+        Cv cv = cvRepository.getById(cvId);
+        historyService.create(cv.getUser().getId(), cv.getId());
+        if (Objects.isNull(cv)) {
+            throw new BadRequestException("Not found the Cv");
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(modelMapper.map(dto, CvBodyDto.class));
+        cv.setCvBody(json);
+        cv.setSummary(dto.getSummary());
+        cvRepository.save(cv);
+        CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
+        List<Evaluate> evaluates = evaluateRepository.findAll();
+
+        //parse educations
+        List<Integer> eduIds = cvBodyDto.getEducations().stream().map(EducationDto::getId).collect(Collectors.toList());
+        eduIds.forEach(x -> {
+            Education entity = educationRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<EducationDto> fromDto = cvBodyDto.getEducations().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            educationRepository.save(entity);
+        });
+        //parse skills
+        List<Integer> skills = cvBodyDto.getSkills().stream().map(SkillDto::getId).collect(Collectors.toList());
+        skills.forEach(x -> {
+            Skill entity = skillRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<SkillDto> fromDto = cvBodyDto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            skillRepository.save(entity);
+        });
+        //parse experiences
+        List<Integer> experiences = cvBodyDto.getExperiences().stream().map(ExperienceDto::getId).collect(Collectors.toList());
+        experiences.forEach(x -> {
+            Experience entity = experienceRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<ExperienceDto> fromDto = cvBodyDto.getExperiences().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            experienceRepository.save(entity);
+
+            //Delete section_log in db
+            Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, entity.getId());
+
+            if(section!=null){
+                sectionLogRepository.deleteBySection_Id(section.getId());
+                cv.setOverview(null);
+                cvRepository.save(cv);
+            }
+
+            //Get process evaluate
+            List<BulletPointDto> evaluateResult = evaluateService.checkSentences(entity.getDescription());
+
+            int evaluateId = 1;
+            for (int i = 0; i < evaluates.size(); i++) {
+                Evaluate evaluate = evaluates.get(i);
+                BulletPointDto bulletPointDto = evaluateResult.get(i);
+                SectionLogDto sectionLogDto1 = new SectionLogDto();
+                sectionLogDto1.setSection(section);
+                sectionLogDto1.setEvaluate(evaluate);
+                sectionLogDto1.setBullet(bulletPointDto.getResult());
+                sectionLogDto1.setCount(bulletPointDto.getCount());
+                sectionLogDto1.setStatus(bulletPointDto.getStatus());
+                sectionLogService.create(sectionLogDto1);
+                evaluateId++;
+                if (evaluateId == 9) {
+                    break;
+                }
+            }
+
+        });
+        //parse certificates
+        List<Integer> certificates = cvBodyDto.getCertifications().stream().map(CertificationDto::getId).collect(Collectors.toList());
+        certificates.forEach(x -> {
+            Certification entity = certificationRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<CertificationDto> fromDto = cvBodyDto.getCertifications().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            certificationRepository.save(entity);
+        });
+        //parse involvements
+        List<Integer> involvements = cvBodyDto.getInvolvements().stream().map(InvolvementDto::getId).collect(Collectors.toList());
+        involvements.forEach(x -> {
+            Involvement entity = involvementRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<InvolvementDto> fromDto = cvBodyDto.getInvolvements().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            involvementRepository.save(entity);
+            //Delete section_log in db
+            Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.involvement, entity.getId());
+
+            if(section!=null){
+                sectionLogRepository.deleteBySection_Id(section.getId());
+                cv.setOverview(null);
+                cvRepository.save(cv);
+            }
+            //Get process evaluate
+            List<BulletPointDto> evaluateResult = evaluateService.checkSentences(entity.getDescription());
+
+            int evaluateId = 1;
+            for (int i = 0; i < evaluates.size(); i++) {
+                Evaluate evaluate = evaluates.get(i);
+                BulletPointDto bulletPointDto = evaluateResult.get(i);
+                SectionLogDto sectionLogDto1 = new SectionLogDto();
+                sectionLogDto1.setSection(section);
+                sectionLogDto1.setEvaluate(evaluate);
+                sectionLogDto1.setBullet(bulletPointDto.getResult());
+                sectionLogDto1.setCount(bulletPointDto.getCount());
+                sectionLogDto1.setStatus(bulletPointDto.getStatus());
+                sectionLogService.create(sectionLogDto1);
+                evaluateId++;
+                if (evaluateId == 9) {
+                    break;
+                }
+            }
+        });
+        //parse projects
+        List<Integer> project = cvBodyDto.getProjects().stream().map(ProjectDto::getId).collect(Collectors.toList());
+        project.forEach(x -> {
+            Project entity = projectRepository.getById(x);
+            if (Objects.isNull(entity)){
+                throw new InternalServerException("Not found education with id: " + x);
+            }
+            Optional<ProjectDto> fromDto = cvBodyDto.getProjects().stream().filter(y -> y.getId().equals(x)).findFirst();
+            modelMapper.map(fromDto.get(), entity);
+            projectRepository.save(entity);
+            //Delete section_log in db
+            Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.project, entity.getId());
+            if(section!=null){
+                sectionLogRepository.deleteBySection_Id(section.getId());
+                cv.setOverview(null);
+                cvRepository.save(cv);
+            }
+
+            //Get process evaluate
+            List<BulletPointDto> evaluateResult = evaluateService.checkSentences(entity.getDescription());
+
+            int evaluateId = 1;
+            for (int i = 0; i < evaluates.size(); i++) {
+                Evaluate evaluate = evaluates.get(i);
+                BulletPointDto bulletPointDto = evaluateResult.get(i);
+                SectionLogDto sectionLogDto1 = new SectionLogDto();
+                sectionLogDto1.setSection(section);
+                sectionLogDto1.setEvaluate(evaluate);
+                sectionLogDto1.setBullet(bulletPointDto.getResult());
+                sectionLogDto1.setCount(bulletPointDto.getCount());
+                sectionLogDto1.setStatus(bulletPointDto.getStatus());
+                sectionLogService.create(sectionLogDto1);
+                evaluateId++;
+                if (evaluateId == 9) {
+                    break;
+                }
+            }
+        });
+        return true;
     }
 }

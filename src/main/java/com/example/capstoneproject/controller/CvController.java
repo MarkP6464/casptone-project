@@ -153,6 +153,7 @@ public class CvController {
     }
 
     @PostMapping("/cv/{cv-id}/parse/new")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public ResponseEntity<String> createParse(
             @PathVariable("cv-id") Integer cvId,
             @RequestBody CvBodyReviewDto dto) throws JsonProcessingException {
@@ -163,6 +164,24 @@ public class CvController {
             return ResponseEntity.ok("Parse successful");
         } else {
             return ResponseEntity.badRequest().body("Parse failed");
+        }
+    }
+
+    @PostMapping("/cv/{cv-id}/parse/old")
+    public ResponseEntity<String> createOldParse(
+            @PathVariable("cv-id") Integer cvId,
+            @RequestBody CvBodyReviewDto dto) {
+
+        try {
+            boolean result = cvService.createOldParse(cvId, dto);
+
+            if (result) {
+                return ResponseEntity.ok("Old parse successful");
+            } else {
+                return ResponseEntity.badRequest().body("Old parse failed");
+            }
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Error processing JSON");
         }
     }
 }
