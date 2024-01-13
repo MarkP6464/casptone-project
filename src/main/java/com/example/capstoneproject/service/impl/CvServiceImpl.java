@@ -233,10 +233,21 @@ public class CvServiceImpl implements CvService {
             Users users = user.get();
             UsersViewDto usersViewDto = modelMapper.map(users, UsersViewDto.class);
             cv.setUser(users);
+            //create order of section
+            HashMap<String, Long> theOrder = new HashMap<>();
+            theOrder.put("summary", 1L);
+            theOrder.put("experiences", 2L);
+            theOrder.put("educations", 3L);
+            theOrder.put("projects", 4L);
+            theOrder.put("certifications", 5L);
+            theOrder.put("involvements", 6L);
+            theOrder.put("skills", 7L);
+            dto.setTheOrder(theOrder);
             cv.setCvBody(cv.toCvBody(dto));
             cv.setResumeName(dto.getResumeName());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
+
             Cv savedCv = cvRepository.save(cv);
             CvAddNewDto response = cvMapper.cvAddNewDto(savedCv);
 
