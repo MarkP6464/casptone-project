@@ -24,7 +24,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain httpSecurity(final HttpSecurity http) throws Exception {
         return http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED).and()
+                .sessionCreationPolicy(SessionCreationPolicy.NEVER).and()
                 .authorizeRequests(authz -> authz
                         .antMatchers("/api/messages/protected", "/api/messages/admin").authenticated()
                         .anyRequest().permitAll())
