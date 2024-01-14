@@ -1635,11 +1635,12 @@ public class CvServiceImpl implements CvService {
     @Override
     public void saveAfterFiveMin(HttpServletRequest request, Integer cvId, CvBodyDto dto) {
         HttpSession session = request.getSession();
-        System.out.println(session);
+        System.out.println("Session: " + session + ", create at: " + session.getCreationTime());
         Debouncer debouncer = null;
         if (Objects.isNull(session.getAttribute("debouncer"))) {
             debouncer = new Debouncer();
             session.setAttribute("debouncer", debouncer);
+            System.out.println("Created new debounce");
         } else {
             debouncer = (Debouncer) session.getAttribute("debouncer");
         }
@@ -1647,6 +1648,8 @@ public class CvServiceImpl implements CvService {
             try {
                 this.updateCvBodyAndHistory(cvId, dto);
                 System.out.println("Created history");
+                session.removeAttribute("lastExecution");
+                System.out.println("Clear lastExecution");
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -1664,6 +1667,7 @@ public class CvServiceImpl implements CvService {
         if (Objects.nonNull(debouncer)) {
             debouncer.cancelDebounce(session);
             historyService.create(userId, cvId);
+            System.out.println("Created history by Click SAVE button ar finish up!!");
         }
     }
 }

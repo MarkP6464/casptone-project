@@ -16,11 +16,15 @@ public class Debouncer {
         if (Objects.nonNull(session.getAttribute("lastExecution"))) {
             if (lastExecution != null && !lastExecution.isDone()) {
                 lastExecution.cancel(true);
+                System.out.println("Cancel last debounce");
+                lastExecution = scheduler.schedule(runnable, delay, TimeUnit.MILLISECONDS);
+                session.setAttribute("lastExecution", lastExecution);
+                System.out.println("Created new lastExecution");
             }
-            lastExecution = scheduler.schedule(runnable, delay, TimeUnit.MILLISECONDS);
         } else {
             lastExecution = scheduler.schedule(runnable, delay, TimeUnit.MILLISECONDS);
             session.setAttribute("lastExecution", lastExecution);
+            System.out.println("Created new lastExecution");
         }
     }
 
@@ -28,9 +32,10 @@ public class Debouncer {
         if (Objects.nonNull(session.getAttribute("lastExecution"))) {
             if (lastExecution != null && !lastExecution.isDone()) {
                 lastExecution.cancel(true);
+                System.out.println("Cancel last debounce");
             }
             session.removeAttribute("lastExecution");
-            session.removeAttribute("debouncer");
+            System.out.println("Clear lastExecution");
         }
     }
 }
