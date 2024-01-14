@@ -1649,6 +1649,7 @@ public class CvServiceImpl implements CvService {
                 this.updateCvBodyAndHistory(cvId, dto);
                 System.out.println("Created history");
                 session.removeAttribute("lastExecution");
+                session.removeAttribute("debouncer");
                 System.out.println("Clear lastExecution");
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
@@ -1668,6 +1669,8 @@ public class CvServiceImpl implements CvService {
             debouncer.cancelDebounce(session);
             historyService.create(userId, cvId);
             System.out.println("Created history by Click SAVE button ar finish up!!");
+        } else {
+            throw new BadRequestException("Nothing new to update!!");
         }
     }
 }

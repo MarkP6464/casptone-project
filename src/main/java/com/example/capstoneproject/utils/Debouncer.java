@@ -35,6 +35,7 @@ public class Debouncer {
                 System.out.println("Cancel last debounce");
             }
             session.removeAttribute("lastExecution");
+            session.removeAttribute("debouncer");
             System.out.println("Clear lastExecution");
         }
     }
