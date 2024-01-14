@@ -1009,8 +1009,14 @@ public class CvServiceImpl implements CvService {
         if (Objects.isNull(history)) {
             throw new BadRequestException("Not found the cv history");
         }
-        cv.setCvBody(history.getOldCvBody());
         CvBodyDto cvBodyDto = history.deserialize();
+        cv.setCvBody(history.getOldCvBody());
+        cv.setSummary(cvBodyDto.getSummary());
+        cv.setResumeName(cvBodyDto.getResumeName());
+        cv.setCompanyName(cvBodyDto.getCompanyName());
+        cv.setSearchable(cvBodyDto.getSearchable());
+        cv.setSharable(cvBodyDto.getSharable());
+        cvRepository.save(cv);
         List<Evaluate> evaluates = evaluateRepository.findAll();
 
         //parse educations
@@ -1669,8 +1675,6 @@ public class CvServiceImpl implements CvService {
             debouncer.cancelDebounce(session);
             historyService.create(userId, cvId);
             System.out.println("Created history by Click SAVE button ar finish up!!");
-        } else {
-            throw new BadRequestException("Nothing new to update!!");
         }
     }
 }
