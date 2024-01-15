@@ -248,11 +248,12 @@ public class CvServiceImpl implements CvService {
             System.out.println("dto resume name: " + dto.getResumeName());
             System.out.println("cv resume name: " + cv.getResumeName());
             System.out.println("dto summary: " + dto.getSummary());
-            System.out.println("cv summary: " + dto.getSummary());
+            System.out.println("cv summary: " + cv.getSummary());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
 
             Cv savedCv = cvRepository.save(cv);
+            System.out.println("cv resume name: " + savedCv.getResumeName());
             CvAddNewDto response = cvMapper.cvAddNewDto(savedCv);
 
             CvBodyDto cvBodyDto = savedCv.deserialize();
