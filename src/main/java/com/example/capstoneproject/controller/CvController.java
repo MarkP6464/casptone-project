@@ -167,7 +167,7 @@ public class CvController {
     }
 
     @PostMapping("/cv/{cv-id}/parse/new")
-    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
+//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public ResponseEntity<String> createParse(
             @PathVariable("cv-id") Integer cvId,
             @RequestBody CvBodyReviewDto dto) throws JsonProcessingException {

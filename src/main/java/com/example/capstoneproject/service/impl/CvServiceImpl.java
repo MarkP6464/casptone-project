@@ -1180,11 +1180,11 @@ public class CvServiceImpl implements CvService {
         Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId, BasicStatus.ACTIVE);
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
-            cv.setSummary(dto.getSummary());
+            cv.setSummary(removeComments(dto.getSummary()));
             CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(cvBodyDto);
-            cv.setCvBody(json);
+            cv.setCvBody(removeComments(json));
             cvRepository.save(cv);
 
             List<Evaluate> evaluates = evaluateRepository.findAll();
@@ -1267,7 +1267,7 @@ public class CvServiceImpl implements CvService {
                 experience.setCompanyName(entity.getCompanyName());
                 experience.setDuration(entity.getDuration());
                 experience.setLocation(entity.getLocation());
-                experience.setDescription(entity.getDescription());
+                experience.setDescription(removeComments(entity.getDescription()));
                 experience.setStatus(entity.getStatus());
                 experience.setCv(cv);
                 Integer experienceIdOld = entity.getId();
@@ -1304,7 +1304,6 @@ public class CvServiceImpl implements CvService {
                     Optional<ExperienceDto> relationDto = cvBodySkill.getExperiences().stream().filter(sk -> sk.getId() == experienceIdOld).findFirst();
                     if (relationDto.isPresent()) {
                         ExperienceDto experienceDto = relationDto.get();
-                        modelMapper.map(dto, experienceDto);
                         experienceDto.setId(saved.getId());
                         updateCvBody(cvId, cvBodySkill);
                     }
@@ -1360,7 +1359,7 @@ public class CvServiceImpl implements CvService {
                 involvement.setOrganizationName(entity.getOrganizationName());
                 involvement.setDuration(entity.getDuration());
                 involvement.setCollege(entity.getCollege());
-                involvement.setDescription(entity.getDescription());
+                involvement.setDescription(removeComments(entity.getDescription()));
                 involvement.setStatus(entity.getStatus());
                 involvement.setCv(cv);
                 Integer involvementIdOld = entity.getId();
@@ -1397,7 +1396,6 @@ public class CvServiceImpl implements CvService {
                     Optional<InvolvementDto> relationDto = cvBodySkill.getInvolvements().stream().filter(sk -> sk.getId() == involvementIdOld).findFirst();
                     if (relationDto.isPresent()) {
                         InvolvementDto involvementDto = relationDto.get();
-                        modelMapper.map(dto, involvementDto);
                         involvementDto.setId(saved.getId());
                         updateCvBody(cvId, cvBodySkill);
                     }
@@ -1419,7 +1417,7 @@ public class CvServiceImpl implements CvService {
                 project.setOrganization(entity.getOrganization());
                 project.setDuration(entity.getDuration());
                 project.setProjectUrl(entity.getProjectUrl());
-                project.setDescription(entity.getDescription());
+                project.setDescription(removeComments(entity.getDescription()));
                 project.setStatus(entity.getStatus());
                 project.setCv(cv);
                 Integer projectIdOld = entity.getId();
@@ -1456,7 +1454,6 @@ public class CvServiceImpl implements CvService {
                     Optional<ProjectDto> relationDto = cvBodySkill.getProjects().stream().filter(sk -> sk.getId() == projectIdOld).findFirst();
                     if (relationDto.isPresent()) {
                         ProjectDto projectDto = relationDto.get();
-                        modelMapper.map(dto, projectDto);
                         projectDto.setId(saved.getId());
                         updateCvBody(cvId, cvBodySkill);
                     }
@@ -1481,8 +1478,8 @@ public class CvServiceImpl implements CvService {
         }
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(modelMapper.map(dto, CvBodyDto.class));
-        cv.setCvBody(json);
-        cv.setSummary(dto.getSummary());
+        cv.setCvBody(removeComments(json));
+        cv.setSummary(removeComments(dto.getSummary()));
         cvRepository.save(cv);
         CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
         List<Evaluate> evaluates = evaluateRepository.findAll();
@@ -1517,7 +1514,7 @@ public class CvServiceImpl implements CvService {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<ExperienceDto> fromDto = cvBodyDto.getExperiences().stream().filter(y -> y.getId().equals(x)).findFirst();
-            modelMapper.map(fromDto.get(), entity);
+            entity.setDescription(removeComments(fromDto.get().getDescription()));
             experienceRepository.save(entity);
 
             //Delete section_log in db
@@ -1569,7 +1566,7 @@ public class CvServiceImpl implements CvService {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<InvolvementDto> fromDto = cvBodyDto.getInvolvements().stream().filter(y -> y.getId().equals(x)).findFirst();
-            modelMapper.map(fromDto.get(), entity);
+            entity.setDescription(removeComments(fromDto.get().getDescription()));
             involvementRepository.save(entity);
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.involvement, entity.getId());
@@ -1607,8 +1604,9 @@ public class CvServiceImpl implements CvService {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<ProjectDto> fromDto = cvBodyDto.getProjects().stream().filter(y -> y.getId().equals(x)).findFirst();
-            modelMapper.map(fromDto.get(), entity);
+            entity.setDescription(removeComments(fromDto.get().getDescription()));
             projectRepository.save(entity);
+
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.project, entity.getId());
             if (section != null) {
@@ -1667,7 +1665,6 @@ public class CvServiceImpl implements CvService {
         debouncer.debounce(session, myFunction, 10000);
     }
 
-
     @Override
     public void saveToHistory(HttpServletRequest request, Integer userId, Integer cvId) throws JsonProcessingException {
         HttpSession session = request.getSession();
@@ -1678,5 +1675,11 @@ public class CvServiceImpl implements CvService {
             historyService.create(userId, cvId);
             System.out.println("Created history by Click SAVE button ar finish up!!");
         }
+    }
+
+    public String removeComments(String input) {
+        String result = input.replaceAll("<comment[^>]*>|</comment>", "");
+
+        return result;
     }
 }

@@ -67,7 +67,7 @@ public class CoverLetterController {
     }
 
     @GetMapping("/user/{user-id}/cv/cover-letters")
-//    @PreAuthorize("hasAuthority('read:candidate')")
+    @PreAuthorize("hasAuthority('read:candidate')")
     public List<CoverLetterViewDto> getCoverLetters(@PathVariable("user-id") Integer userId, CoverLetterCvRequest dto) {
         return coverLetterService.getAllCoverLetter(userId,dto);
     }

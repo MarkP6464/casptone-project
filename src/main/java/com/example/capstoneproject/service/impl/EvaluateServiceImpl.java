@@ -216,8 +216,8 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Personal Pronouns in the sentences
         String personalPronouns = evaluateNlpResponse.getPersonalPronoun();
-        if (!personalPronouns.isEmpty()) {
-            BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
+        BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
+        if (personalPronouns != null) {
             Evaluate evaluate = evaluates.get(3);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
@@ -231,7 +231,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletPersonalPronouns);
         }else{
-            BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
             Evaluate evaluate = evaluates.get(3);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
@@ -242,8 +241,8 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Filler Words in the sentences
         String fillerWord = evaluateNlpResponse.getFiller();
-        if (!fillerWord.isEmpty()) {
-            BulletPointDto errorBulletFillers = new BulletPointDto();
+        BulletPointDto errorBulletFillers = new BulletPointDto();
+        if (fillerWord!=null) {
             Evaluate evaluate = evaluates.get(4);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
@@ -257,7 +256,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletFillers);
         }else {
-            BulletPointDto errorBulletFillers = new BulletPointDto();
             Evaluate evaluate = evaluates.get(4);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
@@ -268,8 +266,8 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Quantified in the sentences
         String quantified = containsNumber(sentences);
+        BulletPointDto errorBulletQuantified = new BulletPointDto();
         if (!quantified.isEmpty()) {
-            BulletPointDto errorBulletQuantified = new BulletPointDto();
             Evaluate evaluate = evaluates.get(5);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
@@ -283,7 +281,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletQuantified);
         }else {
-            BulletPointDto errorBulletQuantified = new BulletPointDto();
             Evaluate evaluate = evaluates.get(5);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
@@ -294,8 +291,8 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Grammar in the sentences
         String grammar = checkGrammar(sentences);
-        if (!grammar.isEmpty()) {
-            BulletPointDto errorBulletGrammar = new BulletPointDto();
+        BulletPointDto errorBulletGrammar = new BulletPointDto();
+        if (grammar!=null) {
             Evaluate evaluate = evaluates.get(6);
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
@@ -309,7 +306,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletGrammar);
         }else {
-            BulletPointDto errorBulletGrammar = new BulletPointDto();
             Evaluate evaluate = evaluates.get(6);
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
@@ -320,8 +316,8 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Passive voice in the sentences
         String passive = evaluateNlpResponse.getPassiveVoice();
-        if (!passive.isEmpty()) {
-            BulletPointDto errorBulletPassive = new BulletPointDto();
+        BulletPointDto errorBulletPassive = new BulletPointDto();
+        if (passive!=null) {
             Evaluate evaluate = evaluates.get(7);
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());
@@ -335,7 +331,6 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletPassive);
         }else {
-            BulletPointDto errorBulletPassive = new BulletPointDto();
             Evaluate evaluate = evaluates.get(7);
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());

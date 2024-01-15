@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,7 +29,7 @@ public interface ReviewRequestRepository extends JpaRepository<ReviewRequest, In
     List<ReviewRequest> findAllByExpertId(Integer expertId);
     List<ReviewRequest> findAllByCv_User_Id(Integer userId);
 
-    List<ReviewRequest> findAllByDeadline(LocalDateTime deadline);
+    List<ReviewRequest> findAllByDeadline(Timestamp deadline);
 
     Optional<ReviewRequest> findByIdAndStatus(Integer requestId, StatusReview reviewStatus);
 

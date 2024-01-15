@@ -108,10 +108,12 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetter.setJobTitle(dto.getJob_title());
                 coverLetter.setJobDescription(dto.getJob_description());
                 coverLetter.setCv(cv);
-                Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(dto.getJobPostingId());
-                if(jobPostingOptional.isPresent()){
-                    JobPosting jobPosting = jobPostingOptional.get();
-                    coverLetter.setJobPosting(jobPosting);
+                if(dto.getJobPostingId()!=null){
+                    Optional<JobPosting> jobPostingOptional = jobPostingRepository.findById(dto.getJobPostingId());
+                    if(jobPostingOptional.isPresent()){
+                        JobPosting jobPosting = jobPostingOptional.get();
+                        coverLetter.setJobPosting(jobPosting);
+                    }
                 }
                 coverLetterRepository.save(coverLetter);
                 ChatResponse chatResponse = new ChatResponse();
