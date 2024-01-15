@@ -39,7 +39,7 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPT(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
-        Admin users = adminRepository.getById(1);
+        Admin users = adminRepository.getById(2);
         headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
@@ -60,7 +60,7 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPTCoverLetter(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
-        Admin users = adminRepository.getById(1);
+        Admin users = adminRepository.getById(2);
         headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
@@ -81,7 +81,7 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPTCoverLetterRevise(String message) {
         HttpHeaders headers = new HttpHeaders();
-        Admin users = adminRepository.getById(1);
+        Admin users = adminRepository.getById(2);
         headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + "}";
@@ -122,7 +122,7 @@ public class ChatGPTServiceImpl {
     public boolean isChatGptApiKeyValid() {
         try {
             HttpHeaders headers = new HttpHeaders();
-            Admin admin = adminRepository.getById(1);
+            Admin admin = adminRepository.getById(2);
             headers.setBearerAuth(admin.getConfiguration().getApiKey());
             headers.setContentType(MediaType.APPLICATION_JSON);
 

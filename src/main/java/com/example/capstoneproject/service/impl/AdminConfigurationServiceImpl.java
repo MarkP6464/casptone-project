@@ -166,21 +166,4 @@ public class AdminConfigurationServiceImpl implements AdminConfigurationService 
     }
 
 
-
-
-//    @Override
-//    public AdminConfigurationRatioResponse update(AdminConfigurationRatioResponse dto) throws JsonProcessingException {
-//        Users user = usersRepository.findUsersById(1).get();
-//        if (Objects.nonNull(user)){
-//            if (user instanceof Admin) {
-//                Admin admin = (Admin) user;
-//                AdminConfigurationResponse adminConfigurationResponse = admin.getConfiguration();
-//                modelMapper.map(dto, adminConfigurationResponse);
-//                admin.setConfiguration(adminConfigurationResponse);
-//                usersRepository.save(admin);
-////                return  adminConfigurationResponse;
-//            }
-//        }
-//        throw new BadRequestException("id not valid to token");
-//    }
 }
