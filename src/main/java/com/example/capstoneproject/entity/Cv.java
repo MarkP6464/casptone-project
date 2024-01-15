@@ -37,7 +37,7 @@ public class Cv {
     private Boolean searchable;
 
     @Column(columnDefinition = "TEXT")
-    private String Summary;
+    private String summary;
 
     @Enumerated(EnumType.STRING)
     private BasicStatus status;

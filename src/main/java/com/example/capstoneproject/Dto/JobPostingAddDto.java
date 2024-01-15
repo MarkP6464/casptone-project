@@ -1,7 +1,5 @@
 package com.example.capstoneproject.Dto;
 
-import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +29,8 @@ public class JobPostingAddDto {
     private String description;
 
     private String requirement;
+
+    private Boolean isLimit;
 
     private String salary;
 

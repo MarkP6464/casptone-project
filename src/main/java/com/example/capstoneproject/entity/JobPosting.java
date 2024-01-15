@@ -59,6 +59,8 @@ public class JobPosting {
 
     private LocalDate updateDate;
 
+    private Boolean isLimit;
+
     @Enumerated(EnumType.STRING)
     private BasicStatus status;
 

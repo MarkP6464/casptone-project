@@ -60,6 +60,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     UsersService usersService;
     @Autowired
+    AdminService adminService;
+    @Autowired
     TransactionRepository transactionRepository;
     @Autowired
     TransactionMapper transactionMapper;
@@ -387,7 +389,9 @@ public class TransactionServiceImpl implements TransactionService {
         Users users = usersService.getUsersById(userId);
         if (Double.compare(users.getAccountBalance(), 1000L) >= 0) {
             String requestId = String.valueOf(System.currentTimeMillis());
-            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0, null, TransactionStatus.SUCCESSFUL, usersService.getUsersById(1));
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message,
+                    TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0, null,
+                    TransactionStatus.SUCCESSFUL, adminService.findAdmin());
             Transaction transaction1 = transactionRepository.save(transaction);
             users.setAccountBalance(users.getAccountBalance() - 1000L);
             usersRepository.save(users);

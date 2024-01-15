@@ -1,7 +1,6 @@
 package com.example.capstoneproject.Dto.responses;
 
 import com.example.capstoneproject.enums.BasicStatus;
-import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,4 +50,6 @@ public class JobPostingViewDto {
     private Integer apply;
 
     private StatusReview share;
+
+    private Boolean isLimit;
 }
