@@ -2,9 +2,7 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Config.OpenAIConfig;
 import com.example.capstoneproject.entity.Admin;
-import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.repository.AdminRepository;
-import com.example.capstoneproject.service.UsersService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,9 @@ public class ChatGPTServiceImpl {
     AdminRepository adminRepository;
 
     @Autowired
+    AdminService adminService;
+
+    @Autowired
     public ChatGPTServiceImpl(OpenAIConfig openAIConfig, RestTemplate restTemplate) {
         this.openAIConfig = openAIConfig;
         this.restTemplate = restTemplate;
@@ -39,7 +40,7 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPT(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
-        Admin users = adminRepository.getById(2);
+        Admin users = adminService.findAdmin();
         headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
@@ -60,7 +61,7 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPTCoverLetter(String message, float temperature) {
         HttpHeaders headers = new HttpHeaders();
-        Admin users = adminRepository.getById(2);
+        Admin users = adminService.findAdmin();
         headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
@@ -81,7 +82,7 @@ public class ChatGPTServiceImpl {
 
     public String chatWithGPTCoverLetterRevise(String message) {
         HttpHeaders headers = new HttpHeaders();
-        Admin users = adminRepository.getById(2);
+        Admin users = adminService.findAdmin();
         headers.setBearerAuth(users.getConfiguration().getApiKey());
         headers.setContentType(MediaType.APPLICATION_JSON);
         String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + "}";
@@ -122,7 +123,7 @@ public class ChatGPTServiceImpl {
     public boolean isChatGptApiKeyValid() {
         try {
             HttpHeaders headers = new HttpHeaders();
-            Admin admin = adminRepository.getById(2);
+            Admin admin = adminService.findAdmin();
             headers.setBearerAuth(admin.getConfiguration().getApiKey());
             headers.setContentType(MediaType.APPLICATION_JSON);
 

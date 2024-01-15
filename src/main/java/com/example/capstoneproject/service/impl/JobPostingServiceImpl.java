@@ -179,6 +179,9 @@ public class JobPostingServiceImpl implements JobPostingService {
                     if (dto.getDeadline() != null && !dto.getDeadline().equals(jobPosting.getDeadline())) {
                         jobPosting.setDeadline(dto.getDeadline());
                     }
+                    if (dto.getIsLimit() != null && !dto.getIsLimit().equals(jobPosting.getIsLimit())) {
+                        jobPosting.setIsLimit(dto.getIsLimit());
+                    }
                     jobPosting.setUpdateDate(currentDate);
                     jobPostingRepository.save(jobPosting);
                     return true;

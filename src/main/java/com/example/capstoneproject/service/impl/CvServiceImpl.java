@@ -245,6 +245,8 @@ public class CvServiceImpl implements CvService {
             dto.setTheOrder(theOrder);
             cv.setCvBody(cv.toCvBody(dto));
             cv.setResumeName(dto.getResumeName());
+            System.out.println("resume name: " + dto.getResumeName());
+            System.out.println("summary: " + dto.getSummary());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
 
