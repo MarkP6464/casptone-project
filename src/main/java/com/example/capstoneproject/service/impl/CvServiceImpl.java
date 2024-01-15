@@ -3,8 +3,8 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.responses.CvResponse;
 import com.example.capstoneproject.Dto.responses.CvViewDto;
+import com.example.capstoneproject.Dto.responses.ResumeTitleResponse;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
-import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.enums.SectionEvaluate;
@@ -15,6 +15,7 @@ import com.example.capstoneproject.mapper.SectionMapper;
 import com.example.capstoneproject.mapper.UsersMapper;
 import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.*;
+import com.example.capstoneproject.utils.Debouncer;
 import com.example.capstoneproject.utils.SecurityUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -216,9 +219,9 @@ public class CvServiceImpl implements CvService {
 
         if (user.isPresent()) {
             List<Cv> cvs = cvRepository.findAllByUser_IdAndStatus(UsersId, BasicStatus.ACTIVE);
-            if(cvs!=null){
-                for(Cv cv:cvs){
-                    if(cv.getResumeName().equals(dto.getResumeName())){
+            if (cvs != null) {
+                for (Cv cv : cvs) {
+                    if (cv.getResumeName().equals(dto.getResumeName())) {
                         throw new BadRequestException("Resume name already exists in another cv.");
                     }
                 }
@@ -230,10 +233,21 @@ public class CvServiceImpl implements CvService {
             Users users = user.get();
             UsersViewDto usersViewDto = modelMapper.map(users, UsersViewDto.class);
             cv.setUser(users);
+            //create order of section
+            HashMap<String, Long> theOrder = new HashMap<>();
+            theOrder.put("summary", 1L);
+            theOrder.put("experiences", 2L);
+            theOrder.put("educations", 3L);
+            theOrder.put("projects", 4L);
+            theOrder.put("certifications", 5L);
+            theOrder.put("involvements", 6L);
+            theOrder.put("skills", 7L);
+            dto.setTheOrder(theOrder);
             cv.setCvBody(cv.toCvBody(dto));
             cv.setResumeName(dto.getResumeName());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
+
             Cv savedCv = cvRepository.save(cv);
             CvAddNewDto response = cvMapper.cvAddNewDto(savedCv);
 
@@ -242,14 +256,14 @@ public class CvServiceImpl implements CvService {
             response.setTemplateType(cvBodyDto.getTemplateType());
             response.setTheOrder(cvBodyDto.getTheOrder());
 
-            if(dto.getJobTitle()!=null || dto.getJobDescription()!=null){
+            if (dto.getJobTitle() != null || dto.getJobDescription() != null) {
                 JobDescription jobDescription = new JobDescription();
                 jobDescription.setTitle(dto.getJobTitle());
                 jobDescription.setDescription(dto.getJobDescription());
                 JobDescription saved = jobDescriptionRepository.save(jobDescription);
                 Integer jobId = saved.getId();
                 Optional<JobDescription> jobDescriptionOptional = jobDescriptionRepository.findById(jobId);
-                if(jobDescriptionOptional.isPresent()){
+                if (jobDescriptionOptional.isPresent()) {
                     JobDescription jobDescription1 = jobDescriptionOptional.get();
                     savedCv.setJobDescription(jobDescription1);
                     cvRepository.save(savedCv);
@@ -363,6 +377,20 @@ public class CvServiceImpl implements CvService {
             Cv cv = cvOptional.get();
             cv.toCvBody(dto);
             cvRepository.save(cv);
+            return true;
+        } else {
+            throw new IllegalArgumentException("CvId not found: " + cvId);
+        }
+    }
+
+
+    @Override
+    public boolean updateCvBodyAndHistory(int cvId, CvBodyDto dto) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        if (cvOptional.isPresent()) {
+            Cv cv = cvOptional.get();
+            cv.toCvBody(dto);
+            cvRepository.save(cv);
             historyService.create(cv.getUser().getId(), cvId);
             return true;
         } else {
@@ -372,8 +400,8 @@ public class CvServiceImpl implements CvService {
 
     @Override
     public UsersCvViewDto updateCvContact(Integer userId, Integer cvId, UsersCvViewDto dto) throws JsonProcessingException {
-        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
-        if(cvOptional.isPresent()){
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             CvBodyDto cvBodyDto = cv.deserialize();
             cvBodyDto.setName(dto.getFullName());
@@ -387,7 +415,7 @@ public class CvServiceImpl implements CvService {
             cv.setCvBody(json);
             cvRepository.save(cv);
             return dto;
-        }else{
+        } else {
             throw new BadRequestException("User id or cv id incorrect.");
         }
     }
@@ -395,48 +423,48 @@ public class CvServiceImpl implements CvService {
     @Override
     public UsersCvViewDto getCvContact(Integer userId, Integer cvId) throws JsonProcessingException {
         Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-        if(usersOptional.isPresent()){
+        if (usersOptional.isPresent()) {
             Users users = usersOptional.get();
-            Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
-            if(cvOptional.isPresent()){
+            Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
+            if (cvOptional.isPresent()) {
                 Cv cv = cvOptional.get();
                 CvBodyDto cvBodyDto = cv.deserialize();
                 UsersCvViewDto usersCvView = new UsersCvViewDto();
-                if(cvBodyDto.getName()!=null){
+                if (cvBodyDto.getName() != null) {
                     usersCvView.setFullName(cvBodyDto.getName());
-                }else{
+                } else {
                     usersCvView.setFullName(users.getName());
                 }
-                if(cvBodyDto.getEmail()!=null){
+                if (cvBodyDto.getEmail() != null) {
                     usersCvView.setEmail(cvBodyDto.getEmail());
-                }else{
+                } else {
                     usersCvView.setEmail(users.getEmail());
                 }
-                if(cvBodyDto.getPhone()!=null){
+                if (cvBodyDto.getPhone() != null) {
                     usersCvView.setPhone(cvBodyDto.getPhone());
-                }else{
+                } else {
                     usersCvView.setPhone(users.getPhone());
                 }
-                if(cvBodyDto.getLinkin()!=null){
+                if (cvBodyDto.getLinkin() != null) {
                     usersCvView.setLinkin(cvBodyDto.getLinkin());
-                }else{
+                } else {
                     usersCvView.setLinkin(users.getLinkin());
                 }
-                if(cvBodyDto.getPersonalWebsite()!=null){
+                if (cvBodyDto.getPersonalWebsite() != null) {
                     usersCvView.setPersonalWebsite(cvBodyDto.getPersonalWebsite());
-                }else{
+                } else {
                     usersCvView.setPersonalWebsite(users.getPersonalWebsite());
                 }
-                if(cvBodyDto.getCity()!=null){
+                if (cvBodyDto.getCity() != null) {
                     usersCvView.setCity(cvBodyDto.getCity());
-                }else{
+                } else {
                     usersCvView.setCity(users.getCountry());
                 }
                 return usersCvView;
-            }else{
+            } else {
                 throw new BadRequestException("Cv id incorrect.");
             }
-        }else{
+        } else {
             throw new BadRequestException("User id not found.");
         }
     }
@@ -469,11 +497,11 @@ public class CvServiceImpl implements CvService {
     public CvUpdateDto getTitleResume(Integer cvId) {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         CvUpdateDto cvUpdateDto = new CvUpdateDto();
-        if(cvOptional.isPresent()){
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             cvUpdateDto.setResumeName(cv.getResumeName());
             return cvUpdateDto;
-        }else {
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
 
@@ -526,8 +554,7 @@ public class CvServiceImpl implements CvService {
                 Project e = projectRepository.findById(x.getId().intValue()).get();
                 modelMapper.map(e, x);
             });
-            updateCvBody(cvId, cvBodyDto);
-            historyService.create(cv.getUser().getId(),cvId);
+            updateCvBodyAndHistory(cvId, cvBodyDto);
         }
         return cvMapper.mapEntityToDto(cv);
     }
@@ -540,11 +567,11 @@ public class CvServiceImpl implements CvService {
 
     @Override
     public boolean searchable(Integer userId, Integer cvId) {
-        Optional<Cv> cvOptional = cvRepository.findByIdAndUserId(cvId,userId);
-        if(cvOptional.isPresent()){
+        Optional<Cv> cvOptional = cvRepository.findByIdAndUserId(cvId, userId);
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             Optional<Cv> cvOptional1 = cvRepository.findByIdAndStatus(cv.getId(), BasicStatus.ACTIVE);
-            if(cvOptional1.isPresent()){
+            if (cvOptional1.isPresent()) {
                 Cv cv1 = cvOptional1.get();
                 cv1.setSearchable(true);
                 cvRepository.save(cv1);
@@ -556,7 +583,7 @@ public class CvServiceImpl implements CvService {
 
     @Override
     public List<CvAddNewDto> getListSearchable(String field) {
-        List<Cv> cvs = cvRepository.findAllByStatusAndSearchable(BasicStatus.ACTIVE,true);
+        List<Cv> cvs = cvRepository.findAllByStatusAndSearchable(BasicStatus.ACTIVE, true);
         return cvs.stream()
                 .filter(cv -> field == null)
                 .map(cv -> modelMapper.map(cv, CvAddNewDto.class))
@@ -575,7 +602,7 @@ public class CvServiceImpl implements CvService {
     public List<ExperienceRoleDto> getListExperienceRole(Integer userId, Integer cvId) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
         List<ExperienceRoleDto> experienceRoles = new ArrayList<>();
-        if(cvOptional.isPresent()){
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             CvBodyDto cvBodyDto = cv.deserialize();
             experienceRoles = cvBodyDto.getExperiences().stream()
@@ -587,7 +614,7 @@ public class CvServiceImpl implements CvService {
                         return experienceRoleDto;
                     })
                     .collect(Collectors.toList());
-        }else {
+        } else {
             throw new RuntimeException("User ID dont have this Cv ID.");
         }
         return experienceRoles;
@@ -609,27 +636,27 @@ public class CvServiceImpl implements CvService {
             });
             String completeSystem = "";
             String experience = "";
-            if(dto.getPosition_highlight()!=null && dto.getSkill_highlight()!=null){
+            if (dto.getPosition_highlight() != null && dto.getSkill_highlight() != null) {
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
                         "It should begin with an attention-grabbing opening hook and clearly state the desired position as a " + dto.getPosition_highlight() + ". \n" +
                         "Soft skills and hard skills, " + dto.getSkill_highlight() + ", should be highlighted. \n" +
                         "Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
-            }else if(dto.getPosition_highlight()==null && dto.getSkill_highlight()==null){
+            } else if (dto.getPosition_highlight() == null && dto.getSkill_highlight() == null) {
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
                         "It should begin with an attention-grabbing opening hook and clearly state the desired position base on the past experience. \n" +
                         "Soft skills and hard skills should be highlighted. Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
-            }else if(dto.getPosition_highlight() == null){
+            } else if (dto.getPosition_highlight() == null) {
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
                         "It should begin with an attention-grabbing opening hook and clearly state the desired position base on the past experience. \n" +
                         "Soft skills and hard skills, " + dto.getSkill_highlight() + ", should be highlighted. \n" +
                         "Impressive facts and statistics should be incorporated, and the candidate’s short and long-term goals should be briefly mentioned.";
-            }else {
+            } else {
                 completeSystem = "You are an expert in CV writing and your task is to create a resume personal statement that will be placed at the beginning of the CV. \n" +
                         "The personal statement should effectively introduce the candidate to the hiring manager and highlight why they would be a fantastic hire.\n" +
                         "The personal statement should be concise, consisting of 2-3 sentences and spanning between 30-50 words. \n" +
@@ -650,12 +677,12 @@ public class CvServiceImpl implements CvService {
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
             transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "Generate Summary");
-            String response = chatGPTService.chatWithGPT(messagesJson,1);
+            String response = chatGPTService.chatWithGPT(messagesJson, 1);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
             historySummaryService.createHistorySummary(cv.getId(), response);
             return chatResponse;
-        }else{
+        } else {
             throw new BadRequestException("Please add experience into CV");
         }
     }
@@ -674,19 +701,19 @@ public class CvServiceImpl implements CvService {
             final boolean[] addedExperienceLabel = {false};
             StringBuilder experienceBuilder = new StringBuilder();
 
-            if(cv.getUser().getName()!=null){
+            if (cv.getUser().getName() != null) {
                 experienceBuilder.append(cv.getUser().getName()).append("\n");
             }
-            if(cv.getUser().getEmail()!=null){
+            if (cv.getUser().getEmail() != null) {
                 experienceBuilder.append(cv.getUser().getEmail()).append("\n");
             }
-            if(cv.getUser().getPhone()!=null){
+            if (cv.getUser().getPhone() != null) {
                 experienceBuilder.append(cv.getUser().getPhone()).append("\n");
             }
-            if(cv.getUser().getLinkin()!=null){
+            if (cv.getUser().getLinkin() != null) {
                 experienceBuilder.append(cv.getUser().getLinkin()).append("\n");
             }
-            if(cv.getSummary()!=null){
+            if (cv.getSummary() != null) {
                 experienceBuilder.append("SUMMARY").append("\n");
                 experienceBuilder.append(cv.getSummary()).append("\n");
             }
@@ -887,21 +914,21 @@ public class CvServiceImpl implements CvService {
             messagesList.add(userMessageMap);
             String messagesJson = new ObjectMapper().writeValueAsString(messagesList);
             transactionService.chargePerRequest(securityUtil.getLoginUser(principal).getId(), "AI feedback");
-            String response = chatGPTService.chatWithGPTCoverLetter(messagesJson,temperature);
+            String response = chatGPTService.chatWithGPTCoverLetter(messagesJson, temperature);
             ReviewAiDto reviewAiDto = new ReviewAiDto();
             reviewAiDto.setReview(response);
-            reviewAiService.createReviewAi(cvId,reviewAiDto);
+            reviewAiService.createReviewAi(cvId, reviewAiDto);
             ChatResponse chatResponse = new ChatResponse();
             chatResponse.setReply(response);
             return chatResponse;
-        }else{
+        } else {
             throw new BadRequestException("Please add experience into CV");
         }
     }
 
     @Override
     public ChatResponseArray rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException {
-        if(dto.getJobTitle()!=null && dto.getBullet()!=null){
+        if (dto.getJobTitle() != null && dto.getBullet() != null) {
             String system = "Improve writing prompt\n" +
                     "As an expert in CV writing, your task is to enhance the description of experience as a " + dto.getJobTitle() + ". The revised writing should keep the original content and adhere to best practices in CV writing, including short, concise bullet points, quantify if possible , focusing on achievements rather than responsibilities. Your response solely provide the content base on the current description provided:";
             String userMessage = "“" + dto.getBullet() + "”\n" +
@@ -921,7 +948,7 @@ public class CvServiceImpl implements CvService {
             String response = chatGPTService.chatWithGPTCoverLetterRevise(messagesJson);
             chatResponse.setReply(splitText(response));
             return chatResponse;
-        }else{
+        } else {
             throw new BadRequestException("Please enter full job title and description.");
         }
     }
@@ -930,8 +957,8 @@ public class CvServiceImpl implements CvService {
     public List<CvResponse> listCvDetail(Integer userId) {
         List<Cv> cvs = cvRepository.findAllByUser_IdAndStatus(userId, BasicStatus.ACTIVE);
         List<CvResponse> list = new ArrayList<>();
-        if(cvs!=null){
-            for(Cv cv:cvs){
+        if (cvs != null) {
+            for (Cv cv : cvs) {
                 CvResponse cvResponse = new CvResponse();
                 cvResponse.setId(cv.getId());
                 cvResponse.setResume(cv.getResumeName());
@@ -948,13 +975,13 @@ public class CvServiceImpl implements CvService {
 
     @Override
     public ResumeTitleResponse getResumeName(Integer cvId) {
-        Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId,BasicStatus.ACTIVE);
-        if(cvOptional.isPresent()){
+        Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId, BasicStatus.ACTIVE);
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             ResumeTitleResponse response = new ResumeTitleResponse();
             response.setResume(cv.getResumeName());
             return response;
-        }else{
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
     }
@@ -982,15 +1009,21 @@ public class CvServiceImpl implements CvService {
         if (Objects.isNull(history)) {
             throw new BadRequestException("Not found the cv history");
         }
-        cv.setCvBody(history.getOldCvBody());
         CvBodyDto cvBodyDto = history.deserialize();
+        cv.setCvBody(history.getOldCvBody());
+        cv.setSummary(cvBodyDto.getSummary());
+        cv.setResumeName(cvBodyDto.getResumeName());
+        cv.setCompanyName(cvBodyDto.getCompanyName());
+        cv.setSearchable(cvBodyDto.getSearchable());
+        cv.setSharable(cvBodyDto.getSharable());
+        cvRepository.save(cv);
         List<Evaluate> evaluates = evaluateRepository.findAll();
 
         //parse educations
         List<Integer> eduIds = cvBodyDto.getEducations().stream().map(EducationDto::getId).collect(Collectors.toList());
         eduIds.forEach(x -> {
             Education entity = educationRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<EducationDto> fromDto = cvBodyDto.getEducations().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1001,7 +1034,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> skills = cvBodyDto.getSkills().stream().map(SkillDto::getId).collect(Collectors.toList());
         skills.forEach(x -> {
             Skill entity = skillRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<SkillDto> fromDto = cvBodyDto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1012,7 +1045,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> experiences = cvBodyDto.getExperiences().stream().map(ExperienceDto::getId).collect(Collectors.toList());
         experiences.forEach(x -> {
             Experience entity = experienceRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<ExperienceDto> fromDto = cvBodyDto.getExperiences().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1022,7 +1055,7 @@ public class CvServiceImpl implements CvService {
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, entity.getId());
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -1053,7 +1086,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> certificates = cvBodyDto.getCertifications().stream().map(CertificationDto::getId).collect(Collectors.toList());
         certificates.forEach(x -> {
             Certification entity = certificationRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<CertificationDto> fromDto = cvBodyDto.getCertifications().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1064,7 +1097,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> involvements = cvBodyDto.getInvolvements().stream().map(InvolvementDto::getId).collect(Collectors.toList());
         involvements.forEach(x -> {
             Involvement entity = involvementRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<InvolvementDto> fromDto = cvBodyDto.getInvolvements().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1073,7 +1106,7 @@ public class CvServiceImpl implements CvService {
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.involvement, entity.getId());
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -1102,7 +1135,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> project = cvBodyDto.getProjects().stream().map(ProjectDto::getId).collect(Collectors.toList());
         project.forEach(x -> {
             Project entity = projectRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<ProjectDto> fromDto = cvBodyDto.getProjects().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1110,7 +1143,7 @@ public class CvServiceImpl implements CvService {
             projectRepository.save(entity);
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.project, entity.getId());
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -1143,10 +1176,10 @@ public class CvServiceImpl implements CvService {
     public boolean createParse(Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException {
 
         Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId, BasicStatus.ACTIVE);
-        if(cvOptional.isPresent()){
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             cv.setSummary(dto.getSummary());
-            CvBodyDto cvBodyDto = modelMapper.map(dto,CvBodyDto.class);
+            CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(cvBodyDto);
             cv.setCvBody(json);
@@ -1158,7 +1191,7 @@ public class CvServiceImpl implements CvService {
             List<Integer> eduIds = dto.getEducations().stream().map(EducationDto::getId).collect(Collectors.toList());
             eduIds.forEach(x -> {
                 Education entity = educationRepository.getById(x);
-                if (Objects.isNull(entity)){
+                if (Objects.isNull(entity)) {
                     throw new InternalServerException("Not found education with id: " + x);
                 }
                 Optional<EducationDto> fromDto = dto.getEducations().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1193,7 +1226,7 @@ public class CvServiceImpl implements CvService {
             List<Integer> skills = dto.getSkills().stream().map(SkillDto::getId).collect(Collectors.toList());
             skills.forEach(x -> {
                 Skill entity = skillRepository.getById(x);
-                if (Objects.isNull(entity)){
+                if (Objects.isNull(entity)) {
                     throw new InternalServerException("Not found education with id: " + x);
                 }
                 Optional<SkillDto> fromDto = dto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1222,7 +1255,7 @@ public class CvServiceImpl implements CvService {
             List<Integer> experiences = dto.getExperiences().stream().map(ExperienceDto::getId).collect(Collectors.toList());
             experiences.forEach(x -> {
                 Experience entity = experienceRepository.getById(x);
-                if (Objects.isNull(entity)){
+                if (Objects.isNull(entity)) {
                     throw new InternalServerException("Not found education with id: " + x);
                 }
                 Optional<ExperienceDto> fromDto = dto.getExperiences().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1235,7 +1268,7 @@ public class CvServiceImpl implements CvService {
                 experience.setDescription(entity.getDescription());
                 experience.setStatus(entity.getStatus());
                 experience.setCv(cv);
-                Integer experienceIdOld=entity.getId();
+                Integer experienceIdOld = entity.getId();
                 Experience saved = experienceRepository.save(experience);
                 SectionDto sectionDto = new SectionDto();
                 sectionDto.setTitle(saved.getRole());
@@ -1282,7 +1315,7 @@ public class CvServiceImpl implements CvService {
             List<Integer> certificates = dto.getCertifications().stream().map(CertificationDto::getId).collect(Collectors.toList());
             certificates.forEach(x -> {
                 Certification entity = certificationRepository.getById(x);
-                if (Objects.isNull(entity)){
+                if (Objects.isNull(entity)) {
                     throw new InternalServerException("Not found education with id: " + x);
                 }
                 Optional<CertificationDto> fromDto = dto.getCertifications().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1315,7 +1348,7 @@ public class CvServiceImpl implements CvService {
             List<Integer> involvements = dto.getInvolvements().stream().map(InvolvementDto::getId).collect(Collectors.toList());
             involvements.forEach(x -> {
                 Involvement entity = involvementRepository.getById(x);
-                if (Objects.isNull(entity)){
+                if (Objects.isNull(entity)) {
                     throw new InternalServerException("Not found education with id: " + x);
                 }
                 Optional<InvolvementDto> fromDto = dto.getInvolvements().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1374,7 +1407,7 @@ public class CvServiceImpl implements CvService {
             List<Integer> projects = dto.getProjects().stream().map(ProjectDto::getId).collect(Collectors.toList());
             projects.forEach(x -> {
                 Project entity = projectRepository.getById(x);
-                if (Objects.isNull(entity)){
+                if (Objects.isNull(entity)) {
                     throw new InternalServerException("Not found education with id: " + x);
                 }
                 Optional<ProjectDto> fromDto = dto.getProjects().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1431,7 +1464,7 @@ public class CvServiceImpl implements CvService {
             });
             return true;
 
-        }else {
+        } else {
             throw new BadRequestException("Cv id not found.");
         }
 
@@ -1456,7 +1489,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> eduIds = cvBodyDto.getEducations().stream().map(EducationDto::getId).collect(Collectors.toList());
         eduIds.forEach(x -> {
             Education entity = educationRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<EducationDto> fromDto = cvBodyDto.getEducations().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1467,7 +1500,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> skills = cvBodyDto.getSkills().stream().map(SkillDto::getId).collect(Collectors.toList());
         skills.forEach(x -> {
             Skill entity = skillRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<SkillDto> fromDto = cvBodyDto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1478,7 +1511,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> experiences = cvBodyDto.getExperiences().stream().map(ExperienceDto::getId).collect(Collectors.toList());
         experiences.forEach(x -> {
             Experience entity = experienceRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<ExperienceDto> fromDto = cvBodyDto.getExperiences().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1488,7 +1521,7 @@ public class CvServiceImpl implements CvService {
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.experience, entity.getId());
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -1519,7 +1552,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> certificates = cvBodyDto.getCertifications().stream().map(CertificationDto::getId).collect(Collectors.toList());
         certificates.forEach(x -> {
             Certification entity = certificationRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<CertificationDto> fromDto = cvBodyDto.getCertifications().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1530,7 +1563,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> involvements = cvBodyDto.getInvolvements().stream().map(InvolvementDto::getId).collect(Collectors.toList());
         involvements.forEach(x -> {
             Involvement entity = involvementRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<InvolvementDto> fromDto = cvBodyDto.getInvolvements().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1539,7 +1572,7 @@ public class CvServiceImpl implements CvService {
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.involvement, entity.getId());
 
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -1568,7 +1601,7 @@ public class CvServiceImpl implements CvService {
         List<Integer> project = cvBodyDto.getProjects().stream().map(ProjectDto::getId).collect(Collectors.toList());
         project.forEach(x -> {
             Project entity = projectRepository.getById(x);
-            if (Objects.isNull(entity)){
+            if (Objects.isNull(entity)) {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<ProjectDto> fromDto = cvBodyDto.getProjects().stream().filter(y -> y.getId().equals(x)).findFirst();
@@ -1576,7 +1609,7 @@ public class CvServiceImpl implements CvService {
             projectRepository.save(entity);
             //Delete section_log in db
             Section section = sectionRepository.findByTypeNameAndTypeId(SectionEvaluate.project, entity.getId());
-            if(section!=null){
+            if (section != null) {
                 sectionLogRepository.deleteBySection_Id(section.getId());
                 cv.setOverview(null);
                 cvRepository.save(cv);
@@ -1603,5 +1636,45 @@ public class CvServiceImpl implements CvService {
             }
         });
         return true;
+    }
+
+    @Override
+    public void saveAfterFiveMin(HttpServletRequest request, Integer cvId, CvBodyDto dto) {
+        HttpSession session = request.getSession();
+        System.out.println("Session: " + session + ", create at: " + session.getCreationTime());
+        Debouncer debouncer = null;
+        if (Objects.isNull(session.getAttribute("debouncer"))) {
+            debouncer = new Debouncer();
+            session.setAttribute("debouncer", debouncer);
+            System.out.println("Created new debounce");
+        } else {
+            debouncer = (Debouncer) session.getAttribute("debouncer");
+        }
+        Runnable myFunction = () -> {
+            try {
+                this.updateCvBodyAndHistory(cvId, dto);
+                System.out.println("Created history");
+                session.removeAttribute("lastExecution");
+                session.removeAttribute("debouncer");
+                System.out.println("Clear lastExecution");
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        // This will execute the function after 1000 milliseconds (1 second) of the last invocation.
+        debouncer.debounce(session, myFunction, 10000);
+    }
+
+
+    @Override
+    public void saveToHistory(HttpServletRequest request, Integer userId, Integer cvId) throws JsonProcessingException {
+        HttpSession session = request.getSession();
+        System.out.println("CANCEL DEBOUNCE SESSION: " + session);
+        Debouncer debouncer = (Debouncer) session.getAttribute("debouncer");
+        if (Objects.nonNull(debouncer)) {
+            debouncer.cancelDebounce(session);
+            historyService.create(userId, cvId);
+            System.out.println("Created history by Click SAVE button ar finish up!!");
+        }
     }
 }

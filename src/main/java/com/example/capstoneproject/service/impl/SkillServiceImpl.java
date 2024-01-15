@@ -1,12 +1,10 @@
 package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Dto.CvBodyDto;
-import com.example.capstoneproject.Dto.EducationDto;
 import com.example.capstoneproject.Dto.SkillDto;
 import com.example.capstoneproject.Dto.responses.SkillViewDto;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.Skill;
-import com.example.capstoneproject.entity.Users;
 import com.example.capstoneproject.enums.BasicStatus;
 import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.exception.ResourceNotFoundException;
@@ -21,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -125,7 +122,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             CvBodyDto cvBodyDto = cv.deserialize();
             Optional<SkillDto> dto = cvBodyDto.getSkills().stream().filter(x -> x.getId() == id).findFirst();
             if (dto.isPresent()) {
-                modelMapper.map(education, dto.get());
+//                modelMapper.map(education, dto.get());
                 return dto.get();
             } else {
                 throw new ResourceNotFoundException("Not found that id in cvBody");
@@ -179,7 +176,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
     public SkillDto createOfUserInCvBody(int cvId, SkillDto dto) throws JsonProcessingException {
         Skill education = skillMapper.mapDtoToEntity(dto);
         Cv cv = cvRepository.findCvById(cvId, BasicStatus.ACTIVE);
-        if (Objects.isNull(cv)){
+        if (Objects.isNull(cv)) {
             throw new BadRequestException("Can not find the cv");
         }
         education.setCv(cv);
@@ -189,7 +186,7 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
         dto.setStatus(BasicStatus.ACTIVE);
         CvBodyDto cvBodyDto = cv.deserialize();
         Integer activeEdus = cvBodyDto.getSkills().stream()
-                .filter(x->Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
+                .filter(x -> Objects.nonNull(x.getIsDisplay()) && x.getIsDisplay().equals(true)).collect(Collectors.toList()).size();
         dto.setTheOrder(activeEdus + 1);
         cvBodyDto.getSkills().add(dto);
         cvService.updateCvBody(cv.getId(), cvBodyDto);
@@ -205,9 +202,9 @@ public class SkillServiceImpl extends AbstractBaseService<Skill, SkillDto, Integ
             skillRepository.save(education);
             try {
                 CvBodyDto cvBodyDto = cvService.getCvBody(cvId);
-                SkillDto dto = cvBodyDto.getSkills().stream().filter(e-> e.getId().equals(id)).findFirst().get();
+                SkillDto dto = cvBodyDto.getSkills().stream().filter(e -> e.getId().equals(id)).findFirst().get();
                 cvBodyDto.getSkills().forEach(c -> {
-                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()){
+                    if (Objects.nonNull(c.getTheOrder()) && c.getTheOrder() > dto.getTheOrder()) {
                         c.setTheOrder(c.getTheOrder() - 1);
                     }
                 });

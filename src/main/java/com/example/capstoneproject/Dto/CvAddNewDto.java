@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -33,7 +33,7 @@ public class CvAddNewDto {
     private Long id;
     private String content;
     private String summary;
-    private TheOrder theOrder;
+    private HashMap<String, Long> theOrder;
     private BasicStatus status;
     private String templateType;
     private CvStyleDto cvStyle;

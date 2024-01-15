@@ -6,11 +6,10 @@ import com.example.capstoneproject.Dto.responses.CvViewDto;
 import com.example.capstoneproject.Dto.responses.ResumeTitleResponse;
 import com.example.capstoneproject.Dto.responses.UsersCvViewDto;
 import com.example.capstoneproject.entity.Cv;
-import com.example.capstoneproject.entity.Users;
-import com.example.capstoneproject.enums.RoleType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
 
@@ -35,7 +34,10 @@ public interface CvService {
 
     boolean updateCvBody(int cvId, CvBodyDto dto) throws JsonProcessingException;
 
+    boolean updateCvBodyAndHistory(int cvId, CvBodyDto dto) throws JsonProcessingException;
+
     UsersCvViewDto updateCvContact(Integer UsersId, Integer cvId, UsersCvViewDto dto) throws JsonProcessingException;
+
     UsersCvViewDto getCvContact(Integer userId, Integer cvId) throws JsonProcessingException;
 
     Boolean updateCvTarget(Integer id, CvUpdateDto dto, Principal principal);
@@ -57,6 +59,7 @@ public interface CvService {
     List<ExperienceRoleDto> getListExperienceRole(Integer userId, Integer cvId) throws JsonProcessingException;
 
     ChatResponse generateSummaryCV(Integer cvId, SummaryGenerationDto dto, Principal principal) throws JsonProcessingException;
+
     ChatResponse reviewCV(float temperature, Integer cvId, Principal principal) throws JsonProcessingException;
 
     ChatResponseArray rewritteExperience(ReWritterExperienceDto dto, Principal principal) throws JsonProcessingException;
@@ -68,6 +71,10 @@ public interface CvService {
     boolean createParse(Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException;
 
     boolean createOldParse(Integer cvId, CvBodyReviewDto dto) throws JsonProcessingException;
+
     ResumeTitleResponse getResumeName(Integer cvId);
 
+    void saveAfterFiveMin(HttpServletRequest request, Integer cvId, CvBodyDto dto);
+
+    void saveToHistory(HttpServletRequest request, Integer userId, Integer cvId) throws JsonProcessingException;
 }

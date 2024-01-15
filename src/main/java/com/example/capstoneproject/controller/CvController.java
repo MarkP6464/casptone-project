@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
 
@@ -27,14 +28,14 @@ public class CvController {
 
     @GetMapping("/{user-id}/cvs")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
-    public List<CvViewDto> getCvsById(@PathVariable("user-id") Integer UsersId, @RequestParam(required = false) String content) {
+    public List<CvViewDto> getCvsById(HttpServletRequest request, @PathVariable("user-id") Integer UsersId, @RequestParam(required = false) String content) {
         return cvService.GetCvsById(UsersId, content);
     }
 
     @PostMapping("/user/{user-id}/cv/{cv-id}/duplicate")
     @PreAuthorize("hasAnyAuthority('create:candidate', 'create:expert')")
     public CvDto duplicationCv(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
-        return  cvService.duplicateCv(userId, cvId);
+        return cvService.duplicateCv(userId, cvId);
     }
 
     @GetMapping("/{user-id}/cv/{cv-id}")
@@ -51,8 +52,21 @@ public class CvController {
 
     @PutMapping("/{user-id}/cv/{cv-id}/cv-body")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
-    public String updateCvBody(@PathVariable("user-id") int UsersId, @PathVariable("cv-id") int cvId, @RequestBody CvBodyDto Dto) throws JsonProcessingException {
-        boolean check = cvService.updateCvBody(cvId, Dto);
+    public String updateCvBody(HttpServletRequest request, @PathVariable("user-id") Integer usersId, @PathVariable("cv-id") int cvId, @RequestBody CvBodyDto dto) throws JsonProcessingException {
+        boolean check = cvService.updateCvBody(cvId, dto);
+        cvService.saveAfterFiveMin(request, cvId, dto);
+        if (check) {
+            return "Changes saved";
+        } else {
+            return "Changes fail";
+        }
+    }
+
+    @PutMapping("/{user-id}/cv/{cv-id}/cv-history")
+    @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
+    public String updateCvBodyEndTimer(HttpServletRequest request, @PathVariable("user-id") Integer usersId, @PathVariable("cv-id") int cvId, @RequestBody CvBodyDto dto) throws JsonProcessingException {
+        boolean check = cvService.updateCvBody(cvId, dto);
+        cvService.saveToHistory(request, usersId, cvId);
         if (check) {
             return "Changes saved";
         } else {
@@ -98,7 +112,7 @@ public class CvController {
     @PutMapping("/{cv-id}/target")
     @PreAuthorize("hasAnyAuthority('update:candidate', 'update:expert')")
     public String updateContact(@PathVariable("cv-id") int id, @RequestBody CvUpdateDto dto, Principal principal) {
-        if (cvService.updateCvTarget(id, dto, principal)){
+        if (cvService.updateCvTarget(id, dto, principal)) {
             return "Update success";
         } else throw new InternalServerException("Update Fail");
     }
@@ -136,7 +150,7 @@ public class CvController {
     @GetMapping("/{user-id}/cv/{cv-id}/experiences/role-names")
     @PreAuthorize("hasAnyAuthority('read:candidate', 'read:expert')")
     public List<ExperienceRoleDto> getListExperienceRole(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) throws JsonProcessingException {
-        return cvService.getListExperienceRole(userId,cvId);
+        return cvService.getListExperienceRole(userId, cvId);
     }
 
 

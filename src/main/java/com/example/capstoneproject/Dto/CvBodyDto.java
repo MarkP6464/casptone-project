@@ -5,8 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.Column;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -51,7 +51,7 @@ public class CvBodyDto {
 
     private CvStyleDto cvStyle = new CvStyleDto();
 
-    private TheOrder theOrder = new TheOrder();
+    private HashMap<String, Long> theOrder = new HashMap<>();
 
     private List<SkillDto> skills = new ArrayList<>();
 

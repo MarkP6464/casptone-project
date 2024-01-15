@@ -2,9 +2,9 @@ package com.example.capstoneproject.Dto;
 
 import lombok.*;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class CvBodyReviewDto {
 
     private CvStyleDto cvStyle = new CvStyleDto();
 
-    private TheOrder theOrder;
+    private HashMap<String, Long> theOrder;
 
     private String name;
 
