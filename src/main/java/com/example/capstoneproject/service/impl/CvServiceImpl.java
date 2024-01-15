@@ -221,7 +221,7 @@ public class CvServiceImpl implements CvService {
             List<Cv> cvs = cvRepository.findAllByUser_IdAndStatus(UsersId, BasicStatus.ACTIVE);
             if (cvs != null) {
                 for (Cv cv : cvs) {
-                    if (cv.getResumeName().equals(dto.getResumeName())) {
+                    if (dto.getResumeName().equals(cv.getResumeName())) {
                         throw new BadRequestException("Resume name already exists in another cv.");
                     }
                 }

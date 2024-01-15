@@ -23,7 +23,7 @@ public class ChatGptController {
 
 
     @PostMapping("/cv/{cv-id}/summary")
-    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public ResponseEntity<?> generateSummary(
             @PathVariable("cv-id") Integer cvId,
             @RequestBody SummaryGenerationDto dto,
