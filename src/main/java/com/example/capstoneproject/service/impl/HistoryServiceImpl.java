@@ -73,6 +73,7 @@ public class HistoryServiceImpl implements HistoryService {
             cvBodyReviewDto.setPersonalWebsite(cvBodyDto.getPersonalWebsite());
             cvBodyReviewDto.setEmail(cvBodyDto.getEmail());
             cvBodyReviewDto.setLinkin(cvBodyDto.getLinkin());
+            cvBodyReviewDto.setCustomSections(cvBodyDto.getCustomSections());
             // Sử dụng ObjectMapper để chuyển đổi CvBodyReviewDto thành chuỗi JSON
             ObjectMapper objectMapper = new ObjectMapper();
             String cvBodyReviewJson = objectMapper.writeValueAsString(cvBodyReviewDto);

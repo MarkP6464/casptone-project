@@ -1665,7 +1665,6 @@ public class CvServiceImpl implements CvService {
         debouncer.debounce(session, myFunction, 10000);
     }
 
-
     @Override
     public void saveToHistory(HttpServletRequest request, Integer userId, Integer cvId) throws JsonProcessingException {
         HttpSession session = request.getSession();

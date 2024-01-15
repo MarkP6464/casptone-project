@@ -31,10 +31,6 @@ public class CvBodyDto {
 
     private String summary;
 
-//    private String fieldOrDomain;
-
-//    private String experience;
-
     private String templateType = "classical";
 
     private String name;

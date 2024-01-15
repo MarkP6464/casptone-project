@@ -35,7 +35,7 @@ public class HistoryController {
     }
 
     @GetMapping("/user/{user-id}/cv/{cv-id}/histories")
-    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
+//    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public ResponseEntity<?> getListHistory(@PathVariable("user-id") Integer userId, @PathVariable("cv-id") Integer cvId) {
         return ResponseEntity.ok(historyService.getListHistoryDate(userId,cvId));
     }
