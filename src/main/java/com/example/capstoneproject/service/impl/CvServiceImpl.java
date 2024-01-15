@@ -375,6 +375,8 @@ public class CvServiceImpl implements CvService {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
+            cv.setSummary(dto.getSummary());
+            cv.setResumeName(dto.getResumeName());
             cv.toCvBody(dto);
             cvRepository.save(cv);
             return true;
