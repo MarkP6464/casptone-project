@@ -7,6 +7,7 @@ import com.example.capstoneproject.Dto.responses.ReviewRequestViewDto;
 import com.example.capstoneproject.enums.SortBy;
 import com.example.capstoneproject.enums.SortOrder;
 import com.example.capstoneproject.service.ReviewRequestService;
+import com.example.capstoneproject.service.impl.ReviewRequestServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,16 @@ public class ReviewRequestController {
     @Autowired
     ReviewRequestService reviewRequestService;
 
+    @Autowired
+    ReviewRequestServiceImpl reviewRequestServiceI;
+
     public ReviewRequestController(ReviewRequestService reviewRequestService) {
         this.reviewRequestService = reviewRequestService;
     }
 
 
     @PostMapping("/{cv-id}/expert/{expert-id}/request-review/option/{option-id}")
-//    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
+    @PreAuthorize("hasAnyAuthority('create:candidate','create:expert')")
     public String postReviewRequest(@PathVariable("cv-id") Integer cvId, @PathVariable("expert-id") Integer expertId, @PathVariable("option-id") Integer optionId, @RequestBody ReviewRequestAddDto Dto) throws JsonProcessingException {
         return reviewRequestService.createReviewRequest(cvId,expertId,optionId,Dto);
     }
@@ -82,5 +86,16 @@ public class ReviewRequestController {
     ) {
         return reviewRequestService.rejectReviewRequest(expertId, requestId);
     }
+
+//    @GetMapping("/checkUpdate")
+//    public boolean checkUpdate() {
+//        try {
+//            // Call the service method to check for updates
+//            return reviewRequestServiceI.checkUpdate();
+//        } catch (Exception e) {
+//            // Handle exceptions appropriately (e.g., log, return false)
+//            return false;
+//        }
+//    }
 
 }
