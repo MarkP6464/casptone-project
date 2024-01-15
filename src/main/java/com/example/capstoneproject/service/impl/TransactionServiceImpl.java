@@ -6,7 +6,6 @@ import com.example.capstoneproject.Dto.UsersDto;
 import com.example.capstoneproject.Dto.request.HRBankRequest;
 import com.example.capstoneproject.Dto.request.ImageDto;
 import com.example.capstoneproject.Dto.responses.AdminConfigurationResponse;
-import com.example.capstoneproject.Dto.responses.ExpertConfigViewDto;
 import com.example.capstoneproject.Dto.responses.TransactionResponse;
 import com.example.capstoneproject.Dto.responses.TransactionViewDto;
 import com.example.capstoneproject.entity.Expert;
@@ -70,7 +69,7 @@ public class TransactionServiceImpl implements TransactionService {
     AdminConfigurationService adminConfigurationService;
 
     @Override
-    public List<TransactionDto> getAll(String id){
+    public List<TransactionDto> getAll(String id) {
         Integer receivedID = Integer.parseInt(id);
         List<Transaction> list = transactionRepository.findBySentIdOrUser_Id(id, receivedID);
         List<TransactionDto> dtos = list.stream().map(x -> {
@@ -82,7 +81,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDto> getAllTransactionType(String id){
+    public List<TransactionDto> getAllTransactionType(String id) {
         Integer receivedID = Integer.parseInt(id);
         List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndTransactionType(id, receivedID, TransactionType.WITHDRAW);
         List<TransactionDto> dtos = list.stream().map(x -> {
@@ -94,7 +93,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDto> getAllSuccessfull(String id){
+    public List<TransactionDto> getAllSuccessfull(String id) {
         Integer receivedID = Integer.parseInt(id);
         List<Transaction> list = transactionRepository.findBySentIdOrUser_IdAndStatusIsAndTransactionTypeNot(id, receivedID, TransactionStatus.SUCCESSFUL, TransactionType.WITHDRAW);
         List<TransactionDto> dtos = list.stream().map(x -> {
@@ -106,7 +105,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDto> showAll(){
+    public List<TransactionDto> showAll() {
         List<Transaction> list = transactionRepository.findAll();
         List<TransactionDto> dtos = list.stream().map(x -> {
             TransactionDto dto = transactionMapper.toDto(x);
@@ -117,7 +116,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDto> getAll(String id, Long receiverId){
+    public List<TransactionDto> getAll(String id, Long receiverId) {
         List<Transaction> list = transactionRepository.findBySentIdAndUser_Id(id, receiverId);
         List<TransactionDto> dtos = list.stream().map(x -> transactionMapper.toDto(x)).collect(Collectors.toList());
         return dtos;
@@ -127,7 +126,7 @@ public class TransactionServiceImpl implements TransactionService {
     public String create(TransactionDto transactionDto) throws Exception {
 
         Users user = usersService.getUsersById(transactionDto.getUserId());
-        if (!Objects.nonNull(user)){
+        if (!Objects.nonNull(user)) {
             throw new ForbiddenException("User not found");
         }
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
@@ -135,9 +134,9 @@ public class TransactionServiceImpl implements TransactionService {
         String orderId = String.valueOf(System.currentTimeMillis()) + "_InvoiceID";
         String orderInfo = "CvBuilder";
         String domain = null;
-        if(MoneyType.SUBSCRIPTION.equals(transactionDto.getMoneyType())){
+        if (MoneyType.SUBSCRIPTION.equals(transactionDto.getMoneyType())) {
             domain = "https://cvbuilder.monoinfinity.net/paymentcallback/hr";
-        }else {
+        } else {
             domain = "https://cvbuilder.monoinfinity.net/paymentcallback";
         }
 
@@ -158,10 +157,10 @@ public class TransactionServiceImpl implements TransactionService {
 //        Double ratio = config.getMoneyRatio();
         environment.setPartnerInfo(partnerInfo);
         CaptureMoMoResponse captureWalletMoMoResponse = CaptureMoMo.process(environment, orderId, requestId, String.valueOf(transactionDto.getExpenditure().longValue()), orderInfo, returnURL, notifyURL, extraData);
-        if (Objects.isNull(captureWalletMoMoResponse)){
+        if (Objects.isNull(captureWalletMoMoResponse)) {
             throw new InternalServerException("Momo service is not available");
         }
-        if (captureWalletMoMoResponse.getMessage().equals("Success")){
+        if (captureWalletMoMoResponse.getMessage().equals("Success")) {
             Transaction transaction = new Transaction(null, "Momo", requestId, transactionDto.getMomoId(), transactionDto.getResponseMessage(), TransactionType.ADD, transactionDto.getMoneyType(), transactionDto.getExpenditure(), transactionDto.getExpenditure() / 1, 0L, TransactionStatus.PROCESSING, usersService.getUsersById(transactionDto.getUserId()));
             transactionRepository.save(transaction);
         }
@@ -178,10 +177,10 @@ public class TransactionServiceImpl implements TransactionService {
         environment.setPartnerInfo(partnerInfo);
 
         QueryStatusTransactionResponse queryStatusTransactionResponse = QueryStatusTransaction.process(environment, orderId, requestId);
-        if (Objects.isNull(queryStatusTransactionResponse)){
+        if (Objects.isNull(queryStatusTransactionResponse)) {
             throw new InternalServerException("Momo service is not available");
         }
-        JsonObject s  = new Gson().fromJson(new String(queryStatusTransactionResponse.getExtraData()), JsonObject.class);
+        JsonObject s = new Gson().fromJson(new String(queryStatusTransactionResponse.getExtraData()), JsonObject.class);
         Integer code = queryStatusTransactionResponse.getErrorCode();
         String tid = s.get("transactionId").getAsString();
         String uid = s.get("uid").getAsString();
@@ -189,23 +188,23 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction transaction = transactionRepository.findByRequestId(tid);
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = 1.0;
-        if (TransactionStatus.PROCESSING.equals(transaction.getStatus())){
+        if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
             if (code.equals(0)) {
-                if (Objects.nonNull(transaction)){
+                if (Objects.nonNull(transaction)) {
                     transaction.setStatus(TransactionStatus.SUCCESSFUL);
-                }else {
+                } else {
                     throw new InternalServerException("Cannot find transaction status");
                 }
                 Users user = usersService.getUsersById(Integer.parseInt(uid));
-                if (Objects.nonNull(user)){
-                    if (user instanceof HR){
+                if (Objects.nonNull(user)) {
+                    if (user instanceof HR) {
                         HR hr = (HR) user;
-                        if (LocalDate.now().isAfter(hr.getExpiredDay())){
+                        if (LocalDate.now().isAfter(hr.getExpiredDay())) {
                             hr.setExpiredDay(LocalDate.now());
                         }
-                        if (config.getVipMonthRatio().equals(expenditure)){
+                        if (config.getVipMonthRatio().equals(expenditure)) {
                             hr.setExpiredDay(hr.getExpiredDay().plusDays(30));
-                        } else if (config.getVipYearRatio().equals(expenditure)){
+                        } else if (config.getVipYearRatio().equals(expenditure)) {
                             hr.setExpiredDay(hr.getExpiredDay().plusDays(365));
                         }
                         hr.setVip(true);
@@ -215,13 +214,13 @@ public class TransactionServiceImpl implements TransactionService {
                     }
                 }
             } else {
-                if (Objects.nonNull(transaction)){
+                if (Objects.nonNull(transaction)) {
                     transaction.setStatus(TransactionStatus.FAIL);
-                }else {
+                } else {
                     throw new InternalServerException("Cannot find transaction status");
                 }
             }
-        }else {
+        } else {
             throw new BadRequestException("transaction status is not available to update");
         }
 
@@ -236,21 +235,21 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDto requestToWithdraw(TransactionResponse dto) throws JsonProcessingException {
         Users user = usersService.getUsersById(dto.getUserId());
-        if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0){
+        if (dto.getExpenditure().compareTo(user.getAccountBalance()) > 0) {
             throw new BadRequestException("Account balance is not enough!");
         }
         Expert expert = null;
-        if (user instanceof Expert){
-            expert =  (Expert) user;
+        if (user instanceof Expert) {
+            expert = (Expert) user;
         }
-        if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())){
+        if (Objects.isNull(expert.getBankAccountNumber()) || Objects.isNull(expert.getBankAccountName())) {
             throw new BadRequestException("Please setting your bank account to withdraw!!");
         }
         AdminConfigurationResponse config = adminConfigurationService.getByAdminId(1);
         Double ratio = 1.0;
         String requestId = String.valueOf(System.currentTimeMillis());
-        Transaction transaction = new Transaction(null, "1", requestId,  null, "Withdraw request",
-            TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getExpenditure(), dto.getExpenditure() , 0L, TransactionStatus.PROCESSING, usersService.getUsersById(dto.getUserId()));
+        Transaction transaction = new Transaction(null, "1", requestId, null, "Withdraw request",
+                TransactionType.WITHDRAW, MoneyType.CREDIT, dto.getExpenditure(), dto.getExpenditure(), 0L, TransactionStatus.PROCESSING, usersService.getUsersById(dto.getUserId()));
         transaction.setBankAccountName(expert.getBankAccountName());
         transaction.setBankName(expert.getBankName());
         transaction.setBankAccountNumber(expert.getBankAccountNumber());
@@ -263,7 +262,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionDto approveWithdrawRequest(String id) throws FileNotFoundException {
         Transaction transaction = transactionRepository.findByRequestId(id);
-        if (Objects.nonNull(transaction)){
+        if (Objects.nonNull(transaction)) {
             transaction.setStatus(TransactionStatus.SUCCESSFUL);
             transaction.setUpdateDate(LocalDateTime.now());
             ApplicationLogServiceImpl.sendEmail(transaction.getUser().getEmail(), "Withdraw request approved.",
@@ -277,7 +276,7 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionViewDto> viewWithdrawList() {
         List<Transaction> transactions = transactionRepository.findBySentIdOrUser_IdAndTransactionType("1", 1, TransactionType.WITHDRAW);
         List<TransactionViewDto> transactionViews = new ArrayList<>();
-        for(Transaction transaction: transactions){
+        for (Transaction transaction : transactions) {
             TransactionViewDto transactionView = new TransactionViewDto();
             transactionView.setId(transaction.getId());
             transactionView.setSentId(transaction.getSentId());
@@ -314,37 +313,37 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public String uploadImageConfirm(Long transactionId, ImageDto dto) {
         Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
-        if(transactionOptional.isPresent()){
+        if (transactionOptional.isPresent()) {
             Transaction transaction = transactionOptional.get();
             transaction.setProof(dto.getImage());
             transactionRepository.save(transaction);
             return "Upload image successful.";
-        }else{
+        } else {
             throw new BadRequestException("Transaction is not exist.");
         }
     }
 
     @Override
-    public TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount){
+    public TransactionDto requestToReview(Integer sentId, Integer receiveId, Double amount) {
 
         //giam tien user
         Users user = usersService.getUsersById(sentId);
-        if (user.getAccountBalance() < amount.longValue()){
+        if (user.getAccountBalance() < amount.longValue()) {
             throw new BadRequestException("Account Balance is not enough!!");
         }
         user.setAccountBalance((user.getAccountBalance() - amount));
         usersRepository.save(user);
 
         String requestId = String.valueOf(System.currentTimeMillis());
-        Transaction transaction = new Transaction(null, sentId.toString(), requestId,  null, "Review request",
-                TransactionType.TRANSFER, MoneyType.CREDIT, amount, 0.0, 0L, TransactionStatus.PROCESSING, usersService.getUsersById(receiveId));
+        Transaction transaction = new Transaction(null, sentId.toString(), requestId, null, "Review request",
+                TransactionType.TRANSFER, MoneyType.CREDIT, amount, amount, 0L, TransactionStatus.PROCESSING, usersService.getUsersById(receiveId));
         transaction = transactionRepository.save(transaction);
 
         return transactionMapper.toDto(transaction);
     }
 
     @Override
-    public Transaction getById(Long id){
+    public Transaction getById(Long id) {
         Optional<Transaction> transaction = transactionRepository.findById(id);
         if (Objects.nonNull(transaction)) {
             return transaction.get();
@@ -352,7 +351,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionDto requestToReviewFail(String requestId){
+    public TransactionDto requestToReviewFail(String requestId) {
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
         if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
             transaction.setStatus(TransactionStatus.FAIL);
@@ -361,14 +360,14 @@ public class TransactionServiceImpl implements TransactionService {
 
             //tra tien cho candidate
             Users user = usersService.getUsersById(Integer.parseInt(transaction.getSentId()));
-            user.setAccountBalance((user.getAccountBalance() + transaction.getConversionAmount()));
+            user.setAccountBalance((user.getAccountBalance() + transaction.getExpenditure()));
             usersRepository.save(user);
             return transactionMapper.toDto(transaction);
         } else throw new BadRequestException("transaction status is not available to update");
     }
 
     @Override
-    public TransactionDto requestToReviewSuccessFul(String requestId){
+    public TransactionDto requestToReviewSuccessFul(String requestId) {
         Transaction transaction = transactionRepository.findById(Long.parseLong(requestId)).get();
         if (TransactionStatus.PROCESSING.equals(transaction.getStatus())) {
             transaction.setStatus(TransactionStatus.SUCCESSFUL);
@@ -377,22 +376,22 @@ public class TransactionServiceImpl implements TransactionService {
 
             //cong tien cho expert
             Users user = usersService.getUsersById(transaction.getUser().getId());
-            user.setAccountBalance( (user.getAccountBalance() + transaction.getConversionAmount()));
+            user.setAccountBalance(user.getAccountBalance() + transaction.getExpenditure());
             usersRepository.save(user);
             return transactionMapper.toDto(transaction);
         } else throw new BadRequestException("transaction status is not available to update");
     }
 
     @Override
-    public TransactionDto chargePerRequest(Integer userId, String message){
+    public TransactionDto chargePerRequest(Integer userId, String message) {
         Users users = usersService.getUsersById(userId);
-        if (Double.compare(users.getAccountBalance(), 1000L) >= 0 ){
+        if (Double.compare(users.getAccountBalance(), 1000L) >= 0) {
             String requestId = String.valueOf(System.currentTimeMillis());
-            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0,null, TransactionStatus.SUCCESSFUL, usersService.getUsersById(1));
+            Transaction transaction = new Transaction(null, String.valueOf(userId), requestId, null, message, TransactionType.SERVICE, MoneyType.CREDIT, 1000.0, 1.0, null, TransactionStatus.SUCCESSFUL, usersService.getUsersById(1));
             Transaction transaction1 = transactionRepository.save(transaction);
-            users.setAccountBalance(users.getAccountBalance()-1000L);
+            users.setAccountBalance(users.getAccountBalance() - 1000L);
             usersRepository.save(users);
             return transactionMapper.toDto(transaction1);
-        }else throw  new BadRequestException("account balance is not enough!!");
+        } else throw new BadRequestException("account balance is not enough!!");
     }
 }
