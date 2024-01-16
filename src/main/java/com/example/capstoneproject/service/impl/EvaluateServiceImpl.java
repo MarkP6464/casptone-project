@@ -216,58 +216,80 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Personal Pronouns in the sentences
         String personalPronouns = evaluateNlpResponse.getPersonalPronoun();
-        BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
-        if (personalPronouns != null) {
-            Evaluate evaluate = evaluates.get(3);
-            errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
-            errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
-            errorBulletPersonalPronouns.setResult(personalPronouns);
-            errorBulletPersonalPronouns.setCount(countNumbers(personalPronouns));
-            // Check if evaluate.getCritical() is true or false
-            if (evaluate.getCritical()) {
-                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
-            } else {
-                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
-            }
-            allBulletPoints.add(errorBulletPersonalPronouns);
-        }else{
+        if(personalPronouns==null){
+            BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
             Evaluate evaluate = evaluates.get(3);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
             errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
             errorBulletPersonalPronouns.setStatus(SectionLogStatus.Pass);
             errorBulletPersonalPronouns.setCount(sentences.size());
             allBulletPoints.add(errorBulletPersonalPronouns);
+        }else{
+            if (!personalPronouns.isEmpty()) {
+                BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(3);
+                errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
+                errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
+                errorBulletPersonalPronouns.setResult(personalPronouns);
+                errorBulletPersonalPronouns.setCount(countNumbers(personalPronouns));
+                // Check if evaluate.getCritical() is true or false
+                if (evaluate.getCritical()) {
+                    errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
+                } else {
+                    errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
+                }
+                allBulletPoints.add(errorBulletPersonalPronouns);
+            }else{
+                BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(3);
+                errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
+                errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
+                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Pass);
+                errorBulletPersonalPronouns.setCount(sentences.size());
+                allBulletPoints.add(errorBulletPersonalPronouns);
+            }
         }
 
         // Check for Filler Words in the sentences
         String fillerWord = evaluateNlpResponse.getFiller();
-        BulletPointDto errorBulletFillers = new BulletPointDto();
-        if (fillerWord!=null) {
-            Evaluate evaluate = evaluates.get(4);
-            errorBulletFillers.setTitle(evaluate.getTitle());
-            errorBulletFillers.setDescription(evaluate.getDescription());
-            errorBulletFillers.setResult(fillerWord);
-            errorBulletFillers.setCount(countNumbers(fillerWord));
-            // Check if evaluate.getCritical() is true or false
-            if (evaluate.getCritical()) {
-                errorBulletFillers.setStatus(SectionLogStatus.Error);
-            } else {
-                errorBulletFillers.setStatus(SectionLogStatus.Warning);
-            }
-            allBulletPoints.add(errorBulletFillers);
-        }else {
+        if(fillerWord==null){
+            BulletPointDto errorBulletFillers = new BulletPointDto();
             Evaluate evaluate = evaluates.get(4);
             errorBulletFillers.setTitle(evaluate.getTitle());
             errorBulletFillers.setDescription(evaluate.getDescription());
             errorBulletFillers.setStatus(SectionLogStatus.Pass);
             errorBulletFillers.setCount(sentences.size());
             allBulletPoints.add(errorBulletFillers);
+        }else{
+            if (!fillerWord.isEmpty()) {
+                BulletPointDto errorBulletFillers = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(4);
+                errorBulletFillers.setTitle(evaluate.getTitle());
+                errorBulletFillers.setDescription(evaluate.getDescription());
+                errorBulletFillers.setResult(fillerWord);
+                errorBulletFillers.setCount(countNumbers(fillerWord));
+                // Check if evaluate.getCritical() is true or false
+                if (evaluate.getCritical()) {
+                    errorBulletFillers.setStatus(SectionLogStatus.Error);
+                } else {
+                    errorBulletFillers.setStatus(SectionLogStatus.Warning);
+                }
+                allBulletPoints.add(errorBulletFillers);
+            }else {
+                BulletPointDto errorBulletFillers = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(4);
+                errorBulletFillers.setTitle(evaluate.getTitle());
+                errorBulletFillers.setDescription(evaluate.getDescription());
+                errorBulletFillers.setStatus(SectionLogStatus.Pass);
+                errorBulletFillers.setCount(sentences.size());
+                allBulletPoints.add(errorBulletFillers);
+            }
         }
 
         // Check for Quantified in the sentences
         String quantified = containsNumber(sentences);
-        BulletPointDto errorBulletQuantified = new BulletPointDto();
         if (!quantified.isEmpty()) {
+            BulletPointDto errorBulletQuantified = new BulletPointDto();
             Evaluate evaluate = evaluates.get(5);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
@@ -281,6 +303,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletQuantified);
         }else {
+            BulletPointDto errorBulletQuantified = new BulletPointDto();
             Evaluate evaluate = evaluates.get(5);
             errorBulletQuantified.setTitle(evaluate.getTitle());
             errorBulletQuantified.setDescription(evaluate.getDescription());
@@ -291,8 +314,8 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Grammar in the sentences
         String grammar = checkGrammar(sentences);
-        BulletPointDto errorBulletGrammar = new BulletPointDto();
-        if (grammar!=null) {
+        if (!grammar.isEmpty()) {
+            BulletPointDto errorBulletGrammar = new BulletPointDto();
             Evaluate evaluate = evaluates.get(6);
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
@@ -306,6 +329,7 @@ public class EvaluateServiceImpl implements EvaluateService {
             }
             allBulletPoints.add(errorBulletGrammar);
         }else {
+            BulletPointDto errorBulletGrammar = new BulletPointDto();
             Evaluate evaluate = evaluates.get(6);
             errorBulletGrammar.setTitle(evaluate.getTitle());
             errorBulletGrammar.setDescription(evaluate.getDescription());
@@ -316,27 +340,38 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Passive voice in the sentences
         String passive = evaluateNlpResponse.getPassiveVoice();
-        BulletPointDto errorBulletPassive = new BulletPointDto();
-        if (passive!=null) {
-            Evaluate evaluate = evaluates.get(7);
-            errorBulletPassive.setTitle(evaluate.getTitle());
-            errorBulletPassive.setDescription(evaluate.getDescription());
-            errorBulletPassive.setResult(passive);
-            errorBulletPassive.setCount(countNumbers(passive));
-            // Check if evaluate.getCritical() is true or false
-            if (evaluate.getCritical()) {
-                errorBulletPassive.setStatus(SectionLogStatus.Error);
-            } else {
-                errorBulletPassive.setStatus(SectionLogStatus.Warning);
-            }
-            allBulletPoints.add(errorBulletPassive);
-        }else {
+        if(passive==null){
+            BulletPointDto errorBulletPassive = new BulletPointDto();
             Evaluate evaluate = evaluates.get(7);
             errorBulletPassive.setTitle(evaluate.getTitle());
             errorBulletPassive.setDescription(evaluate.getDescription());
             errorBulletPassive.setStatus(SectionLogStatus.Pass);
             errorBulletPassive.setCount(sentences.size());
             allBulletPoints.add(errorBulletPassive);
+        }else{
+            if (!passive.isEmpty()) {
+                BulletPointDto errorBulletPassive = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(7);
+                errorBulletPassive.setTitle(evaluate.getTitle());
+                errorBulletPassive.setDescription(evaluate.getDescription());
+                errorBulletPassive.setResult(passive);
+                errorBulletPassive.setCount(countNumbers(passive));
+                // Check if evaluate.getCritical() is true or false
+                if (evaluate.getCritical()) {
+                    errorBulletPassive.setStatus(SectionLogStatus.Error);
+                } else {
+                    errorBulletPassive.setStatus(SectionLogStatus.Warning);
+                }
+                allBulletPoints.add(errorBulletPassive);
+            }else {
+                BulletPointDto errorBulletPassive = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(7);
+                errorBulletPassive.setTitle(evaluate.getTitle());
+                errorBulletPassive.setDescription(evaluate.getDescription());
+                errorBulletPassive.setStatus(SectionLogStatus.Pass);
+                errorBulletPassive.setCount(sentences.size());
+                allBulletPoints.add(errorBulletPassive);
+            }
         }
 
         return allBulletPoints;
@@ -453,21 +488,7 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Personal Pronouns in the sentences
         String personalPronouns = evaluateNlpResponse.getPersonalPronoun();
-        if (!personalPronouns.isEmpty()) {
-            BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
-            Evaluate evaluate = evaluates.get(3);
-            errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
-            errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
-            errorBulletPersonalPronouns.setResult(personalPronouns);
-            errorBulletPersonalPronouns.setCount(countNumbers(personalPronouns));
-            // Check if evaluate.getCritical() is true or false
-            if (evaluate.getCritical()) {
-                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
-            } else {
-                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
-            }
-            allBulletPoints.add(errorBulletPersonalPronouns);
-        }else{
+        if(personalPronouns==null){
             BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
             Evaluate evaluate = evaluates.get(3);
             errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
@@ -475,25 +496,35 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPersonalPronouns.setStatus(SectionLogStatus.Pass);
             errorBulletPersonalPronouns.setCount(sentences.size());
             allBulletPoints.add(errorBulletPersonalPronouns);
+        }else{
+            if (!personalPronouns.isEmpty()) {
+                BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(3);
+                errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
+                errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
+                errorBulletPersonalPronouns.setResult(personalPronouns);
+                errorBulletPersonalPronouns.setCount(countNumbers(personalPronouns));
+                // Check if evaluate.getCritical() is true or false
+                if (evaluate.getCritical()) {
+                    errorBulletPersonalPronouns.setStatus(SectionLogStatus.Error);
+                } else {
+                    errorBulletPersonalPronouns.setStatus(SectionLogStatus.Warning);
+                }
+                allBulletPoints.add(errorBulletPersonalPronouns);
+            }else{
+                BulletPointDto errorBulletPersonalPronouns = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(3);
+                errorBulletPersonalPronouns.setTitle(evaluate.getTitle());
+                errorBulletPersonalPronouns.setDescription(evaluate.getDescription());
+                errorBulletPersonalPronouns.setStatus(SectionLogStatus.Pass);
+                errorBulletPersonalPronouns.setCount(sentences.size());
+                allBulletPoints.add(errorBulletPersonalPronouns);
+            }
         }
 
         // Check for Filler Words in the sentences
         String fillerWord = evaluateNlpResponse.getFiller();
-        if (!fillerWord.isEmpty()) {
-            BulletPointDto errorBulletFillers = new BulletPointDto();
-            Evaluate evaluate = evaluates.get(4);
-            errorBulletFillers.setTitle(evaluate.getTitle());
-            errorBulletFillers.setDescription(evaluate.getDescription());
-            errorBulletFillers.setResult(fillerWord);
-            errorBulletFillers.setCount(countNumbers(fillerWord));
-            // Check if evaluate.getCritical() is true or false
-            if (evaluate.getCritical()) {
-                errorBulletFillers.setStatus(SectionLogStatus.Error);
-            } else {
-                errorBulletFillers.setStatus(SectionLogStatus.Warning);
-            }
-            allBulletPoints.add(errorBulletFillers);
-        }else {
+        if(fillerWord==null){
             BulletPointDto errorBulletFillers = new BulletPointDto();
             Evaluate evaluate = evaluates.get(4);
             errorBulletFillers.setTitle(evaluate.getTitle());
@@ -501,6 +532,30 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletFillers.setStatus(SectionLogStatus.Pass);
             errorBulletFillers.setCount(sentences.size());
             allBulletPoints.add(errorBulletFillers);
+        }else{
+            if (!fillerWord.isEmpty()) {
+                BulletPointDto errorBulletFillers = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(4);
+                errorBulletFillers.setTitle(evaluate.getTitle());
+                errorBulletFillers.setDescription(evaluate.getDescription());
+                errorBulletFillers.setResult(fillerWord);
+                errorBulletFillers.setCount(countNumbers(fillerWord));
+                // Check if evaluate.getCritical() is true or false
+                if (evaluate.getCritical()) {
+                    errorBulletFillers.setStatus(SectionLogStatus.Error);
+                } else {
+                    errorBulletFillers.setStatus(SectionLogStatus.Warning);
+                }
+                allBulletPoints.add(errorBulletFillers);
+            }else {
+                BulletPointDto errorBulletFillers = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(4);
+                errorBulletFillers.setTitle(evaluate.getTitle());
+                errorBulletFillers.setDescription(evaluate.getDescription());
+                errorBulletFillers.setStatus(SectionLogStatus.Pass);
+                errorBulletFillers.setCount(sentences.size());
+                allBulletPoints.add(errorBulletFillers);
+            }
         }
 
         // Check for Quantified in the sentences
@@ -557,21 +612,7 @@ public class EvaluateServiceImpl implements EvaluateService {
 
         // Check for Passive voice in the sentences
         String passive = evaluateNlpResponse.getPassiveVoice();
-        if (!passive.isEmpty()) {
-            BulletPointDto errorBulletPassive = new BulletPointDto();
-            Evaluate evaluate = evaluates.get(7);
-            errorBulletPassive.setTitle(evaluate.getTitle());
-            errorBulletPassive.setDescription(evaluate.getDescription());
-            errorBulletPassive.setResult(passive);
-            errorBulletPassive.setCount(countNumbers(passive));
-            // Check if evaluate.getCritical() is true or false
-            if (evaluate.getCritical()) {
-                errorBulletPassive.setStatus(SectionLogStatus.Error);
-            } else {
-                errorBulletPassive.setStatus(SectionLogStatus.Warning);
-            }
-            allBulletPoints.add(errorBulletPassive);
-        }else {
+        if(passive==null){
             BulletPointDto errorBulletPassive = new BulletPointDto();
             Evaluate evaluate = evaluates.get(7);
             errorBulletPassive.setTitle(evaluate.getTitle());
@@ -579,6 +620,30 @@ public class EvaluateServiceImpl implements EvaluateService {
             errorBulletPassive.setStatus(SectionLogStatus.Pass);
             errorBulletPassive.setCount(sentences.size());
             allBulletPoints.add(errorBulletPassive);
+        }else{
+            if (!passive.isEmpty()) {
+                BulletPointDto errorBulletPassive = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(7);
+                errorBulletPassive.setTitle(evaluate.getTitle());
+                errorBulletPassive.setDescription(evaluate.getDescription());
+                errorBulletPassive.setResult(passive);
+                errorBulletPassive.setCount(countNumbers(passive));
+                // Check if evaluate.getCritical() is true or false
+                if (evaluate.getCritical()) {
+                    errorBulletPassive.setStatus(SectionLogStatus.Error);
+                } else {
+                    errorBulletPassive.setStatus(SectionLogStatus.Warning);
+                }
+                allBulletPoints.add(errorBulletPassive);
+            }else {
+                BulletPointDto errorBulletPassive = new BulletPointDto();
+                Evaluate evaluate = evaluates.get(7);
+                errorBulletPassive.setTitle(evaluate.getTitle());
+                errorBulletPassive.setDescription(evaluate.getDescription());
+                errorBulletPassive.setStatus(SectionLogStatus.Pass);
+                errorBulletPassive.setCount(sentences.size());
+                allBulletPoints.add(errorBulletPassive);
+            }
         }
 
         return allBulletPoints;
@@ -1183,13 +1248,6 @@ public class EvaluateServiceImpl implements EvaluateService {
                 }
             }
 
-//            if (hasPassive) {
-//                if (!passiveFirst) {
-//                    passive.append(", ");
-//                }
-//                passive.append(i + 1);
-//                passiveFirst = false;
-//            }
 
             if (hasPassive) {
                 if (passive.length() > 0) {
@@ -1198,13 +1256,6 @@ public class EvaluateServiceImpl implements EvaluateService {
                 }
             }
 
-//            if (hasPersonalPronoun) {
-//                if (!personalPronounFirst) {
-//                    personalPronoun.append(", ");
-//                }
-//                personalPronoun.append(i + 1);
-//                personalPronounFirst = false;
-//            }
 
             if (hasPersonalPronoun) {
                 if (personalPronoun.length() > 0) {
