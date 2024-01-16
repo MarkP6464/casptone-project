@@ -388,6 +388,19 @@ public class CvServiceImpl implements CvService {
         }
     }
 
+    public boolean updateCvBodyWithoutResume(int cvId, CvBodyDto dto) throws JsonProcessingException {
+        Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        if (cvOptional.isPresent()) {
+            Cv cv = cvOptional.get();
+            cv.setSummary(dto.getSummary());
+            cv.toCvBody(dto);
+            cvRepository.save(cv);
+            return true;
+        } else {
+            throw new IllegalArgumentException("CvId not found: " + cvId);
+        }
+    }
+
 
     @Override
     public boolean updateCvBodyAndHistory(int cvId, CvBodyDto dto) throws JsonProcessingException {
@@ -1184,7 +1197,6 @@ public class CvServiceImpl implements CvService {
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             cv.setSummary(removeComments(dto.getSummary()));
-            cv.setResumeName(cv.getResumeName());
             CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(cvBodyDto);
@@ -1222,7 +1234,7 @@ public class CvServiceImpl implements CvService {
                         EducationDto educationDto = relationDto.get();
                         modelMapper.map(dto, educationDto);
                         educationDto.setId(saved.getId());
-                        updateCvBody(cvId, cvBodySkill);
+                        updateCvBodyWithoutResume(cvId, cvBodySkill);
                     }
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
@@ -1251,7 +1263,7 @@ public class CvServiceImpl implements CvService {
                         SkillDto skillDto = relationDto.get();
                         modelMapper.map(dto, skillDto);
                         skillDto.setId(saved.getId());
-                        updateCvBody(cvId, cvBodySkill);
+                        updateCvBodyWithoutResume(cvId, cvBodySkill);
                     }
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
@@ -1309,7 +1321,7 @@ public class CvServiceImpl implements CvService {
                     if (relationDto.isPresent()) {
                         ExperienceDto experienceDto = relationDto.get();
                         experienceDto.setId(saved.getId());
-                        updateCvBody(cvId, cvBodySkill);
+                        updateCvBodyWithoutResume(cvId, cvBodySkill);
                     }
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
@@ -1343,7 +1355,7 @@ public class CvServiceImpl implements CvService {
                         CertificationDto certificationDto = relationDto.get();
                         modelMapper.map(dto, certificationDto);
                         certificationDto.setId(saved.getId());
-                        updateCvBody(cvId, cvBodySkill);
+                        updateCvBodyWithoutResume(cvId, cvBodySkill);
                     }
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
@@ -1401,7 +1413,7 @@ public class CvServiceImpl implements CvService {
                     if (relationDto.isPresent()) {
                         InvolvementDto involvementDto = relationDto.get();
                         involvementDto.setId(saved.getId());
-                        updateCvBody(cvId, cvBodySkill);
+                        updateCvBodyWithoutResume(cvId, cvBodySkill);
                     }
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
@@ -1459,7 +1471,7 @@ public class CvServiceImpl implements CvService {
                     if (relationDto.isPresent()) {
                         ProjectDto projectDto = relationDto.get();
                         projectDto.setId(saved.getId());
-                        updateCvBody(cvId, cvBodySkill);
+                        updateCvBodyWithoutResume(cvId, cvBodySkill);
                     }
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
