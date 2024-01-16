@@ -1184,6 +1184,7 @@ public class CvServiceImpl implements CvService {
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             cv.setSummary(removeComments(dto.getSummary()));
+            cv.setResumeName(cv.getResumeName());
             CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(cvBodyDto);
@@ -1482,6 +1483,7 @@ public class CvServiceImpl implements CvService {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(modelMapper.map(dto, CvBodyDto.class));
         cv.setCvBody(removeComments(json));
+        cv.setResumeName(cv.getResumeName());
         cv.setSummary(removeComments(dto.getSummary()));
         cvRepository.save(cv);
         CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
