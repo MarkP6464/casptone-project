@@ -360,13 +360,13 @@ public class JobPostingServiceImpl implements JobPostingService {
                 jobPostingViewDto.setId(jobPosting.getId());
                 jobPostingViewDto.setTitle(jobPosting.getTitle());
                 jobPostingViewDto.setView(jobPostingViews.size());
-                if(jobPosting.getDeadline()!=null){
+                if (jobPosting.getDeadline() != null) {
                     if (jobPosting.getDeadline().isBefore(current)) {
                         jobPostingViewDto.setStatus(StatusReview.Overdue);
                     } else {
                         jobPostingViewDto.setStatus(jobPosting.getShare());
                     }
-                }else{
+                } else {
                     jobPostingViewDto.setStatus(jobPosting.getShare());
                 }
                 jobPostingViewDto.setTimestamp(jobPosting.getCreateDate());
@@ -741,7 +741,7 @@ public class JobPostingServiceImpl implements JobPostingService {
         return sb.substring(0, sb.length() - 2);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Chạy vào mỗi ngày lúc 00:00:00
+    @Scheduled(cron = "0 0 0 * * *") // Chạy vào mỗi ngày lúc 00:00:00
     public void updateJobPostings() {
         LocalDate currentDate = LocalDate.now();
         List<JobPosting> jobPostings = jobPostingRepository.findAllByDeadline(currentDate);
