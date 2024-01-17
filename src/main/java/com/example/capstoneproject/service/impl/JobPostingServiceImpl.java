@@ -285,6 +285,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingViewDto.setDescription(jobPosting.getDescription());
                     jobPostingViewDto.setRequirement(jobPosting.getRequirement());
                     jobPostingViewDto.setSalary(jobPosting.getSalary());
+                    jobPostingViewDto.setIsLimited(jobPosting.getIsLimited());
                     jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
                     jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
                     jobPostingViewDto.setDeadline(jobPosting.getDeadline());
@@ -323,6 +324,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPostingViewDto.setLocation(jobPosting.getLocation());
             jobPostingViewDto.setDescription(jobPosting.getDescription());
             jobPostingViewDto.setRequirement(jobPosting.getRequirement());
+            jobPostingViewDto.setIsLimited(jobPosting.getIsLimited());
             jobPostingViewDto.setSalary(jobPosting.getSalary());
             jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
             jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
