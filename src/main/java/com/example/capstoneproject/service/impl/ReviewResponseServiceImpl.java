@@ -96,6 +96,7 @@ public class ReviewResponseServiceImpl implements ReviewResponseService {
                 cvBodyReviewDto.setEducations(cvBodyDto.getEducations());
                 cvBodyReviewDto.setInvolvements(cvBodyDto.getInvolvements());
                 cvBodyReviewDto.setProjects(cvBodyDto.getProjects());
+                cvBodyReviewDto.setCustomSections(cvBodyDto.getCustomSections());
                 cvBodyReviewDto.setSummary(cvBodyDto.getSummary());
                 cvBodyReviewDto.setName(cvBodyDto.getName());
                 cvBodyReviewDto.setAddress(cvBodyDto.getAddress());

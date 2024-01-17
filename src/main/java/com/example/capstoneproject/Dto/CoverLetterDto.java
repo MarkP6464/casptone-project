@@ -1,4 +1,5 @@
 package com.example.capstoneproject.Dto;
+import com.example.capstoneproject.Dto.responses.UserCoverLetterViewDto;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ public class CoverLetterDto {
     private String description;
     private String jobTitle;
     private String jobDescription;
-    private UserCoverLetterDto user;
+    private UserCoverLetterViewDto user;
     private Integer cvId;
     private String resumeName;
 }

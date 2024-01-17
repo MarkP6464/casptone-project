@@ -71,7 +71,7 @@ public class ReviewResponseController {
     }
 
     @GetMapping("/user/{user-id}/review-request/{request-id}/review-response")
-//    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:expert')")
     public ResponseEntity<?> getReviewResponse(@PathVariable("user-id") Integer userId, @PathVariable("request-id") Integer requestId) throws JsonProcessingException {
         return ResponseEntity.ok(reviewResponseService.receiveReviewResponse(userId, requestId));
     }
