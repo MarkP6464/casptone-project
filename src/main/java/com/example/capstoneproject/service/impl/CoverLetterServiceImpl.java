@@ -87,7 +87,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                         "You will write the cover letter in a modern, professional style without being too formal, as a modern employee might do naturally.";
                 String content = cv.getCvBody();
                 String userMessage = "";
-                userMessage = "My Resume: " + content + ". Job title: " + dto.getJob_title() + " Company: " + dto.getCompany() +  " Job Description: " + dto.getJob_description() + ".";
+                userMessage = "My Resume: " + content +". My name: " + cv.getUser().getName()+ " Job title: " + dto.getJob_title() + " Company: " + dto.getCompany() +  " Job Description: " + dto.getJob_description() + ".";
                 List<Map<String, Object>> messagesList = new ArrayList<>();
                 Map<String, Object> systemMessage = new HashMap<>();
                 systemMessage.put("role", "system");

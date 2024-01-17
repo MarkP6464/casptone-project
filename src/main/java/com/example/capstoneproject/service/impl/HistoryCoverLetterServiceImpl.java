@@ -66,7 +66,7 @@ public class HistoryCoverLetterServiceImpl implements HistoryCoverLetterService 
                  usersCvViewDto.setPersonalWebsite(users.getPersonalWebsite());
                  usersCvViewDto.setPhone(users.getPhone());
                  usersCvViewDto.setLinkin(users.getLinkin());
-                 usersCvViewDto.setCity(users.getCountry());
+//                 usersCvViewDto.setCity(users.getCountry());
                  historyCoverLetterDto.setContact(usersCvViewDto);
              }
              return historyCoverLetterDto;
