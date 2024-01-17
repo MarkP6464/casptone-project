@@ -32,6 +32,8 @@ public class ExpertReviewViewDto {
 
     private Integer numberReview;
 
+    private Long numberComment;
+
     private Integer cvId;
 
     private List<ExpertReviewRatingViewDto> comments;

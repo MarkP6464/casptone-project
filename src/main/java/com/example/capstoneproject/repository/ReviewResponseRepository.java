@@ -4,6 +4,8 @@ import com.example.capstoneproject.entity.ReviewResponse;
 import com.example.capstoneproject.enums.ReviewStatus;
 import com.example.capstoneproject.enums.StatusReview;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,5 +27,10 @@ public interface ReviewResponseRepository extends JpaRepository<ReviewResponse, 
     List<ReviewResponse> findAllByReviewRequest_ExpertId(Integer expertId);
 
     Optional<ReviewResponse> findByIdAndStatus(Integer responseId, StatusReview status);
+
+    @Query("SELECT COUNT(rr) FROM ReviewResponse rr " +
+            "WHERE rr.comment IS NULL AND rr.status = :statusDone AND rr.reviewRequest.expertId = :expertId")
+    long countNullCommentsByStatusAndExpertId(@Param("statusDone") StatusReview status,
+                                              @Param("expertId") Integer expertId);
 
 }

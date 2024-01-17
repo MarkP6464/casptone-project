@@ -3,6 +3,7 @@ package com.example.capstoneproject.service.impl;
 import com.example.capstoneproject.Dto.*;
 import com.example.capstoneproject.Dto.request.CoverLetterCvRequest;
 import com.example.capstoneproject.Dto.responses.CoverLetterViewDto;
+import com.example.capstoneproject.Dto.responses.UserCoverLetterViewDto;
 import com.example.capstoneproject.entity.CoverLetter;
 import com.example.capstoneproject.entity.Cv;
 import com.example.capstoneproject.entity.JobPosting;
@@ -327,7 +328,7 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
                 coverLetterDto.setJobDescription(coverLetter.getJobDescription());
                 coverLetterDto.setCvId(coverLetter.getCv().getId());
                 coverLetterDto.setResumeName(coverLetter.getCv().getResumeName());
-                coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterDto.class));
+                coverLetterDto.setUser(modelMapper.map(users, UserCoverLetterViewDto.class));
             }
         }else {
             throw new IllegalArgumentException("cover letter with ID " + coverLetterId + " does not belong to Users with ID " + userId);

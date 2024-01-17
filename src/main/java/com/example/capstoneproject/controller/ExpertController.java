@@ -41,7 +41,7 @@ public class ExpertController {
     }
 
     @GetMapping("/expert/{expert-id}")
-    @PreAuthorize("hasAuthority('read:candidate')")
+//    @PreAuthorize("hasAuthority('read:candidate')")
     public ResponseEntity<?> getExpert(@PathVariable("expert-id") Integer expertId){
         return ResponseEntity.ok(expertService.getDetailExpert(expertId));
     }

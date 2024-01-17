@@ -56,7 +56,7 @@ public class ApplicationLogController {
     }
 
     @GetMapping("/application-log/candidate/{candidate-id}")
-//    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:hr')")
+    @PreAuthorize("hasAnyAuthority('read:candidate', 'read:hr')")
     public ResponseEntity<?> getAllLogByCandidateId(@PathVariable("candidate-id") Integer id){
         return ResponseEntity.ok(applicationLogService.getAllByCandidateId(id));
     }

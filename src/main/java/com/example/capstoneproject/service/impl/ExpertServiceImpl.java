@@ -198,6 +198,7 @@ public class ExpertServiceImpl implements ExpertService {
             expertReviewViewDto.setStar(calculatorStar(expert.getId()));
             expertReviewViewDto.setDescription(expert.getAbout());
             expertReviewViewDto.setCompany(expert.getCompany());
+            expertReviewViewDto.setNumberComment(reviewResponseRepository.countNullCommentsByStatusAndExpertId(StatusReview.Done, expertId));
             expertReviewViewDto.setCvId(expert.getCvId());
             List<PriceOption> priceOptions = priceOptionRepository.findAllByExpertId(expert.getId());
             // Collect prices excluding null values

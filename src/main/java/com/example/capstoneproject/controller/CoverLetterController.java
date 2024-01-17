@@ -107,7 +107,7 @@ public class CoverLetterController {
     }
 
     @GetMapping("/user/{user-id}/cover-letter/{cover-letter-id}")
-    @PreAuthorize("hasAuthority('read:candidate')")
+    @PreAuthorize("hasAnyAuthority('read:candidate','read:hr')")
     public CoverLetterDto getCoverLetter(@PathVariable("user-id") int UsersId, @PathVariable("cover-letter-id") int coverLetterId) {
         return coverLetterService.getCoverLetter(UsersId, coverLetterId);
     }
