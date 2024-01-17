@@ -1250,7 +1250,7 @@ public class CvServiceImpl implements CvService {
                 Optional<SkillDto> fromDto = dto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
                 modelMapper.map(fromDto.get(), entity);
                 Skill skill = new Skill();
-                skill.setDescription(entity.getDescription());
+                skill.setDescription(removeComments(entity.getDescription()));
                 skill.setStatus(entity.getStatus());
                 skill.setCv(cv);
                 Integer skillIdOld = entity.getId();
@@ -1520,7 +1520,7 @@ public class CvServiceImpl implements CvService {
                 throw new InternalServerException("Not found education with id: " + x);
             }
             Optional<SkillDto> fromDto = cvBodyDto.getSkills().stream().filter(y -> y.getId().equals(x)).findFirst();
-            modelMapper.map(fromDto.get(), entity);
+            entity.setDescription(fromDto.get().getDescription());
             skillRepository.save(entity);
         });
         //parse experiences
