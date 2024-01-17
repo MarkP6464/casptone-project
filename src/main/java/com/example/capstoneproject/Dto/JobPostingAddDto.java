@@ -30,7 +30,7 @@ public class JobPostingAddDto {
 
     private String requirement;
 
-    private Boolean isLimit;
+    private Boolean isLimited;
 
     private String salary;
 

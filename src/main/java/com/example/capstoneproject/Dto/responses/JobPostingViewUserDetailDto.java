@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -48,4 +49,6 @@ public class JobPostingViewUserDetailDto {
     private BasicStatus status;
 
     private StatusReview share;
+
+    private Boolean isLimited;
 }

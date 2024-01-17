@@ -73,7 +73,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPosting.setCompanyName(dto.getCompanyName());
             jobPosting.setAvatar(dto.getAvatar());
             jobPosting.setAbout(dto.getAbout());
-            jobPosting.setIsLimit(dto.getIsLimit());
+            jobPosting.setIsLimited(dto.getIsLimited());
             jobPosting.setBenefit(dto.getBenefit());
             jobPosting.setSkill(String.join(",", dto.getSkill()));
             if (dto.getApplyAgain() == null) {
@@ -113,7 +113,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             if (dto.getApplyAgain() == null) {
                 jobPosting.setApplyAgain(0);
             }
-            jobPosting.setIsLimit(dto.getIsLimit());
+            jobPosting.setIsLimited(dto.getIsLimited());
             jobPosting.setApplyAgain(dto.getApplyAgain());
             jobPosting.setSalary(dto.getSalary());
             jobPosting.setDeadline(dto.getDeadline());
@@ -179,8 +179,8 @@ public class JobPostingServiceImpl implements JobPostingService {
                     if (dto.getDeadline() != null && !dto.getDeadline().equals(jobPosting.getDeadline())) {
                         jobPosting.setDeadline(dto.getDeadline());
                     }
-                    if (dto.getIsLimit() != null && !dto.getIsLimit().equals(jobPosting.getIsLimit())) {
-                        jobPosting.setIsLimit(dto.getIsLimit());
+                    if (dto.getIsLimited() != null && !dto.getIsLimited().equals(jobPosting.getIsLimited())) {
+                        jobPosting.setIsLimited(dto.getIsLimited());
                     }
                     jobPosting.setUpdateDate(currentDate);
                     jobPostingRepository.save(jobPosting);
@@ -285,6 +285,7 @@ public class JobPostingServiceImpl implements JobPostingService {
                     jobPostingViewDto.setDescription(jobPosting.getDescription());
                     jobPostingViewDto.setRequirement(jobPosting.getRequirement());
                     jobPostingViewDto.setSalary(jobPosting.getSalary());
+                    jobPostingViewDto.setIsLimited(jobPosting.getIsLimited());
                     jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
                     jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());
                     jobPostingViewDto.setDeadline(jobPosting.getDeadline());
@@ -323,6 +324,7 @@ public class JobPostingServiceImpl implements JobPostingService {
             jobPostingViewDto.setLocation(jobPosting.getLocation());
             jobPostingViewDto.setDescription(jobPosting.getDescription());
             jobPostingViewDto.setRequirement(jobPosting.getRequirement());
+            jobPostingViewDto.setIsLimited(jobPosting.getIsLimited());
             jobPostingViewDto.setSalary(jobPosting.getSalary());
             jobPostingViewDto.setCreateDate(LocalDate.from(jobPosting.getCreateDate()));
             jobPostingViewDto.setUpdateDate(jobPosting.getUpdateDate());

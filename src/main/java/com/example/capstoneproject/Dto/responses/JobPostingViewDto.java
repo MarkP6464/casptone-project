@@ -51,5 +51,5 @@ public class JobPostingViewDto {
 
     private StatusReview share;
 
-    private Boolean isLimit;
+    private Boolean isLimited;
 }
