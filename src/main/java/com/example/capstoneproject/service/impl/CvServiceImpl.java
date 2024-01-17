@@ -243,9 +243,14 @@ public class CvServiceImpl implements CvService {
             theOrder.put("involvements", 6L);
             theOrder.put("skills", 7L);
             dto.setTheOrder(theOrder);
+            dto.setCompanyName(cv.getCompanyName());
+            dto.setLinkin(users.getLinkin());
+            dto.setEmail(users.getEmail());
+            dto.setPhone(users.getPhone());
+            dto.setPersonalWebsite(users.getPersonalWebsite());
+            dto.setCity(users.getAddress());
             cv.setCvBody(cv.toCvBody(dto));
             cv.setResumeName(dto.getResumeName());
-            System.out.println("dto resume name: " + dto.getResumeName());
             cv.setSearchable(dto.getSearchable());
             cv.setSharable(dto.getSharable());
 
@@ -494,7 +499,7 @@ public class CvServiceImpl implements CvService {
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
 
-            List<Cv> cvs = cvRepository.findAllByUser_IdAndIdIsNot(cv.getUser().getId(), cv.getId());
+            List<Cv> cvs = cvRepository.findAllByUser_IdAndIdIsNotAndStatusIsNot(cv.getUser().getId(), cv.getId(), BasicStatus.DELETED);
             if (cvs != null) {
                 for (Cv cv1 : cvs) {
                     if (cv1.getResumeName().equals(dto.getResumeName())) {
@@ -1196,7 +1201,7 @@ public class CvServiceImpl implements CvService {
         Optional<Cv> cvOptional = cvRepository.findByIdAndStatus(cvId, BasicStatus.ACTIVE);
         if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
-            if(dto.getSummary()!=null){
+            if (dto.getSummary() != null) {
                 cv.setSummary(removeComments(dto.getSummary()));
             }
             CvBodyDto cvBodyDto = modelMapper.map(dto, CvBodyDto.class);
@@ -1497,7 +1502,7 @@ public class CvServiceImpl implements CvService {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(modelMapper.map(dto, CvBodyDto.class));
         cv.setCvBody(removeComments(json));
-        if(dto.getSummary()!=null){
+        if (dto.getSummary() != null) {
             cv.setSummary(removeComments(dto.getSummary()));
         }
         cvRepository.save(cv);

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public interface CvRepository extends JpaRepository<Cv, Integer> {
 
@@ -61,7 +62,7 @@ public interface CvRepository extends JpaRepository<Cv, Integer> {
 
     List<Cv> findAllByUser_Id(Integer userId);
 
-    List<Cv> findAllByUser_IdAndIdIsNot(Integer userId, Integer cvId);
+    List<Cv> findAllByUser_IdAndIdIsNotAndStatusIsNot(Integer userId, Integer cvId, BasicStatus status);
 
     List<Cv> findAllByUser_IdAndStatus(Integer userId, BasicStatus status);
 }

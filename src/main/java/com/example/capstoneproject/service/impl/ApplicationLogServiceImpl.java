@@ -1,6 +1,7 @@
 package com.example.capstoneproject.service.impl;
 
-import com.example.capstoneproject.Dto.*;
+import com.example.capstoneproject.Dto.CvResumeDto;
+import com.example.capstoneproject.Dto.NoteDto;
 import com.example.capstoneproject.Dto.responses.*;
 import com.example.capstoneproject.entity.*;
 import com.example.capstoneproject.enums.ApplicationLogStatus;
@@ -13,9 +14,6 @@ import com.example.capstoneproject.repository.*;
 import com.example.capstoneproject.service.ApplicationLogService;
 import com.example.capstoneproject.service.HistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.gax.rpc.NotFoundException;
-import io.swagger.models.auth.In;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +21,11 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.FileNotFoundException;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 
 @Service
 public class ApplicationLogServiceImpl implements ApplicationLogService {
@@ -59,29 +58,29 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
     @Override
     public boolean applyCvToPost(Integer userId, Integer cvId, Integer coverLetterId, Integer postingId, NoteDto dto) throws JsonProcessingException {
-        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId,cvId);
+        Optional<Cv> cvOptional = cvRepository.findByUser_IdAndId(userId, cvId);
         Optional<JobPosting> jobPostingOptional = jobPostingRepository.findByIdAndStatusAndShare(postingId, BasicStatus.ACTIVE, StatusReview.Published);
         ApplicationLog applicationLog = new ApplicationLog();
         LocalDate currentDate = LocalDate.now();
 
 
         Optional<Users> usersOptional = usersRepository.findUsersById(userId);
-        if (usersOptional.isPresent()){
+        if (usersOptional.isPresent()) {
             Users user = usersOptional.get();
             applicationLog.setUser(user);
-        }else throw new InternalServerException("Not found user");
-        if(cvOptional.isPresent()) {
+        } else throw new InternalServerException("Not found user");
+        if (cvOptional.isPresent()) {
             Cv cv = cvOptional.get();
             HistoryViewDto hisCvId = historyService.create(userId, cvId);
             Optional<History> historyOptional = historyRepository.findById(hisCvId.getId());
-            if(historyOptional.isPresent()){
+            if (historyOptional.isPresent()) {
                 History history = historyOptional.get();
                 applicationLog.setCv(history);
             }
-        }else throw new InternalServerException("Not found cv");
+        } else throw new InternalServerException("Not found cv");
         Cv cv = cvOptional.get();
-        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndIdAndStatus(userId, coverLetterId,BasicStatus.ACTIVE);
-        if(coverLetterOptional.isPresent()){
+        Optional<CoverLetter> coverLetterOptional = coverLetterRepository.findByCv_User_IdAndIdAndStatus(userId, coverLetterId, BasicStatus.ACTIVE);
+        if (coverLetterOptional.isPresent()) {
             CoverLetter coverLetter = coverLetterOptional.get();
 
             //save cover letter history
@@ -99,18 +98,18 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
         applicationLog.setNote(dto.getNote());
         applicationLog.setTimestamp(LocalDate.now());
 
-        if (jobPostingOptional.isPresent()){
+        if (jobPostingOptional.isPresent()) {
             JobPosting jobPosting = jobPostingOptional.get();
-            List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId,postingId);
+            List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdAndJobPosting_IdOrderByTimestampDesc(userId, postingId);
             applicationLog.setJobPosting(jobPosting);
-            if (!applicationLogs.isEmpty()){
+            if (!applicationLogs.isEmpty()) {
                 ApplicationLog applicationLogCheck = applicationLogs.get(0);
                 LocalDate countDate = applicationLogCheck.getTimestamp();
                 Integer condition = jobPosting.getApplyAgain();
                 LocalDate resultDate = countDate.plusDays(condition);
-                if(resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)){
+                if (resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)) {
                     applicationLog.setJobPosting(jobPosting);
-                }else{
+                } else {
                     throw new BadRequestException("Please apply after date " + resultDate);
                 }
             }
@@ -164,84 +163,11 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     }
 
     @Override
-    public List<ApplicationLogJobResponse> getAll(Integer postId){
-        List<ApplicationLogJobResponse> newList = null;
-        List<ApplicationLog> list = applicationLogRepository.findAllByJobPosting_IdOrderByTimestampDesc(postId);
-
-        HashMap<Integer, String> listCvMap = new HashMap<>();
-        HashMap<Integer, String> listClMap = new HashMap<>();
-        List<Integer> cvList = new ArrayList<>();
-        List<Integer> clList = new ArrayList<>();
-        if (!list.isEmpty()){
-            list.stream().map(x -> {
-                return listCvMap.put(x.getCv().getId(), null);
-            });
-            list.stream().map(x -> {
-                return listClMap.put(x.getCoverLetter().getId(), null);
-            });
-
-            newList = list.stream().map(x -> {
-                cvList.add(x.getCv().getId());
-                if (Objects.nonNull(x.getCoverLetter())){
-                    clList.add(x.getCoverLetter().getId());
-                }
-                ApplicationLogJobResponse applicationLogResponse = new ApplicationLogJobResponse();
-                applicationLogResponse.setApplyDate(x.getTimestamp());
-                applicationLogResponse.setNote(x.getNote());
-                applicationLogResponse.setEmail(x.getUser().getEmail());
-                applicationLogResponse.setCandidateName(x.getUser().getName());
-                applicationLogResponse.setStatus(x.getStatus());
-                JobPostingNameViewDto jobPostingNameView = new JobPostingNameViewDto();
-                jobPostingNameView.setId(x.getJobPosting().getId());
-                jobPostingNameView.setName(x.getJobPosting().getTitle());
-                applicationLogResponse.setJobPosting(jobPostingNameView);
-                applicationLogResponse.getCvs().put("historyId", x.getCv());
-                applicationLogResponse.getCvs().put("resumeName", null);
-                applicationLogResponse.getCoverLetters().put("historyCoverLetterId", x.getCoverLetter());
-                applicationLogResponse.getCoverLetters().put("title", null);
-                return applicationLogResponse;
-            }).collect(Collectors.toList());
-
-            List<History> cvHistoryList = historyRepository.findAllByIdIn(cvList);
-            cvHistoryList.stream().forEach(x -> {
-                listCvMap.put(x.getId(), x.getCv().getResumeName());
-            });
-            newList.stream().forEach(x -> {
-                Integer historyID = (Integer) x.getCvs().get("historyId");
-                x.getCvs().put("resumeName", listCvMap.get(historyID));
-            });
-
-            List<HistoryCoverLetter> clHistoryList = historyCoverLetterRepository.findAllByIdIn(clList);
-            clHistoryList.stream().forEach(x -> {
-                listClMap.put(x.getId(), x.getCoverLetter().getTitle());
-            });
-            newList.stream().forEach(x -> {
-                Integer historyCoverLetterId = (Integer) x.getCoverLetters().get("historyCoverLetterId");
-                x.getCoverLetters().put("title", listClMap.get(historyCoverLetterId));
-            });
-        }
-        return newList;
-
-
-//        if (!list.isEmpty()){
-//            for(ApplicationLog applicationLog: list){
-//                ApplicationLogJobResponse applicationLogResponse = new ApplicationLogJobResponse();
-//                applicationLogResponse.setJobTitle(applicationLogResponse.getJobTitle());
-//                applicationLogResponse.setCandidateName(applicationLogResponse.getCandidateName());
-//                applicationLogResponse.setApplyDate(applicationLogResponse.getApplyDate());
-//                applicationLogResponse.setNote(applicationLogResponse.getNote());
-//                applicationLogResponse.setEmail(applicationLogResponse.getEmail());
-//            }
-//        }
-//        return newList;
-    }
-
-    @Override
-    public List<ApplicationLogFullResponse> getAllByHrID(Integer hrId){
+    public List<ApplicationLogFullResponse> getAll(Integer postId) {
         List<ApplicationLogFullResponse> newList = new ArrayList<>();
-        List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
-        if(applicationLogs!=null){
-            for(ApplicationLog applicationLog: applicationLogs){
+        List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByJobPosting_IdOrderByTimestampDesc(postId);
+        if (applicationLogs != null) {
+            for (ApplicationLog applicationLog : applicationLogs) {
                 ApplicationLogFullResponse response = new ApplicationLogFullResponse();
                 response.setCandidateName(applicationLog.getUser().getName());
                 response.setApplyDate(applicationLog.getTimestamp());
@@ -252,13 +178,13 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 jobPosting.setId(applicationLog.getJobPosting().getId());
                 jobPosting.setName(applicationLog.getJobPosting().getTitle());
                 response.setJobPosting(jobPosting);
-                if(applicationLog.getCv()!=null){
+                if (applicationLog.getCv() != null) {
                     CvResumeDto resume = new CvResumeDto();
                     resume.setId(applicationLog.getCv().getId());
                     resume.setResumeName(applicationLog.getCv().getCv().getResumeName());
                     response.setCvs(resume);
                 }
-                if(applicationLog.getCoverLetter()!=null){
+                if (applicationLog.getCoverLetter() != null) {
                     CoverLetterViewDto coverLetter = new CoverLetterViewDto();
                     coverLetter.setId(applicationLog.getCoverLetter().getId());
                     coverLetter.setTitle(applicationLog.getCoverLetter().getTitle());
@@ -272,11 +198,46 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     }
 
     @Override
-    public List<ApplicationLogCandidateResponse> getAllByCandidateId(Integer id){
+    public List<ApplicationLogFullResponse> getAllByHrID(Integer hrId) {
+        List<ApplicationLogFullResponse> newList = new ArrayList<>();
+        List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByJobPosting_User_IdOrderByTimestamp(hrId);
+        if (applicationLogs != null) {
+            for (ApplicationLog applicationLog : applicationLogs) {
+                ApplicationLogFullResponse response = new ApplicationLogFullResponse();
+                response.setCandidateName(applicationLog.getUser().getName());
+                response.setApplyDate(applicationLog.getTimestamp());
+                response.setNote(applicationLog.getNote());
+                response.setEmail(applicationLog.getUser().getEmail());
+                response.setStatus(applicationLog.getStatus());
+                JobPostingNameViewDto jobPosting = new JobPostingNameViewDto();
+                jobPosting.setId(applicationLog.getJobPosting().getId());
+                jobPosting.setName(applicationLog.getJobPosting().getTitle());
+                response.setJobPosting(jobPosting);
+                if (applicationLog.getCv() != null) {
+                    CvResumeDto resume = new CvResumeDto();
+                    resume.setId(applicationLog.getCv().getId());
+                    resume.setResumeName(applicationLog.getCv().getCv().getResumeName());
+                    response.setCvs(resume);
+                }
+                if (applicationLog.getCoverLetter() != null) {
+                    CoverLetterViewDto coverLetter = new CoverLetterViewDto();
+                    coverLetter.setId(applicationLog.getCoverLetter().getId());
+                    coverLetter.setTitle(applicationLog.getCoverLetter().getTitle());
+                    response.setCoverLetters(coverLetter);
+                }
+                newList.add(response);
+
+            }
+        }
+        return newList;
+    }
+
+    @Override
+    public List<ApplicationLogCandidateResponse> getAllByCandidateId(Integer id) {
         List<ApplicationLogCandidateResponse> newList = new ArrayList<>();
         List<ApplicationLog> applicationLogs = applicationLogRepository.findAllByUser_IdOrderByTimestamp(id);
-        if(applicationLogs!=null){
-            for(ApplicationLog applicationLog: applicationLogs){
+        if (applicationLogs != null) {
+            for (ApplicationLog applicationLog : applicationLogs) {
                 ApplicationLogCandidateResponse response = new ApplicationLogCandidateResponse();
                 response.setCandidateName(applicationLog.getUser().getName());
                 response.setCompany(applicationLog.getJobPosting().getCompanyName());
@@ -287,13 +248,13 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
                 jobPosting.setId(applicationLog.getJobPosting().getId());
                 jobPosting.setName(applicationLog.getJobPosting().getTitle());
                 response.setJobPosting(jobPosting);
-                if(applicationLog.getCv()!=null){
+                if (applicationLog.getCv() != null) {
                     CvResumeDto resume = new CvResumeDto();
                     resume.setId(applicationLog.getCv().getId());
                     resume.setResumeName(applicationLog.getCv().getCv().getResumeName());
                     response.setCvs(resume);
                 }
-                if(applicationLog.getCoverLetter()!=null){
+                if (applicationLog.getCoverLetter() != null) {
                     CoverLetterViewDto coverLetter = new CoverLetterViewDto();
                     coverLetter.setId(applicationLog.getCoverLetter().getId());
                     coverLetter.setTitle(applicationLog.getCoverLetter().getTitle());
@@ -307,10 +268,10 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
     }
 
     @Override
-    public ApplicationLogResponse updateDownloaded(Integer id)  {
+    public ApplicationLogResponse updateDownloaded(Integer id) {
         ApplicationLogResponse response;
         Optional<ApplicationLog> optionalApplicationLog = applicationLogRepository.findById(id);
-        if (optionalApplicationLog.isPresent()){
+        if (optionalApplicationLog.isPresent()) {
             ApplicationLog entity = optionalApplicationLog.get();
             entity.setStatus(ApplicationLogStatus.DOWNLOADED);
             entity = applicationLogRepository.save(entity);
@@ -321,10 +282,10 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
 
 
     @Override
-    public ApplicationLogResponse updateSeen(Integer id)  {
+    public ApplicationLogResponse updateSeen(Integer id) {
         ApplicationLogResponse response;
         Optional<ApplicationLog> optionalApplicationLog = applicationLogRepository.findById(id);
-        if (optionalApplicationLog.isPresent()){
+        if (optionalApplicationLog.isPresent()) {
             ApplicationLog entity = optionalApplicationLog.get();
             entity.setStatus(ApplicationLogStatus.SEEN);
             entity = applicationLogRepository.save(entity);
