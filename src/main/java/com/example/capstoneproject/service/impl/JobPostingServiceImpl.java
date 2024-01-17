@@ -358,9 +358,13 @@ public class JobPostingServiceImpl implements JobPostingService {
                 jobPostingViewDto.setId(jobPosting.getId());
                 jobPostingViewDto.setTitle(jobPosting.getTitle());
                 jobPostingViewDto.setView(jobPostingViews.size());
-                if (jobPosting.getDeadline().isBefore(current)) {
-                    jobPostingViewDto.setStatus(StatusReview.Overdue);
-                } else {
+                if(jobPosting.getDeadline()!=null){
+                    if (jobPosting.getDeadline().isBefore(current)) {
+                        jobPostingViewDto.setStatus(StatusReview.Overdue);
+                    } else {
+                        jobPostingViewDto.setStatus(jobPosting.getShare());
+                    }
+                }else{
                     jobPostingViewDto.setStatus(jobPosting.getShare());
                 }
                 jobPostingViewDto.setTimestamp(jobPosting.getCreateDate());

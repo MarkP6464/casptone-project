@@ -2,6 +2,7 @@ package com.example.capstoneproject.service.impl;
 
 import com.example.capstoneproject.Config.OpenAIConfig;
 import com.example.capstoneproject.entity.Admin;
+import com.example.capstoneproject.exception.BadRequestException;
 import com.example.capstoneproject.repository.AdminRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,65 +40,77 @@ public class ChatGPTServiceImpl {
     }
 
     public String chatWithGPT(String message, float temperature) {
-        HttpHeaders headers = new HttpHeaders();
-        Admin users = adminService.findAdmin();
-        headers.setBearerAuth(users.getConfiguration().getApiKey());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            Admin users = adminService.findAdmin();
+            headers.setBearerAuth(users.getConfiguration().getApiKey());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
-        );
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
+            );
 
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            // Phân tích JSON và lấy nội dung
-            String responseBody = responseEntity.getBody();
-            return extractContentFromResponse(responseBody);
-        } else {
-            throw new RuntimeException("Error communicating with ChatGPT");
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                // Phân tích JSON và lấy nội dung
+                String responseBody = responseEntity.getBody();
+                return extractContentFromResponse(responseBody);
+            } else {
+                throw new BadRequestException("Error communicating with ChatGPT");
+            }
+        }catch (Exception ex){
+            throw new BadRequestException("Error communicating with ChatGPT: " + ex.getMessage());
         }
     }
 
     public String chatWithGPTCoverLetter(String message, float temperature) {
-        HttpHeaders headers = new HttpHeaders();
-        Admin users = adminService.findAdmin();
-        headers.setBearerAuth(users.getConfiguration().getApiKey());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            Admin users = adminService.findAdmin();
+            headers.setBearerAuth(users.getConfiguration().getApiKey());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + ",\"temperature\":" + temperature + "}";
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
-        );
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
+            );
 
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            // Phân tích JSON và lấy nội dung
-            String responseBody = responseEntity.getBody();
-            return extractContentFromResponse(responseBody);
-        } else {
-            throw new RuntimeException("Error communicating with ChatGPT");
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                // Phân tích JSON và lấy nội dung
+                String responseBody = responseEntity.getBody();
+                return extractContentFromResponse(responseBody);
+            } else {
+                throw new BadRequestException("Error communicating with ChatGPT");
+            }
+        }catch (Exception ex){
+            throw new BadRequestException("Error communicating with ChatGPT: " + ex.getMessage());
         }
     }
 
     public String chatWithGPTCoverLetterRevise(String message) {
-        HttpHeaders headers = new HttpHeaders();
-        Admin users = adminService.findAdmin();
-        headers.setBearerAuth(users.getConfiguration().getApiKey());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + "}";
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            Admin users = adminService.findAdmin();
+            headers.setBearerAuth(users.getConfiguration().getApiKey());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String requestBody = "{\"model\":\"gpt-3.5-turbo\",\"messages\":" + message + "}";
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
-        );
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    chatGptApiUrl, HttpMethod.POST, requestEntity, String.class
+            );
 
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            // Phân tích JSON và lấy nội dung
-            String responseBody = responseEntity.getBody();
-            return extractContentFromResponse(responseBody);
-        } else {
-            throw new RuntimeException("Error communicating with ChatGPT");
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                // Phân tích JSON và lấy nội dung
+                String responseBody = responseEntity.getBody();
+                return extractContentFromResponse(responseBody);
+            } else {
+                throw new RuntimeException("Error communicating with ChatGPT");
+            }
+        }catch (Exception ex){
+            throw new BadRequestException("Error communicating with ChatGPT: " + ex.getMessage());
         }
     }
 
