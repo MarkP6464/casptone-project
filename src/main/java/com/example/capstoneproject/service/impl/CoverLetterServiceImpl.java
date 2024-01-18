@@ -149,6 +149,9 @@ public class CoverLetterServiceImpl extends AbstractBaseService<CoverLetter, Cov
             if(cv.getJobDescription()!=null){
                 coverLetter.setJobTitle(cv.getJobDescription().getTitle());
                 coverLetter.setJobDescription(cv.getJobDescription().getDescription());
+            }else{
+                coverLetter.setJobTitle("");
+                coverLetter.setJobDescription("");
             }
             coverLetter.setCv(cv);
             CoverLetter saved = coverLetterRepository.save(coverLetter);
