@@ -185,6 +185,23 @@ public class CvServiceImpl implements CvService {
     @Override
     public CvBodyDto finishUp(int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.findById(cvId).get();
+        if(cv.getResumeName()!=null){
+            try {
+                ObjectMapper objectMapper1 = new ObjectMapper();
+                CvBodyDto cvBodyDto1 = objectMapper1.readValue(cv.getCvBody(), CvBodyDto.class);
+
+                if (cv.getResumeName() != null) {
+                    cvBodyDto1.setResumeName(cv.getResumeName());
+                }
+                String updatedCvBody = objectMapper1.writeValueAsString(cvBodyDto1);
+
+                cv.setCvBody(updatedCvBody);
+                cvRepository.save(cv);
+            } catch (Exception e) {
+                // Xử lý exception nếu có
+                e.printStackTrace();
+            }
+        }
         if (cv != null) {
             CvBodyDto cvBodyDto = cv.deserialize();
             return cvBodyDto;
@@ -1752,7 +1769,7 @@ public class CvServiceImpl implements CvService {
                     if (cv.getResumeName() != null) {
                         cvBodyDto1.setResumeName(cv.getResumeName());
                     }
-                    String updatedCvBody = objectMapper.writeValueAsString(cvBodyDto);
+                    String updatedCvBody = objectMapper1.writeValueAsString(cvBodyDto1);
 
                     cv.setCvBody(updatedCvBody);
                     cvRepository.save(cv);
@@ -1947,7 +1964,7 @@ public class CvServiceImpl implements CvService {
                 if (cv.getResumeName() != null) {
                     cvBodyDto1.setResumeName(cv.getResumeName());
                 }
-                String updatedCvBody = objectMapper.writeValueAsString(cvBodyDto);
+                String updatedCvBody = objectMapper1.writeValueAsString(cvBodyDto1);
 
                 cv.setCvBody(updatedCvBody);
                 cvRepository.save(cv);
