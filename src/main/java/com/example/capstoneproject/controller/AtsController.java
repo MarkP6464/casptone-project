@@ -21,7 +21,7 @@ public class AtsController {
     }
 
     @DeleteMapping("/{ats-id}")
-    @PreAuthorize("hasAuthority('delete:candidate')")
+//    @PreAuthorize("hasAuthority('delete:candidate')")
     public ResponseEntity<?> deleteAts(@PathVariable("ats-id") Integer atsId) {
         if (atsService.deleteAts(atsId)) {
             return ResponseEntity.ok("Delete success");
