@@ -1742,6 +1742,25 @@ public class CvServiceImpl implements CvService {
                     throw new RuntimeException(e);
                 }
             });
+
+            //update resume cv
+            if(cv.getResumeName()!=null){
+                try {
+                    ObjectMapper objectMapper1 = new ObjectMapper();
+                    CvBodyDto cvBodyDto1 = objectMapper1.readValue(cv.getCvBody(), CvBodyDto.class);
+
+                    if (cv.getResumeName() != null) {
+                        cvBodyDto1.setResumeName(cv.getResumeName());
+                    }
+                    String updatedCvBody = objectMapper.writeValueAsString(cvBodyDto);
+
+                    cv.setCvBody(updatedCvBody);
+                    cvRepository.save(cv);
+                } catch (Exception e) {
+                    // Xử lý exception nếu có
+                    e.printStackTrace();
+                }
+            }
             return true;
 
         } else {
@@ -1918,6 +1937,26 @@ public class CvServiceImpl implements CvService {
                 }
             }
         });
+
+        //update resume cv
+        if(cv.getResumeName()!=null){
+            try {
+                ObjectMapper objectMapper1 = new ObjectMapper();
+                CvBodyDto cvBodyDto1 = objectMapper1.readValue(cv.getCvBody(), CvBodyDto.class);
+
+                if (cv.getResumeName() != null) {
+                    cvBodyDto1.setResumeName(cv.getResumeName());
+                }
+                String updatedCvBody = objectMapper.writeValueAsString(cvBodyDto);
+
+                cv.setCvBody(updatedCvBody);
+                cvRepository.save(cv);
+            } catch (Exception e) {
+                // Xử lý exception nếu có
+                e.printStackTrace();
+            }
+        }
+
         return true;
     }
 

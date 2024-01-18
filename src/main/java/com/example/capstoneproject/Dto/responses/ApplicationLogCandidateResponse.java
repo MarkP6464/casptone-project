@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.HashMap;
 
@@ -15,7 +16,7 @@ import java.util.HashMap;
 public class ApplicationLogCandidateResponse {
     String candidateName;
     String company;
-    LocalDate applyDate;
+    Timestamp applyDate;
     String note;
     ApplicationLogStatus status;
     JobPostingNameViewDto jobPosting;

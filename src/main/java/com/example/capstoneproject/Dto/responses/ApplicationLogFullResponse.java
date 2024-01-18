@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.HashMap;
 
@@ -14,7 +15,7 @@ import java.util.HashMap;
 @Setter
 public class ApplicationLogFullResponse {
     String candidateName;
-    LocalDate applyDate;
+    Timestamp applyDate;
     String note;
     String email;
     ApplicationLogStatus status;

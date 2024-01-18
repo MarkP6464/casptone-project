@@ -29,7 +29,7 @@ public interface ReviewResponseRepository extends JpaRepository<ReviewResponse, 
     Optional<ReviewResponse> findByIdAndStatus(Integer responseId, StatusReview status);
 
     @Query("SELECT COUNT(rr) FROM ReviewResponse rr " +
-            "WHERE rr.comment IS NULL AND rr.status = :statusDone AND rr.reviewRequest.expertId = :expertId")
+            "WHERE rr.comment IS NOT NULL AND rr.status = :statusDone AND rr.reviewRequest.expertId = :expertId")
     long countNullCommentsByStatusAndExpertId(@Param("statusDone") StatusReview status,
                                               @Param("expertId") Integer expertId);
 

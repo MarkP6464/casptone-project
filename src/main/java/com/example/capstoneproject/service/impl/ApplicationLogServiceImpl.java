@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             applicationLog.setCoverLetter(historyCoverLetter);
         }
         applicationLog.setNote(dto.getNote());
-        applicationLog.setTimestamp(LocalDate.now());
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        applicationLog.setTimestamp(currentTimestamp);
 
         if (jobPostingOptional.isPresent()) {
             JobPosting jobPosting = jobPostingOptional.get();
@@ -104,7 +106,8 @@ public class ApplicationLogServiceImpl implements ApplicationLogService {
             applicationLog.setJobPosting(jobPosting);
             if (!applicationLogs.isEmpty()) {
                 ApplicationLog applicationLogCheck = applicationLogs.get(0);
-                LocalDate countDate = applicationLogCheck.getTimestamp();
+                Timestamp timestamp = applicationLogCheck.getTimestamp();
+                LocalDate countDate = timestamp.toLocalDateTime().toLocalDate();
                 Integer condition = jobPosting.getApplyAgain();
                 LocalDate resultDate = countDate.plusDays(condition);
                 if (resultDate.isBefore(currentDate) || resultDate.isEqual(currentDate)) {

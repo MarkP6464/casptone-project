@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @NoArgsConstructor
@@ -20,7 +21,7 @@ public class ApplicationLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private LocalDate timestamp;
+    private Timestamp timestamp;
 
     @Column(columnDefinition = "TEXT")
     private String Note;
