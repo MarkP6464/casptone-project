@@ -185,7 +185,7 @@ public class CvServiceImpl implements CvService {
     @Override
     public CvBodyDto finishUp(int cvId) throws JsonProcessingException {
         Cv cv = cvRepository.findById(cvId).get();
-        if(cv.getResumeName()!=null){
+        if (cv.getResumeName() != null) {
             try {
                 ObjectMapper objectMapper1 = new ObjectMapper();
                 CvBodyDto cvBodyDto1 = objectMapper1.readValue(cv.getCvBody(), CvBodyDto.class);
@@ -1761,7 +1761,7 @@ public class CvServiceImpl implements CvService {
             });
 
             //update resume cv
-            if(cv.getResumeName()!=null){
+            if (cv.getResumeName() != null) {
                 try {
                     ObjectMapper objectMapper1 = new ObjectMapper();
                     CvBodyDto cvBodyDto1 = objectMapper1.readValue(cv.getCvBody(), CvBodyDto.class);
@@ -1956,7 +1956,7 @@ public class CvServiceImpl implements CvService {
         });
 
         //update resume cv
-        if(cv.getResumeName()!=null){
+        if (cv.getResumeName() != null) {
             try {
                 ObjectMapper objectMapper1 = new ObjectMapper();
                 CvBodyDto cvBodyDto1 = objectMapper1.readValue(cv.getCvBody(), CvBodyDto.class);
@@ -1985,9 +1985,10 @@ public class CvServiceImpl implements CvService {
         if (Objects.isNull(session.getAttribute("debouncer"))) {
             debouncer = new Debouncer();
             session.setAttribute("debouncer", debouncer);
-            System.out.println("Created new debounce");
+            System.out.println("Created new debounce: " + debouncer);
         } else {
             debouncer = (Debouncer) session.getAttribute("debouncer");
+            System.out.println("The old debounce: " + debouncer);
         }
         Runnable myFunction = () -> {
             try {
@@ -2001,7 +2002,7 @@ public class CvServiceImpl implements CvService {
             }
         };
         // This will execute the function after 1000 milliseconds (1 second) of the last invocation.
-        debouncer.debounce(session, myFunction, 300000);
+        debouncer.debounce(session, myFunction, 15000);
     }
 
     @Override

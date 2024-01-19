@@ -206,41 +206,44 @@ public class CvRelationController {
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
     @PreAuthorize("hasAnyAuthority('update:candidate','update:expert')")
-    public ResponseEntity<?> update(HttpServletRequest request, @PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
-        Cv cv = cvService.getCvById(cvId);
+    public String update(HttpServletRequest request, @PathVariable("cvId") int cvId, @PathVariable("id") int id, @PathVariable("theRelation") String theRelation, @RequestBody Object obj) throws Exception {
         switch (theRelation) {
             case "educations":
                 EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
-                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
-                return ResponseEntity.ok(educationService.updateInCvBody(cvId, id, educationDto));
+                educationService.updateInCvBody(cvId, id, educationDto);
+                break;
             case "skills":
                 SkillDto skillDto = objectMapper.convertValue(obj, SkillDto.class);
-                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
-                return ResponseEntity.ok(skillService.updateInCvBody(cvId, id, skillDto));
+                skillService.updateInCvBody(cvId, id, skillDto);
+                break;
             case "experiences":
                 ExperienceDto experienceDto = objectMapper.convertValue(obj, ExperienceDto.class);
-                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
-                return ResponseEntity.ok(experienceService.updateInCvBody(cvId, id, experienceDto));
+                experienceService.updateInCvBody(cvId, id, experienceDto);
+                break;
             case "involvements":
                 InvolvementDto involvementDto = objectMapper.convertValue(obj, InvolvementDto.class);
-                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
-                return ResponseEntity.ok(involvementService.updateInCvBody(cvId, id, involvementDto));
+                involvementService.updateInCvBody(cvId, id, involvementDto);
+                break;
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
-                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
-                return ResponseEntity.ok(projectService.updateInCvBody(cvId, id, projectDto));
+                projectService.updateInCvBody(cvId, id, projectDto);
+                break;
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
-                cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
-                return ResponseEntity.ok(certificationService.updateInCvBody(cvId, id, certificationDto));
+                certificationService.updateInCvBody(cvId, id, certificationDto);
+                break;
             default:
                 throw new Exception("Invalid request!!");
         }
+        Cv cv = cvService.getCvById(cvId);
+        cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
+        return "Update successfull";
     }
 
     @DeleteMapping("/{cvId}/{theRelation}/{id}")
     @PreAuthorize("hasAnyAuthority('delete:candidate','delete:expert')")
-    public String deleteARelation(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
+    public String deleteARelation(HttpServletRequest request, @PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @PathVariable("id") int id) throws Exception {
+
         switch (theRelation) {
             case "educations":
                 educationService.deleteInCvBody(cvId, id);
@@ -263,6 +266,8 @@ public class CvRelationController {
             default:
                 throw new Exception("Invalid request!!");
         }
+        Cv cv = cvService.getCvById(cvId);
+        cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
         return "Delete successful";
     }
 
