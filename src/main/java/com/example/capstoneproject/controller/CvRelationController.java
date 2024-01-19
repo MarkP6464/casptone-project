@@ -178,30 +178,39 @@ public class CvRelationController {
 
     @PostMapping(value = "/{cvId}/{theRelation}", consumes = "application/json")
     @PreAuthorize("hasAnyAuthority('create:candidate','create:candidate')")
-    public ResponseEntity<?> post(@PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @Valid @RequestBody Object obj) throws Exception {
+    public String post(HttpServletRequest request, @PathVariable("cvId") int cvId, @PathVariable("theRelation") String theRelation, @Valid @RequestBody Object obj) throws Exception {
 
         switch (theRelation) {
             case "educations":
                 EducationDto educationDto = objectMapper.convertValue(obj, EducationDto.class);
-                return ResponseEntity.ok(educationService.createOfUserInCvBody(cvId, educationDto));
+                educationService.createOfUserInCvBody(cvId, educationDto);
+                break;
             case "skills":
                 SkillDto skillDto = objectMapper.convertValue(obj, SkillDto.class);
-                return ResponseEntity.ok(skillService.createOfUserInCvBody(cvId, skillDto));
+                skillService.createOfUserInCvBody(cvId, skillDto);
+                break;
             case "experiences":
                 ExperienceDto experienceDto = objectMapper.convertValue(obj, ExperienceDto.class);
-                return ResponseEntity.ok(experienceService.createOfUserInCvBody(cvId, experienceDto));
+                experienceService.createOfUserInCvBody(cvId, experienceDto);
+                break;
             case "involvements":
                 InvolvementDto involvementDto = objectMapper.convertValue(obj, InvolvementDto.class);
-                return ResponseEntity.ok(involvementService.createOfUserInCvBody(cvId, involvementDto));
+                involvementService.createOfUserInCvBody(cvId, involvementDto);
+                break;
             case "projects":
                 ProjectDto projectDto = objectMapper.convertValue(obj, ProjectDto.class);
-                return ResponseEntity.ok(projectService.createOfUserInCvBody(cvId, projectDto));
+                projectService.createOfUserInCvBody(cvId, projectDto);
+                break;
             case "certifications":
                 CertificationDto certificationDto = objectMapper.convertValue(obj, CertificationDto.class);
-                return ResponseEntity.ok(certificationService.createOfUserInCvBody(cvId, certificationDto));
+                certificationService.createOfUserInCvBody(cvId, certificationDto);
+                break;
             default:
                 throw new Exception("Invalid request!!");
         }
+        Cv cv = cvService.getCvById(cvId);
+        cvService.saveAfterFiveMin(request, cvId, cv.deserialize());
+        return "Create successfull";
     }
 
     @PutMapping("/{cvId}/{theRelation}/{id}")
