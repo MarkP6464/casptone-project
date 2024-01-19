@@ -2002,7 +2002,7 @@ public class CvServiceImpl implements CvService {
             }
         };
         // This will execute the function after 1000 milliseconds (1 second) of the last invocation.
-        debouncer.debounce(session, myFunction, 15000);
+        debouncer.debounce(session, myFunction, 180000);
     }
 
     @Override
