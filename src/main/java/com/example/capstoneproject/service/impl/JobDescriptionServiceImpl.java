@@ -97,16 +97,22 @@ public class JobDescriptionServiceImpl extends AbstractBaseService<JobDescriptio
     @Override
     public JobDescriptionViewDto getJobDescription(Integer cvId) throws JsonProcessingException {
         Optional<Cv> cvOptional = cvRepository.findById(cvId);
+        JobDescriptionViewDto jobDescriptionViewDto = new JobDescriptionViewDto();
         if(cvOptional.isPresent()){
             Cv cv = cvOptional.get();
-            Integer c = cv.getJobDescription().getId();
-            Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(cv.getJobDescription().getId());
-            JobDescriptionViewDto jobDescriptionViewDto = new JobDescriptionViewDto();
-            if(jobDescription.isPresent()){
-                jobDescriptionViewDto.setTitle(jobDescription.get().getTitle());
-                jobDescriptionViewDto.setDescription(jobDescription.get().getDescription());
-                List<AtsDto> atsList = evaluateService.getAts(cvId,jobDescription.get().getId());
-                jobDescriptionViewDto.setAts(atsList);
+            if(cv.getJobDescription()==null){
+                JobDescription jobDescription = new JobDescription();
+                JobDescription saved = jobDescriptionRepository.save(jobDescription);
+                cv.setJobDescription(saved);
+                cvRepository.save(cv);
+            }else {
+                Optional<JobDescription> jobDescription = jobDescriptionRepository.findById(cv.getJobDescription().getId());
+                if(jobDescription.isPresent()){
+                    jobDescriptionViewDto.setTitle(jobDescription.get().getTitle());
+                    jobDescriptionViewDto.setDescription(jobDescription.get().getDescription());
+                    List<AtsDto> atsList = evaluateService.getAts(cvId,jobDescription.get().getId());
+                    jobDescriptionViewDto.setAts(atsList);
+                }
             }
             return jobDescriptionViewDto;
         }else {
